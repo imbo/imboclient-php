@@ -23,52 +23,59 @@
  * IN THE SOFTWARE.
  *
  * @package ImboClient
- * @subpackage Unittests
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011, Christer Edvartsen
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
+
+namespace ImboClient;
 
 /**
+ * Autoloader used by ImboClient
+ *
  * @package ImboClient
- * @subpackage Unittests
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011, Christer Edvartsen
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
+class Autoload {
+    /**
+     * ImboClient classes
+     *
+     * @var array
+     */
+    static public $classes = array(
+        'imboclient\\autoload' => '/Autoload.php',
+        'imboclient\\client' => '/Client.php',
+        'imboclient\\client\\driver\\curl' => '/Client/Driver/Curl.php',
+        'imboclient\\client\\driver\\driverinterface' => '/Client/Driver/DriverInterface.php',
+        'imboclient\\client\\driver\\exception' => '/Client/Driver/Exception.php',
+        'imboclient\\client\\response' => '/Client/Response.php',
+        'imboclient\\exception' => '/Exception.php'
+    );
 
-/** @see ImboClient\Autoload */
-require __DIR__ . '/../library/ImboClient/Autoload.php';
+    /**
+     * Load a class
+     *
+     * @param string $class The name of the class to load
+     */
+    static public function load($class) {
+        $className = strtolower($class);
 
-$loader = new ImboClient\Autoload();
-$loader->register();
-
-set_include_path(
-    get_include_path() . PATH_SEPARATOR .
-    __DIR__
-);
-
-// Autoloader for namespaced classes in the include_path
-spl_autoload_register(function($className) {
-    $filename = str_replace('\\', '/', $className) . '.php';
-
-    foreach (explode(PATH_SEPARATOR, get_include_path()) as $path) {
-        $absPath = rtrim($path, '/') . '/' . $filename;
-
-        if (is_file($absPath)) {
-            require $absPath;
-            return true;
+        if (isset(static::$classes[$className])) {
+            require __DIR__ . static::$classes[$className];
         }
     }
-});
 
-/** \Mockery\Loader */
-require_once 'Mockery/Loader.php';
-
-/** Hamcrest */
-require_once 'Hamcrest/hamcrest.php';
-
-$loader = new \Mockery\Loader();
-$loader->register();
+    /**
+     * Registers this instance as an autoloader
+     *
+     * @codeCoverageIgnore
+     */
+    public function register() {
+        // Register the autoloader
+        spl_autoload_register(array($this, 'load'));
+    }
+}

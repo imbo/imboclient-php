@@ -31,44 +31,31 @@
  */
 
 /**
- * @package ImboClient
- * @subpackage Unittests
- * @author Christer Edvartsen <cogo@starzinger.net>
- * @copyright Copyright (c) 2011, Christer Edvartsen
- * @license http://www.opensource.org/licenses/mit-license MIT License
- * @link https://github.com/christeredvartsen/imboclient-php
+ * This script is a part of ImboClient' test suite. The client drivers use this script when doing
+ * actual HTTP requests.
  */
 
-/** @see ImboClient\Autoload */
-require __DIR__ . '/../library/ImboClient/Autoload.php';
+// Sleep some some seconds if specified (to test timeouts)
+if (isset($_REQUEST['sleep'])) {
+    sleep($_REQUEST['sleep']);
+}
 
-$loader = new ImboClient\Autoload();
-$loader->register();
-
-set_include_path(
-    get_include_path() . PATH_SEPARATOR .
-    __DIR__
+// Initialize return data
+$data = array(
+    'method' => $_SERVER['REQUEST_METHOD'],
 );
 
-// Autoloader for namespaced classes in the include_path
-spl_autoload_register(function($className) {
-    $filename = str_replace('\\', '/', $className) . '.php';
+switch ($data['method']) {
+    case 'PUT':
+        // Fetch image data from input
+        $imageBlob = file_get_contents('php://input');
+        $data['md5'] = md5($imageBlob);
+    case 'POST':
+        $data['data'] = $_POST;
+        break;
+    case 'GET':
+        $data['data'] = $_GET;
+        break;
+}
 
-    foreach (explode(PATH_SEPARATOR, get_include_path()) as $path) {
-        $absPath = rtrim($path, '/') . '/' . $filename;
-
-        if (is_file($absPath)) {
-            require $absPath;
-            return true;
-        }
-    }
-});
-
-/** \Mockery\Loader */
-require_once 'Mockery/Loader.php';
-
-/** Hamcrest */
-require_once 'Hamcrest/hamcrest.php';
-
-$loader = new \Mockery\Loader();
-$loader->register();
+print(serialize($data));

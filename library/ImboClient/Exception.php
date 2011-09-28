@@ -23,52 +23,25 @@
  * IN THE SOFTWARE.
  *
  * @package ImboClient
- * @subpackage Unittests
+ * @subpackage Exceptions
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011, Christer Edvartsen
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
+
+namespace ImboClient;
 
 /**
+ * Base exception class for the client
+ *
  * @package ImboClient
- * @subpackage Unittests
+ * @subpackage Exceptions
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011, Christer Edvartsen
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
+class Exception extends \RuntimeException {
 
-/** @see ImboClient\Autoload */
-require __DIR__ . '/../library/ImboClient/Autoload.php';
-
-$loader = new ImboClient\Autoload();
-$loader->register();
-
-set_include_path(
-    get_include_path() . PATH_SEPARATOR .
-    __DIR__
-);
-
-// Autoloader for namespaced classes in the include_path
-spl_autoload_register(function($className) {
-    $filename = str_replace('\\', '/', $className) . '.php';
-
-    foreach (explode(PATH_SEPARATOR, get_include_path()) as $path) {
-        $absPath = rtrim($path, '/') . '/' . $filename;
-
-        if (is_file($absPath)) {
-            require $absPath;
-            return true;
-        }
-    }
-});
-
-/** \Mockery\Loader */
-require_once 'Mockery/Loader.php';
-
-/** Hamcrest */
-require_once 'Hamcrest/hamcrest.php';
-
-$loader = new \Mockery\Loader();
-$loader->register();
+}
