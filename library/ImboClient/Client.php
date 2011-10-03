@@ -177,7 +177,7 @@ class Client {
     public function imageExists($path) {
         $imageIdentifier = $this->getImageIdentifier($path);
 
-        $url = $this->getSignedResourceUrl(DriverInterface::HEAD, $imageIdentifier);
+        $url = $this->getResourceUrl($imageIdentifier);
 
         $response = $this->driver->head($url);
 
