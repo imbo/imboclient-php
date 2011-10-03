@@ -107,7 +107,7 @@ class Client {
      *                                   "<md5>.png/meta"
      * @return string
      */
-    public function getResourceUrl($resourceIdentifier) {
+    private function getResourceUrl($resourceIdentifier) {
         return $this->serverUrl . '/' . $this->publicKey . '/' . $resourceIdentifier;
     }
 
@@ -118,7 +118,7 @@ class Client {
      * @return string
      * @throws ImboClient\Client\Exception
      */
-    public function getImageIdentifier($path) {
+    private function getImageIdentifier($path) {
         if (!is_file($path)) {
             throw new Exception('File does not exist: ' . $path);
         }
@@ -180,6 +180,7 @@ class Client {
         $url = $this->getSignedResourceUrl(DriverInterface::HEAD, $imageIdentifier);
 
         $response = $this->driver->head($url);
+
         return $response->getStatusCode() == 200;
     }
 
