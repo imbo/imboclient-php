@@ -32,8 +32,6 @@
 
 namespace ImboClient;
 
-use Mockery as m;
-
 /**
  * @package ImboClient
  * @subpackage Unittests
@@ -79,14 +77,14 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     private $imageIdentifier;
 
     /**
-     * Pattern used in the Mockery matchers when url is signed
+     * Pattern used in the mock matchers when url is signed
      *
      * @var string
      */
     private $signedUrlPattern = '|^http://host/[a-f0-9]{32}/[a-f0-9]{32}\.png(/meta)?\?signature=(.*?)&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\dZ$|';
 
     /**
-     * Pattern used in the Mockery matchers with regular urls
+     * Pattern used in the mock matchers with regular urls
      *
      * @var string
      */
@@ -99,7 +97,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->publicKey = md5(microtime());
         $this->privateKey = md5(microtime());
         $this->imageIdentifier = md5(microtime()) . '.png';
-        $this->driver = m::mock('ImboClient\Client\Driver\DriverInterface');
+        $this->driver = $this->getMock('ImboClient\Client\Driver\DriverInterface');
 
         $this->client = new Client($this->serverUrl, $this->publicKey, $this->privateKey, $this->driver);
     }
@@ -127,11 +125,11 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
             'filename' => 'image.png',
         );
 
-        $response = m::mock('ImboClient\Client\Response');
-        $response->shouldReceive('isSuccess')->once()->andReturn(true);
+        $response = $this->getMock('ImboClient\Client\Response');
+        $response->expects($this->once())->method('isSuccess')->will($this->returnValue(true));
 
-        $this->driver->shouldReceive('put')->once()->with($this->signedUrlPattern, $imagePath)->andReturn($response);
-        $this->driver->shouldReceive('post')->once()->with($this->signedUrlPattern, $metadata)->andReturn($response);
+        $this->driver->expects($this->once())->method('put')->with($this->matchesRegularExpression($this->signedUrlPattern), $imagePath)->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('post')->with($this->matchesRegularExpression($this->signedUrlPattern), $metadata)->will($this->returnValue($response));
 
         $result = $this->client->addImage($imagePath, $metadata);
 
@@ -141,11 +139,11 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     public function testAddImageWithNoMetadata() {
         $imagePath = __DIR__ . '/_files/image.png';
 
-        $response = m::mock('ImboClient\Client\Response');
-        $response->shouldReceive('isSuccess')->once()->andReturn(true);
+        $response = $this->getMock('ImboClient\Client\Response');
+        $response->expects($this->once())->method('isSuccess')->will($this->returnValue(true));
 
-        $this->driver->shouldReceive('put')->once()->with($this->signedUrlPattern, $imagePath)->andReturn($response);
-        $this->driver->shouldReceive('post')->once()->with($this->signedUrlPattern, array('filename' => 'image.png'))->andReturn($response);
+        $this->driver->expects($this->once())->method('put')->with($this->matchesRegularExpression($this->signedUrlPattern), $imagePath)->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('post')->with($this->matchesRegularExpression($this->signedUrlPattern), array('filename' => 'image.png'))->will($this->returnValue($response));
 
         $result = $this->client->addImage($imagePath);
 
@@ -153,38 +151,38 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testDeleteImage() {
-        $response = m::mock('ImboClient\Client\Response');
-        $this->driver->shouldReceive('delete')->once()->with($this->signedUrlPattern)->andReturn($response);
+        $response = $this->getMock('ImboClient\Client\Response');
+        $this->driver->expects($this->once())->method('delete')->with($this->matchesRegularExpression($this->signedUrlPattern))->will($this->returnValue($response));
 
         $result = $this->client->deleteImage($this->imageIdentifier);
 
         $this->assertSame($result, $response);
     }
 
-    public function testEditMetaData() {
+    public function testEditMetadata() {
         $data = array(
             'foo' => 'bar',
             'bar' => 'foo',
         );
 
-        $response = m::mock('ImboClient\Client\Response');
-        $this->driver->shouldReceive('post')->once()->with($this->signedUrlPattern, $data)->andReturn($response);
-        $result = $this->client->editMetaData($this->imageIdentifier, $data);
+        $response = $this->getMock('ImboClient\Client\Response');
+        $this->driver->expects($this->once())->method('post')->with($this->matchesRegularExpression($this->signedUrlPattern), $data)->will($this->returnValue($response));
+        $result = $this->client->editMetadata($this->imageIdentifier, $data);
 
         $this->assertSame($result, $response);
     }
 
-    public function testDeleteMetaData() {
-        $response = m::mock('ImboClient\Client\Response');
-        $this->driver->shouldReceive('delete')->once()->with($this->signedUrlPattern)->andReturn($response);
-        $result = $this->client->deleteMetaData($this->imageIdentifier);
+    public function testDeleteMetadata() {
+        $response = $this->getMock('ImboClient\Client\Response');
+        $this->driver->expects($this->once())->method('delete')->with($this->matchesRegularExpression($this->signedUrlPattern))->will($this->returnValue($response));
+        $result = $this->client->deleteMetadata($this->imageIdentifier);
 
         $this->assertSame($result, $response);
     }
 
-    public function testGetMetaData() {
-        $response = m::mock('ImboClient\Client\Response');
-        $this->driver->shouldReceive('get')->once()->with($this->urlPattern)->andReturn($response);
+    public function testGetMetadata() {
+        $response = $this->getMock('ImboClient\Client\Response');
+        $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern))->will($this->returnValue($response));
         $result = $this->client->getMetadata($this->imageIdentifier);
 
         $this->assertSame($result, $response);
