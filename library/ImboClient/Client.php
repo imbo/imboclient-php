@@ -169,6 +169,22 @@ class Client {
     }
 
     /**
+     * Checks if a given image exists on the server already
+     *
+     * @param string $path Path to the local image
+     * @return boolean
+     */
+    public function imageExists($path) {
+        $imageIdentifier = $this->getImageIdentifier($path);
+
+        $url = $this->getSignedResourceUrl(DriverInterface::HEAD, $imageIdentifier);
+
+        $response = $this->driver->head($url);
+
+        return $response->getStatusCode() == 200;
+    }
+
+    /**
      * Delete an image from the server
      *
      * @param string $imageIdentifier The image identifier
