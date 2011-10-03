@@ -107,7 +107,7 @@ class Client {
      *                                   "<md5>.png/meta"
      * @return string
      */
-    private function getResourceUrl($resourceIdentifier) {
+    public function getResourceUrl($resourceIdentifier) {
         return $this->serverUrl . '/' . $this->publicKey . '/' . $resourceIdentifier;
     }
 
