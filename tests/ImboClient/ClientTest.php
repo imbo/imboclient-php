@@ -187,4 +187,34 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertSame($result, $response);
     }
+
+    public function testImageExistsWhenRemoteImageDoesNotExist() {
+        $imagePath = __DIR__ . '/_files/image.png';
+        $response = $this->getMock('ImboClient\Client\Response');
+        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(404));
+
+        $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern))->will($this->returnValue($response));
+        $result = $this->client->imageExists($imagePath);
+
+        $this->assertFalse($result);
+    }
+
+    public function testImageExistsWhenRemoteImageExist() {
+        $imagePath = __DIR__ . '/_files/image.png';
+        $response = $this->getMock('ImboClient\Client\Response');
+        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
+
+        $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern))->will($this->returnValue($response));
+        $result = $this->client->imageExists($imagePath);
+
+        $this->assertTrue($result);
+    }
+
+    /**
+     * @expectedException ImboClient\Exception
+     * @expectedException Unknown image format of file
+     */
+    public function testAddImageWithUnknownFormat() {
+        $this->client->addImage(__FILE__);
+    }
 }
