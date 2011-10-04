@@ -81,14 +81,14 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      *
      * @var string
      */
-    private $signedUrlPattern = '|^http://host/[a-f0-9]{32}/[a-f0-9]{32}\.png(/meta)?\?signature=(.*?)&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\dZ$|';
+    private $signedUrlPattern = '|^http://host/[a-f0-9]{32}/[a-f0-9]{32}(/meta)?\?signature=(.*?)&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\dZ$|';
 
     /**
      * Pattern used in the mock matchers with regular urls
      *
      * @var string
      */
-    private $urlPattern = '|^http://host/[a-f0-9]{32}/[a-f0-9]{32}\.png(/meta)?$|';
+    private $urlPattern = '|^http://host/[a-f0-9]{32}/[a-f0-9]{32}(/meta)?$|';
 
     /**
      * Set up method
@@ -96,7 +96,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     public function setUp() {
         $this->publicKey = md5(microtime());
         $this->privateKey = md5(microtime());
-        $this->imageIdentifier = md5(microtime()) . '.png';
+        $this->imageIdentifier = md5(microtime());
         $this->driver = $this->getMock('ImboClient\Client\Driver\DriverInterface');
 
         $this->client = new Client($this->serverUrl, $this->publicKey, $this->privateKey, $this->driver);
@@ -208,13 +208,5 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $result = $this->client->imageExists($imagePath);
 
         $this->assertTrue($result);
-    }
-
-    /**
-     * @expectedException ImboClient\Exception
-     * @expectedException Unknown image format of file
-     */
-    public function testAddImageWithUnknownFormat() {
-        $this->client->addImage(__FILE__);
     }
 }
