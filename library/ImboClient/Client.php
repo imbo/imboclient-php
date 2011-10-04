@@ -112,10 +112,10 @@ class Client {
     }
 
     /**
-     * Generate an MD5 image identifier for a given file
+     * Generate an image identifier for a given file
      *
      * @param string $path Path to the local image
-     * @return string
+     * @return string The image identifier to use with the imbo server
      * @throws ImboClient\Client\Exception
      */
     private function getImageIdentifier($path) {
@@ -123,17 +123,7 @@ class Client {
             throw new Exception('File does not exist: ' . $path);
         }
 
-        // Get file extension
-        $info = getimagesize($path);
-
-        if (!$info) {
-            throw new Exception('Unknown image format of file: ' . $path);
-        }
-
-        $extension = image_type_to_extension($info[2], false);
-
-        // Generate MD5 sum of the file
-        return md5_file($path) . '.' . $extension;
+        return md5_file($path);
     }
 
     /**
