@@ -32,6 +32,7 @@
 namespace ImboClient\Http\Response;
 
 use ImboClient\Http\HeaderContainerInterface;
+use ImboClient\Http\HeaderContainer;
 
 /**
  * Client response
@@ -152,50 +153,4 @@ class Response {
     public function __toString() {
         return $this->getBody();
     }
-
-    /**
-     * Create a new instance of this object (based on the $content)
-     *
-     * @param string $content Content from a curl_exec() call (including the headers)
-     * @param int $responseCode The responsecode. If not set the factory will try to figure out the
-     *                          code based on the header part of the $content.
-     * @return ImboClient\Client\Response
-     */
-    static public function factory($content, $responseCode = null) {
-        // Remove \r from the string
-        $content = str_replace("\r", '', $content);
-
-        // Separate headers and body
-        list($headers, $body) = explode("\n\n", $content, 2);
-
-        // Create an array of the headers
-        $headers = explode("\n", $headers);
-
-        // Remove the first element
-        $protocol = array_shift($headers);
-
-        // Seperate into an associative array
-        $associativeHeaders = array();
-        foreach ($headers as $header) {
-            list($key, $value) = explode(': ', $header, 2);
-            $associativeHeaders[$key] = $value;
-        };
-
-        if ($responseCode === null) {
-            $responseCode = 200;
-
-            if (preg_match('|^HTTP/\d.\d ([\d]{3}) .*$|', $protocol, $matches)) {
-                $responseCode = (int) $matches[1];
-            }
-        }
-
-        // Build the response object
-        $response = new static();
-        $response->setBody($body)
-                 ->setStatusCode($responseCode)
-                 ->setHeaders($associativeHeaders);
-
-        return $response;
-    }
-
 }
