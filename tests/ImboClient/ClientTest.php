@@ -117,46 +117,17 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->client->addImage('foobar');
     }
 
-    public function testAddImageWithMetadata() {
+    public function testAddImage() {
         $imagePath = __DIR__ . '/_files/image.png';
-        $metadata = array(
-            'foo' => 'bar',
-            'bar' => 'foo',
-            'filename' => 'image.png',
-        );
-
-        $response = $this->getMock('ImboClient\Client\Response');
-        $response->expects($this->once())->method('isSuccess')->will($this->returnValue(true));
-
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $this->driver->expects($this->once())->method('put')->with($this->matchesRegularExpression($this->signedUrlPattern), $imagePath)->will($this->returnValue($response));
-        $this->driver->expects($this->once())->method('post')->with($this->matchesRegularExpression($this->signedUrlPattern), $metadata)->will($this->returnValue($response));
-
-        $result = $this->client->addImage($imagePath, $metadata);
-
-        $this->assertSame($result, $response);
-    }
-
-    public function testAddImageWithNoMetadata() {
-        $imagePath = __DIR__ . '/_files/image.png';
-
-        $response = $this->getMock('ImboClient\Client\Response');
-        $response->expects($this->once())->method('isSuccess')->will($this->returnValue(true));
-
-        $this->driver->expects($this->once())->method('put')->with($this->matchesRegularExpression($this->signedUrlPattern), $imagePath)->will($this->returnValue($response));
-        $this->driver->expects($this->once())->method('post')->with($this->matchesRegularExpression($this->signedUrlPattern), array('filename' => 'image.png'))->will($this->returnValue($response));
-
-        $result = $this->client->addImage($imagePath);
-
-        $this->assertSame($result, $response);
+        $this->assertSame($response, $this->client->addImage($imagePath));
     }
 
     public function testDeleteImage() {
-        $response = $this->getMock('ImboClient\Client\Response');
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $this->driver->expects($this->once())->method('delete')->with($this->matchesRegularExpression($this->signedUrlPattern))->will($this->returnValue($response));
-
-        $result = $this->client->deleteImage($this->imageIdentifier);
-
-        $this->assertSame($result, $response);
+        $this->assertSame($response, $this->client->deleteImage($this->imageIdentifier));
     }
 
     public function testEditMetadata() {
@@ -165,48 +136,40 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
             'bar' => 'foo',
         );
 
-        $response = $this->getMock('ImboClient\Client\Response');
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $this->driver->expects($this->once())->method('post')->with($this->matchesRegularExpression($this->signedUrlPattern), $data)->will($this->returnValue($response));
-        $result = $this->client->editMetadata($this->imageIdentifier, $data);
-
-        $this->assertSame($result, $response);
+        $this->assertSame($response, $this->client->editMetadata($this->imageIdentifier, $data));
     }
 
     public function testDeleteMetadata() {
-        $response = $this->getMock('ImboClient\Client\Response');
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $this->driver->expects($this->once())->method('delete')->with($this->matchesRegularExpression($this->signedUrlPattern))->will($this->returnValue($response));
-        $result = $this->client->deleteMetadata($this->imageIdentifier);
-
-        $this->assertSame($result, $response);
+        $this->assertSame($response, $this->client->deleteMetadata($this->imageIdentifier));
     }
 
     public function testGetMetadata() {
-        $response = $this->getMock('ImboClient\Client\Response');
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern))->will($this->returnValue($response));
-        $result = $this->client->getMetadata($this->imageIdentifier);
-
-        $this->assertSame($result, $response);
+        $this->assertSame($response, $this->client->getMetadata($this->imageIdentifier));
     }
 
     public function testImageExistsWhenRemoteImageDoesNotExist() {
         $imagePath = __DIR__ . '/_files/image.png';
-        $response = $this->getMock('ImboClient\Client\Response');
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(404));
 
         $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern))->will($this->returnValue($response));
-        $result = $this->client->imageExists($imagePath);
 
-        $this->assertFalse($result);
+        $this->assertFalse($this->client->imageExists($imagePath));
     }
 
     public function testImageExistsWhenRemoteImageExist() {
         $imagePath = __DIR__ . '/_files/image.png';
-        $response = $this->getMock('ImboClient\Client\Response');
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
 
         $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern))->will($this->returnValue($response));
-        $result = $this->client->imageExists($imagePath);
 
-        $this->assertTrue($result);
+        $this->assertTrue($this->client->imageExists($imagePath));
     }
 }
