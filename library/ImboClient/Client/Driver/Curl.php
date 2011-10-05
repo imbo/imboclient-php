@@ -32,7 +32,8 @@
 
 namespace ImboClient\Client\Driver;
 
-use ImboClient\Client\Response;
+use ImboClient\Http\Response\Response;
+use ImboClient\Http\HeaderContainer;
 
 /**
  * cURL client driver
@@ -176,7 +177,7 @@ class Curl implements DriverInterface {
      *
      * @param resource $handle A cURL handle
      * @param string $url The URL to request
-     * @return ImboClient\Client\Response
+     * @return ImboClient\Http\Response\ResponseInterface
      * @throws ImboClient\Client\Driver\Exception
      */
     protected function request($handle, $url) {
@@ -187,7 +188,7 @@ class Curl implements DriverInterface {
         $content = curl_exec($handle);
         $connectTime  = (int) curl_getinfo($handle, CURLINFO_CONNECT_TIME);
         $transferTime = (int) curl_getinfo($handle, CURLINFO_TOTAL_TIME);
-        $responseCode = (int) curl_getinfo($handle, CURLINFO_HTTP_CODE);
+        $statusCode = (int) curl_getinfo($handle, CURLINFO_HTTP_CODE);
 
         curl_close($handle);
 
@@ -198,10 +199,29 @@ class Curl implements DriverInterface {
                 throw new Exception('An error occured. Request timed out during transfer (limit: ' . $this->params['timeout'] . 's).');
             }
 
-            throw new Exception('An error occured. Could not complete request (Response code: ' . $responseCode . ').');
+            throw new Exception('An error occured. Could not complete request (Response code: ' . $statusCode . ').');
         }
 
-        $response = Response::factory($content, $responseCode);
+        $content = str_replace("\r", '', $content);
+        list($headers, $body) = explode("\n\n", $content, 2);
+        $headers = explode("\n", $headers);
+
+        // Remove the first element (status line)
+        $protocol = array_shift($headers);
+
+        // Create a container for the headers
+        $headerContainer = new HeaderContainer();
+
+        // Loop through the rest of the headers and store them in the container
+        foreach ($headers as $header) {
+            list($key, $value) = explode(': ', $header, 2);
+            $headerContainer->set($key, $value);
+        }
+
+        $response = new Response();
+        $response->setBody($body)
+                 ->setHeaders($headerContainer)
+                 ->setStatusCode($statusCode);
 
         return $response;
     }
