@@ -43,7 +43,7 @@ use ImboClient\Http\HeaderContainer;
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
-class Response {
+class Response implements ResponseInterface {
     /**
      * Response headers
      *
