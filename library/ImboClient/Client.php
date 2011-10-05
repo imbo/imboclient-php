@@ -34,7 +34,6 @@ namespace ImboClient;
 
 use ImboClient\Client\Driver\DriverInterface;
 use ImboClient\Client\Driver\Curl as DefaultDriver;
-use ImboClient\Image\TransformationChain;
 
 /**
  * Client that interacts with the server part of ImboClient
