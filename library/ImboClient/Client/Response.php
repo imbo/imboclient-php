@@ -139,6 +139,15 @@ class Response {
     }
 
     /**
+     * Returns the image identifier associated with the response
+     *
+     * @return string|boolean
+     */
+    public function getImageIdentifier() {
+        return isset($this->headers['X-Imbo-Image-Identifier']) ? $this->headers['X-Imbo-Image-Identifier'] : false;
+    }
+
+    /**
      * Magic to string method
      *
      * This magic method returns the body
@@ -170,6 +179,13 @@ class Response {
         // Remove the first element
         $protocol = array_shift($headers);
 
+        // Seperate into an associative array
+        $associativeHeaders = array();
+        foreach ($headers as $header) {
+            list($key, $value) = explode(': ', $header, 2);
+            $associativeHeaders[$key] = $value;
+        };
+
         if ($responseCode === null) {
             $responseCode = 200;
 
@@ -182,7 +198,7 @@ class Response {
         $response = new static();
         $response->setBody($body)
                  ->setStatusCode($responseCode)
-                 ->setHeaders($headers);
+                 ->setHeaders($associativeHeaders);
 
         return $response;
     }
