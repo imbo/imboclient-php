@@ -23,85 +23,64 @@
  * IN THE SOFTWARE.
  *
  * @package ImboClient
- * @subpackage Client
+ * @subpackage Interfaces
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011, Christer Edvartsen
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
 
-namespace ImboClient\Client\Driver;
+namespace ImboClient\Http;
 
 /**
- * Client driver interface
- *
- * This is an interface for different client drivers.
+ * Parameter container interface
  *
  * @package ImboClient
- * @subpackage Client
+ * @subpackage Interfaces
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011, Christer Edvartsen
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
-interface DriverInterface {
-    /**#@+
-     * HTTP methods
+interface HeaderContainerInterface {
+    /**
+     * Get all parameters as an associative array
      *
-     * @var string
+     * @return array
      */
-    const GET    = 'GET';
-    const POST   = 'POST';
-    const PUT    = 'PUT';
-    const HEAD   = 'HEAD';
-    const DELETE = 'DELETE';
-    /**#@-*/
+    function getAll();
 
     /**
-     * POST some data to an URL
+     * Set a parameter value
      *
-     * @param string $url The URL to POST to
-     * @param array $metadata The metadata to POST. This array will be json_encoded and sent to the
-     *                        server as $_POST['metadata']
-     * @return ImboClient\Http\Response\ResponseInterface
-     * @throws ImboClient\Client\Driver\Exception
+     * @param string $key The key to store the value to
+     * @param mixed $value The value itself
+     * @return ImboClient\Http\HeaderContainerInterface
      */
-    function post($url, array $metadata = null);
+    function set($key, $value);
 
     /**
-     * PUT a file to an URL
+     * Get a parameter value
      *
-     * @param string $url The URL to PUT to
-     * @param string $filePath Path to the local file
-     * @return ImboClient\Http\Response\ResponseInterface
-     * @throws ImboClient\Client\Driver\Exception
+     * @param string $key The key to fetch
+     * @param mixed $default If the key does not exist, return this value instead
+     * @return mixed
      */
-    function put($url, $filePath);
+    function get($key, $default = null);
 
     /**
-     * Perform a GET to $url
+     * Remove a single value from the parameter list
      *
-     * @param string $url The URL to GET
-     * @return ImboClient\Http\Response\ResponseInterface
-     * @throws ImboClient\Client\Driver\Exception
+     * @param string $key The key to remove
+     * @return ImboClient\Http\HeaderContainerInterface
      */
-    function get($url);
+    function remove($key);
 
     /**
-     * Perform a HEAD to $url
+     * See if the container has a given key
      *
-     * @param string $url The URL to HEAD
-     * @return ImboClient\Http\Response\ResponseInterface
-     * @throws ImboClient\Client\Driver\Exception
+     * @param string $key The key to check for
+     * @return boolean
      */
-    function head($url);
-
-    /**
-     * Perform a DELETE request to $url
-     *
-     * @param string $url The URL to DELETE
-     * @return ImboClient\Http\Response\ResponseInterface
-     * @throws ImboClient\Client\Driver\Exception
-     */
-    function delete($url);
+    function has($key);
 }

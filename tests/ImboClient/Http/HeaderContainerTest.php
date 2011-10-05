@@ -23,62 +23,51 @@
  * IN THE SOFTWARE.
  *
  * @package ImboClient
+ * @subpackage Unittests
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011, Christer Edvartsen
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
 
-namespace ImboClient;
+namespace ImboClient\Http;
 
 /**
- * Autoloader used by ImboClient
- *
  * @package ImboClient
+ * @subpackage Unittests
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011, Christer Edvartsen
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
-class Autoload {
-    /**
-     * ImboClient classes
-     *
-     * @var array
-     */
-    static public $classes = array(
-        'imboclient\\autoload' => '/Autoload.php',
-        'imboclient\\client' => '/Client.php',
-        'imboclient\\client\\driver\\curl' => '/Client/Driver/Curl.php',
-        'imboclient\\client\\driver\\driverinterface' => '/Client/Driver/DriverInterface.php',
-        'imboclient\\client\\driver\\exception' => '/Client/Driver/Exception.php',
-        'imboclient\\exception' => '/Exception.php',
-        'imboclient\\http\\headercontainer' => '/Http/HeaderContainer.php',
-        'imboclient\\http\\headercontainerinterface' => '/Http/HeaderContainerInterface.php',
-        'imboclient\\http\\response\\response' => '/Http/Response/Response.php',
-        'imboclient\\http\\response\\responseinterface' => '/Http/Response/ResponseInterface.php'
-    );
+class HeaderContainerTest extends \PHPUnit_Framework_TestCase {
+    public function testHeaderContainer() {
+        $parameters = array(
+            'key' => 'value',
+            'otherKey' => 'otherValue',
+            'content-length' => 123,
+            'CONTENT_LENGTH' => 234,
+            'content-type' => 'text/html',
+            'CONTENT_TYPE' => 'image/png',
+            'IF_NONE_MATCH' => 'asdf',
+        );
 
-    /**
-     * Load a class
-     *
-     * @param string $class The name of the class to load
-     */
-    static public function load($class) {
-        $className = strtolower($class);
+        $container = new HeaderContainer($parameters);
+        $this->assertSame('value', $container->get('key'));
+        $this->assertSame(234, $container->get('CONTENT_LENGTH'));
+        $this->assertSame(234, $container->get('content-length'));
+        $this->assertSame('asdf', $container->get('if-none-match'));
+        $container->remove('if-none-match');
+        $this->assertFalse($container->has('if-none-match'));
+        $container->set('IF_NONE_MATCH', 'asd');
+        $this->assertSame('asd', $container->get('if-none-match'));
 
-        if (isset(static::$classes[$className])) {
-            require __DIR__ . static::$classes[$className];
-        }
-    }
-
-    /**
-     * Registers this instance as an autoloader
-     *
-     * @codeCoverageIgnore
-     */
-    public function register() {
-        // Register the autoloader
-        spl_autoload_register(array($this, 'load'));
+        $this->assertSame(array(
+            'key' => 'value',
+            'otherkey' => 'otherValue',
+            'content-length' => 234,
+            'content-type' => 'image/png',
+            'if-none-match' => 'asd',
+        ), $container->getAll());
     }
 }

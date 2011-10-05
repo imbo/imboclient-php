@@ -34,7 +34,6 @@ namespace ImboClient;
 
 use ImboClient\Client\Driver\DriverInterface;
 use ImboClient\Client\Driver\Curl as DefaultDriver;
-use ImboClient\Image\TransformationChain;
 
 /**
  * Client that interacts with the server part of ImboClient
@@ -129,33 +128,15 @@ class Client {
     /**
      * Add a new image to the server
      *
-     * This method will first PUT the image on the server, and then POST the metadata if the PUT
-     * was successful.
-     *
      * @param string $path Path to the local image
-     * @param array $metadata Metadata to attach to the image
-     * @return ImboClient\Client\Response
+     * @return ImboClient\Http\Response\ResponseInterface
      */
-    public function addImage($path, array $metadata = null) {
+    public function addImage($path) {
         $imageIdentifier = $this->getImageIdentifier($path);
 
         $url = $this->getSignedResourceUrl(DriverInterface::PUT, $imageIdentifier);
 
-        // Add the image, and then POST metadata
-        $response = $this->driver->put($url, $path);
-
-        if ($response->isSuccess()) {
-            // Add metadata
-            if ($metadata === null) {
-                $metadata = array();
-            }
-
-            $metadata['filename'] = basename($path);
-
-            $response = $this->editMetadata($imageIdentifier, $metadata);
-        }
-
-        return $response;
+        return $this->driver->put($url, $path);
     }
 
     /**
@@ -171,14 +152,14 @@ class Client {
 
         $response = $this->driver->head($url);
 
-        return $response->getStatusCode() == 200;
+        return $response->getStatusCode() === 200;
     }
 
     /**
      * Delete an image from the server
      *
      * @param string $imageIdentifier The image identifier
-     * @return ImboClient\Client\Response
+     * @return ImboClient\Http\Response\ResponseInterface
      */
     public function deleteImage($imageIdentifier) {
         $url = $this->getSignedResourceUrl(DriverInterface::DELETE, $imageIdentifier);
@@ -187,11 +168,11 @@ class Client {
     }
 
     /**
-     * Edit an image
+     * Edit image metadata
      *
      * @param string $imageIdentifier The image identifier
      * @param array $metadata An array of metadata
-     * @return ImboClient\Client\Response
+     * @return ImboClient\Http\Response\ResponseInterface
      */
     public function editMetadata($imageIdentifier, array $metadata) {
         $url = $this->getSignedResourceUrl(DriverInterface::POST, $imageIdentifier . '/meta');
@@ -203,7 +184,7 @@ class Client {
      * Delete metadata
      *
      * @param string $imageIdentifier The image identifier
-     * @return ImboClient\Client\Response
+     * @return ImboClient\Http\Response\ResponseInterface
      */
     public function deleteMetadata($imageIdentifier) {
         $url = $this->getSignedResourceUrl(DriverInterface::DELETE, $imageIdentifier . '/meta');

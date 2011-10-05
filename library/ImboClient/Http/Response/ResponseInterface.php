@@ -23,85 +23,101 @@
  * IN THE SOFTWARE.
  *
  * @package ImboClient
- * @subpackage Client
+ * @subpackage Interfaces
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011, Christer Edvartsen
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
 
-namespace ImboClient\Client\Driver;
+namespace ImboClient\Http\Response;
+
+use ImboClient\Http\HeaderContainerInterface;
 
 /**
- * Client driver interface
- *
- * This is an interface for different client drivers.
+ * Client response interface
  *
  * @package ImboClient
- * @subpackage Client
+ * @subpackage Interfaces
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011, Christer Edvartsen
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
-interface DriverInterface {
-    /**#@+
-     * HTTP methods
+interface ResponseInterface {
+    /**
+     * Get the headers
      *
-     * @var string
+     * @return ImboClient\Http\HeaderContainerInterface
      */
-    const GET    = 'GET';
-    const POST   = 'POST';
-    const PUT    = 'PUT';
-    const HEAD   = 'HEAD';
-    const DELETE = 'DELETE';
-    /**#@-*/
+    function getHeaders();
 
     /**
-     * POST some data to an URL
+     * Set the headers
      *
-     * @param string $url The URL to POST to
-     * @param array $metadata The metadata to POST. This array will be json_encoded and sent to the
-     *                        server as $_POST['metadata']
+     * @param ImboClient\Http\HeaderContainerInterface $headers The headers to set
      * @return ImboClient\Http\Response\ResponseInterface
-     * @throws ImboClient\Client\Driver\Exception
      */
-    function post($url, array $metadata = null);
+    function setHeaders(HeaderContainerInterface $headers);
 
     /**
-     * PUT a file to an URL
+     * Get the response body
      *
-     * @param string $url The URL to PUT to
-     * @param string $filePath Path to the local file
-     * @return ImboClient\Http\Response\ResponseInterface
-     * @throws ImboClient\Client\Driver\Exception
+     * @return string
      */
-    function put($url, $filePath);
+    function getBody();
 
     /**
-     * Perform a GET to $url
+     * Set the body contents
      *
-     * @param string $url The URL to GET
+     * @param string $body The string to set
      * @return ImboClient\Http\Response\ResponseInterface
-     * @throws ImboClient\Client\Driver\Exception
      */
-    function get($url);
+    function setBody($body);
 
     /**
-     * Perform a HEAD to $url
+     * Get the status code
      *
-     * @param string $url The URL to HEAD
-     * @return ImboClient\Http\Response\ResponseInterface
-     * @throws ImboClient\Client\Driver\Exception
+     * @return int
      */
-    function head($url);
+    function getStatusCode();
 
     /**
-     * Perform a DELETE request to $url
+     * Set the status code
      *
-     * @param string $url The URL to DELETE
+     * @param int $code The HTTP status code to set
      * @return ImboClient\Http\Response\ResponseInterface
-     * @throws ImboClient\Client\Driver\Exception
      */
-    function delete($url);
+    function setStatusCode($code);
+
+    /**
+     * Wether or not the response is a success (in the 2xx range)
+     *
+     * @return boolean
+     */
+    function isSuccess();
+
+    /**
+     * Returns the image identifier associated with the response
+     *
+     * If the response does not contain any image identitifer (for instance if the reguest made was
+     * against the metadat resource) NULL will be returned.
+     *
+     * @return string|null
+     */
+    function getImageIdentifier();
+
+    /**
+     * Return the body as an array
+     *
+     * @return array
+     */
+    function asArray();
+
+    /**
+     * Return the body as an object
+     *
+     * @return stdClass
+     */
+    function asObject();
 }

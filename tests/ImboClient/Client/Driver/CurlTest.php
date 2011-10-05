@@ -46,14 +46,14 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
      *
      * @var ImboClient\Client\Driver
      */
-    protected $driver = null;
+    private $driver;
 
     /**
      * URL to the script that the tests should send requests to
      *
      * @var string
      */
-    protected $testUrl = null;
+    private $testUrl;
 
     /**
      * Setup the driver
@@ -80,7 +80,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
             'bar' => 'foo',
         );
         $response = $this->driver->post($this->testUrl, $metadata);
-        $this->assertInstanceOf('ImboClient\\Client\\Response', $response);
+        $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $response);
 
         $result = unserialize($response->getBody());
         $this->assertSame('POST', $result['method']);
@@ -95,7 +95,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
     public function testPut() {
         $url = $this->testUrl;
         $response = $this->driver->put($url, __FILE__);
-        $this->assertInstanceOf('ImboClient\\Client\\Response', $response);
+        $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $response);
         $data = unserialize($response->getBody());
 
         $this->assertSame($data['md5'], md5_file(__FILE__));
@@ -104,7 +104,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
     public function testGet() {
         $url = $this->testUrl . '?foo=bar&bar=foo';
         $response = $this->driver->get($url);
-        $this->assertInstanceOf('ImboClient\\Client\\Response', $response);
+        $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $response);
         $result = unserialize($response->getBody());
         $this->assertSame('GET', $result['method']);
         $this->assertSame(array('foo' => 'bar', 'bar' => 'foo'), $result['data']);
@@ -112,13 +112,13 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
 
     public function testHead() {
         $response = $this->driver->head($this->testUrl);
-        $this->assertInstanceOf('ImboClient\\Client\\Response', $response);
+        $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $response);
         $this->assertEmpty($response->getBody());
     }
 
     public function testDelete() {
         $response = $this->driver->delete($this->testUrl);
-        $this->assertInstanceOf('ImboClient\\Client\\Response', $response);
+        $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $response);
         $result = unserialize($response->getBody());
         $this->assertSame('DELETE', $result['method']);
     }
