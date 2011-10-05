@@ -67,8 +67,8 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
      */
     public function testSetGetHeaders() {
         $headers = array(
-            'Some header',
-            'Another header',
+            'X-Powered-By' => 'PHP/5.3.2-1ubuntu4.7',
+            'Vary'         => 'Accept-Encoding',
         );
 
         $this->response->setHeaders($headers);
@@ -120,6 +120,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
                    'X-Powered-By: PHP/5.3.2-1ubuntu4.7' . PHP_EOL .
                    'Vary: Accept-Encoding' . PHP_EOL .
                    'Content-Length: 12' . PHP_EOL .
+                   'X-Imbo-Image-Identifier: d9bf9a401d6d9fd680ce3cf7e5f8089c' . PHP_EOL .
                    'Content-Type: text/html; charset=UTF-8' . PHP_EOL . PHP_EOL .
                    'Some content';
 
@@ -128,7 +129,20 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('ImboClient\Client\Response', $response);
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('Some content', $response->getBody());
-        $this->assertSame(6, count($response->getHeaders()));
+        $this->assertSame(7, count($response->getHeaders()));
+
+        $headers = $response->getHeaders();
+        $this->assertSame($headers['Content-Length'], '12');
+    }
+
+    public function testGetImageIdentifier() {
+        $headers = array(
+            'X-Powered-By' => 'PHP/5.3.2-1ubuntu4.7',
+            'X-Imbo-Image-Identifier' => 'd9bf9a401d6d9fd680ce3cf7e5f8089c',
+        );
+
+        $this->response->setHeaders($headers);
+        $this->assertSame($headers['X-Imbo-Image-Identifier'], $this->response->getImageIdentifier());
     }
 
     public function testAsArray() {
