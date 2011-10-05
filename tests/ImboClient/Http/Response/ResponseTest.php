@@ -30,7 +30,7 @@
  * @link https://github.com/christeredvartsen/imboclient-php
  */
 
-namespace ImboClient\Client;
+namespace ImboClient\Http\Response;
 
 /**
  * @package ImboClient
@@ -44,9 +44,9 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
     /**
      * Response instance
      *
-     * @var ImboClient\Client\Response
+     * @var ImboClient\Http\Response\Response
      */
-    protected $response = null;
+    private $response;
 
     /**
      * Set up method
@@ -66,12 +66,9 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
      * Test the set and get methods for the headers attribute
      */
     public function testSetGetHeaders() {
-        $headers = array(
-            'X-Powered-By' => 'PHP/5.3.2-1ubuntu4.7',
-            'Vary'         => 'Accept-Encoding',
-        );
+        $headers = $this->getMock('ImboClient\Http\HeaderContainerInterface');
 
-        $this->response->setHeaders($headers);
+        $this->assertSame($this->response, $this->response->setHeaders($headers));
         $this->assertSame($headers, $this->response->getHeaders());
     }
 
@@ -81,7 +78,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
     public function testSetGetBody() {
         $body = 'Content';
 
-        $this->response->setBody($body);
+        $this->assertSame($this->response, $this->response->setBody($body));
         $this->assertSame($body, $this->response->getBody());
     }
 
@@ -90,14 +87,15 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
      */
     public function testSetGetStatusCode() {
         $code = 404;
-        $this->response->setStatusCode($code);
+
+        $this->assertSame($this->response, $this->response->setStatusCode($code));
         $this->assertSame($code, $this->response->getStatusCode());
     }
 
     /**
      * Test the isSuccess method
      */
-    public function testIsOk() {
+    public function testIsSuccess() {
         $this->response->setStatusCode(200);
         $this->assertTrue($this->response->isSuccess());
         $this->response->setStatusCode(404);
@@ -113,45 +111,29 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($body, (string) $this->response);
     }
 
-    public function testFactory() {
-        $content = 'HTTP/1.1 200 OK' . PHP_EOL .
-                   'Date: Wed, 02 Feb 2011 15:29:12 GMT' . PHP_EOL .
-                   'Server: Apache/2.2.14 (Ubuntu)' . PHP_EOL .
-                   'X-Powered-By: PHP/5.3.2-1ubuntu4.7' . PHP_EOL .
-                   'Vary: Accept-Encoding' . PHP_EOL .
-                   'Content-Length: 12' . PHP_EOL .
-                   'X-Imbo-Image-Identifier: d9bf9a401d6d9fd680ce3cf7e5f8089c' . PHP_EOL .
-                   'Content-Type: text/html; charset=UTF-8' . PHP_EOL . PHP_EOL .
-                   'Some content';
-
-        $response = Response::factory($content);
-
-        $this->assertInstanceOf('ImboClient\Client\Response', $response);
-        $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('Some content', $response->getBody());
-        $this->assertSame(7, count($response->getHeaders()));
-
-        $headers = $response->getHeaders();
-        $this->assertSame($headers['Content-Length'], '12');
-    }
-
-    public function testGetImageIdentifier() {
-        $headers = array(
-            'X-Powered-By' => 'PHP/5.3.2-1ubuntu4.7',
-            'X-Imbo-Image-Identifier' => 'd9bf9a401d6d9fd680ce3cf7e5f8089c',
-        );
+    public function testGetImageIdentifierWhenHeaderExists() {
+        $imageIdentifier = md5(microtime());
+        $headers = $this->getMock('ImboClient\Http\HeaderContainerInterface');
+        $headers->expects($this->once())->method('get')->with('x-imbo-imageidentifier')->will($this->returnValue($imageIdentifier));
 
         $this->response->setHeaders($headers);
-        $this->assertSame($headers['X-Imbo-Image-Identifier'], $this->response->getImageIdentifier());
+
+        $this->assertSame($imageIdentifier, $this->response->getImageIdentifier());
+    }
+
+    public function testGetImageIdentifierWhenHeaderDoesNotExist() {
+        $headers = $this->getMock('ImboClient\Http\HeaderContainerInterface');
+        $this->response->setHeaders($headers);
+        $this->assertNull($this->response->getImageIdentifier());
     }
 
     public function testAsArray() {
-        $this->response->setBody(json_encode(array('foo' => 'bar')));
+        $this->assertSame($this->response, $this->response->setBody(json_encode(array('foo' => 'bar'))));
         $this->assertInternalType('array', $this->response->asArray());
     }
 
     public function testAsObject() {
-        $this->response->setBody(json_encode(array('foo' => 'bar')));
+        $this->assertSame($this->response, $this->response->setBody(json_encode(array('foo' => 'bar'))));
         $this->assertInstanceOf('stdClass', $this->response->asObject());
     }
 }
