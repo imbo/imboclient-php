@@ -52,6 +52,7 @@ class Autoload {
         'imboclient\\client\\driver\\curl' => '/Client/Driver/Curl.php',
         'imboclient\\client\\driver\\driverinterface' => '/Client/Driver/DriverInterface.php',
         'imboclient\\client\\driver\\exception' => '/Client/Driver/Exception.php',
+        'imboclient\\clientinterface' => '/ClientInterface.php',
         'imboclient\\exception' => '/Exception.php',
         'imboclient\\http\\headercontainer' => '/Http/HeaderContainer.php',
         'imboclient\\http\\headercontainerinterface' => '/Http/HeaderContainerInterface.php',

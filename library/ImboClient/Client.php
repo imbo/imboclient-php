@@ -48,7 +48,7 @@ use ImboClient\Client\Driver\Curl as DefaultDriver;
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
-class Client {
+class Client implements ClientInterface {
     /**
      * The server URL
      *
@@ -100,36 +100,14 @@ class Client {
     }
 
     /**
-     * Get the complete url for a resource
-     *
-     * @param string $resourceIdentifier The resource identifier. For instance "<md5>.png" or
-     *                                   "<md5>.png/meta"
-     * @return string
+     * @see ImboClient\ClientInterface::getResourceUrl()
      */
     public function getResourceUrl($resourceIdentifier) {
         return $this->serverUrl . '/' . $this->publicKey . '/' . $resourceIdentifier;
     }
 
     /**
-     * Generate an image identifier for a given file
-     *
-     * @param string $path Path to the local image
-     * @return string The image identifier to use with the imbo server
-     * @throws ImboClient\Client\Exception
-     */
-    private function getImageIdentifier($path) {
-        if (!is_file($path)) {
-            throw new Exception('File does not exist: ' . $path);
-        }
-
-        return md5_file($path);
-    }
-
-    /**
-     * Add a new image to the server
-     *
-     * @param string $path Path to the local image
-     * @return ImboClient\Http\Response\ResponseInterface
+     * @see ImboClient\ClientInterface::addImage()
      */
     public function addImage($path) {
         $imageIdentifier = $this->getImageIdentifier($path);
@@ -140,26 +118,26 @@ class Client {
     }
 
     /**
-     * Checks if a given image exists on the server already
-     *
-     * @param string $path Path to the local image
-     * @return boolean
+     * @see ImboClient\ClientInterface::imageExists()
      */
     public function imageExists($path) {
         $imageIdentifier = $this->getImageIdentifier($path);
-
-        $url = $this->getResourceUrl($imageIdentifier);
-
-        $response = $this->driver->head($url);
+        $response = $this->headImage($imageIdentifier);
 
         return $response->getStatusCode() === 200;
     }
 
     /**
-     * Delete an image from the server
-     *
-     * @param string $imageIdentifier The image identifier
-     * @return ImboClient\Http\Response\ResponseInterface
+     * @see ImboClient\ClientInterface::headImage()
+     */
+    public function headImage($imageIdentifier) {
+        $url = $this->getResourceUrl($imageIdentifier);
+
+        return $this->driver->head($url);
+    }
+
+    /**
+     * @see ImboClient\ClientInterface::deleteImage()
      */
     public function deleteImage($imageIdentifier) {
         $url = $this->getSignedResourceUrl(DriverInterface::DELETE, $imageIdentifier);
@@ -168,11 +146,7 @@ class Client {
     }
 
     /**
-     * Edit image metadata
-     *
-     * @param string $imageIdentifier The image identifier
-     * @param array $metadata An array of metadata
-     * @return ImboClient\Http\Response\ResponseInterface
+     * @see ImboClient\ClientInterface::editMetadata()
      */
     public function editMetadata($imageIdentifier, array $metadata) {
         $url = $this->getSignedResourceUrl(DriverInterface::POST, $imageIdentifier . '/meta');
@@ -181,10 +155,7 @@ class Client {
     }
 
     /**
-     * Delete metadata
-     *
-     * @param string $imageIdentifier The image identifier
-     * @return ImboClient\Http\Response\ResponseInterface
+     * @see ImboClient\ClientInterface::deleteMetadata()
      */
     public function deleteMetadata($imageIdentifier) {
         $url = $this->getSignedResourceUrl(DriverInterface::DELETE, $imageIdentifier . '/meta');
@@ -193,10 +164,7 @@ class Client {
     }
 
     /**
-     * Get image metadata
-     *
-     * @param string $imageIdentifier The image identifier
-     * @return array Returns an array with metadata
+     * @see ImboClient\ClientInterface::getMetadata()
      */
     public function getMetadata($imageIdentifier) {
         $url = $this->getResourceUrl($imageIdentifier . '/meta');
@@ -239,5 +207,20 @@ class Client {
              . sprintf('?signature=%s&timestamp=%s', rawurlencode($signature), rawurlencode($timestamp));
 
         return $url;
+    }
+
+    /**
+     * Generate an image identifier for a given file
+     *
+     * @param string $path Path to the local image
+     * @return string The image identifier to use with the imbo server
+     * @throws ImboClient\Client\Exception
+     */
+    private function getImageIdentifier($path) {
+        if (!is_file($path)) {
+            throw new Exception('File does not exist: ' . $path);
+        }
+
+        return md5_file($path);
     }
 }
