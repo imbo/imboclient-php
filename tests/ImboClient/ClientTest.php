@@ -112,11 +112,15 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     /**
      * @expectedException ImboClient\Exception
      * @expectedExceptionMessage File does not exist: foobar
+     * @covers ImboClient\Client::addImage
      */
     public function testAddImageWhenImageDoesNotExist() {
         $this->client->addImage('foobar');
     }
 
+    /**
+     * @covers ImboClient\Client::addImage
+     */
     public function testAddImage() {
         $imagePath = __DIR__ . '/_files/image.png';
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
@@ -124,12 +128,18 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($response, $this->client->addImage($imagePath));
     }
 
+    /**
+     * @covers ImboClient\Client::deleteImage
+     */
     public function testDeleteImage() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $this->driver->expects($this->once())->method('delete')->with($this->matchesRegularExpression($this->signedUrlPattern))->will($this->returnValue($response));
         $this->assertSame($response, $this->client->deleteImage($this->imageIdentifier));
     }
 
+    /**
+     * @covers ImboClient\Client::editMetadata
+     */
     public function testEditMetadata() {
         $data = array(
             'foo' => 'bar',
@@ -141,18 +151,36 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($response, $this->client->editMetadata($this->imageIdentifier, $data));
     }
 
+    /**
+     * @covers ImboClient\Client::deleteMetadata
+     */
     public function testDeleteMetadata() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $this->driver->expects($this->once())->method('delete')->with($this->matchesRegularExpression($this->signedUrlPattern))->will($this->returnValue($response));
         $this->assertSame($response, $this->client->deleteMetadata($this->imageIdentifier));
     }
 
+    /**
+     * @covers ImboClient\Client::getMetadata
+     */
     public function testGetMetadata() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern))->will($this->returnValue($response));
         $this->assertSame($response, $this->client->getMetadata($this->imageIdentifier));
     }
 
+    /**
+     * @covers ImboClient\Client::headImage
+     */
+    public function testHeadImage() {
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern))->will($this->returnValue($response));
+        $this->assertSame($response, $this->client->headImage($this->imageIdentifier));
+    }
+
+    /**
+     * @covers ImboClient\Client::imageExists
+     */
     public function testImageExistsWhenRemoteImageDoesNotExist() {
         $imagePath = __DIR__ . '/_files/image.png';
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
@@ -163,6 +191,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertFalse($this->client->imageExists($imagePath));
     }
 
+    /**
+     * @covers ImboClient\Client::imageExists
+     */
     public function testImageExistsWhenRemoteImageExist() {
         $imagePath = __DIR__ . '/_files/image.png';
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
@@ -171,5 +202,15 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern))->will($this->returnValue($response));
 
         $this->assertTrue($this->client->imageExists($imagePath));
+    }
+
+    /**
+     * @covers ImboClient\Client::getResourceUrl
+     */
+    public function testGetResourceUrl() {
+        $identifier = md5(microtime());
+        $url = $this->client->getResourceUrl($identifier);
+        $expectedUrl = $this->serverUrl . '/' . $this->publicKey . '/' . $identifier;
+        $this->assertSame($expectedUrl, $url);
     }
 }
