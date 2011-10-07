@@ -125,9 +125,23 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @expectedException ImboClient\Client\Driver\Exception
+     * @expectedException An error occured. Request timed out during transfer (limit: 2s).
      */
     public function testReadTimeout() {
         $url = $this->testUrl . '?sleep=3';
         $this->driver->get($url);
+    }
+
+    /**
+     * @expectedException ImboClient\Client\Driver\Exception
+     * @expectedException An error occured. Request timed out during transfer (limit: 1s).
+     */
+    public function testConstructWithCustomParams() {
+        $params = array(
+            'timeout' => 1,
+        );
+        $driver = new Curl($params);
+        $url = $this->testUrl . '?sleep=2';
+        $driver->get($url);
     }
 }
