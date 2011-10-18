@@ -108,4 +108,12 @@ interface ClientInterface {
      * @return array Returns an array with metadata
      */
     function getMetadata($imageIdentifier);
+
+    /**
+     * Fetch an ImboClient\ImageUrl\ImageUrlInterface instance
+     *
+     * @param string $imageIdentifier The image identifier
+     * @return ImboClient\ImageUrl\ImageUrlInterface
+     */
+    function getImageUrl($imageIdentifier);
 }

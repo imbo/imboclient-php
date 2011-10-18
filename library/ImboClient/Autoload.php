@@ -57,7 +57,9 @@ class Autoload {
         'imboclient\\http\\headercontainer' => '/Http/HeaderContainer.php',
         'imboclient\\http\\headercontainerinterface' => '/Http/HeaderContainerInterface.php',
         'imboclient\\http\\response\\response' => '/Http/Response/Response.php',
-        'imboclient\\http\\response\\responseinterface' => '/Http/Response/ResponseInterface.php'
+        'imboclient\\http\\response\\responseinterface' => '/Http/Response/ResponseInterface.php',
+        'imboclient\\imageurl\\imageurl' => '/ImageUrl/ImageUrl.php',
+        'imboclient\\imageurl\\imageurlinterface' => '/ImageUrl/ImageUrlInterface.php'
     );
 
     /**

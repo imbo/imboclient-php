@@ -185,4 +185,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $expectedUrl = $this->serverUrl . '/' . $this->publicKey . '/' . $identifier;
         $this->assertSame($expectedUrl, $url);
     }
+
+    public function testGetImageUrl() {
+        $identifier = md5(microtime());
+        $url = $this->client->getImageUrl($identifier);
+        $this->assertInstanceOf('ImboClient\ImageUrl\ImageUrl', $url);
+    }
 }

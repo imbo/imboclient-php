@@ -34,6 +34,7 @@ namespace ImboClient;
 
 use ImboClient\Client\Driver\DriverInterface;
 use ImboClient\Client\Driver\Curl as DefaultDriver;
+use ImboClient\ImageUrl\ImageUrl;
 
 /**
  * Client that interacts with the server part of ImboClient
@@ -170,6 +171,13 @@ class Client implements ClientInterface {
         $url = $this->getResourceUrl($imageIdentifier . '/meta');
 
         return $this->driver->get($url);
+    }
+
+    /**
+     * @see ImboClient\ClientInterface::getImageUrl()
+     */
+    public function getImageUrl($imageIdentifier) {
+        return new ImageUrl($this->serverUrl, $this->publicKey, $imageIdentifier);
     }
 
     /**
