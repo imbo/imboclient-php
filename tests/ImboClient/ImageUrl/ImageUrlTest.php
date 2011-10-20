@@ -56,7 +56,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
 
     public function testBorder() {
         $this->assertSame($this->url, $this->url->border());
-        $this->assertStringEndsWith('?t[]=border:color=000,width=1,height=1', (string) $this->url);
+        $this->assertStringEndsWith('?t[]=border:color=000000,width=1,height=1', (string) $this->url);
     }
 
     public function testBorderWithCustomValues() {
@@ -126,7 +126,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
 
     public function testRotate() {
         $this->assertSame($this->url, $this->url->rotate(42));
-        $this->assertStringEndsWith('?t[]=rotate:angle=42,bg=000', (string) $this->url);
+        $this->assertStringEndsWith('?t[]=rotate:angle=42,bg=000000', (string) $this->url);
     }
 
     public function testRotateWithBg() {

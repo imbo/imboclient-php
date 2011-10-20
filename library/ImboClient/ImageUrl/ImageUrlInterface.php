@@ -51,7 +51,7 @@ interface ImageUrlInterface {
      * @param int $height Height of the top and bottom parts of the border
      * @return ImboClient\ImageUrl\ImageUrlInterface
      */
-    function border($color = '000', $width = 1, $height = 1);
+    function border($color = '000000', $width = 1, $height = 1);
 
     /**
      * Append a query that triggers a compress transformation
@@ -131,7 +131,7 @@ interface ImageUrlInterface {
      * @param string $bg Background color of the rotated image
      * @return ImboClient\ImageUrl\ImageUrlInterface
      */
-    function rotate($angle, $bg = '000');
+    function rotate($angle, $bg = '000000');
 
     /**
      * Trigger a thumbnail transformation

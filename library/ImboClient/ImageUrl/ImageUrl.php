@@ -85,7 +85,7 @@ class ImageUrl implements ImageUrlInterface {
     /**
      * @see ImboClient\ImageUrl\ImageUrlInterface::border()
      */
-    public function border($color = '000', $width = 1, $height = 1) {
+    public function border($color = '000000', $width = 1, $height = 1) {
         return $this->append(sprintf('border:color=%s,width=%d,height=%d', $color, $width, $height));
     }
 
@@ -167,7 +167,7 @@ class ImageUrl implements ImageUrlInterface {
     /**
      * @see ImboClient\ImageUrl\ImageUrlInterface::rotate()
      */
-    public function rotate($angle, $bg = '000') {
+    public function rotate($angle, $bg = '000000') {
         return $this->append(sprintf('rotate:angle=%d,bg=%s', $angle, $bg));
     }
 
