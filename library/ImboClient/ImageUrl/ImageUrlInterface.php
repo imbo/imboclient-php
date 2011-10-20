@@ -141,7 +141,7 @@ interface ImageUrlInterface {
      * @param string $fit Fit type. 'outbound' or 'inset'
      * @return ImboClient\ImageUrl\ImageUrlInterface
      */
-    function thumbnail($width = 'outbound', $height = 50, $fit = 50);
+    function thumbnail($width = 50, $height = 50, $fit = 'outbound');
 
     /**
      * Represent the complete image url as a string
