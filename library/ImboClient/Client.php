@@ -189,7 +189,7 @@ class Client implements ClientInterface {
      * @return string
      */
     private function generateSignature($method, $resourceIdentifier, $timestamp) {
-        $data = $method . $resourceIdentifier . $this->publicKey . $timestamp;
+        $data = $method . '|' . $resourceIdentifier . '|' . $this->publicKey . '|' . $timestamp;
 
         // Generate binary hash key
         $hash = hash_hmac('sha256', $data, $this->privateKey, true);
