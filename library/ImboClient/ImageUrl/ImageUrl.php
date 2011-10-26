@@ -182,7 +182,7 @@ class ImageUrl implements ImageUrlInterface {
      * @see ImboClient\ImageUrl\ImageUrlInterface::__toString()
      */
     public function __toString() {
-        $url = $this->baseUrl . '/' . $this->publicKey . '/' . $this->imageIdentifier;
+        $url = $this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier;
 
         if (empty($this->data)) {
             return $url;

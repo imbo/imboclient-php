@@ -104,7 +104,7 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::getResourceUrl()
      */
     public function getResourceUrl($resourceIdentifier) {
-        return $this->serverUrl . '/' . $this->publicKey . '/' . $resourceIdentifier;
+        return $this->serverUrl . '/users/' . $this->publicKey . '/images/' . $resourceIdentifier;
     }
 
     /**

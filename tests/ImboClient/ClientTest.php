@@ -81,14 +81,14 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      *
      * @var string
      */
-    private $signedUrlPattern = '|^http://host/[a-f0-9]{32}/[a-f0-9]{32}(/meta)?\?signature=(.*?)&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\dZ$|';
+    private $signedUrlPattern = '|^http://host/users/[a-f0-9]{32}/images/[a-f0-9]{32}(/meta)?\?signature=(.*?)&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\dZ$|';
 
     /**
      * Pattern used in the mock matchers with regular urls
      *
      * @var string
      */
-    private $urlPattern = '|^http://host/[a-f0-9]{32}/[a-f0-9]{32}(/meta)?$|';
+    private $urlPattern = '|^http://host/users/[a-f0-9]{32}/images/[a-f0-9]{32}(/meta)?$|';
 
     /**
      * Set up method
@@ -182,7 +182,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     public function testGetResourceUrl() {
         $identifier = md5(microtime());
         $url = $this->client->getResourceUrl($identifier);
-        $expectedUrl = $this->serverUrl . '/' . $this->publicKey . '/' . $identifier;
+        $expectedUrl = $this->serverUrl . '/users/' . $this->publicKey . '/images/' . $identifier;
         $this->assertSame($expectedUrl, $url);
     }
 
