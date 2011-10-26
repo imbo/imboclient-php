@@ -76,22 +76,22 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
 
     public function testConvert() {
         $this->assertSame($this->url, $this->url->convert('jpg'));
-        $this->assertStringStartsWith($this->baseUrl . '/' . $this->publicKey . '/' . $this->imageIdentifier . '.jpg', (string) $this->url);
+        $this->assertStringStartsWith($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.jpg', (string) $this->url);
     }
 
     public function testGif() {
         $this->assertSame($this->url, $this->url->gif());
-        $this->assertStringStartsWith($this->baseUrl . '/' . $this->publicKey . '/' . $this->imageIdentifier . '.gif', (string) $this->url);
+        $this->assertStringStartsWith($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.gif', (string) $this->url);
     }
 
     public function testJpg() {
         $this->assertSame($this->url, $this->url->jpg());
-        $this->assertStringStartsWith($this->baseUrl . '/' . $this->publicKey . '/' . $this->imageIdentifier . '.jpg', (string) $this->url);
+        $this->assertStringStartsWith($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.jpg', (string) $this->url);
     }
 
     public function testPng() {
         $this->assertSame($this->url, $this->url->png());
-        $this->assertStringStartsWith($this->baseUrl . '/' . $this->publicKey . '/' . $this->imageIdentifier . '.png', (string) $this->url);
+        $this->assertStringStartsWith($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png', (string) $this->url);
     }
 
     public function testCrop() {
