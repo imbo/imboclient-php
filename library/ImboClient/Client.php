@@ -191,11 +191,8 @@ class Client implements ClientInterface {
     private function generateSignature($method, $resourceIdentifier, $timestamp) {
         $data = $method . '|' . $resourceIdentifier . '|' . $this->publicKey . '|' . $timestamp;
 
-        // Generate binary hash key
-        $hash = hash_hmac('sha256', $data, $this->privateKey, true);
-
-        // Encode signature for the request
-        $signature = base64_encode($hash);
+        // Generate signature
+        $signature = hash_hmac('sha256', $data, $this->privateKey);
 
         return $signature;
     }
@@ -208,7 +205,7 @@ class Client implements ClientInterface {
      * @return string Returns a string with the necessary parts for authenticating
      */
     private function getSignedResourceUrl($method, $resourceIdentifier) {
-        $timestamp = gmdate('Y-m-d\TH:i\Z');
+        $timestamp = gmdate('Y-m-d\TH:i:s\Z');
         $signature = $this->generateSignature($method, $resourceIdentifier, $timestamp);
 
         $url = $this->getResourceUrl($resourceIdentifier)

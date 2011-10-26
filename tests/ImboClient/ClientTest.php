@@ -81,7 +81,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      *
      * @var string
      */
-    private $signedUrlPattern = '|^http://host/users/[a-f0-9]{32}/images/[a-f0-9]{32}(/meta)?\?signature=(.*?)&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\dZ$|';
+    private $signedUrlPattern = '|^http://host/users/[a-f0-9]{32}/images/[a-f0-9]{32}(/meta)?\?signature=(.*?)&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\d%3A\d\dZ$|';
 
     /**
      * Pattern used in the mock matchers with regular urls
