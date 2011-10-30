@@ -179,6 +179,15 @@ class ImageUrl implements ImageUrlInterface {
     }
 
     /**
+     * @see ImboClient\ImageUrl\ImageUrlInterface::reset()
+     */
+    public function reset() {
+        $this->data = array();
+        $this->imageIdentifier = substr($this->imageIdentifier, 0, 32);
+        return $this;
+    }
+
+    /**
      * @see ImboClient\ImageUrl\ImageUrlInterface::__toString()
      */
     public function __toString() {
