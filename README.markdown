@@ -11,13 +11,23 @@ A PHP client for [imbo](https://github.com/christeredvartsen/imbo).
     // Path to local image
     $path = '/path/to/image.png';
 
+    $response = $client->addImage($path);
+
+## Add/edit meta data
+
+    <?php
+    require 'ImboClient/Autoload.php';
+
+    $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
+
     // Add some meta data to the image
     $metadata = array(
         'foo' => 'bar',
         'bar' => 'foo',
     );
 
-    $response = $client->addImage($path, $metadata);
+    $hash = '<hash>';
+    $response = $client->editMetadata($hash, $metadata);
 
 ## Get meta data
 
