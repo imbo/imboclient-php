@@ -3,61 +3,61 @@ A PHP client for [imbo](https://github.com/christeredvartsen/imbo).
 
 ## Add an image
 ```php
-    <?php
-    require 'ImboClient/Autoload.php';
+<?php
+require 'ImboClient/Autoload.php';
 
-    $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-    // Path to local image
-    $path = '/path/to/image.png';
+// Path to local image
+$path = '/path/to/image.png';
 
-    $response = $client->addImage($path);
+$response = $client->addImage($path);
 ```
 ## Add/edit meta data
 ```php
-    <?php
-    require 'ImboClient/Autoload.php';
+<?php
+require 'ImboClient/Autoload.php';
 
-    $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-    // Add some meta data to the image
-    $metadata = array(
-        'foo' => 'bar',
-        'bar' => 'foo',
-    );
+// Add some meta data to the image
+$metadata = array(
+    'foo' => 'bar',
+    'bar' => 'foo',
+);
 
-    $hash = '<hash>';
-    $response = $client->editMetadata($hash, $metadata);
+$hash = '<hash>';
+$response = $client->editMetadata($hash, $metadata);
 ```
 ## Get meta data
 ```php
-    <?php
-    require 'ImboClient/Autoload.php';
+<?php
+require 'ImboClient/Autoload.php';
 
-    $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-    $hash = '<hash>';
-    $response = $client->getMetadata($hash);
+$hash = '<hash>';
+$response = $client->getMetadata($hash);
 ```
 ## Delete an image
 ```php
-    <?php
-    require 'ImboClient/Autoload.php';
+<?php
+require 'ImboClient/Autoload.php';
 
-    $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-    $hash = '<hash>';
-    $response = $client->deleteImage($hash);
+$hash = '<hash>';
+$response = $client->deleteImage($hash);
 ```
 ## Delete all meta data attached to an image
 ```php
-    <?php
-    require 'ImboClient/Autoload.php';
+<?php
+require 'ImboClient/Autoload.php';
 
-    $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-    $hash = '<hash>';
-    $response = $client->deleteMetadata($hash);
+$hash = '<hash>';
+$response = $client->deleteMetadata($hash);
 ```
 ## Generate image urls
 
