@@ -2,53 +2,63 @@
 A PHP client for [imbo](https://github.com/christeredvartsen/imbo).
 
 ## Add an image
+```php
+<?php
+require 'ImboClient/Autoload.php';
 
-    <?php
-    require 'ImboClient/Autoload.php';
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-    $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
+// Path to local image
+$path = '/path/to/image.png';
 
-    // Path to local image
-    $path = '/path/to/image.png';
+$response = $client->addImage($path);
+```
+## Add/edit meta data
+```php
+<?php
+require 'ImboClient/Autoload.php';
 
-    // Add some meta data to the image
-    $metadata = array(
-        'foo' => 'bar',
-        'bar' => 'foo',
-    );
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-    $response = $client->addImage($path, $metadata);
+// Add some meta data to the image
+$metadata = array(
+    'foo' => 'bar',
+    'bar' => 'foo',
+);
 
+$hash = '<hash>';
+$response = $client->editMetadata($hash, $metadata);
+```
 ## Get meta data
+```php
+<?php
+require 'ImboClient/Autoload.php';
 
-    <?php
-    require 'ImboClient/Autoload.php';
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-    $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
-
-    $hash = '<hash>';
-    $response = $client->getMetadata($hash);
-
+$hash = '<hash>';
+$response = $client->getMetadata($hash);
+```
 ## Delete an image
+```php
+<?php
+require 'ImboClient/Autoload.php';
 
-    <?php
-    require 'ImboClient/Autoload.php';
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-    $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
-
-    $hash = '<hash>';
-    $response = $client->deleteImage($hash);
-
+$hash = '<hash>';
+$response = $client->deleteImage($hash);
+```
 ## Delete all meta data attached to an image
+```php
+<?php
+require 'ImboClient/Autoload.php';
 
-    <?php
-    require 'ImboClient/Autoload.php';
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-    $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
-
-    $hash = '<hash>';
-    $response = $client->deleteMetadata($hash);
-
+$hash = '<hash>';
+$response = $client->deleteMetadata($hash);
+```
 ## Generate image urls
 
 The client has a method called `getImageUrl($imageIdentifier)` that can be used to fetch an instance of the `ImboClient\ImageUrl\ImageUrl` class. This class has convenience methods for adding transformations to the url. All these methods can be chained and the transformations will be applied to the url in the chaining order. The convert method is special in that it does not append anything to the url, excpect injects an image extension to the image identifier. `convert()`, `gif()`, `jpg()` and `png()` can therefore be added anywhere in the chain.
