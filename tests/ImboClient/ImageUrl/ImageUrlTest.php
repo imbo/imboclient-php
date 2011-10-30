@@ -64,7 +64,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
         $this->assertStringEndsWith('?t[]=border:color=fff,width=2,height=3', (string) $this->url);
     }
 
-    public function testCompess() {
+    public function testCompress() {
         $this->assertSame($this->url, $this->url->compress());
         $this->assertStringEndsWith('?t[]=compress:quality=75', (string) $this->url);
     }
@@ -137,5 +137,11 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
     public function testThumbnailWithAllParams() {
         $this->assertSame($this->url, $this->url->thumbnail(1, 2, 'inset'));
         $this->assertStringEndsWith('?t[]=thumbnail:width=1,height=2,fit=inset', (string) $this->url);
+    }
+
+    public function testResetUrl() {
+        $this->url->thumbnail(1, 2, 'inset')->png();
+        $this->assertSame($this->url, $this->url->reset());
+        $this->assertStringEndsWith($this->imageIdentifier, (string) $this->url);
     }
 }

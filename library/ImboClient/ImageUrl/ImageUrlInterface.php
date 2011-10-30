@@ -144,6 +144,13 @@ interface ImageUrlInterface {
     function thumbnail($width = 50, $height = 50, $fit = 'outbound');
 
     /**
+     * Resets the URL - removes all transformations
+     *
+     * @return ImboClient\ImageUrl\ImageUrlInterface
+     */
+    function reset();
+
+    /**
      * Represent the complete image url as a string
      *
      * @return string
