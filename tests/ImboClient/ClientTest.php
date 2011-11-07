@@ -81,14 +81,22 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      *
      * @var string
      */
-    private $signedUrlPattern = '|^http://host/users/[a-f0-9]{32}/images/[a-f0-9]{32}(/meta)?\?signature=(.*?)&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\d%3A\d\dZ$|';
+    private $signedUrlPattern = array(
+        'image'    => '|^http://host/users/[a-f0-9]{32}/images/[a-f0-9]{32}\?signature=(.*?)&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\d%3A\d\dZ$|',
+        'metadata' => '|^http://host/users/[a-f0-9]{32}/images/[a-f0-9]{32}/meta\?signature=(.*?)&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\d%3A\d\dZ$|',
+    );
 
     /**
      * Pattern used in the mock matchers with regular urls
      *
      * @var string
      */
-    private $urlPattern = '|^http://host/users/[a-f0-9]{32}/images/[a-f0-9]{32}(/meta)?$|';
+    private $urlPattern = array(
+        'user'     => '|^http://host/users/[a-f0-9]{32}$|',
+        'images'   => '|^http://host/users/[a-f0-9]{32}/images$|',
+        'image'    => '|^http://host/users/[a-f0-9]{32}/images/[a-f0-9]{32}$|',
+        'metadata' => '|^http://host/users/[a-f0-9]{32}/images/[a-f0-9]{32}/meta$|',
+    );
 
     /**
      * Set up method
@@ -106,6 +114,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      * Tear down method
      */
     public function tearDown() {
+        $this->driver = null;
         $this->client = null;
     }
 
@@ -120,13 +129,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     public function testAddImage() {
         $imagePath = __DIR__ . '/_files/image.png';
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $this->driver->expects($this->once())->method('put')->with($this->matchesRegularExpression($this->signedUrlPattern), $imagePath)->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('put')->with($this->matchesRegularExpression($this->signedUrlPattern['image']), $imagePath)->will($this->returnValue($response));
         $this->assertSame($response, $this->client->addImage($imagePath));
     }
 
     public function testDeleteImage() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $this->driver->expects($this->once())->method('delete')->with($this->matchesRegularExpression($this->signedUrlPattern))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('delete')->with($this->matchesRegularExpression($this->signedUrlPattern['image']))->will($this->returnValue($response));
         $this->assertSame($response, $this->client->deleteImage($this->imageIdentifier));
     }
 
@@ -137,25 +146,25 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         );
 
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $this->driver->expects($this->once())->method('post')->with($this->matchesRegularExpression($this->signedUrlPattern), $data)->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('post')->with($this->matchesRegularExpression($this->signedUrlPattern['metadata']), $data)->will($this->returnValue($response));
         $this->assertSame($response, $this->client->editMetadata($this->imageIdentifier, $data));
     }
 
     public function testDeleteMetadata() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $this->driver->expects($this->once())->method('delete')->with($this->matchesRegularExpression($this->signedUrlPattern))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('delete')->with($this->matchesRegularExpression($this->signedUrlPattern['metadata']))->will($this->returnValue($response));
         $this->assertSame($response, $this->client->deleteMetadata($this->imageIdentifier));
     }
 
     public function testGetMetadata() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern['metadata']))->will($this->returnValue($response));
         $this->assertSame($response, $this->client->getMetadata($this->imageIdentifier));
     }
 
     public function testHeadImage() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern['image']))->will($this->returnValue($response));
         $this->assertSame($response, $this->client->headImage($this->imageIdentifier));
     }
 
@@ -164,7 +173,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(404));
 
-        $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern['image']))->will($this->returnValue($response));
 
         $this->assertFalse($this->client->imageExists($imagePath));
     }
@@ -174,21 +183,51 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
 
-        $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern['image']))->will($this->returnValue($response));
 
         $this->assertTrue($this->client->imageExists($imagePath));
     }
 
+    public function testGetUserUrl() {
+        $expectedUrl = $this->serverUrl . '/users/' . $this->publicKey;
+        $this->assertSame($expectedUrl, $this->client->getUserUrl());
+    }
+
+    /**
+     * @expectedException PHPUnit_Framework_Error_Deprecated
+     */
     public function testGetResourceUrl() {
         $identifier = md5(microtime());
         $url = $this->client->getResourceUrl($identifier);
-        $expectedUrl = $this->serverUrl . '/users/' . $this->publicKey . '/images/' . $identifier;
-        $this->assertSame($expectedUrl, $url);
     }
 
     public function testGetImageUrl() {
         $identifier = md5(microtime());
         $url = $this->client->getImageUrl($identifier);
         $this->assertInstanceOf('ImboClient\ImageUrl\ImageUrl', $url);
+    }
+
+    public function testGetImagesUrl() {
+        $expectedUrl = $this->serverUrl . '/users/' . $this->publicKey . '/images';
+        $this->assertSame($expectedUrl, $this->client->getImagesUrl());
+    }
+
+    public function testGetNumImages() {
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
+        $response->expects($this->once())->method('getBody')->will($this->returnValue(json_encode(array('numImages' => 42))));
+
+        $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern['user']))->will($this->returnValue($response));
+
+        $this->assertSame(42, $this->client->getNumImages());
+    }
+
+    public function testGetNumImagesWithServerRespondsWithAnError() {
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(500));
+
+        $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern['user']))->will($this->returnValue($response));
+
+        $this->assertNull($this->client->getNumImages());
     }
 }

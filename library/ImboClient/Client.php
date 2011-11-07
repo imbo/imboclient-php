@@ -101,10 +101,46 @@ class Client implements ClientInterface {
     }
 
     /**
+     * @see ImboClient\ClientInterface::getUserUrl()
+     */
+    public function getUserUrl() {
+        return $this->serverUrl . '/users/' . $this->publicKey;
+    }
+
+    /**
+     * @see ImboClient\ClientInterface::getImagesUrl()
+     */
+    public function getImagesUrl() {
+        return $this->serverUrl . '/users/' . $this->publicKey . '/images';
+    }
+
+    /**
+     * @see ImboClient\ClientInterface::getImageUrl()
+     */
+    public function getImageUrl($imageIdentifier, $asString = false) {
+        $imageUrl = new ImageUrl($this->serverUrl, $this->publicKey, $imageIdentifier);
+
+        if ($asString) {
+            return (string) $imageUrl;
+        }
+
+        return $imageUrl;
+    }
+
+    /**
+     * @see ImboClient\ClientInterface::getMetadataUrl()
+     */
+    public function getMetadataUrl($imageIdentifier) {
+        return $this->getImageUrl($imageIdentifier, true) . '/meta';
+    }
+
+    /**
      * @see ImboClient\ClientInterface::getResourceUrl()
      */
     public function getResourceUrl($resourceIdentifier) {
-        return $this->serverUrl . '/users/' . $this->publicKey . '/images/' . $resourceIdentifier;
+        trigger_error('Use getImageUrl()/getMetadataUrl() instead', E_USER_DEPRECATED);
+
+        return $this->getImagesUrl() . '/' . $resourceIdentifier;
     }
 
     /**
@@ -112,8 +148,9 @@ class Client implements ClientInterface {
      */
     public function addImage($path) {
         $imageIdentifier = $this->getImageIdentifier($path);
+        $imageUrl = $this->getImageUrl($imageIdentifier);
 
-        $url = $this->getSignedResourceUrl(DriverInterface::PUT, $imageIdentifier);
+        $url = $this->getSignedUrl(DriverInterface::PUT, $imageUrl);
 
         return $this->driver->put($url, $path);
     }
@@ -132,7 +169,7 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::headImage()
      */
     public function headImage($imageIdentifier) {
-        $url = $this->getResourceUrl($imageIdentifier);
+        $url = $this->getImageUrl($imageIdentifier, true);
 
         return $this->driver->head($url);
     }
@@ -141,7 +178,8 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::deleteImage()
      */
     public function deleteImage($imageIdentifier) {
-        $url = $this->getSignedResourceUrl(DriverInterface::DELETE, $imageIdentifier);
+        $imageUrl = $this->getImageUrl($imageIdentifier);
+        $url = $this->getSignedUrl(DriverInterface::DELETE, $imageUrl);
 
         return $this->driver->delete($url);
     }
@@ -150,7 +188,8 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::editMetadata()
      */
     public function editMetadata($imageIdentifier, array $metadata) {
-        $url = $this->getSignedResourceUrl(DriverInterface::POST, $imageIdentifier . '/meta');
+        $metadataUrl = $this->getMetadataUrl($imageIdentifier);
+        $url = $this->getSignedUrl(DriverInterface::POST, $metadataUrl);
 
         return $this->driver->post($url, $metadata);
     }
@@ -159,7 +198,8 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::deleteMetadata()
      */
     public function deleteMetadata($imageIdentifier) {
-        $url = $this->getSignedResourceUrl(DriverInterface::DELETE, $imageIdentifier . '/meta');
+        $metadataUrl = $this->getMetadataUrl($imageIdentifier);
+        $url = $this->getSignedUrl(DriverInterface::DELETE, $metadataUrl);
 
         return $this->driver->delete($url);
     }
@@ -168,28 +208,37 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::getMetadata()
      */
     public function getMetadata($imageIdentifier) {
-        $url = $this->getResourceUrl($imageIdentifier . '/meta');
+        $url = $this->getMetadataUrl($imageIdentifier);
 
         return $this->driver->get($url);
     }
 
     /**
-     * @see ImboClient\ClientInterface::getImageUrl()
+     * @see ImboClient\ClientInterface::getNumImages()
      */
-    public function getImageUrl($imageIdentifier) {
-        return new ImageUrl($this->serverUrl, $this->publicKey, $imageIdentifier);
+    public function getNumImages() {
+        $url = $this->getUserUrl();
+        $response = $this->driver->get($url);
+
+        if ($response->getStatusCode() !== 200) {
+            return null;
+        }
+
+        $body = json_decode($response->getBody());
+
+        return $body->numImages;
     }
 
     /**
      * Generate a signature that can be sent to the server
      *
-     * @param string $method HTTP method (POST or DELETE)
-     * @param string $resourceIdentifier The resource identifier (for instance "<image>/meta")
+     * @param string $method HTTP method (PUT, POST or DELETE)
+     * @param string $url The URL to send a request to
      * @param string $timestamp GMT timestamp
      * @return string
      */
-    private function generateSignature($method, $resourceIdentifier, $timestamp) {
-        $data = $method . '|' . $resourceIdentifier . '|' . $this->publicKey . '|' . $timestamp;
+    private function generateSignature($method, $url, $timestamp) {
+        $data = $method . '|' . $url . '|' . $this->publicKey . '|' . $timestamp;
 
         // Generate signature
         $signature = hash_hmac('sha256', $data, $this->privateKey);
@@ -201,15 +250,14 @@ class Client implements ClientInterface {
      * Get a signed url
      *
      * @param string $method HTTP method
-     * @param string $resourceIdentifier The resource identifier (for instance "<image>/meta")
+     * @param string $url The URL to send a request to
      * @return string Returns a string with the necessary parts for authenticating
      */
-    private function getSignedResourceUrl($method, $resourceIdentifier) {
+    private function getSignedUrl($method, $url) {
         $timestamp = gmdate('Y-m-d\TH:i:s\Z');
-        $signature = $this->generateSignature($method, $resourceIdentifier, $timestamp);
+        $signature = $this->generateSignature($method, $url, $timestamp);
 
-        $url = $this->getResourceUrl($resourceIdentifier)
-             . sprintf('?signature=%s&timestamp=%s', rawurlencode($signature), rawurlencode($timestamp));
+        $url = sprintf('%s?signature=%s&timestamp=%s', $url, rawurlencode($signature), rawurlencode($timestamp));
 
         return $url;
     }

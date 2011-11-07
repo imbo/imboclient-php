@@ -44,11 +44,43 @@ namespace ImboClient;
  */
 interface ClientInterface {
     /**
+     * Get the url to the current user
+     *
+     * @return string
+     */
+    function getUserUrl();
+
+    /**
+     * Get the url to the images resource of the current user
+     *
+     * @return string
+     */
+    function getImagesUrl();
+
+    /**
+     * Fetch an ImboClient\ImageUrl\ImageUrlInterface instance
+     *
+     * @param string $imageIdentifier The image identifier
+     * @param boolean $asString Set this to false to get the url as a string
+     * @return ImboClient\ImageUrl\ImageUrlInterface|string
+     */
+    function getImageUrl($imageIdentifier, $asString = false);
+
+    /**
+     * Fetch the metadata url to a given image
+     *
+     * @param string $imageIdentifier The image identifier
+     * @return string
+     */
+    function getMetadataUrl($imageIdentifier);
+
+    /**
      * Get the complete url for a resource
      *
      * @param string $resourceIdentifier The resource identifier. For instance "<md5>.png" or
      *                                   "<md5>.png/meta"
      * @return string
+     * @deprecated
      */
     function getResourceUrl($resourceIdentifier);
 
@@ -110,10 +142,11 @@ interface ClientInterface {
     function getMetadata($imageIdentifier);
 
     /**
-     * Fetch an ImboClient\ImageUrl\ImageUrlInterface instance
+     * Get the number of images currently stored at the server
      *
-     * @param string $imageIdentifier The image identifier
-     * @return ImboClient\ImageUrl\ImageUrlInterface
+     * If the server responds with an error, this method must return null.
+     *
+     * @return int|null
      */
-    function getImageUrl($imageIdentifier);
+    function getNumImages();
 }
