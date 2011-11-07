@@ -97,7 +97,19 @@ class Client implements ClientInterface {
         }
         // @codeCoverageIgnoreEnd
 
+        // Only accept json
+        $driver->addRequestHeader('Accept', 'application/json');
+
+        $this->setDriver($driver);
+    }
+
+    /**
+     * @see ImboClient\ClientInterface::setDriver()
+     */
+    public function setDriver(DriverInterface $driver) {
         $this->driver = $driver;
+
+        return $this;
     }
 
     /**

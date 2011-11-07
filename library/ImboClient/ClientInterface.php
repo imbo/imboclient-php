@@ -32,6 +32,8 @@
 
 namespace ImboClient;
 
+use ImboClient\Client\Driver\DriverInterface;
+
 /**
  * Interface for the client
  *
@@ -43,6 +45,14 @@ namespace ImboClient;
  * @link https://github.com/christeredvartsen/imboclient-php
  */
 interface ClientInterface {
+    /**
+     * Set the driver
+     *
+     * @param ImboClient\Client\Driver\DriverInterface $driver The driver to set
+     * @return ImboClient\ClientInterface
+     */
+    function setDriver(DriverInterface $driver);
+
     /**
      * Get the url to the current user
      *
