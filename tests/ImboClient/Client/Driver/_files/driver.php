@@ -35,6 +35,19 @@
  * actual HTTP requests.
  */
 
+if (isset($_GET['headers'])) {
+    $headers = array();
+
+    foreach ($_SERVER as $key => $value) {
+        if (substr($key, 0, 5) === 'HTTP_') {
+            $headers[$key] = $value;
+        }
+    }
+
+    print(serialize($headers));
+    exit;
+}
+
 // Sleep some some seconds if specified (to test timeouts)
 if (isset($_REQUEST['sleep'])) {
     sleep($_REQUEST['sleep']);

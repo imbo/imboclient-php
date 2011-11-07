@@ -104,4 +104,13 @@ interface DriverInterface {
      * @throws ImboClient\Client\Driver\Exception
      */
     function delete($url);
+
+    /**
+     * Add a request header
+     *
+     * @param string $key The header key
+     * @param string $value The value to send
+     * @return ImboClient\Client\Driver\DriverInterface
+     */
+    function addRequestHeader($key, $value);
 }

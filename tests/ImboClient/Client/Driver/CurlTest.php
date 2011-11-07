@@ -144,4 +144,14 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
         $url = $this->testUrl . '?sleep=2';
         $driver->get($url);
     }
+
+    public function testAddRequestHeader() {
+        $this->assertSame($this->driver, $this->driver->addRequestHeader('Header', 'value'));
+        $url = $this->testUrl . '?headers';
+        $response = $this->driver->get($url);
+        $headers = unserialize($response->getBody());
+
+        $this->assertArrayHasKey('HTTP_HEADER', $headers);
+        $this->assertSame('value', $headers['HTTP_HEADER']);
+    }
 }

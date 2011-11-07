@@ -56,6 +56,13 @@ class Curl implements DriverInterface {
     private $curlHandle;
 
     /**
+     * Extra request headers
+     *
+     * @var array
+     */
+    private $headers = array();
+
+    /**
      * Parameters for the driver
      *
      * @var array
@@ -170,6 +177,15 @@ class Curl implements DriverInterface {
     }
 
     /**
+     * @see ImboClient\Client\Driver\DriverInterface::addRequestHeader()
+     */
+    public function addRequestHeader($key, $value) {
+        $this->headers[] = $key . ': ' . $value;
+
+        return $this;
+    }
+
+    /**
      * Make a request
      *
      * This method will make a request to $url with the current options set in the cURL handle
@@ -184,6 +200,11 @@ class Curl implements DriverInterface {
         curl_setopt_array($handle, array(
             CURLOPT_URL => $url,
         ));
+
+        // Set extra headers
+        if (!empty($this->headers)) {
+            curl_setopt($handle, CURLOPT_HTTPHEADER, $this->headers);
+        }
 
         $content = curl_exec($handle);
         $connectTime  = (int) curl_getinfo($handle, CURLINFO_CONNECT_TIME);
