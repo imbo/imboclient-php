@@ -224,6 +224,10 @@ class Curl implements DriverInterface {
         }
 
         $content = str_replace("\r", '', $content);
+        
+        // Remove any HTTP/1.1 100 Continue from the response
+        $content = preg_replace('/HTTP\/[.\d]+ 100.*?^HTTP/sm', 'HTTP', $content);
+        
         list($headers, $body) = explode("\n\n", $content, 2);
         $headers = explode("\n", $headers);
 
