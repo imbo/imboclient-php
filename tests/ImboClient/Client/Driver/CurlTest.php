@@ -145,6 +145,23 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
         $driver->get($url);
     }
 
+    public function testExpectHeaderNotPresent() {
+        $url = $this->testUrl . '?headers';
+        $response = $this->driver->post($url);
+        $headers = unserialize($response->getBody());
+
+        $this->assertArrayNotHasKey('HTTP_EXPECT', $headers);
+
+        // Add a header
+        $this->assertSame($this->driver, $this->driver->addRequestHeader('Header', 'value'));
+
+        $url = $this->testUrl . '?headers';
+        $response = $this->driver->post($url);
+        $headers = unserialize($response->getBody());
+
+        $this->assertArrayNotHasKey('HTTP_EXPECT', $headers);
+    }
+
     public function testAddRequestHeader() {
         $this->assertSame($this->driver, $this->driver->addRequestHeader('Header', 'value'));
         $url = $this->testUrl . '?headers';

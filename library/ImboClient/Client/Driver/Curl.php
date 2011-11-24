@@ -56,11 +56,13 @@ class Curl implements DriverInterface {
     private $curlHandle;
 
     /**
-     * Extra request headers
+     * Request headers
      *
      * @var array
      */
-    private $headers = array();
+    private $headers = array(
+        'Expect:',
+    );
 
     /**
      * Parameters for the driver
@@ -88,7 +90,6 @@ class Curl implements DriverInterface {
             CURLOPT_USERAGENT      => __CLASS__,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HEADER         => true,
-            CURLOPT_HTTPHEADER     => array('Expect:'),
             CURLOPT_CONNECTTIMEOUT => $this->params['connectTimeout'],
             CURLOPT_TIMEOUT        => $this->params['timeout'],
         ));
@@ -202,9 +203,7 @@ class Curl implements DriverInterface {
         ));
 
         // Set extra headers
-        if (!empty($this->headers)) {
-            curl_setopt($handle, CURLOPT_HTTPHEADER, $this->headers);
-        }
+        curl_setopt($handle, CURLOPT_HTTPHEADER, $this->headers);
 
         $content = curl_exec($handle);
         $connectTime  = (int) curl_getinfo($handle, CURLINFO_CONNECT_TIME);
@@ -224,10 +223,10 @@ class Curl implements DriverInterface {
         }
 
         $content = str_replace("\r", '', $content);
-        
+
         // Remove any HTTP/1.1 100 Continue from the response
         $content = preg_replace('/HTTP\/[.\d]+ 100.*?^HTTP/sm', 'HTTP', $content);
-        
+
         list($headers, $body) = explode("\n\n", $content, 2);
         $headers = explode("\n", $headers);
 
