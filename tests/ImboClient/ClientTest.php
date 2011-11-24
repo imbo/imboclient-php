@@ -230,4 +230,30 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertNull($this->client->getNumImages());
     }
+
+    /**
+     * Server urls data provider
+     *
+     * @return array
+     */
+    public function getServerUrls() {
+        $publicKey = md5(microtime());
+
+        return array(
+            array('http://imbo', $publicKey, 'http://imbo/users/' . $publicKey),
+            array('http://imbo/prefix', $publicKey, 'http://imbo/prefix/users/' . $publicKey),
+            array('http://imbo:81', $publicKey, 'http://imbo:81/users/' . $publicKey),
+            array('http://imbo:81/prefix', $publicKey, 'http://imbo:81/prefix/users/' . $publicKey),
+            array('http://imbo:80', $publicKey, 'http://imbo/users/' . $publicKey),
+            array('http://imbo:80/prefix', $publicKey, 'http://imbo/prefix/users/' . $publicKey),
+        );
+    }
+
+    /**
+     * @dataProvider getServerUrls()
+     */
+    public function testServerUrls($url, $publicKey, $expected) {
+        $client = new Client($url, $publicKey, $this->privateKey);
+        $this->assertSame($expected, $client->getUserUrl());
+    }
 }

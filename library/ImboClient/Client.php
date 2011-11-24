@@ -87,6 +87,17 @@ class Client implements ClientInterface {
      * @param ImboClient\Client\Driver\DriverInterface $driver Optional driver to set
      */
     public function __construct($serverUrl, $publicKey, $privateKey, DriverInterface $driver = null) {
+        $parts = parse_url($serverUrl);
+
+        // Remove the port from the server url if it's equal to 80
+        if (isset($parts['port']) && $parts['port'] == 80) {
+            if (empty($parts['path'])) {
+                $parts['path'] = '';
+            }
+
+            $serverUrl = $parts['scheme'] . '://' . $parts['host'] . $parts['path'];
+        }
+
         $this->serverUrl  = rtrim($serverUrl, '/');
         $this->publicKey  = $publicKey;
         $this->privateKey = $privateKey;
@@ -160,7 +171,7 @@ class Client implements ClientInterface {
      */
     public function addImage($path) {
         $imageIdentifier = $this->getImageIdentifier($path);
-        $imageUrl = $this->getImageUrl($imageIdentifier);
+        $imageUrl = $this->getImageUrl($imageIdentifier, true);
 
         $url = $this->getSignedUrl(DriverInterface::PUT, $imageUrl);
 
