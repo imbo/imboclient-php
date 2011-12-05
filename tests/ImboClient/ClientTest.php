@@ -193,14 +193,6 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($expectedUrl, $this->client->getUserUrl());
     }
 
-    /**
-     * @expectedException PHPUnit_Framework_Error_Deprecated
-     */
-    public function testGetResourceUrl() {
-        $identifier = md5(microtime());
-        $url = $this->client->getResourceUrl($identifier);
-    }
-
     public function testGetImageUrl() {
         $identifier = md5(microtime());
         $url = $this->client->getImageUrl($identifier);

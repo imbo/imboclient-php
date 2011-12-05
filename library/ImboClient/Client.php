@@ -158,15 +158,6 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::getResourceUrl()
-     */
-    public function getResourceUrl($resourceIdentifier) {
-        trigger_error('Use getImageUrl()/getMetadataUrl() instead', E_USER_DEPRECATED);
-
-        return $this->getImagesUrl() . '/' . $resourceIdentifier;
-    }
-
-    /**
      * @see ImboClient\ClientInterface::addImage()
      */
     public function addImage($path) {

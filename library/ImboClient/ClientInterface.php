@@ -85,16 +85,6 @@ interface ClientInterface {
     function getMetadataUrl($imageIdentifier);
 
     /**
-     * Get the complete url for a resource
-     *
-     * @param string $resourceIdentifier The resource identifier. For instance "<md5>.png" or
-     *                                   "<md5>.png/meta"
-     * @return string
-     * @deprecated
-     */
-    function getResourceUrl($resourceIdentifier);
-
-    /**
      * Add a new image to the server
      *
      * @param string $path Path to the local image
