@@ -1,6 +1,8 @@
 # PHP client for imbo
 A PHP client for [imbo](https://github.com/christeredvartsen/imbo).
 
+[![Current build Status](https://secure.travis-ci.org/christeredvartsen/imboclient-php.png)](http://travis-ci.org/christeredvartsen/imboclient-php)
+
 ## Add an image
 ```php
 <?php
