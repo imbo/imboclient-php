@@ -144,6 +144,18 @@ interface ImageUrlInterface {
     function thumbnail($width = 50, $height = 50, $fit = 'outbound');
 
     /**
+     * Trigger a canvas transformation
+     *
+     * @param int $width Width of the new canvas
+     * @param int $height Height of the new canvas
+     * @param int $x X coordinate of the placement of the upper left corner of the existing image
+     * @param int $y Y coordinate of the placement of the upper left corner of the existing image
+     * @param string $bg Background color of the canvas
+     * @return ImboClient\ImageUrl\ImageUrlInterface
+     */
+    function canvas($width, $height, $x = null, $y = null, $bg = null);
+
+    /**
      * Resets the URL - removes all transformations
      *
      * @return ImboClient\ImageUrl\ImageUrlInterface

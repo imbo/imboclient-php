@@ -179,6 +179,30 @@ class ImageUrl implements ImageUrlInterface {
     }
 
     /**
+     * @see ImboClient\ImageUrl\ImageUrlInterface::canvas()
+     */
+    public function canvas($width, $height, $x = null, $y = null, $bg = null) {
+        $params = array(
+            'width=' . (int) $width,
+            'height=' . (int) $height,
+        );
+
+        if ($x) {
+            $params[] = 'x=' . (int) $x;
+        }
+
+        if ($y) {
+            $params[] = 'y=' . (int) $y;
+        }
+
+        if ($bg) {
+            $params[] = 'bg=' . $bg;
+        }
+
+        return $this->append('canvas:' . implode(',', $params));
+    }
+
+    /**
      * @see ImboClient\ImageUrl\ImageUrlInterface::reset()
      */
     public function reset() {
