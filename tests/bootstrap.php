@@ -39,14 +39,9 @@
  * @link https://github.com/christeredvartsen/imboclient-php
  */
 
-/** @see ImboClient\Autoload */
-require __DIR__ . '/../library/ImboClient/Autoload.php';
-
-$loader = new ImboClient\Autoload();
-$loader->register();
-
 set_include_path(
     get_include_path() . PATH_SEPARATOR .
+    __DIR__ . '/../library' . PATH_SEPARATOR .
     __DIR__
 );
 
