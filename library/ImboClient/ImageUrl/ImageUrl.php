@@ -181,11 +181,15 @@ class ImageUrl implements ImageUrlInterface {
     /**
      * @see ImboClient\ImageUrl\ImageUrlInterface::canvas()
      */
-    public function canvas($width, $height, $x = null, $y = null, $bg = null) {
+    public function canvas($width, $height, $mode = null, $x = null, $y = null, $bg = null) {
         $params = array(
             'width=' . (int) $width,
             'height=' . (int) $height,
         );
+
+        if ($mode) {
+            $params[] = 'mode=' . $mode;
+        }
 
         if ($x) {
             $params[] = 'x=' . (int) $x;

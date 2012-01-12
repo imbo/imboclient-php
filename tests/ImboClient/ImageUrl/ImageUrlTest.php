@@ -145,8 +145,8 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testCanvasWithAllParams() {
-        $this->assertSame($this->url, $this->url->canvas(100, 200, 10, 20, '000'));
-        $this->assertStringEndsWith('?t[]=canvas:width=100,height=200,x=10,y=20,bg=000', (string) $this->url);
+        $this->assertSame($this->url, $this->url->canvas(100, 200, 'free', 10, 20, '000'));
+        $this->assertStringEndsWith('?t[]=canvas:width=100,height=200,mode=free,x=10,y=20,bg=000', (string) $this->url);
     }
 
     public function testResetUrl() {
