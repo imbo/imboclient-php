@@ -69,7 +69,7 @@ The class also implements the `__toString()` method, so treating the object as a
 
 ### Methods
 
-`border()`
+**border()**
 
 Add a border around the image.
 
@@ -77,30 +77,31 @@ Add a border around the image.
 * `(int) $width` Width of the border on the left and right sides of the image. Defaults to 1.
 * `(int) $height` Height of the border on the top and bottoms sides of the image. Defaults to 1.
 
-`compress()`
+**compress()**
 
 Compress the image on the fly.
 
 * `(int) $quality` Quality of the resulting image. 100 is maximum quality (lowest compression rate)
 
-`convert()`
+**convert()**
 
 Converts the image to another type.
 
 * `(string) $type` The type to convert to. Supported types are: 'gif', 'jpg' and 'png'.
 
-`gif()`
+**gif()**
 
 Proxies to `convert('gif')`.
 
-`jpg()`
+**jpg()**
 
 Proxies to `convert('jpg')`.
 
-`png()`
+**png()**
+
 Proxies to `convert('png')`.
 
-`crop()`
+**crop()**
 
 Crop the image.
 
@@ -109,29 +110,29 @@ Crop the image.
 * `(int) $width` The width of the crop.
 * `(int) $height` The height of the crop.
 
-`flipHorizontally()`
+**flipHorizontally()**
 
 Flip the image horizontally.
 
-`flipVertically()`
+**flipVertically()**
 
 Flip the image vertically.
 
-`resize()`
+**resize()**
 
 Resize the image. Two parameters are supported and at least one of them must be supplied to apply this transformation.
 
 * `(int) $width` The width of the resulting image in pixels. If not specified the width will be calculated using the same ratio as the original image.
 * `(int) $height` The height of the resulting image in pixels. If not specified the height will be calculated using the same ratio as the original image.
 
-`rotate()`
+**rotate()**
 
 Rotate the image.
 
 * `(int) $angle` The number of degrees to rotate the image.
 * `(string) $bg` Background color in hexadecimal. Defaults to '000000' (also supports short values like 'f00' ('ff0000')).
 
-`thumbnail()`
+**thumbnail()**
 
 Generate a thumbnail of the image.
 
