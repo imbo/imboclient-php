@@ -22,8 +22,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package ImboClient
- * @subpackage Client
+ * @package Client
+ * @subpackage Driver
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011, Christer Edvartsen
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -41,8 +41,8 @@ use ImboClient\Http\Response\Response,
  *
  * This class is a driver for the client using the cURL functions.
  *
- * @package ImboClient
- * @subpackage Client
+ * @package Client
+ * @subpackage Driver
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011, Christer Edvartsen
  * @license http://www.opensource.org/licenses/mit-license MIT License

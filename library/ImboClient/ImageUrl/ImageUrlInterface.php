@@ -22,8 +22,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package ImboClient
- * @subpackage Interfaces
+ * @package Interfaces
+ * @subpackage Client\ImageUrl
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011, Christer Edvartsen
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -35,8 +35,8 @@ namespace ImboClient\ImageUrl;
 /**
  * Interface for the image url
  *
- * @package ImboClient
- * @subpackage Interfaces
+ * @package Interfaces
+ * @subpackage Client\ImageUrl
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011, Christer Edvartsen
  * @license http://www.opensource.org/licenses/mit-license MIT License
