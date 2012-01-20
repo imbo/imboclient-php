@@ -32,8 +32,9 @@
 
 namespace ImboClient\Client\Driver;
 
-use ImboClient\Http\Response\Response;
-use ImboClient\Http\HeaderContainer;
+use ImboClient\Http\Response\Response,
+    ImboClient\Http\HeaderContainer,
+    RuntimeException;
 
 /**
  * cURL client driver
@@ -195,7 +196,7 @@ class Curl implements DriverInterface {
      * @param resource $handle A cURL handle
      * @param string $url The URL to request
      * @return ImboClient\Http\Response\ResponseInterface
-     * @throws ImboClient\Client\Driver\Exception
+     * @throws RuntimeException
      */
     protected function request($handle, $url) {
         curl_setopt_array($handle, array(
@@ -214,12 +215,12 @@ class Curl implements DriverInterface {
 
         if ($content === false) {
             if ($connectTime >= $this->params['connectTimeout']) {
-                throw new Exception('An error occured. Request timed out while connecting (limit: ' . $this->params['connectTimeout'] . 's).');
+                throw new RuntimeException('An error occured. Request timed out while connecting (limit: ' . $this->params['connectTimeout'] . 's).');
             } else if ($transferTime >= $this->params['timeout']) {
-                throw new Exception('An error occured. Request timed out during transfer (limit: ' . $this->params['timeout'] . 's).');
+                throw new RuntimeException('An error occured. Request timed out during transfer (limit: ' . $this->params['timeout'] . 's).');
             }
 
-            throw new Exception('An error occured. Could not complete request (Response code: ' . $statusCode . ').');
+            throw new RuntimeException('An error occured. Could not complete request (Response code: ' . $statusCode . ').');
         }
 
         $content = str_replace("\r", '', $content);

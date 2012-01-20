@@ -64,7 +64,7 @@ interface DriverInterface {
      * @param array $metadata The metadata to POST. This array will be json_encoded and sent to the
      *                        server as $_POST['metadata']
      * @return ImboClient\Http\Response\ResponseInterface
-     * @throws ImboClient\Client\Driver\Exception
+     * @throws RuntimeException
      */
     function post($url, array $metadata = null);
 
@@ -74,7 +74,7 @@ interface DriverInterface {
      * @param string $url The URL to PUT to
      * @param string $filePath Path to the local file
      * @return ImboClient\Http\Response\ResponseInterface
-     * @throws ImboClient\Client\Driver\Exception
+     * @throws RuntimeException
      */
     function put($url, $filePath);
 
@@ -83,7 +83,7 @@ interface DriverInterface {
      *
      * @param string $url The URL to GET
      * @return ImboClient\Http\Response\ResponseInterface
-     * @throws ImboClient\Client\Driver\Exception
+     * @throws RuntimeException
      */
     function get($url);
 
@@ -92,7 +92,7 @@ interface DriverInterface {
      *
      * @param string $url The URL to HEAD
      * @return ImboClient\Http\Response\ResponseInterface
-     * @throws ImboClient\Client\Driver\Exception
+     * @throws RuntimeException
      */
     function head($url);
 
@@ -101,7 +101,7 @@ interface DriverInterface {
      *
      * @param string $url The URL to DELETE
      * @return ImboClient\Http\Response\ResponseInterface
-     * @throws ImboClient\Client\Driver\Exception
+     * @throws RuntimeException
      */
     function delete($url);
 
