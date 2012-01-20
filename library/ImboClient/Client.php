@@ -2,7 +2,7 @@
 /**
  * ImboClient
  *
- * Copyright (c) 2011 Christer Edvartsen <cogo@starzinger.net>
+ * Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -24,15 +24,15 @@
  *
  * @package Client
  * @author Christer Edvartsen <cogo@starzinger.net>
- * @copyright Copyright (c) 2011, Christer Edvartsen
+ * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
 
 namespace ImboClient;
 
-use ImboClient\Client\Driver\DriverInterface,
-    ImboClient\Client\Driver\Curl as DefaultDriver,
+use ImboClient\Driver\DriverInterface,
+    ImboClient\Driver\Curl as DefaultDriver,
     ImboClient\ImageUrl\ImageUrl,
     InvalidArgumentException;
 
@@ -44,7 +44,7 @@ use ImboClient\Client\Driver\DriverInterface,
  *
  * @package Client
  * @author Christer Edvartsen <cogo@starzinger.net>
- * @copyright Copyright (c) 2011, Christer Edvartsen
+ * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
@@ -59,7 +59,7 @@ class Client implements ClientInterface {
     /**
      * Driver used by the client
      *
-     * @var ImboClient\Client\Driver\DriverInterface
+     * @var ImboClient\Driver\DriverInterface
      */
     private $driver;
 
@@ -83,7 +83,7 @@ class Client implements ClientInterface {
      * @param string $serverUrl The URL to the ImboClient server, including protocol
      * @param string $publicKey The public key to use
      * @param string $privateKey The private key to use
-     * @param ImboClient\Client\Driver\DriverInterface $driver Optional driver to set
+     * @param ImboClient\Driver\DriverInterface $driver Optional driver to set
      */
     public function __construct($serverUrl, $publicKey, $privateKey, DriverInterface $driver = null) {
         $parts = parse_url($serverUrl);

@@ -2,7 +2,7 @@
 /**
  * ImboClient
  *
- * Copyright (c) 2011 Christer Edvartsen <cogo@starzinger.net>
+ * Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -22,15 +22,14 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Client
- * @subpackage Driver
+ * @package Driver
  * @author Christer Edvartsen <cogo@starzinger.net>
- * @copyright Copyright (c) 2011, Christer Edvartsen
+ * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
 
-namespace ImboClient\Client\Driver;
+namespace ImboClient\Driver;
 
 use ImboClient\Http\Response\Response,
     ImboClient\Http\HeaderContainer,
@@ -41,10 +40,9 @@ use ImboClient\Http\Response\Response,
  *
  * This class is a driver for the client using the cURL functions.
  *
- * @package Client
- * @subpackage Driver
+ * @package Driver
  * @author Christer Edvartsen <cogo@starzinger.net>
- * @copyright Copyright (c) 2011, Christer Edvartsen
+ * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
@@ -104,7 +102,7 @@ class Curl implements DriverInterface {
     }
 
     /**
-     * @see ImboClient\Client\Driver\DriverInterface::post()
+     * @see ImboClient\Driver\DriverInterface::post()
      */
     public function post($url, array $metadata = null) {
         $postFields = array(
@@ -122,7 +120,7 @@ class Curl implements DriverInterface {
     }
 
     /**
-     * @see ImboClient\Client\Driver\DriverInterface::get()
+     * @see ImboClient\Driver\DriverInterface::get()
      */
     public function get($url) {
         $handle = curl_copy_handle($this->curlHandle);
@@ -135,7 +133,7 @@ class Curl implements DriverInterface {
     }
 
     /**
-     * @see ImboClient\Client\Driver\DriverInterface::head()
+     * @see ImboClient\Driver\DriverInterface::head()
      */
     public function head($url) {
         $handle = curl_copy_handle($this->curlHandle);
@@ -149,7 +147,7 @@ class Curl implements DriverInterface {
     }
 
     /**
-     * @see ImboClient\Client\Driver\DriverInterface::delete()
+     * @see ImboClient\Driver\DriverInterface::delete()
      */
     public function delete($url) {
         $handle = curl_copy_handle($this->curlHandle);
@@ -162,7 +160,7 @@ class Curl implements DriverInterface {
     }
 
     /**
-     * @see ImboClient\Client\Driver\DriverInterface::put()
+     * @see ImboClient\Driver\DriverInterface::put()
      */
     public function put($url, $filePath) {
         $fr = fopen($filePath, 'r');
@@ -179,7 +177,7 @@ class Curl implements DriverInterface {
     }
 
     /**
-     * @see ImboClient\Client\Driver\DriverInterface::addRequestHeader()
+     * @see ImboClient\Driver\DriverInterface::addRequestHeader()
      */
     public function addRequestHeader($key, $value) {
         $this->headers[] = $key . ': ' . $value;

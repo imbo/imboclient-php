@@ -2,7 +2,7 @@
 /**
  * ImboClient
  *
- * Copyright (c) 2011 Christer Edvartsen <cogo@starzinger.net>
+ * Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -25,7 +25,7 @@
  * @package Client
  * @subpackage Autoload
  * @author Christer Edvartsen <cogo@starzinger.net>
- * @copyright Copyright (c) 2011, Christer Edvartsen
+ * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
@@ -38,7 +38,7 @@ namespace ImboClient;
  * @package Client
  * @subpackage Autoload
  * @author Christer Edvartsen <cogo@starzinger.net>
- * @copyright Copyright (c) 2011, Christer Edvartsen
+ * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
@@ -51,9 +51,9 @@ class Autoload {
     static public $classes = array(
         'imboclient\\autoload' => '/Autoload.php',
         'imboclient\\client' => '/Client.php',
-        'imboclient\\client\\driver\\curl' => '/Client/Driver/Curl.php',
-        'imboclient\\client\\driver\\driverinterface' => '/Client/Driver/DriverInterface.php',
         'imboclient\\clientinterface' => '/ClientInterface.php',
+        'imboclient\\driver\\curl' => '/Driver/Curl.php',
+        'imboclient\\driver\\driverinterface' => '/Driver/DriverInterface.php',
         'imboclient\\http\\headercontainer' => '/Http/HeaderContainer.php',
         'imboclient\\http\\headercontainerinterface' => '/Http/HeaderContainerInterface.php',
         'imboclient\\http\\response\\response' => '/Http/Response/Response.php',

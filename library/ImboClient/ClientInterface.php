@@ -2,7 +2,7 @@
 /**
  * ImboClient
  *
- * Copyright (c) 2011 Christer Edvartsen <cogo@starzinger.net>
+ * Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -25,14 +25,14 @@
  * @package Interfaces
  * @subpackage Client
  * @author Christer Edvartsen <cogo@starzinger.net>
- * @copyright Copyright (c) 2011, Christer Edvartsen
+ * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
 
 namespace ImboClient;
 
-use ImboClient\Client\Driver\DriverInterface;
+use ImboClient\Driver\DriverInterface;
 
 /**
  * Interface for the client
@@ -40,7 +40,7 @@ use ImboClient\Client\Driver\DriverInterface;
  * @package Interfaces
  * @subpackage Client
  * @author Christer Edvartsen <cogo@starzinger.net>
- * @copyright Copyright (c) 2011, Christer Edvartsen
+ * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
@@ -48,7 +48,7 @@ interface ClientInterface {
     /**
      * Set the driver
      *
-     * @param ImboClient\Client\Driver\DriverInterface $driver The driver to set
+     * @param ImboClient\Driver\DriverInterface $driver The driver to set
      * @return ImboClient\ClientInterface
      */
     function setDriver(DriverInterface $driver);

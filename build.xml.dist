@@ -15,7 +15,7 @@
     <mkdir dir="${build}/code-browser"/>
     <mkdir dir="${build}/pdepend"/>
 
-    <copy file="${basedir}/tests/ImboClient/Client/Driver/_files/driver.php" tofile="${client_tests_path}" overwrite="true"/>
+    <copy file="${basedir}/tests/ImboClient/Driver/_files/driver.php" tofile="${client_tests_path}" overwrite="true"/>
   </target>
 
   <target name="lint">
@@ -55,7 +55,7 @@
   </target>
 
   <target name="phpcs" description="Generate checkstyle.xml using PHP_CodeSniffer">
-    <exec executable="phpcs" output="/dev/null">
+    <exec executable="phpcs">
       <arg line="--report=checkstyle --report-file=${build}/logs/checkstyle.xml --standard=Imbo ${source}"/>
     </exec>
   </target>
