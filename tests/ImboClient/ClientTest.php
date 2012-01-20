@@ -119,11 +119,20 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException ImboClient\Exception
+     * @expectedException InvalidArgumentException
      * @expectedExceptionMessage File does not exist: foobar
      */
     public function testAddImageWhenImageDoesNotExist() {
         $this->client->addImage('foobar');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage File is of zero length:
+     */
+    public function testAddImageWhenImageIsEmpty() {
+        $path = __DIR__ . '/_files/emptyImage.png';
+        $this->client->addImage($path);
     }
 
     public function testAddImage() {
@@ -166,6 +175,23 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern['image']))->will($this->returnValue($response));
         $this->assertSame($response, $this->client->headImage($this->imageIdentifier));
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage File does not exist: foobar
+     */
+    public function testImageExistsWhenLocalImageDoesNotExist() {
+        $this->client->imageExists('foobar');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage File is of zero length:
+     */
+    public function testImageExistsWhenLocalImageIsEmpty() {
+        $path = __DIR__ . '/_files/emptyImage.png';
+        $this->client->imageExists($path);
     }
 
     public function testImageExistsWhenRemoteImageDoesNotExist() {
