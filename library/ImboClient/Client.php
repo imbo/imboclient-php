@@ -32,9 +32,10 @@
 
 namespace ImboClient;
 
-use ImboClient\Client\Driver\DriverInterface;
-use ImboClient\Client\Driver\Curl as DefaultDriver;
-use ImboClient\ImageUrl\ImageUrl;
+use ImboClient\Client\Driver\DriverInterface,
+    ImboClient\Client\Driver\Curl as DefaultDriver,
+    ImboClient\ImageUrl\ImageUrl,
+    InvalidArgumentException;
 
 /**
  * Client that interacts with the server part of ImboClient
@@ -158,9 +159,27 @@ class Client implements ClientInterface {
     }
 
     /**
+     * Helper method to make sure a local file exists, and that it is not empty
+     *
+     * @param string $path The path to a local file
+     * @throws InvalidArgumentException
+     */
+    private function validateLocalFile($path) {
+        if (!is_file($path)) {
+            throw new InvalidArgumentException('File does not exist: ' . $path);
+        }
+
+        if (!filesize($path)) {
+            throw new InvalidArgumentException('Specified file has zero length: ' . $path);
+        }
+    }
+
+    /**
      * @see ImboClient\ClientInterface::addImage()
      */
     public function addImage($path) {
+        $this->validateLocalFile($path);
+
         $imageIdentifier = $this->getImageIdentifier($path);
         $imageUrl = $this->getImageUrl($imageIdentifier, true);
 
@@ -173,6 +192,8 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::imageExists()
      */
     public function imageExists($path) {
+        $this->validateLocalFile($path);
+
         $imageIdentifier = $this->getImageIdentifier($path);
         $response = $this->headImage($imageIdentifier);
 
@@ -281,13 +302,8 @@ class Client implements ClientInterface {
      *
      * @param string $path Path to the local image
      * @return string The image identifier to use with the imbo server
-     * @throws ImboClient\Client\Exception
      */
     private function getImageIdentifier($path) {
-        if (!is_file($path)) {
-            throw new Exception('File does not exist: ' . $path);
-        }
-
         return md5_file($path);
     }
 }
