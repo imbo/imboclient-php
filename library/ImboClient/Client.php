@@ -170,7 +170,7 @@ class Client implements ClientInterface {
         }
 
         if (!filesize($path)) {
-            throw new InvalidArgumentException('Specified file has zero length: ' . $path);
+            throw new InvalidArgumentException('File is of zero length: ' . $path);
         }
     }
 
