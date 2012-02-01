@@ -157,22 +157,6 @@ class Client implements ClientInterface {
     }
 
     /**
-     * Helper method to make sure a local file exists, and that it is not empty
-     *
-     * @param string $path The path to a local file
-     * @throws InvalidArgumentException
-     */
-    private function validateLocalFile($path) {
-        if (!is_file($path)) {
-            throw new InvalidArgumentException('File does not exist: ' . $path);
-        }
-
-        if (!filesize($path)) {
-            throw new InvalidArgumentException('File is of zero length: ' . $path);
-        }
-    }
-
-    /**
      * @see ImboClient\ClientInterface::addImage()
      */
     public function addImage($path) {
@@ -322,5 +306,21 @@ class Client implements ClientInterface {
      */
     private function getImageIdentifier($path) {
         return md5_file($path);
+    }
+
+    /**
+     * Helper method to make sure a local file exists, and that it is not empty
+     *
+     * @param string $path The path to a local file
+     * @throws InvalidArgumentException
+     */
+    private function validateLocalFile($path) {
+        if (!is_file($path)) {
+            throw new InvalidArgumentException('File does not exist: ' . $path);
+        }
+
+        if (!filesize($path)) {
+            throw new InvalidArgumentException('File is of zero length: ' . $path);
+        }
     }
 }
