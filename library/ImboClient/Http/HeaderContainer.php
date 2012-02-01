@@ -62,16 +62,6 @@ class HeaderContainer implements HeaderContainerInterface {
     }
 
     /**
-     * Normalize the header name
-     *
-     * @param string $name The name to normalize, for instance "IF_MODIFIED_SINCE"
-     * @return string The normalized name, for instance "if-modified-since"
-     */
-    private function getName($name) {
-        return strtolower(str_replace('_', '-', $name));
-    }
-
-    /**
      * @see ImboClient\Http\HeaderContainerInterface::getAll()
      */
     public function getAll() {
@@ -115,4 +105,15 @@ class HeaderContainer implements HeaderContainerInterface {
 
         return isset($this->parameters[$key]);
     }
+
+    /**
+     * Normalize the header name
+     *
+     * @param string $name The name to normalize, for instance "IF_MODIFIED_SINCE"
+     * @return string The normalized name, for instance "if-modified-since"
+     */
+    private function getName($name) {
+        return strtolower(str_replace('_', '-', $name));
+    }
+
 }
