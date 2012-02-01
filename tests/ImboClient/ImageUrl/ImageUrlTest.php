@@ -56,22 +56,22 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
 
     public function testBorder() {
         $this->assertSame($this->url, $this->url->border());
-        $this->assertStringEndsWith('?t[]=border:color=000000,width=1,height=1', (string) $this->url);
+        $this->assertStringEndsWith('?t%5B%5D=border:color=000000,width=1,height=1', (string) $this->url);
     }
 
     public function testBorderWithCustomValues() {
         $this->assertSame($this->url, $this->url->border('fff', 2, 3));
-        $this->assertStringEndsWith('?t[]=border:color=fff,width=2,height=3', (string) $this->url);
+        $this->assertStringEndsWith('?t%5B%5D=border:color=fff,width=2,height=3', (string) $this->url);
     }
 
     public function testCompress() {
         $this->assertSame($this->url, $this->url->compress());
-        $this->assertStringEndsWith('?t[]=compress:quality=75', (string) $this->url);
+        $this->assertStringEndsWith('?t%5B%5D=compress:quality=75', (string) $this->url);
     }
 
     public function testCompressWithCustomValues() {
         $this->assertSame($this->url, $this->url->compress(42));
-        $this->assertStringEndsWith('?t[]=compress:quality=42', (string) $this->url);
+        $this->assertStringEndsWith('?t%5B%5D=compress:quality=42', (string) $this->url);
     }
 
     public function testConvert() {
@@ -96,57 +96,57 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
 
     public function testCrop() {
         $this->assertSame($this->url, $this->url->crop(1, 2, 3, 4));
-        $this->assertStringEndsWith('?t[]=crop:x=1,y=2,width=3,height=4', (string) $this->url);
+        $this->assertStringEndsWith('?t%5B%5D=crop:x=1,y=2,width=3,height=4', (string) $this->url);
     }
 
     public function testFlipHorizontally() {
         $this->assertSame($this->url, $this->url->flipHorizontally());
-        $this->assertStringEndsWith('?t[]=flipHorizontally', (string) $this->url);
+        $this->assertStringEndsWith('?t%5B%5D=flipHorizontally', (string) $this->url);
     }
 
     public function testFlipVertically() {
         $this->assertSame($this->url, $this->url->flipVertically());
-        $this->assertStringEndsWith('?t[]=flipVertically', (string) $this->url);
+        $this->assertStringEndsWith('?t%5B%5D=flipVertically', (string) $this->url);
     }
 
     public function testResizeWithOnlyWidth() {
         $this->assertSame($this->url, $this->url->resize(100));
-        $this->assertStringEndsWith('?t[]=resize:width=100', (string) $this->url);
+        $this->assertStringEndsWith('?t%5B%5D=resize:width=100', (string) $this->url);
     }
 
     public function testResizeWithOnlyHeight() {
         $this->assertSame($this->url, $this->url->resize(null, 100));
-        $this->assertStringEndsWith('?t[]=resize:height=100', (string) $this->url);
+        $this->assertStringEndsWith('?t%5B%5D=resize:height=100', (string) $this->url);
     }
 
     public function testResize() {
         $this->assertSame($this->url, $this->url->resize(1, 2));
-        $this->assertStringEndsWith('?t[]=resize:width=1,height=2', (string) $this->url);
+        $this->assertStringEndsWith('?t%5B%5D=resize:width=1,height=2', (string) $this->url);
     }
 
     public function testRotate() {
         $this->assertSame($this->url, $this->url->rotate(42));
-        $this->assertStringEndsWith('?t[]=rotate:angle=42,bg=000000', (string) $this->url);
+        $this->assertStringEndsWith('?t%5B%5D=rotate:angle=42,bg=000000', (string) $this->url);
     }
 
     public function testRotateWithBg() {
         $this->assertSame($this->url, $this->url->rotate(42, 'fff'));
-        $this->assertStringEndsWith('?t[]=rotate:angle=42,bg=fff', (string) $this->url);
+        $this->assertStringEndsWith('?t%5B%5D=rotate:angle=42,bg=fff', (string) $this->url);
     }
 
     public function testThumbnailWithAllParams() {
         $this->assertSame($this->url, $this->url->thumbnail(1, 2, 'inset'));
-        $this->assertStringEndsWith('?t[]=thumbnail:width=1,height=2,fit=inset', (string) $this->url);
+        $this->assertStringEndsWith('?t%5B%5D=thumbnail:width=1,height=2,fit=inset', (string) $this->url);
     }
 
     public function testCanvasWithRequiredParams() {
         $this->assertSame($this->url, $this->url->canvas(100, 200));
-        $this->assertStringEndsWith('?t[]=canvas:width=100,height=200', (string) $this->url);
+        $this->assertStringEndsWith('?t%5B%5D=canvas:width=100,height=200', (string) $this->url);
     }
 
     public function testCanvasWithAllParams() {
         $this->assertSame($this->url, $this->url->canvas(100, 200, 'free', 10, 20, '000'));
-        $this->assertStringEndsWith('?t[]=canvas:width=100,height=200,mode=free,x=10,y=20,bg=000', (string) $this->url);
+        $this->assertStringEndsWith('?t%5B%5D=canvas:width=100,height=200,mode=free,x=10,y=20,bg=000', (string) $this->url);
     }
 
     public function testResetUrl() {
