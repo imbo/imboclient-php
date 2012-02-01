@@ -121,20 +121,25 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage File does not exist: foobar
+     * @covers ImboClient\Client::addImage
      */
-    public function testAddImageWhenImageDoesNotExist() {
+    public function testAddImageWhenLocalImageDoesNotExist() {
         $this->client->addImage('foobar');
     }
 
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage File is of zero length:
+     * @covers ImboClient\Client::addImage
      */
     public function testAddImageWhenImageIsEmpty() {
         $path = __DIR__ . '/_files/emptyImage.png';
         $this->client->addImage($path);
     }
 
+    /**
+     * @covers ImboClient\Client::addImage
+     */
     public function testAddImage() {
         $imagePath = __DIR__ . '/_files/image.png';
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
@@ -142,12 +147,18 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($response, $this->client->addImage($imagePath));
     }
 
+    /**
+     * @covers ImboClient\Client::deleteImage
+     */
     public function testDeleteImage() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $this->driver->expects($this->once())->method('delete')->with($this->matchesRegularExpression($this->signedUrlPattern['image']))->will($this->returnValue($response));
         $this->assertSame($response, $this->client->deleteImage($this->imageIdentifier));
     }
 
+    /**
+     * @covers ImboClient\Client::editMetadata
+     */
     public function testEditMetadata() {
         $data = array(
             'foo' => 'bar',
@@ -159,18 +170,27 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($response, $this->client->editMetadata($this->imageIdentifier, $data));
     }
 
+    /**
+     * @covers ImboClient\Client::deleteMetadata
+     */
     public function testDeleteMetadata() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $this->driver->expects($this->once())->method('delete')->with($this->matchesRegularExpression($this->signedUrlPattern['metadata']))->will($this->returnValue($response));
         $this->assertSame($response, $this->client->deleteMetadata($this->imageIdentifier));
     }
 
+    /**
+     * @covers ImboClient\Client::getMetadata
+     */
     public function testGetMetadata() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern['metadata']))->will($this->returnValue($response));
         $this->assertSame($response, $this->client->getMetadata($this->imageIdentifier));
     }
 
+    /**
+     * @covers ImboClient\Client::headImage
+     */
     public function testHeadImage() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern['image']))->will($this->returnValue($response));
@@ -180,6 +200,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage File does not exist: foobar
+     * @covers ImboClient\Client::imageExists
      */
     public function testImageExistsWhenLocalImageDoesNotExist() {
         $this->client->imageExists('foobar');
@@ -188,12 +209,16 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage File is of zero length:
+     * @covers ImboClient\Client::imageExists
      */
     public function testImageExistsWhenLocalImageIsEmpty() {
         $path = __DIR__ . '/_files/emptyImage.png';
         $this->client->imageExists($path);
     }
 
+    /**
+     * @covers ImboClient\Client::imageExists
+     */
     public function testImageExistsWhenRemoteImageDoesNotExist() {
         $imagePath = __DIR__ . '/_files/image.png';
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
@@ -204,6 +229,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertFalse($this->client->imageExists($imagePath));
     }
 
+    /**
+     * @covers ImboClient\Client::imageExists
+     */
     public function testImageExistsWhenRemoteImageExist() {
         $imagePath = __DIR__ . '/_files/image.png';
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
@@ -214,22 +242,42 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertTrue($this->client->imageExists($imagePath));
     }
 
-    public function testGetUserUrl() {
-        $expectedUrl = $this->serverUrl . '/users/' . $this->publicKey;
-        $this->assertSame($expectedUrl, $this->client->getUserUrl());
-    }
-
+    /**
+     * @covers ImboClient\Client::getImageUrl
+     */
     public function testGetImageUrl() {
         $identifier = md5(microtime());
         $url = $this->client->getImageUrl($identifier);
         $this->assertInstanceOf('ImboClient\ImageUrl\ImageUrl', $url);
     }
 
+    /**
+     * @covers ImboClient\Client::getImageUrl
+     */
+    public function testGetImageUrlAsString() {
+        $expectedUrl = $this->serverUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier;
+        $this->assertSame($expectedUrl, $this->client->getImageUrl($this->imageIdentifier, true));
+    }
+
+    /**
+     * @covers ImboClient\Client::getMetadataUrl
+     */
+    public function testGetMetadataUrl() {
+        $expectedUrl = $this->serverUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '/meta';
+        $this->assertSame($expectedUrl, $this->client->getMetadataUrl($this->imageIdentifier));
+    }
+
+    /**
+     * @covers ImboClient\Client::getImagesUrl
+     */
     public function testGetImagesUrl() {
         $expectedUrl = $this->serverUrl . '/users/' . $this->publicKey . '/images';
         $this->assertSame($expectedUrl, $this->client->getImagesUrl());
     }
 
+    /**
+     * @covers ImboClient\Client::getNumImages
+     */
     public function testGetNumImages() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
@@ -240,7 +288,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame(42, $this->client->getNumImages());
     }
 
-    public function testGetNumImagesWithServerRespondsWithAnError() {
+    /**
+     * @covers ImboClient\Client::getNumImages
+     */
+    public function testGetNumImagesWhenServerRespondsWithAnError() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(500));
 
@@ -269,12 +320,16 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @dataProvider getServerUrls()
+     * @covers ImboClient\Client::getUserUrl
      */
     public function testServerUrls($url, $publicKey, $expected) {
         $client = new Client($url, $publicKey, $this->privateKey);
         $this->assertSame($expected, $client->getUserUrl());
     }
 
+    /**
+     * @covers ImboClient\Client::getImageProperties
+     */
     public function testGetImagePropertiesWithImageThatDoesNotExist() {
         $image = '8f552ba2a350be7ac19399365a738202';
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
@@ -283,6 +338,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertFalse($this->client->getImageProperties($image));
     }
 
+    /**
+     * @covers ImboClient\Client::getImageProperties
+     */
     public function testGetImagePropertiesWithImageThatExists() {
         $image = '8f552ba2a350be7ac19399365a738202';
         $headers = $this->getMock('ImboClient\Http\HeaderContainerInterface');
