@@ -3,11 +3,12 @@ A PHP client for [imbo](https://github.com/christeredvartsen/imbo).
 
 [![Current build Status](https://secure.travis-ci.org/christeredvartsen/imboclient-php.png)](http://travis-ci.org/christeredvartsen/imboclient-php)
 
+## Requirements
+ImboClient requires a [PSR-0](http://groups.google.com/group/php-standards) compatible autoloader and only works on [PHP-5.3](http://php.net/) or above.
+
 ## Add an image
 ```php
 <?php
-require 'ImboClient/Autoload.php';
-
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
 // Path to local image
@@ -18,8 +19,6 @@ $response = $client->addImage($path);
 ## Add/edit meta data
 ```php
 <?php
-require 'ImboClient/Autoload.php';
-
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
 // Add some meta data to the image
@@ -34,8 +33,6 @@ $response = $client->editMetadata($hash, $metadata);
 ## Get meta data
 ```php
 <?php
-require 'ImboClient/Autoload.php';
-
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
 $hash = '<hash>';
@@ -44,8 +41,6 @@ $response = $client->getMetadata($hash);
 ## Delete an image
 ```php
 <?php
-require 'ImboClient/Autoload.php';
-
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
 $hash = '<hash>';
@@ -54,8 +49,6 @@ $response = $client->deleteImage($hash);
 ## Delete all meta data attached to an image
 ```php
 <?php
-require 'ImboClient/Autoload.php';
-
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
 $hash = '<hash>';
