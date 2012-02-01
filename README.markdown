@@ -132,3 +132,14 @@ Generate a thumbnail of the image.
 * `(int) $width` Width of the thumbnail. Defaults to 50.
 * `(int) $height` Height of the thumbnail. Defaults to 50.
 * `(string) $fit` Fit style. 'inset' or 'outbound'. Default to 'outbound'.
+
+**canvas()**
+
+Builds a new canvas and allows easy positioning of the original image within it.
+
+* `(int) $width` Width of the new canvas.
+* `(int) $height` Height of the new canvas.
+* `(string) $mode` Placement mode. 'free' (uses $x and $y), 'center', 'center-x' (centers horizontally, uses $y for vertical placement), 'center-y' (centers vertically, uses $x for horizontal placement). Default to 'free'.
+* `(int) $x` X coordinate of the placement of the upper left corner of the existing image.
+* `(int) $y` Y coordinate of the placement of the upper left corner of the existing image.
+* `(string) $bg` Background color of the canvas.
