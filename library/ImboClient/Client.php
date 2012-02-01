@@ -176,8 +176,6 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::addImage()
      */
     public function addImage($path) {
-        $this->validateLocalFile($path);
-
         $imageIdentifier = $this->getImageIdentifier($path);
         $imageUrl = $this->getImageUrl($imageIdentifier, true);
 
@@ -190,8 +188,6 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::imageExists()
      */
     public function imageExists($path) {
-        $this->validateLocalFile($path);
-
         $imageIdentifier = $this->getImageIdentifier($path);
         $response = $this->headImage($imageIdentifier);
 
@@ -320,7 +316,9 @@ class Client implements ClientInterface {
      * @param string $path Path to the local image
      * @return string The image identifier to use with the imbo server
      */
-    private function getImageIdentifier($path) {
+    public function getImageIdentifier($path) {
+        $this->validateLocalFile($path);
+
         return md5_file($path);
     }
 }
