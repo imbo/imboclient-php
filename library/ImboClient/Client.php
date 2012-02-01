@@ -254,12 +254,31 @@ class Client implements ClientInterface {
         $response = $this->driver->get($url);
 
         if ($response->getStatusCode() !== 200) {
-            return null;
+            return false;
         }
 
         $body = json_decode($response->getBody());
 
         return $body->numImages;
+    }
+
+    /**
+     * @see ImboClient\ClientInterface::getImageProperties()
+     */
+    public function getImageProperties($imageIdentifier) {
+        $response = $this->headImage($imageIdentifier);
+
+        if ($response->getStatusCode() !== 200) {
+            return false;
+        }
+
+        $headers = $response->getHeaders();
+
+        return array(
+            'width'    => (int) $headers->get('x-imbo-originalwidth'),
+            'height'   => (int) $headers->get('x-imbo-originalheight'),
+            'filesize' => (int) $headers->get('x-imbo-originalfilesize'),
+        );
     }
 
     /**

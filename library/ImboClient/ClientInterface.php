@@ -148,9 +148,25 @@ interface ClientInterface {
     /**
      * Get the number of images currently stored at the server
      *
-     * If the server responds with an error, this method must return null.
+     * If the server responds with an error, this method must return false.
      *
-     * @return int|null
+     * @return int|boolean
      */
     function getNumImages();
+
+    /**
+     * Get properties of an image
+     *
+     * This method returns an associative array with the following keys:
+     *
+     * - width: Width of the image in pixels
+     * - height: Height of the image in pixels
+     * - size: Size of the image in bytes
+     *
+     * If the image does not exist on the server, this method returns false.
+     *
+     * @param string $imageIdentifier The image identifier
+     * @return array|boolean
+     */
+    function getImageProperties($imageIdentifier);
 }

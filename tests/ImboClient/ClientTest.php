@@ -246,7 +246,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
 
         $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern['user']))->will($this->returnValue($response));
 
-        $this->assertNull($this->client->getNumImages());
+        $this->assertFalse($this->client->getNumImages());
     }
 
     /**
@@ -273,5 +273,41 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     public function testServerUrls($url, $publicKey, $expected) {
         $client = new Client($url, $publicKey, $this->privateKey);
         $this->assertSame($expected, $client->getUserUrl());
+    }
+
+    public function testGetImagePropertiesWithImageThatDoesNotExist() {
+        $image = '8f552ba2a350be7ac19399365a738202';
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(404));
+        $this->driver->expects($this->once())->method('head')->will($this->returnValue($response));
+        $this->assertFalse($this->client->getImageProperties($image));
+    }
+
+    public function testGetImagePropertiesWithImageThatExists() {
+        $image = '8f552ba2a350be7ac19399365a738202';
+        $headers = $this->getMock('ImboClient\Http\HeaderContainerInterface');
+        $headers->expects($this->any())->method('get')->will($this->returnCallback(function ($key) {
+            switch ($key) {
+                case 'x-imbo-originalwidth': return 200; break;
+                case 'x-imbo-originalheight': return 100; break;
+                case 'x-imbo-originalfilesize': return 400; break;
+            }
+        }));
+
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
+        $response->expects($this->once())->method('getHeaders')->will($this->returnValue($headers));
+
+        $this->driver->expects($this->once())->method('head')->will($this->returnValue($response));
+        $properties = $this->client->getImageProperties($image);
+        $this->assertInternalType('array', $properties);
+
+        $this->assertArrayHasKey('width', $properties);
+        $this->assertArrayHasKey('height', $properties);
+        $this->assertArrayHasKey('filesize', $properties);
+
+        $this->assertSame(200, $properties['width']);
+        $this->assertSame(100, $properties['height']);
+        $this->assertSame(400, $properties['filesize']);
     }
 }
