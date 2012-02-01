@@ -250,9 +250,9 @@ class ImageUrl implements ImageUrlInterface {
     private function getQueryString() {
         $query = null;
         $query = array_reduce($this->data, function($query, $element) {
-            return $query . 't[]=' . $element . '&';
+            return $query . 't%5B%5D=' . $element . '&amp;'; // %5B => [] <= %5D
         }, $query);
-        $query = rtrim($query, '&');
+        $query = rtrim($query, '&amp;');
 
         return $query;
     }
