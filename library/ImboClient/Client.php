@@ -160,8 +160,6 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::addImage()
      */
     public function addImage($path) {
-        $this->validateLocalFile($path);
-
         $imageIdentifier = $this->getImageIdentifier($path);
         $imageUrl = $this->getImageUrl($imageIdentifier, true);
 
@@ -174,8 +172,6 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::imageExists()
      */
     public function imageExists($path) {
-        $this->validateLocalFile($path);
-
         $imageIdentifier = $this->getImageIdentifier($path);
         $response = $this->headImage($imageIdentifier);
 
@@ -266,6 +262,15 @@ class Client implements ClientInterface {
     }
 
     /**
+     * @see ImboClient\ClientInterface::getImageIdentifier()
+     */
+    public function getImageIdentifier($path) {
+        $this->validateLocalFile($path);
+
+        return md5_file($path);
+    }
+
+    /**
      * Generate a signature that can be sent to the server
      *
      * @param string $method HTTP method (PUT, POST or DELETE)
@@ -296,16 +301,6 @@ class Client implements ClientInterface {
         $url = sprintf('%s?signature=%s&timestamp=%s', $url, rawurlencode($signature), rawurlencode($timestamp));
 
         return $url;
-    }
-
-    /**
-     * Generate an image identifier for a given file
-     *
-     * @param string $path Path to the local image
-     * @return string The image identifier to use with the imbo server
-     */
-    private function getImageIdentifier($path) {
-        return md5_file($path);
     }
 
     /**

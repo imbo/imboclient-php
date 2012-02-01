@@ -82,8 +82,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      * @var string
      */
     private $signedUrlPattern = array(
-        'image'    => '|^http://host/users/[a-f0-9]{32}/images/[a-f0-9]{32}\?signature=(.*?)&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\d%3A\d\dZ$|',
-        'metadata' => '|^http://host/users/[a-f0-9]{32}/images/[a-f0-9]{32}/meta\?signature=(.*?)&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\d%3A\d\dZ$|',
+        'image'    => '|^http://host/users/[a-zA-Z0-9]{3,}/images/[a-f0-9]{32}\?signature=(.*?)&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\d%3A\d\dZ$|',
+        'metadata' => '|^http://host/users/[a-zA-Z0-9]{3,}/images/[a-f0-9]{32}/meta\?signature=(.*?)&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\d%3A\d\dZ$|',
     );
 
     /**
@@ -92,17 +92,17 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      * @var string
      */
     private $urlPattern = array(
-        'user'     => '|^http://host/users/[a-f0-9]{32}$|',
-        'images'   => '|^http://host/users/[a-f0-9]{32}/images$|',
-        'image'    => '|^http://host/users/[a-f0-9]{32}/images/[a-f0-9]{32}$|',
-        'metadata' => '|^http://host/users/[a-f0-9]{32}/images/[a-f0-9]{32}/meta$|',
+        'user'     => '|^http://host/users/[a-zA-Z0-9]{3,}$|',
+        'images'   => '|^http://host/users/[a-zA-Z0-9]{3,}/images$|',
+        'image'    => '|^http://host/users/[a-zA-Z0-9]{3,}/images/[a-f0-9]{32}$|',
+        'metadata' => '|^http://host/users/[a-zA-Z0-9]{3,}/images/[a-f0-9]{32}/meta$|',
     );
 
     /**
      * Set up method
      */
     public function setUp() {
-        $this->publicKey = md5(microtime());
+        $this->publicKey = 'publicKey';
         $this->privateKey = md5(microtime());
         $this->imageIdentifier = md5(microtime());
         $this->driver = $this->getMock('ImboClient\Driver\DriverInterface');
@@ -367,5 +367,32 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame(200, $properties['width']);
         $this->assertSame(100, $properties['height']);
         $this->assertSame(400, $properties['filesize']);
+    }
+
+    /**
+     * @covers ImboClient\Client::getImageIdentifier
+     */
+    public function testGetImageIdentifier() {
+        $imagePath = __DIR__ . '/_files/image.png';
+        $this->assertSame(md5_file($imagePath), $this->client->getImageIdentifier($imagePath));
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage File does not exist: foobar
+     * @covers ImboClient\Client::getImageIdentifier
+     */
+    public function testGetImageIdentifierWhenImageDoesNotExist() {
+        $this->client->getImageIdentifier('foobar');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage File is of zero length:
+     * @covers ImboClient\Client::getImageIdentifier
+     */
+    public function testGetImageIdentifierWhenImageIsEmpty() {
+        $path = __DIR__ . '/_files/emptyImage.png';
+        $this->client->getImageIdentifier($path);
     }
 }
