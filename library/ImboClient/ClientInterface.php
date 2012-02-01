@@ -169,4 +169,12 @@ interface ClientInterface {
      * @return array|boolean
      */
     function getImageProperties($imageIdentifier);
+
+    /**
+     * Generate an image identifier for a given file
+     *
+     * @param string $path Path to the local image
+     * @return string The image identifier to use with the imbo server
+     */
+    function getImageIdentifier($path);
 }
