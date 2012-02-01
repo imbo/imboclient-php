@@ -41,9 +41,32 @@ namespace ImboClient\ImageUrl;
  * @link https://github.com/christeredvartsen/imboclient-php
  */
 class ImageUrlTest extends \PHPUnit_Framework_TestCase {
+    /**
+     * Url instance
+     *
+     * @var ImboClient\ImageUrl\ImageUrl
+     */
     private $url;
+
+    /**
+     * Base url
+     *
+     * @var string
+     */
     private $baseUrl = 'http://host';
+
+    /**
+     * Public key to test with
+     *
+     * @var string
+     */
     private $publicKey = '3d08c65cb5509a0b2a909f3d5b56da08';
+
+    /**
+     * Image identifier to test with
+     *
+     * @var string
+     */
     private $imageIdentifier = '83dfab4b5c2678e5f195ea21c5e6750b';
 
     public function setUp() {
@@ -54,104 +77,181 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
         $this->url = null;
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::border
+     */
     public function testBorder() {
         $this->assertSame($this->url, $this->url->border());
         $this->assertStringEndsWith('?t%5B%5D=border:color=000000,width=1,height=1', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::border
+     */
     public function testBorderWithCustomValues() {
         $this->assertSame($this->url, $this->url->border('fff', 2, 3));
         $this->assertStringEndsWith('?t%5B%5D=border:color=fff,width=2,height=3', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::compress
+     */
     public function testCompress() {
         $this->assertSame($this->url, $this->url->compress());
         $this->assertStringEndsWith('?t%5B%5D=compress:quality=75', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::compress
+     */
     public function testCompressWithCustomValues() {
         $this->assertSame($this->url, $this->url->compress(42));
         $this->assertStringEndsWith('?t%5B%5D=compress:quality=42', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::convert
+     */
     public function testConvert() {
         $this->assertSame($this->url, $this->url->convert('jpg'));
         $this->assertStringStartsWith($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.jpg', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::gif
+     */
     public function testGif() {
         $this->assertSame($this->url, $this->url->gif());
         $this->assertStringStartsWith($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.gif', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::jpg
+     */
     public function testJpg() {
         $this->assertSame($this->url, $this->url->jpg());
         $this->assertStringStartsWith($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.jpg', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::png
+     */
     public function testPng() {
         $this->assertSame($this->url, $this->url->png());
         $this->assertStringStartsWith($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::crop
+     */
     public function testCrop() {
         $this->assertSame($this->url, $this->url->crop(1, 2, 3, 4));
         $this->assertStringEndsWith('?t%5B%5D=crop:x=1,y=2,width=3,height=4', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::flipHorizontally
+     */
     public function testFlipHorizontally() {
         $this->assertSame($this->url, $this->url->flipHorizontally());
         $this->assertStringEndsWith('?t%5B%5D=flipHorizontally', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::flipVertically
+     */
     public function testFlipVertically() {
         $this->assertSame($this->url, $this->url->flipVertically());
         $this->assertStringEndsWith('?t%5B%5D=flipVertically', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::resize
+     */
     public function testResizeWithOnlyWidth() {
         $this->assertSame($this->url, $this->url->resize(100));
         $this->assertStringEndsWith('?t%5B%5D=resize:width=100', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::resize
+     */
     public function testResizeWithOnlyHeight() {
         $this->assertSame($this->url, $this->url->resize(null, 100));
         $this->assertStringEndsWith('?t%5B%5D=resize:height=100', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::resize
+     */
     public function testResize() {
         $this->assertSame($this->url, $this->url->resize(1, 2));
         $this->assertStringEndsWith('?t%5B%5D=resize:width=1,height=2', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::rotate
+     */
     public function testRotate() {
         $this->assertSame($this->url, $this->url->rotate(42));
         $this->assertStringEndsWith('?t%5B%5D=rotate:angle=42,bg=000000', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::rotate
+     */
     public function testRotateWithBg() {
         $this->assertSame($this->url, $this->url->rotate(42, 'fff'));
         $this->assertStringEndsWith('?t%5B%5D=rotate:angle=42,bg=fff', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::thumbnail
+     */
     public function testThumbnailWithAllParams() {
         $this->assertSame($this->url, $this->url->thumbnail(1, 2, 'inset'));
         $this->assertStringEndsWith('?t%5B%5D=thumbnail:width=1,height=2,fit=inset', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::canvas
+     */
     public function testCanvasWithRequiredParams() {
         $this->assertSame($this->url, $this->url->canvas(100, 200));
         $this->assertStringEndsWith('?t%5B%5D=canvas:width=100,height=200', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::canvas
+     */
     public function testCanvasWithAllParams() {
         $this->assertSame($this->url, $this->url->canvas(100, 200, 'free', 10, 20, '000'));
         $this->assertStringEndsWith('?t%5B%5D=canvas:width=100,height=200,mode=free,x=10,y=20,bg=000', (string) $this->url);
     }
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::reset
+     */
     public function testResetUrl() {
         $this->url->thumbnail(1, 2, 'inset')->png();
         $this->assertSame($this->url, $this->url->reset());
         $this->assertStringEndsWith($this->imageIdentifier, (string) $this->url);
+    }
+
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::__toString
+     */
+    public function testToStringWithNoTransformationsAdded() {
+        $url = (string) $this->url;
+        $this->assertSame('http://host/users/' . $this->publicKey . '/images/' . $this->imageIdentifier, $url);
+    }
+
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::__toString
+     */
+    public function testToStringWithTransformations() {
+        $this->url->flipHorizontally()->png();
+        $url = (string) $this->url;
+        $this->assertSame('http://host/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png?t%5B%5D=flipHorizontally', $url);
     }
 }

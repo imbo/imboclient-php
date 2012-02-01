@@ -64,6 +64,9 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * Test the set and get methods for the headers attribute
+     *
+     * @covers ImboClient\Http\Response\Response::setHeaders
+     * @covers ImboClient\Http\Response\Response::getHeaders
      */
     public function testSetGetHeaders() {
         $headers = $this->getMock('ImboClient\Http\HeaderContainerInterface');
@@ -74,6 +77,9 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * Test the set and get methods for the body attribute
+     *
+     * @covers ImboClient\Http\Response\Response::setBody
+     * @covers ImboClient\Http\Response\Response::getBody
      */
     public function testSetGetBody() {
         $body = 'Content';
@@ -84,6 +90,9 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * Test the set and get methods for the statusCode attribute
+     *
+     * @covers ImboClient\Http\Response\Response::setStatusCode
+     * @covers ImboClient\Http\Response\Response::getStatusCode
      */
     public function testSetGetStatusCode() {
         $code = 404;
@@ -94,6 +103,8 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * Test the isSuccess method
+     *
+     * @covers ImboClient\Http\Response\Response::isSuccess
      */
     public function testIsSuccess() {
         $this->response->setStatusCode(200);
@@ -104,6 +115,8 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * Test the magic __toString method
+     *
+     * @covers ImboClient\Http\Response\Response::__toString
      */
     public function testMagicToStringMethod() {
         $body = 'Body content';
@@ -111,6 +124,9 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($body, (string) $this->response);
     }
 
+    /**
+     * @covers ImboClient\Http\Response\Response::getImageIdentifier
+     */
     public function testGetImageIdentifierWhenHeaderExists() {
         $imageIdentifier = md5(microtime());
         $headers = $this->getMock('ImboClient\Http\HeaderContainerInterface');
@@ -121,17 +137,26 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($imageIdentifier, $this->response->getImageIdentifier());
     }
 
+    /**
+     * @covers ImboClient\Http\Response\Response::getImageIdentifier
+     */
     public function testGetImageIdentifierWhenHeaderDoesNotExist() {
         $headers = $this->getMock('ImboClient\Http\HeaderContainerInterface');
         $this->response->setHeaders($headers);
         $this->assertNull($this->response->getImageIdentifier());
     }
 
+    /**
+     * @covers ImboClient\Http\Response\Response::asArray
+     */
     public function testAsArray() {
         $this->assertSame($this->response, $this->response->setBody(json_encode(array('foo' => 'bar'))));
         $this->assertInternalType('array', $this->response->asArray());
     }
 
+    /**
+     * @covers ImboClient\Http\Response\Response::asObject
+     */
     public function testAsObject() {
         $this->assertSame($this->response, $this->response->setBody(json_encode(array('foo' => 'bar'))));
         $this->assertInstanceOf('stdClass', $this->response->asObject());

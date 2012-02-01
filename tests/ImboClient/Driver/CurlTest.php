@@ -44,7 +44,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
     /**
      * The driver instance
      *
-     * @var ImboClient\Driver
+     * @var ImboClient\Driver\Curl
      */
     private $driver;
 
@@ -74,6 +74,10 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
         $this->driver = null;
     }
 
+    /**
+     * @covers ImboClient\Driver\Curl::post
+     * @covers ImboClient\Driver\Curl::request
+     */
     public function testPost() {
         $metadata = array(
             'foo' => 'bar',
@@ -91,6 +95,9 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
      * This method will PUT the current file (__FILE__) to the test script. The test script will
      * then read this file and inject the md5 sum of the file into the output. This method will
      * then compute the md5 sum and make sure it's the same as the one from the test script.
+     *
+     * @covers ImboClient\Driver\Curl::put
+     * @covers ImboClient\Driver\Curl::request
      */
     public function testPut() {
         $url = $this->testUrl;
@@ -101,6 +108,10 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($data['md5'], md5_file(__FILE__));
     }
 
+    /**
+     * @covers ImboClient\Driver\Curl::get
+     * @covers ImboClient\Driver\Curl::request
+     */
     public function testGet() {
         $url = $this->testUrl . '?foo=bar&bar=foo';
         $response = $this->driver->get($url);
@@ -110,12 +121,20 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame(array('foo' => 'bar', 'bar' => 'foo'), $result['data']);
     }
 
+    /**
+     * @covers ImboClient\Driver\Curl::head
+     * @covers ImboClient\Driver\Curl::request
+     */
     public function testHead() {
         $response = $this->driver->head($this->testUrl);
         $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $response);
         $this->assertEmpty($response->getBody());
     }
 
+    /**
+     * @covers ImboClient\Driver\Curl::delete
+     * @covers ImboClient\Driver\Curl::request
+     */
     public function testDelete() {
         $response = $this->driver->delete($this->testUrl);
         $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $response);
@@ -126,6 +145,8 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
     /**
      * @expectedException RuntimeException
      * @expectedException An error occured. Request timed out during transfer (limit: 2s).
+     * @covers ImboClient\Driver\Curl::get
+     * @covers ImboClient\Driver\Curl::request
      */
     public function testReadTimeout() {
         $url = $this->testUrl . '?sleep=3';
@@ -135,6 +156,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
     /**
      * @expectedException RuntimeException
      * @expectedException An error occured. Request timed out during transfer (limit: 1s).
+     * @covers ImboClient\Driver\Curl::__construct
      */
     public function testConstructWithCustomParams() {
         $params = array(
@@ -145,6 +167,10 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
         $driver->get($url);
     }
 
+    /**
+     * @covers ImboClient\Driver\Curl::post
+     * @covers ImboClient\Driver\Curl::request
+     */
     public function testExpectHeaderNotPresent() {
         $url = $this->testUrl . '?headers';
         $response = $this->driver->post($url);
@@ -162,6 +188,9 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
         $this->assertArrayNotHasKey('HTTP_EXPECT', $headers);
     }
 
+    /**
+     * @covers ImboClient\Driver\Curl::addRequestHeader
+     */
     public function testAddRequestHeader() {
         $this->assertSame($this->driver, $this->driver->addRequestHeader('Header', 'value'));
         $url = $this->testUrl . '?headers';

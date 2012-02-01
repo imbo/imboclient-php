@@ -122,6 +122,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage File does not exist: foobar
      * @covers ImboClient\Client::addImage
+     * @covers ImboClient\Client::validateLocalFile
      */
     public function testAddImageWhenLocalImageDoesNotExist() {
         $this->client->addImage('foobar');
@@ -131,6 +132,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage File is of zero length:
      * @covers ImboClient\Client::addImage
+     * @covers ImboClient\Client::validateLocalFile
      */
     public function testAddImageWhenImageIsEmpty() {
         $path = __DIR__ . '/_files/emptyImage.png';
@@ -139,6 +141,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers ImboClient\Client::addImage
+     * @covers ImboClient\Client::validateLocalFile
+     * @covers ImboClient\Client::getSignedUrl
+     * @covers ImboClient\Client::generateSignature
      */
     public function testAddImage() {
         $imagePath = __DIR__ . '/_files/image.png';
@@ -149,6 +154,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers ImboClient\Client::deleteImage
+     * @covers ImboClient\Client::getSignedUrl
+     * @covers ImboClient\Client::generateSignature
      */
     public function testDeleteImage() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
@@ -158,6 +165,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers ImboClient\Client::editMetadata
+     * @covers ImboClient\Client::getSignedUrl
+     * @covers ImboClient\Client::generateSignature
      */
     public function testEditMetadata() {
         $data = array(
@@ -172,6 +181,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers ImboClient\Client::deleteMetadata
+     * @covers ImboClient\Client::getSignedUrl
+     * @covers ImboClient\Client::generateSignature
      */
     public function testDeleteMetadata() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
