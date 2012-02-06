@@ -260,6 +260,10 @@ class Client implements ClientInterface {
             ), function($item) {
                 return !empty($item);
             });
+
+            if (isset($params['query'])) {
+                $params['query'] = json_encode($params['query']);
+            }
         }
 
         $url  = $this->getImagesUrl();

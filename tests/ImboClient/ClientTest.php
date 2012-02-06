@@ -93,8 +93,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      */
     private $urlPattern = array(
         'user'     => '|^http://host/users/[a-zA-Z0-9]{3,}$|',
-        'images'   => '|^http://host/users/[a-zA-Z0-9]{3,}/images(/?\?.*)?$|',
         'image'    => '|^http://host/users/[a-zA-Z0-9]{3,}/images/[a-f0-9]{32}$|',
+        'images'   => '|^http://host/users/[a-zA-Z0-9]{3,}/images(/?\?.*)?$|',
         'metadata' => '|^http://host/users/[a-zA-Z0-9]{3,}/images/[a-f0-9]{32}/meta$|',
     );
 
@@ -312,44 +312,78 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\Client::getImages
+     * Get images data provider
+     *
+     * @return array
      */
-    public function testGetImages() {
-
-        $images = array(
+    public function getImageData() {
+        return array(
             array(
-                'size'              => 54249,
-                'publicKey'         => '20033e31f182661dafa332b423ecce5f',
-                'imageIdentifier'   => '9c966f89db794417d474a87793ea4af8',
-                'extension'         => 'jpg',
-                'mime'              => 'image/jpeg',
-                'added'             => 1328530242,
-                'updated'           => 1328530242,
-                'width'             => 480,
-                'height'            => 360,
-                'checksum'          => '9c966f89db794417d474a87793ea4af8',
-            ),
-            array(
-                'size'              => 152972,
-                'publicKey'         => '20033e31f182661dafa332b423ecce5f',
-                'imageIdentifier'   => '9adc6809eae536f98b9559cb1f1aeed3',
-                'extension'         => 'jpg',
-                'mime'              => 'image/jpeg',
-                'added'             => 1328514845,
-                'updated'           => 1328514845,
-                'width'             => 800,
-                'height'            => 600,
-                'checksum'          => '9adc6809eae536f98b9559cb1f1aeed3',
+                json_encode(array(
+                    array(
+                        'size'              => 54249,
+                        'publicKey'         => '20033e31f182661dafa332b423ecce5f',
+                        'imageIdentifier'   => '9c966f89db794417d474a87793ea4af8',
+                        'extension'         => 'jpg',
+                        'mime'              => 'image/jpeg',
+                        'added'             => 1328530242,
+                        'updated'           => 1328530242,
+                        'width'             => 480,
+                        'height'            => 360,
+                        'checksum'          => '9c966f89db794417d474a87793ea4af8',
+                    ),
+                    array(
+                        'size'              => 152972,
+                        'publicKey'         => '20033e31f182661dafa332b423ecce5f',
+                        'imageIdentifier'   => '9adc6809eae536f98b9559cb1f1aeed3',
+                        'extension'         => 'jpg',
+                        'mime'              => 'image/jpeg',
+                        'added'             => 1328514845,
+                        'updated'           => 1328514845,
+                        'width'             => 800,
+                        'height'            => 600,
+                        'checksum'          => '9adc6809eae536f98b9559cb1f1aeed3',
+                    )
+                ))
             )
         );
+    }
+
+    /**
+     * @dataProvider getImageData()
+     * @covers ImboClient\Client::getImages
+     */
+    public function testGetImages($data) {
 
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
-        $response->expects($this->once())->method('getBody')->will($this->returnValue(json_encode($images)));
+        $response->expects($this->once())->method('getBody')->will($this->returnValue($data));
 
         $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern['images']))->will($this->returnValue($response));
 
         $images = $this->client->getImages();
+
+        foreach ($images as $image) {
+            $this->assertInstanceOf('ImboClient\ImagesQuery\Image', $image);
+        }
+    }
+
+    /**
+     * @dataProvider getImageData()
+     * @covers ImboClient\Client::getImages
+     */
+    public function testGetImagesWithQuery($data) {
+
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
+        $response->expects($this->once())->method('getBody')->will($this->returnValue($data));
+
+        $this->driver->expects($this->once())->method('get')->with($this->stringContains('query=%7B%22foo%22%3A%22bar%22%7D'))->will($this->returnValue($response));
+
+        $query = new ImagesQuery\Query();
+        $query->page(3)->metadataQuery(array('foo' => 'bar'))->num(5);
+
+        $images = $this->client->getImages($query);
 
         foreach ($images as $image) {
             $this->assertInstanceOf('ImboClient\ImagesQuery\Image', $image);

@@ -67,9 +67,9 @@ class Query implements QueryInterface {
     /**
      * Metadata query
      *
-     * @var string
+     * @var array
      */
-    private $metadataQuery = '[]';
+    private $metadataQuery = array();
 
     /**
      * Timestamp to start fetching from
@@ -129,10 +129,10 @@ class Query implements QueryInterface {
      */
     public function metadataQuery(array $metadataQuery = null) {
         if ($metadataQuery === null) {
-            return json_decode($this->metadataQuery);
+            return $this->metadataQuery;
         }
 
-        $this->metadataQuery = json_encode($metadataQuery);
+        $this->metadataQuery = $metadataQuery;
 
         return $this;
     }
