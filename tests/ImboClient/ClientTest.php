@@ -352,7 +352,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $images = $this->client->getImages();
 
         foreach ($images as $image) {
-            $this->assertInstanceOf('ImboClient\Image\Image', $image);
+            $this->assertInstanceOf('ImboClient\ImagesQuery\Image', $image);
         }
     }
 

@@ -24,18 +24,18 @@
  *
  * @package ImboClient
  * @subpackage Unittests
- * @author Christer Edvartsen <cogo@starzinger.net>
+ * @author Espen Hovlandsdal <espen@hovlandsdal.com>, Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
 
-namespace ImboClient\Image;
+namespace ImboClient\ImagesQuery;
 
 /**
  * @package ImboClient
  * @subpackage Unittests
- * @author Espen Hovlandsdal <espen@hovlandsdal.com>
+ * @author Espen Hovlandsdal <espen@hovlandsdal.com>, Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
@@ -44,7 +44,7 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
     /**
      * Image instance
      *
-     * @var ImboClient\Image\Image
+     * @var ImboClient\ImagesQuery\Image
      */
     private $image;
 

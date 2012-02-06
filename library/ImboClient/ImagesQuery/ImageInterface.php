@@ -22,22 +22,22 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package ImboClient
- * @subpackage Interfaces
- * @author Christer Edvartsen <cogo@starzinger.net>
+ * @package Interfaces
+ * @subpackage Client\ImagesQuery
+ * @author Espen Hovlandsdal <espen@hovlandsdal.com>, Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011, Christer Edvartsen
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
  */
 
-namespace ImboClient\Image;
+namespace ImboClient\ImagesQuery;
 
 /**
  * Interface for the image url
  *
- * @package ImboClient
- * @subpackage Interfaces
- * @author Espen Hovlandsdal <espen@hovlandsdal.com>
+ * @package Interfaces
+ * @subpackage Client\ImagesQuery
+ * @author Espen Hovlandsdal <espen@hovlandsdal.com>, Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011, Christer Edvartsen
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php

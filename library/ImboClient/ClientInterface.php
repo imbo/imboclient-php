@@ -159,9 +159,10 @@ interface ClientInterface {
      *
      * If the server responds with an error, this method must return false.
      *
+     * @param ImboClient\ImagesQuery\Query $query
      * @return array|boolean
      */
-    function getImages();
+    function getImages(\ImboClient\ImagesQuery\Query $query = null);
 
     /**
      * Get properties of an image
