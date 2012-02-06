@@ -34,6 +34,7 @@ namespace ImboClient;
 use ImboClient\Driver\DriverInterface,
     ImboClient\Driver\Curl as DefaultDriver,
     ImboClient\ImageUrl\ImageUrl,
+    ImboClient\Image\Image,
     InvalidArgumentException;
 
 /**
@@ -240,6 +241,30 @@ class Client implements ClientInterface {
         $body = json_decode($response->getBody());
 
         return $body->numImages;
+    }
+
+    /**
+     * @see ImboClient\ClientInterface::getImages()
+     */
+    public function getImages($limit = 20, $page = 1) {
+        $url = $this->getImagesUrl();
+        $query = http_build_query(array(
+            'num'  => (int) $limit,
+            'page' => (int) $page,
+        ));
+        $response = $this->driver->get($url . '?' . $query);
+
+        if ($response->getStatusCode() !== 200) {
+            return false;
+        }
+
+        $images = json_decode($response->getBody(), true);
+        $instances = array();
+        foreach ($images as $image) {
+            $instances[] = new Image($image);
+        }
+
+        return $instances;
     }
 
     /**

@@ -155,6 +155,15 @@ interface ClientInterface {
     function getNumImages();
 
     /**
+     * Get an array of images currently stored on the server
+     *
+     * If the server responds with an error, this method must return false.
+     *
+     * @return array|boolean
+     */
+    function getImages();
+
+    /**
      * Get properties of an image
      *
      * This method returns an associative array with the following keys:
