@@ -24,7 +24,8 @@
  *
  * @package ImboClient
  * @subpackage Unittests
- * @author Espen Hovlandsdal <espen@hovlandsdal.com>, Christer Edvartsen <cogo@starzinger.net>
+ * @author Espen Hovlandsdal <espen@hovlandsdal.com>
+ * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
@@ -32,10 +33,13 @@
 
 namespace ImboClient\ImagesQuery;
 
+use DateTime;
+
 /**
  * @package ImboClient
  * @subpackage Unittests
- * @author Espen Hovlandsdal <espen@hovlandsdal.com>, Christer Edvartsen <cogo@starzinger.net>
+ * @author Espen Hovlandsdal <espen@hovlandsdal.com>
+ * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/christeredvartsen/imboclient-php
@@ -63,7 +67,7 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
         'height'          => 480,
         'checksum'        => '995b506ba1772e6a3fa25a2e3e618b08',
         'publicKey'       => 'testsuite',
-        'modified'        => 1328559945,
+        'updated'        => 1328559945,
     );
 
     public function setUp() {
@@ -91,20 +95,13 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testGetAddedDate() {
-        $added = new \DateTime('@' . $this->data['added']);
+        $added = new DateTime('@' . $this->data['added']);
         $this->assertEquals($added, $this->image->getAddedDate());
     }
 
-    public function testGetModifiedDate() {
-        $modified = new \DateTime('@' . $this->data['modified']);
-        $this->assertEquals($modified, $this->image->getModifiedDate());
-    }
-
-    public function testGetModifiedDateWhenNotModified() {
-        $data = $this->data;
-        unset($data['modified']);
-        $this->image = new Image($data);
-        $this->assertSame(null, $this->image->getModifiedDate());
+    public function testGetUpdatedDate() {
+        $updated = new DateTime('@' . $this->data['updated']);
+        $this->assertEquals($updated, $this->image->getUpdatedDate());
     }
 
     public function testGetWidth() {
