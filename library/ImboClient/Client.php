@@ -250,6 +250,7 @@ class Client implements ClientInterface {
     public function getImages(Query $query = null) {
         $params = null;
         if ($query) {
+            // Retrieve query parameters, reduce array down to non-empty values
             $params = array_filter(array(
                 'page'      => $query->page(),
                 'num'       => $query->num(),
@@ -261,6 +262,7 @@ class Client implements ClientInterface {
                 return !empty($item);
             });
 
+            // JSON-encode metadata query, if present
             if (isset($params['query'])) {
                 $params['query'] = json_encode($params['query']);
             }
