@@ -155,6 +155,16 @@ interface ClientInterface {
     function getNumImages();
 
     /**
+     * Get an array of images currently stored on the server
+     *
+     * If the server responds with an error, this method must return false.
+     *
+     * @param ImboClient\ImagesQuery\Query $query
+     * @return array|boolean
+     */
+    function getImages(\ImboClient\ImagesQuery\Query $query = null);
+
+    /**
      * Get properties of an image
      *
      * This method returns an associative array with the following keys:
