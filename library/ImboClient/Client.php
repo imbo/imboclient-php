@@ -142,7 +142,7 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::getImageUrl()
      */
     public function getImageUrl($imageIdentifier, $asString = false) {
-        $imageUrl = new ImageUrl($this->serverUrl, $this->publicKey, $imageIdentifier);
+        $imageUrl = new ImageUrl($this->serverUrl, $this->publicKey, $this->privateKey, $imageIdentifier);
 
         if ($asString) {
             return (string) $imageUrl;
