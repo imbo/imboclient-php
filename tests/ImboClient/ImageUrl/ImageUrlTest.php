@@ -89,7 +89,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function testBorder() {
         $this->assertSame($this->url, $this->url->border());
-        $this->assertContains('?t%5B%5D=' . urlencode('border:color=000000,width=1,height=1'), (string) $this->url);
+        $this->assertContains('?t[]=border:color=000000,width=1,height=1', (string) $this->url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
@@ -98,7 +98,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function testBorderWithCustomValues() {
         $this->assertSame($this->url, $this->url->border('fff', 2, 3));
-        $this->assertContains('?t%5B%5D=' . urlencode('border:color=fff,width=2,height=3'), (string) $this->url);
+        $this->assertContains('?t[]=border:color=fff,width=2,height=3', (string) $this->url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
@@ -107,7 +107,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function testCompress() {
         $this->assertSame($this->url, $this->url->compress());
-        $this->assertContains('?t%5B%5D=' . urlencode('compress:quality=75'), (string) $this->url);
+        $this->assertContains('?t[]=compress:quality=75', (string) $this->url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
@@ -116,7 +116,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function testCompressWithCustomValues() {
         $this->assertSame($this->url, $this->url->compress(42));
-        $this->assertContains('?t%5B%5D=' . urlencode('compress:quality=42'), (string) $this->url);
+        $this->assertContains('?t[]=compress:quality=42', (string) $this->url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
@@ -170,7 +170,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function testCrop() {
         $this->assertSame($this->url, $this->url->crop(1, 2, 3, 4));
-        $this->assertContains('?t%5B%5D=' . urlencode('crop:x=1,y=2,width=3,height=4'), (string) $this->url);
+        $this->assertContains('?t[]=crop:x=1,y=2,width=3,height=4', (string) $this->url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
@@ -179,7 +179,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function testFlipHorizontally() {
         $this->assertSame($this->url, $this->url->flipHorizontally());
-        $this->assertContains('?t%5B%5D=flipHorizontally', (string) $this->url);
+        $this->assertContains('?t[]=flipHorizontally', (string) $this->url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
@@ -188,7 +188,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function testFlipVertically() {
         $this->assertSame($this->url, $this->url->flipVertically());
-        $this->assertContains('?t%5B%5D=flipVertically', (string) $this->url);
+        $this->assertContains('?t[]=flipVertically', (string) $this->url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
@@ -197,7 +197,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function testResizeWithOnlyWidth() {
         $this->assertSame($this->url, $this->url->resize(100));
-        $this->assertContains('?t%5B%5D=' . urlencode('resize:width=100'), (string) $this->url);
+        $this->assertContains('?t[]=resize:width=100', (string) $this->url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
@@ -206,7 +206,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function testResizeWithOnlyHeight() {
         $this->assertSame($this->url, $this->url->resize(null, 100));
-        $this->assertContains('?t%5B%5D=' . urlencode('resize:height=100'), (string) $this->url);
+        $this->assertContains('?t[]=resize:height=100', (string) $this->url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
@@ -215,7 +215,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function testResize() {
         $this->assertSame($this->url, $this->url->resize(1, 2));
-        $this->assertContains('?t%5B%5D=' . urlencode('resize:width=1,height=2'), (string) $this->url);
+        $this->assertContains('?t[]=resize:width=1,height=2', (string) $this->url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
@@ -224,7 +224,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function testRotate() {
         $this->assertSame($this->url, $this->url->rotate(42));
-        $this->assertContains('?t%5B%5D=' . urlencode('rotate:angle=42,bg=000000'), (string) $this->url);
+        $this->assertContains('?t[]=rotate:angle=42,bg=000000', (string) $this->url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
@@ -233,7 +233,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function testRotateWithBg() {
         $this->assertSame($this->url, $this->url->rotate(42, 'fff'));
-        $this->assertContains('?t%5B%5D=' . urlencode('rotate:angle=42,bg=fff'), (string) $this->url);
+        $this->assertContains('?t[]=rotate:angle=42,bg=fff', (string) $this->url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
@@ -242,7 +242,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function testThumbnailWithAllParams() {
         $this->assertSame($this->url, $this->url->thumbnail(1, 2, 'inset'));
-        $this->assertContains('?t%5B%5D=' . urlencode('thumbnail:width=1,height=2,fit=inset'), (string) $this->url);
+        $this->assertContains('?t[]=thumbnail:width=1,height=2,fit=inset', (string) $this->url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
@@ -251,7 +251,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function testCanvasWithRequiredParams() {
         $this->assertSame($this->url, $this->url->canvas(100, 200));
-        $this->assertContains('?t%5B%5D=' . urlencode('canvas:width=100,height=200'), (string) $this->url);
+        $this->assertContains('?t[]=canvas:width=100,height=200', (string) $this->url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
@@ -260,7 +260,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function testCanvasWithAllParams() {
         $this->assertSame($this->url, $this->url->canvas(100, 200, 'free', 10, 20, '000'));
-        $this->assertContains('?t%5B%5D=' . urlencode('canvas:width=100,height=200,mode=free,x=10,y=20,bg=000'), (string) $this->url);
+        $this->assertContains('?t[]=canvas:width=100,height=200,mode=free,x=10,y=20,bg=000', (string) $this->url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
@@ -287,7 +287,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
     public function testToStringWithTransformations() {
         $this->url->flipHorizontally()->png();
         $url = (string) $this->url;
-        $this->assertStringStartsWith('http://host/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png?t%5B%5D=flipHorizontally', $url);
+        $this->assertStringStartsWith('http://host/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png?t[]=flipHorizontally', $url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
