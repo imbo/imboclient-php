@@ -300,4 +300,33 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
         $this->assertStringStartsWith('http://host/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png', $url);
         $this->assertRegExp('/\?tk=[a-f0-9]{32}$/', (string) $this->url);
     }
+
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::getUrlEscaped
+     */
+    public function testGetUrlEscapedWithNoTransformationsAdded() {
+        $url = $this->url->getUrlEscaped();
+        $this->assertSame('http://host/users/' . $this->publicKey . '/images/' . $this->imageIdentifier, $url);
+    }
+
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::getUrlEscaped
+     */
+    public function testGetUrlEscapedWithTransformations() {
+        $this->url->flipHorizontally()->flipVertically()->png();
+        $url = $this->url->getUrlEscaped();
+        $this->assertStringStartsWith('http://host/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png?t%5B%5D=flipHorizontally&amp;t%5B%5D=flipVertically', $url);
+        $this->assertRegExp('/tk=[a-f0-9]{32}$/', $url);
+    }
+
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::getUrlEscaped
+     */
+    public function testGetUrlEscapedWithConvertOnly() {
+        $this->url->png();
+        $url = $this->url->getUrlEscaped();
+        $this->assertStringStartsWith('http://host/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png', $url);
+        $this->assertRegExp('/\?tk=[a-f0-9]{32}$/', $url);
+    }
+
 }
