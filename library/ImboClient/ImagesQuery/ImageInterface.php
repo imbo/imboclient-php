@@ -34,7 +34,7 @@
 namespace ImboClient\ImagesQuery;
 
 /**
- * Interface for the image url
+ * Interface for an image found in a response to an images query
  *
  * @package Interfaces
  * @subpackage Client\ImagesQuery
@@ -81,11 +81,11 @@ interface ImageInterface {
     function getAddedDate();
 
     /**
-     * Returns the date which the image was last modified, false if it was never modified
+     * Returns the date which the image was last updated
      *
-     * @return DateTime|false
+     * @return DateTime
      */
-    function getModifiedDate();
+    function getUpdatedDate();
 
     /**
      * Returns the width of the image, in pixels
@@ -114,5 +114,4 @@ interface ImageInterface {
      * @return string
      */
     function getPublicKey();
-
 }

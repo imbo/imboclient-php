@@ -22,8 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package ImboClient
- * @subpackage Images
+ * @package Client\ImagesQuery
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
@@ -33,11 +32,12 @@
 
 namespace ImboClient\ImagesQuery;
 
+use DateTime;
+
 /**
  * Image implementation
  *
- * @package ImboClient
- * @subpackage Images
+ * @package Client\ImagesQuery
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
@@ -81,11 +81,11 @@ class Image implements ImageInterface {
     private $addedDate;
 
     /**
-     * Date which the image was last modified
+     * Date which the image was last updated
      *
      * @var DateTime
      */
-    private $modifiedDate;
+    private $updatedDate;
 
     /**
      * Width of the image, in pixels
@@ -127,9 +127,11 @@ class Image implements ImageInterface {
     }
 
     /**
-     * @see ImboClient\ImagesQuery\ImageInterface::populate()
+     * Populate this instance
+     *
+     * @param array $data Data from the response
      */
-    public function populate(array $data) {
+    private function populate(array $data) {
         $this->setIdentifier($data['imageIdentifier']);
         $this->setSize($data['size']);
         $this->setExtension($data['extension']);
@@ -139,10 +141,7 @@ class Image implements ImageInterface {
         $this->setHeight($data['height']);
         $this->setChecksum($data['checksum']);
         $this->setPublicKey($data['publicKey']);
-
-        if (isset($data['modified'])) {
-            $this->setModifiedDate($data['modified']);
-        }
+        $this->setUpdatedDate($data['updated']);
     }
 
     /**
@@ -181,10 +180,10 @@ class Image implements ImageInterface {
     }
 
     /**
-     * @see ImboClient\ImagesQuery\ImageInterface::getModifiedDate()
+     * @see ImboClient\ImagesQuery\ImageInterface::getUpdatedDate()
      */
-    public function getModifiedDate() {
-        return $this->modifiedDate;
+    public function getUpdatedDate() {
+        return $this->updatedDate;
     }
 
     /**
@@ -257,16 +256,16 @@ class Image implements ImageInterface {
      * @param int $added
      */
     private function setAddedDate($added) {
-        $this->addedDate = new \DateTime('@' . $added);
+        $this->addedDate = new DateTime('@' . (int) $added);
     }
 
     /**
-     * Set date when image was last modified on the server, as unix timestamp
+     * Set date when image was last updated on the server, as unix timestamp
      *
-     * @param int $modified
+     * @param int $updated
      */
-    private function setModifiedDate($modified) {
-        $this->modifiedDate = new \DateTime('@' . $modified);
+    private function setUpdatedDate($updated) {
+        $this->updatedDate = new DateTime('@' . (int) $updated);
     }
 
     /**
