@@ -164,6 +164,13 @@ interface ImageUrlInterface {
     function reset();
 
     /**
+     * Represent the complete image url as an URL-encoded string
+     *
+     * @return string
+     */
+    function getUrlEscaped();
+
+    /**
      * Represent the complete image url as a string
      *
      * @return string
