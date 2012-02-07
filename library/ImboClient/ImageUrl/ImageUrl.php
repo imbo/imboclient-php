@@ -58,6 +58,13 @@ class ImageUrl implements ImageUrlInterface {
     private $publicKey;
 
     /**
+     * The private key
+     *
+     * @var string
+     */
+    private $privateKey;
+
+    /**
      * The image identifier
      *
      * @var string
@@ -76,11 +83,13 @@ class ImageUrl implements ImageUrlInterface {
      *
      * @param string $baseUrl The baseurl to the server
      * @param string $publicKey The public key to use
+     * @param string $privateKey The private key to use
      * @param string $imageIdentifier The image identifier
      */
-    public function __construct($baseUrl, $publicKey, $imageIdentifier) {
+    public function __construct($baseUrl, $publicKey, $privateKey, $imageIdentifier) {
         $this->baseUrl = rtrim($baseUrl, '/');
         $this->publicKey = $publicKey;
+        $this->privateKey = $privateKey;
         $this->imageIdentifier = $imageIdentifier;
     }
 
@@ -223,11 +232,34 @@ class ImageUrl implements ImageUrlInterface {
     public function __toString() {
         $url = $this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier;
 
-        if (empty($this->data)) {
+        if (empty($this->data) && !isset($this->imageIdentifier[32])) {
+            // We don't have any transformations added or a custom extension. Return the URL to the
+            // image
             return $url;
         }
 
-        return $url . '?' . $this->getQueryString();
+        // Initialize data for the transformation key hash
+        $data = $this->publicKey . '|' . $this->imageIdentifier;
+        $queryString = '';
+
+        if (!empty($this->data)) {
+            // We have some transformations. Generate a transformation key that will be sent to the
+            // server so the server can verify if the transformations are valid or not.
+            $queryString = $this->getQueryString();
+
+            $data .= '|' . $queryString;
+        }
+
+        // Prepare data for the hash
+        $transformationKey = hash_hmac('md5', $data, $this->privateKey);
+
+        if (empty($queryString)) {
+            // No query string. Append the transformation key
+            return $url . '?tk=' . $transformationKey;
+        }
+
+        // Return the URL with the query string and the transformation key
+        return $url . '?' . $queryString . '&tk=' . $transformationKey;
     }
 
     /**
@@ -250,10 +282,9 @@ class ImageUrl implements ImageUrlInterface {
     private function getQueryString() {
         $query = null;
         $query = array_reduce($this->data, function($query, $element) {
-            return $query . 't%5B%5D=' . $element . '&amp;'; // %5B => [] <= %5D
+            return $query . 't[]=' . $element . '&';
         }, $query);
-        $query = rtrim($query, '&amp;');
 
-        return $query;
+        return rtrim($query, '&');
     }
 }
