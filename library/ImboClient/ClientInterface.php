@@ -32,7 +32,8 @@
 
 namespace ImboClient;
 
-use ImboClient\Driver\DriverInterface;
+use ImboClient\Driver\DriverInterface,
+    ImboClient\ImagesQuery\Query;
 
 /**
  * Interface for the client
@@ -159,10 +160,12 @@ interface ClientInterface {
      *
      * If the server responds with an error, this method must return false.
      *
-     * @param ImboClient\ImagesQuery\Query $query
-     * @return array|boolean
+     * @param ImboClient\ImagesQuery\Query $query A query instance
+     * @return ImboClient\ImagesQuery\Image[]|boolean Returns false on error, and an array of
+     *                                                ImboClient\ImageQuery\Image instances on
+     *                                                success (can be empty)
      */
-    function getImages(\ImboClient\ImagesQuery\Query $query = null);
+    function getImages(Query $query = null);
 
     /**
      * Get properties of an image
