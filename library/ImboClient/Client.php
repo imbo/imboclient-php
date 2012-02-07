@@ -249,6 +249,7 @@ class Client implements ClientInterface {
      */
     public function getImages(Query $query = null) {
         $params = null;
+
         if ($query) {
             // Retrieve query parameters, reduce array down to non-empty values
             $params = array_filter(array(
@@ -268,8 +269,11 @@ class Client implements ClientInterface {
             }
         }
 
+        // Build the complete URL
         $url  = $this->getImagesUrl();
         $url .= $params ? '?' . http_build_query($params) : '';
+
+        // Fetch the response
         $response = $this->driver->get($url);
 
         if ($response->getStatusCode() !== 200) {
@@ -278,6 +282,7 @@ class Client implements ClientInterface {
 
         $images = json_decode($response->getBody(), true);
         $instances = array();
+
         foreach ($images as $image) {
             $instances[] = new Image($image);
         }
