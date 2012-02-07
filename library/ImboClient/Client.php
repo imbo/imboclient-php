@@ -34,6 +34,8 @@ namespace ImboClient;
 use ImboClient\Driver\DriverInterface,
     ImboClient\Driver\Curl as DefaultDriver,
     ImboClient\ImageUrl\ImageUrl,
+    ImboClient\ImagesQuery\Image,
+    ImboClient\ImagesQuery\Query,
     InvalidArgumentException;
 
 /**
@@ -240,6 +242,52 @@ class Client implements ClientInterface {
         $body = json_decode($response->getBody());
 
         return $body->numImages;
+    }
+
+    /**
+     * @see ImboClient\ClientInterface::getImages()
+     */
+    public function getImages(Query $query = null) {
+        $params = null;
+
+        if ($query) {
+            // Retrieve query parameters, reduce array down to non-empty values
+            $params = array_filter(array(
+                'page'      => $query->page(),
+                'num'       => $query->num(),
+                'metadata'  => $query->returnMetadata(),
+                'from'      => $query->from(),
+                'to'        => $query->to(),
+                'query'     => $query->metadataQuery(),
+            ), function($item) {
+                return !empty($item);
+            });
+
+            // JSON-encode metadata query, if present
+            if (isset($params['query'])) {
+                $params['query'] = json_encode($params['query']);
+            }
+        }
+
+        // Build the complete URL
+        $url  = $this->getImagesUrl();
+        $url .= $params ? '?' . http_build_query($params) : '';
+
+        // Fetch the response
+        $response = $this->driver->get($url);
+
+        if ($response->getStatusCode() !== 200) {
+            return false;
+        }
+
+        $images = json_decode($response->getBody(), true);
+        $instances = array();
+
+        foreach ($images as $image) {
+            $instances[] = new Image($image);
+        }
+
+        return $instances;
     }
 
     /**
