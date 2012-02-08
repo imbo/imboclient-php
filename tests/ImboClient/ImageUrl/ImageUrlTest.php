@@ -274,57 +274,63 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers ImboClient\ImageUrl\ImageUrl::getUrl
      * @covers ImboClient\ImageUrl\ImageUrl::__toString
      */
-    public function testToStringWithNoTransformationsAdded() {
-        $url = (string) $this->url;
+    public function testGetUrlWithNoTransformationsAdded() {
+        $url = $this->url->getUrl();
         $this->assertSame('http://host/users/' . $this->publicKey . '/images/' . $this->imageIdentifier, $url);
+        $this->assertSame($url, (string) $this->url);
     }
 
     /**
+     * @covers ImboClient\ImageUrl\ImageUrl::getUrl
      * @covers ImboClient\ImageUrl\ImageUrl::__toString
      */
-    public function testToStringWithTransformations() {
+    public function testGetUrlWithTransformations() {
         $this->url->flipHorizontally()->png();
-        $url = (string) $this->url;
+        $url = $this->url->getUrl();
         $this->assertStringStartsWith('http://host/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png?t[]=flipHorizontally', $url);
-        $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
+        $this->assertRegExp('/tk=[a-f0-9]{32}$/', $url);
+        $this->assertSame($url, (string) $this->url);
     }
 
     /**
+     * @covers ImboClient\ImageUrl\ImageUrl::getUrl
      * @covers ImboClient\ImageUrl\ImageUrl::__toString
      */
-    public function testToStringWithConvertOnly() {
+    public function testGetUrlWithConvertOnly() {
         $this->url->png();
-        $url = (string) $this->url;
+        $url = $this->url->getUrl();
         $this->assertStringStartsWith('http://host/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png', $url);
-        $this->assertRegExp('/\?tk=[a-f0-9]{32}$/', (string) $this->url);
+        $this->assertRegExp('/\?tk=[a-f0-9]{32}$/', $url);
+        $this->assertSame($url, (string) $this->url);
     }
 
     /**
-     * @covers ImboClient\ImageUrl\ImageUrl::getUrlEscaped
+     * @covers ImboClient\ImageUrl\ImageUrl::getUrlEncoded
      */
-    public function testGetUrlEscapedWithNoTransformationsAdded() {
-        $url = $this->url->getUrlEscaped();
+    public function testGetUrlEncodedWithNoTransformationsAdded() {
+        $url = $this->url->getUrlEncoded();
         $this->assertSame('http://host/users/' . $this->publicKey . '/images/' . $this->imageIdentifier, $url);
     }
 
     /**
-     * @covers ImboClient\ImageUrl\ImageUrl::getUrlEscaped
+     * @covers ImboClient\ImageUrl\ImageUrl::getUrlEncoded
      */
-    public function testGetUrlEscapedWithTransformations() {
+    public function testGetUrlEncodedWithTransformations() {
         $this->url->flipHorizontally()->flipVertically()->png();
-        $url = $this->url->getUrlEscaped();
+        $url = $this->url->getUrlEncoded();
         $this->assertStringStartsWith('http://host/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png?t%5B%5D=flipHorizontally&amp;t%5B%5D=flipVertically', $url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', $url);
     }
 
     /**
-     * @covers ImboClient\ImageUrl\ImageUrl::getUrlEscaped
+     * @covers ImboClient\ImageUrl\ImageUrl::getUrlEncoded
      */
-    public function testGetUrlEscapedWithConvertOnly() {
+    public function testGetUrlEncodedWithConvertOnly() {
         $this->url->png();
-        $url = $this->url->getUrlEscaped();
+        $url = $this->url->getUrlEncoded();
         $this->assertStringStartsWith('http://host/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png', $url);
         $this->assertRegExp('/\?tk=[a-f0-9]{32}$/', $url);
     }

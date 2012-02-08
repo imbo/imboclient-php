@@ -168,10 +168,17 @@ interface ImageUrlInterface {
      *
      * @return string
      */
-    function getUrlEscaped();
+    function getUrlEncoded();
 
     /**
      * Represent the complete image url as a string
+     *
+     * @return string
+     */
+    function getUrl();
+
+    /**
+     * Proxies to getUrl()
      *
      * @return string
      */

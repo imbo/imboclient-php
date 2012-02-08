@@ -56,9 +56,9 @@ $response = $client->deleteMetadata($hash);
 ```
 ## Generate image urls
 
-The client has a method called `getImageUrl($imageIdentifier)` that can be used to fetch an instance of the `ImboClient\ImageUrl\ImageUrl` class. This class has convenience methods for adding transformations to the url. All these methods can be chained and the transformations will be applied to the url in the chaining order. The convert method is special in that it does not append anything to the url, excpect injects an image extension to the image identifier. `convert()`, `gif()`, `jpg()` and `png()` can therefore be added anywhere in the chain.
+The client has a method called `getImageUrl($imageIdentifier)` that can be used to fetch an instance of the `ImboClient\ImageUrl\ImageUrl` class. This class has convenience methods for adding transformations to the url. All these methods can be chained and the transformations will be applied to the url in the chaining order. The `convert()` method is special in that it does not append anything to the url, excpect injects an image extension to the image identifier. `convert()`, `gif()`, `jpg()` and `png()` can therefore be added anywhere in the chain.
 
-The class also implements the `__toString()` method, so treating the object as a string will give you the complete url of the image.
+The class also includes two methods for fetching a string representation of the URL with the transformations added: `getUrl()` and `getUrlEncoded()`. When the object is used in string context the `getUrl()` method will be used.
 
 ### Methods
 

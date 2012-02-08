@@ -223,24 +223,34 @@ class ImageUrl implements ImageUrlInterface {
     public function reset() {
         $this->data = array();
         $this->imageIdentifier = substr($this->imageIdentifier, 0, 32);
+
         return $this;
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::getUrlEscaped()
+     * @see ImboClient\ImageUrl\ImageUrlInterface::getUrlEncoded()
      */
-    public function getUrlEscaped() {
+    public function getUrlEncoded() {
         $queryString = htmlspecialchars($this->getQueryString());
         $queryString = str_replace('[]', '%5B%5D', $queryString);
-        return $this->getUrl() . ($queryString ? '?' . $queryString : '');
+
+        return $this->getImageUrl() . ($queryString ? '?' . $queryString : '');
+    }
+
+    /**
+     * @see ImboClient\ImageUrl\ImageUrlInterface::getUrl()
+     */
+    public function getUrl() {
+        $queryString = $this->getQueryString();
+
+        return $this->getImageUrl() . ($queryString ? '?' . $queryString : '');
     }
 
     /**
      * @see ImboClient\ImageUrl\ImageUrlInterface::__toString()
      */
     public function __toString() {
-        $queryString = $this->getQueryString();
-        return $this->getUrl() . ($queryString ? '?' . $queryString : '');
+        return $this->getUrl();
     }
 
     /**
@@ -260,7 +270,7 @@ class ImageUrl implements ImageUrlInterface {
      *
      * @return string
      */
-    private function getUrl() {
+    private function getImageUrl() {
         return $this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier;
     }
 
