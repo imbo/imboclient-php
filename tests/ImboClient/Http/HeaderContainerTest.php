@@ -41,6 +41,65 @@ namespace ImboClient\Http;
  * @link https://github.com/christeredvartsen/imboclient-php
  */
 class HeaderContainerTest extends \PHPUnit_Framework_TestCase {
+    /**
+     * HeaderContainer instance
+     *
+     * @var ImboClient\Http\HeaderContainer
+     */
+    private $container;
+
+    public function setUp() {
+        $this->container = new HeaderContainer();
+    }
+
+    public function tearDown() {
+        $this->container = null;
+    }
+
+    public function getKeysAndValues() {
+        return array(
+            array('key', 'key', 'value'),
+            array('KEY', 'key', 'value'),
+            array('Some_key', 'some-key', 'value'),
+            array('SOME-KEY', 'some-key', 'value'),
+        );
+    }
+
+    /**
+     * @dataProvider getKeysAndValues
+     * @covers ImboClient\Http\HeaderContainer::set
+     * @covers ImboClient\Http\HeaderContainer::get
+     * @covers ImboClient\Http\HeaderContainer::getName
+     */
+    public function testSetAndGet($key, $internalKey, $value) {
+        $this->assertSame($this->container, $this->container->set($key, $value));
+        $this->assertSame($value, $this->container->get($key));
+        $this->assertSame($value, $this->container->get($internalKey));
+    }
+
+    /**
+     * @dataProvider getKeysAndValues
+     * @covers ImboClient\Http\HeaderContainer::set
+     * @covers ImboClient\Http\HeaderContainer::has
+     * @covers ImboClient\Http\HeaderContainer::remove
+     * @covers ImboClient\Http\HeaderContainer::getName
+     */
+    public function testSetHasAndRemove($key, $internalKey, $value) {
+        $this->assertFalse($this->container->has($key));
+        $this->assertFalse($this->container->has($internalKey));
+        $this->assertSame($this->container, $this->container->set($key, $value));
+        $this->assertTrue($this->container->has($key));
+        $this->assertTrue($this->container->has($internalKey));
+        $this->assertSame($this->container, $this->container->remove($key));
+        $this->assertFalse($this->container->has($key));
+        $this->assertFalse($this->container->has($internalKey));
+    }
+
+    /**
+     * @covers ImboClient\Http\HeaderContainer::__construct
+     * @covers ImboClient\Http\HeaderContainer::getAll
+     * @covers ImboClient\Http\HeaderContainer::getName
+     */
     public function testHeaderContainer() {
         $parameters = array(
             'key' => 'value',
@@ -49,18 +108,10 @@ class HeaderContainerTest extends \PHPUnit_Framework_TestCase {
             'CONTENT_LENGTH' => 234,
             'content-type' => 'text/html',
             'CONTENT_TYPE' => 'image/png',
-            'IF_NONE_MATCH' => 'asdf',
+            'IF_NONE_MATCH' => 'asd',
         );
 
         $container = new HeaderContainer($parameters);
-        $this->assertSame('value', $container->get('key'));
-        $this->assertSame(234, $container->get('CONTENT_LENGTH'));
-        $this->assertSame(234, $container->get('content-length'));
-        $this->assertSame('asdf', $container->get('if-none-match'));
-        $container->remove('if-none-match');
-        $this->assertFalse($container->has('if-none-match'));
-        $container->set('IF_NONE_MATCH', 'asd');
-        $this->assertSame('asd', $container->get('if-none-match'));
 
         $this->assertSame(array(
             'key' => 'value',

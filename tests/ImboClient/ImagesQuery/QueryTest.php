@@ -56,44 +56,62 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
         $this->query = null;
     }
 
+    /**
+     * @covers ImboClient\ImagesQuery\Query::page
+     */
     public function testPage() {
         $value = 2;
         $this->assertSame(1, $this->query->page());
-        $this->query->page($value);
+        $this->assertSame($this->query, $this->query->page($value));
         $this->assertSame($value, $this->query->page());
     }
 
+    /**
+     * @covers ImboClient\ImagesQuery\Query::num
+     */
     public function testNum() {
         $value = 30;
         $this->assertSame(20, $this->query->num());
-        $this->query->num($value);
+        $this->assertSame($this->query, $this->query->num($value));
         $this->assertSame($value, $this->query->num());
     }
 
+    /**
+     * @covers ImboClient\ImagesQuery\Query::returnMetadata
+     */
     public function testReturnMetadata() {
         $this->assertFalse($this->query->returnMetadata());
-        $this->query->returnMetadata(true);
+        $this->assertSame($this->query, $this->query->returnMetadata(true));
         $this->assertTrue($this->query->returnMetadata());
     }
 
+    /**
+     * @covers ImboClient\ImagesQuery\Query::metadataQuery
+     */
     public function testMetadataQuery() {
         $value = array('category' => 'some category');
         $this->assertSame(array(), $this->query->metadataQuery());
-        $this->query->metadataQuery($value);
+        $this->assertSame($this->query, $this->query->metadataQuery($value));
         $this->assertSame($value, $this->query->metadataQuery());
     }
 
+    /**
+     * @covers ImboClient\ImagesQuery\Query::from
+     */
     public function testFrom() {
         $value = 123123123;
         $this->assertNull($this->query->from());
-        $this->query->from($value);
+        $this->assertSame($this->query, $this->query->from($value));
         $this->assertSame($value, $this->query->from());
     }
 
+    /**
+     * @covers ImboClient\ImagesQuery\Query::to
+     */
     public function testTo() {
         $value = 123123123;
         $this->assertNull($this->query->to());
-        $this->query->to($value);
+        $this->assertSame($this->query, $this->query->to($value));
         $this->assertSame($value, $this->query->to());
     }
 }

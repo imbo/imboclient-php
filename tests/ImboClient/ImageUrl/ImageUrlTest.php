@@ -76,8 +76,12 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     private $imageIdentifier = '83dfab4b5c2678e5f195ea21c5e6750b';
 
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::__construct
+     */
     public function setUp() {
-        $this->url = new ImageUrl($this->baseUrl, $this->publicKey, $this->privateKey, $this->imageIdentifier);
+        // Add trailing slash to baseUrl on purpose
+        $this->url = new ImageUrl($this->baseUrl . '/', $this->publicKey, $this->privateKey, $this->imageIdentifier);
     }
 
     public function tearDown() {
@@ -276,6 +280,8 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
     /**
      * @covers ImboClient\ImageUrl\ImageUrl::getUrl
      * @covers ImboClient\ImageUrl\ImageUrl::__toString
+     * @covers ImboClient\ImageUrl\ImageUrl::getImageUrl
+     * @covers ImboClient\ImageUrl\ImageUrl::getQueryString
      */
     public function testGetUrlWithNoTransformationsAdded() {
         $url = $this->url->getUrl();
@@ -286,6 +292,8 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
     /**
      * @covers ImboClient\ImageUrl\ImageUrl::getUrl
      * @covers ImboClient\ImageUrl\ImageUrl::__toString
+     * @covers ImboClient\ImageUrl\ImageUrl::getImageUrl
+     * @covers ImboClient\ImageUrl\ImageUrl::getQueryString
      */
     public function testGetUrlWithTransformations() {
         $this->url->flipHorizontally()->png();
@@ -298,6 +306,8 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
     /**
      * @covers ImboClient\ImageUrl\ImageUrl::getUrl
      * @covers ImboClient\ImageUrl\ImageUrl::__toString
+     * @covers ImboClient\ImageUrl\ImageUrl::getImageUrl
+     * @covers ImboClient\ImageUrl\ImageUrl::getQueryString
      */
     public function testGetUrlWithConvertOnly() {
         $this->url->png();
@@ -309,6 +319,8 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers ImboClient\ImageUrl\ImageUrl::getUrlEncoded
+     * @covers ImboClient\ImageUrl\ImageUrl::getImageUrl
+     * @covers ImboClient\ImageUrl\ImageUrl::getQueryString
      */
     public function testGetUrlEncodedWithNoTransformationsAdded() {
         $url = $this->url->getUrlEncoded();
@@ -317,8 +329,11 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers ImboClient\ImageUrl\ImageUrl::getUrlEncoded
+     * @covers ImboClient\ImageUrl\ImageUrl::append
+     * @covers ImboClient\ImageUrl\ImageUrl::getImageUrl
+     * @covers ImboClient\ImageUrl\ImageUrl::getQueryString
      */
-    public function testGetUrlEncodedWithTransformations() {
+    public function testGetUrlEncodedWithMultipleTransformations() {
         $this->url->flipHorizontally()->flipVertically()->png();
         $url = $this->url->getUrlEncoded();
         $this->assertStringStartsWith('http://host/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png?t%5B%5D=flipHorizontally&amp;t%5B%5D=flipVertically', $url);
@@ -327,6 +342,8 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers ImboClient\ImageUrl\ImageUrl::getUrlEncoded
+     * @covers ImboClient\ImageUrl\ImageUrl::getImageUrl
+     * @covers ImboClient\ImageUrl\ImageUrl::getQueryString
      */
     public function testGetUrlEncodedWithConvertOnly() {
         $this->url->png();
@@ -334,5 +351,4 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
         $this->assertStringStartsWith('http://host/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png', $url);
         $this->assertRegExp('/\?tk=[a-f0-9]{32}$/', $url);
     }
-
 }
