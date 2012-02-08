@@ -223,43 +223,34 @@ class ImageUrl implements ImageUrlInterface {
     public function reset() {
         $this->data = array();
         $this->imageIdentifier = substr($this->imageIdentifier, 0, 32);
+
         return $this;
+    }
+
+    /**
+     * @see ImboClient\ImageUrl\ImageUrlInterface::getUrlEncoded()
+     */
+    public function getUrlEncoded() {
+        $queryString = htmlspecialchars($this->getQueryString());
+        $queryString = str_replace('[]', '%5B%5D', $queryString);
+
+        return $this->getImageUrl() . ($queryString ? '?' . $queryString : '');
+    }
+
+    /**
+     * @see ImboClient\ImageUrl\ImageUrlInterface::getUrl()
+     */
+    public function getUrl() {
+        $queryString = $this->getQueryString();
+
+        return $this->getImageUrl() . ($queryString ? '?' . $queryString : '');
     }
 
     /**
      * @see ImboClient\ImageUrl\ImageUrlInterface::__toString()
      */
     public function __toString() {
-        $url = $this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier;
-
-        if (empty($this->data) && !isset($this->imageIdentifier[32])) {
-            // We don't have any transformations added or a custom extension. Return the URL to the
-            // image
-            return $url;
-        }
-
-        // Initialize data for the transformation key hash
-        $data = $this->publicKey . '|' . $this->imageIdentifier;
-        $queryString = '';
-
-        if (!empty($this->data)) {
-            // We have some transformations. Generate a transformation key that will be sent to the
-            // server so the server can verify if the transformations are valid or not.
-            $queryString = $this->getQueryString();
-
-            $data .= '|' . $queryString;
-        }
-
-        // Prepare data for the hash
-        $transformationKey = hash_hmac('md5', $data, $this->privateKey);
-
-        if (empty($queryString)) {
-            // No query string. Append the transformation key
-            return $url . '?tk=' . $transformationKey;
-        }
-
-        // Return the URL with the query string and the transformation key
-        return $url . '?' . $queryString . '&tk=' . $transformationKey;
+        return $this->getUrl();
     }
 
     /**
@@ -275,16 +266,50 @@ class ImageUrl implements ImageUrlInterface {
     }
 
     /**
+     * Return the URL for the image, without transformations
+     *
+     * @return string
+     */
+    private function getImageUrl() {
+        return $this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier;
+    }
+
+    /**
      * Return the query string
      *
      * @return string
      */
     private function getQueryString() {
-        $query = null;
-        $query = array_reduce($this->data, function($query, $element) {
-            return $query . 't[]=' . $element . '&';
-        }, $query);
+        if (empty($this->data) && !isset($this->imageIdentifier[32])) {
+            // We don't have any transformations added or a custom extension
+            return '';
+        }
 
-        return rtrim($query, '&');
+        // Initialize data for the transformation key hash
+        $data = $this->publicKey . '|' . $this->imageIdentifier;
+        $queryString = '';
+
+        if (!empty($this->data)) {
+            // We have some transformations. Generate a transformation key that will be sent to the
+            // server so the server can verify if the transformations are valid or not.
+            $queryString = array_reduce($this->data, function($query, $element) {
+                return $query . 't[]=' . $element . '&';
+            }, $queryString);
+
+            $queryString = rtrim($queryString, '&');
+
+            $data .= '|' . $queryString;
+        }
+
+        // Prepare data for the hash
+        $transformationKey = hash_hmac('md5', $data, $this->privateKey);
+
+        if (empty($queryString)) {
+            // No query string. Return only the transformation key
+            return 'tk=' . $transformationKey;
+        }
+
+        // Return the query string with the transformation key appended
+        return $queryString . '&tk=' . $transformationKey;
     }
 }

@@ -164,7 +164,21 @@ interface ImageUrlInterface {
     function reset();
 
     /**
+     * Represent the complete image url as an URL-encoded string
+     *
+     * @return string
+     */
+    function getUrlEncoded();
+
+    /**
      * Represent the complete image url as a string
+     *
+     * @return string
+     */
+    function getUrl();
+
+    /**
+     * Proxies to getUrl()
      *
      * @return string
      */
