@@ -135,15 +135,15 @@ task :release, :version do |t, args|
 
     if /^[\d]+\.[\d]+\.[\d]+$/ =~ version
         # Syntax check
-        Rake::Task("lint")
+        Rake::Task["lint"]
 
         # Build PEAR package
-        Rake::Task("pear").invoke(version)
+        Rake::Task["pear"].invoke(version)
 
         # Publish to the PEAR channel
-        Rake::Task("publish").invoke(version)
+        Rake::Task["publish"].invoke(version)
 
         # Tag the current state of master and push to GitHub
-        Rake::Task("github").invoke(version)
+        Rake::Task["github"].invoke(version)
     end
 end
