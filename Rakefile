@@ -42,7 +42,7 @@ task :pear, :version do |t, args|
                     xml.email "cogo@starzinger.net"
                     xml.active "yes"
                 }
-                xml.contributor {
+                xml.developer {
                     xml.name "Espen Hovlandsdal"
                     xml.user "rexxars"
                     xml.email "espen@hovlandsdal.com"
