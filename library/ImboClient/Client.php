@@ -289,6 +289,27 @@ class Client implements ClientInterface {
 
         return $instances;
     }
+    
+    /**
+     * @see ImboClient\ClientInterface::getImageData()
+     */
+    public function getImageData($imageIdentifier) {
+        $url = $this->getImageUrl($imageIdentifier);
+        return $this->getImageDataFromUrl($url);
+    }
+    
+    /**
+     * @see ImboClient\ClientInterface::getImageDataFromUrl()
+     */
+    public function getImageDataFromUrl(ImageUrl $url) {
+        $response = $this->driver->get($url->getUrl());
+        
+        if ($response->getStatusCode() !== 200) {
+            return false;
+        }
+        
+        return $response->getBody();
+    }
 
     /**
      * @see ImboClient\ClientInterface::getImageProperties()
