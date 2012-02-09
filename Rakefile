@@ -62,13 +62,13 @@ task :pear, :version do |t, args|
                 xml.notes "http://github.com/christeredvartsen/imboclient-php/blob/#{version}/README.markdown"
                 xml.contents {
                     xml.dir(:name => "/") {
-                        system "cp ../README.markdown ../LICENSE ."
-
                         `git ls-files`.split("\n").each { |f|
                             xml.file(:md5sum => hash.hexdigest(File.read(f)), :role => "php", :name => f)
                         }
 
-                        ["README.markdown", "LICENSE"].each { |f|
+                        # Copy some files from the root directory
+                        ["README.markdown", "LICENSE", "ChangeLog.markdown"].each { |f|
+                            system "cp ../#{f} ."
                             xml.file(:md5sum => hash.hexdigest(File.read(f)), :role => "doc", :name => f)
                         }
                     }
@@ -99,7 +99,7 @@ task :pear, :version do |t, args|
         system "pear package"
 
         # Remove tmp files
-        ["package.xml", "LICENSE", "README.markdown"].each { |f|
+        ["package.xml", "LICENSE", "README.markdown", "ChangeLog.markdown"].each { |f|
             File.unlink(f)
         }
 
