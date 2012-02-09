@@ -401,6 +401,57 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertFalse($this->client->getImages());
     }
+    
+    /**
+     * @covers ImboClient\Client::getImageData
+     * @covers ImboClient\Client::getImageDataFromUrl
+     */
+    public function testGetImageData() {
+        $expectedData = 'someBinaryImageData';
+
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
+        $response->expects($this->once())->method('getBody')->will($this->returnValue($expectedData));
+
+        $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern['image']))->will($this->returnValue($response));
+
+        $imageIdentifier = md5(microtime());
+        $this->assertSame($expectedData, $this->client->getImageData($imageIdentifier));
+    }
+    
+    /**
+     * @covers ImboClient\Client::getImageData
+     * @covers ImboClient\Client::getImageDataFromUrl
+     */
+    public function testGetImageDataWhenServerRespondsWithAnError() {
+        $imageUrl = $this->client->getImageUrl(md5(microtime()));
+        
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(500));
+    
+        $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern['image']))->will($this->returnValue($response));
+    
+        $imageIdentifier = md5(microtime());
+        $this->assertSame(false, $this->client->getImageData($imageIdentifier));
+    }
+    
+    /**
+     * @covers ImboClient\Client::getImageDataFromUrl
+     */
+    public function testGetImageDataFromUrl() {
+        $expectedData = 'someBinaryImageData';
+        
+        $imageUrl = $this->client->getImageUrl(md5(microtime()));
+        
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
+        $response->expects($this->once())->method('getBody')->will($this->returnValue($expectedData));
+    
+        $regex = '|^http://host/users/[a-zA-Z0-9]{3,}/images/[a-f0-9]{32}\?t\[\]=|';
+        $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($regex))->will($this->returnValue($response));
+    
+        $this->assertSame($expectedData, $this->client->getImageDataFromUrl($imageUrl->flipHorizontally()));
+    }
 
     /**
      * Server urls data provider

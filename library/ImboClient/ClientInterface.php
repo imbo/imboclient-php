@@ -33,7 +33,8 @@
 namespace ImboClient;
 
 use ImboClient\Driver\DriverInterface,
-    ImboClient\ImagesQuery\Query;
+    ImboClient\ImagesQuery\Query,
+    ImboClient\ImageUrl\ImageUrl;
 
 /**
  * Interface for the client
@@ -147,7 +148,7 @@ interface ClientInterface {
     function getMetadata($imageIdentifier);
 
     /**
-     * Get the number of images currently stored at the server
+     * Get the number of images currently stored on the server
      *
      * If the server responds with an error, this method must return false.
      *
@@ -166,6 +167,26 @@ interface ClientInterface {
      *                                                success (can be empty)
      */
     function getImages(Query $query = null);
+    
+    /**
+     * Get the binary data of an image stored on the server
+     * 
+     * If the server responds with an error, this method must return false.
+     * 
+     * @param string $imageIdentifier The image identifier
+     * @return string|boolean
+     */
+    function getImageData($imageIdentifier);
+    
+    /**
+     * Get the binary data of an image stored on the server
+     * 
+     * If the server responds with an error, this method must return false.
+     *
+     * @param ImboClient\ImageUrl\ImageUrl $url ImageUrl-instance for the image you want to retrieve
+     * @return string|boolean
+     */
+    function getImageDataFromUrl(ImageUrl $url);
 
     /**
      * Get properties of an image
