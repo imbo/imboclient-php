@@ -40,9 +40,9 @@
  */
 
 set_include_path(
-    get_include_path() . PATH_SEPARATOR .
     __DIR__ . '/../library' . PATH_SEPARATOR .
-    __DIR__
+    __DIR__ . PATH_SEPARATOR .
+    get_include_path()
 );
 
 // Autoloader for namespaced classes in the include_path
