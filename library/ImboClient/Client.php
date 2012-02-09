@@ -34,8 +34,10 @@ namespace ImboClient;
 use ImboClient\Driver\DriverInterface,
     ImboClient\Driver\Curl as DefaultDriver,
     ImboClient\ImageUrl\ImageUrl,
+    ImboClient\ImageUrl\ImageUrlInterface,
+    ImboClient\ImagesQuery\ImageInterface,
     ImboClient\ImagesQuery\Image,
-    ImboClient\ImagesQuery\Query,
+    ImboClient\ImagesQuery\QueryInterface,
     InvalidArgumentException;
 
 /**
@@ -247,7 +249,7 @@ class Client implements ClientInterface {
     /**
      * @see ImboClient\ClientInterface::getImages()
      */
-    public function getImages(Query $query = null) {
+    public function getImages(QueryInterface $query = null) {
         $params = null;
 
         if ($query) {
@@ -288,6 +290,28 @@ class Client implements ClientInterface {
         }
 
         return $instances;
+    }
+
+    /**
+     * @see ImboClient\ClientInterface::getImageData()
+     */
+    public function getImageData($imageIdentifier) {
+        $url = $this->getImageUrl($imageIdentifier);
+
+        return $this->getImageDataFromUrl($url);
+    }
+
+    /**
+     * @see ImboClient\ClientInterface::getImageDataFromUrl()
+     */
+    public function getImageDataFromUrl(ImageUrlInterface $url) {
+        $response = $this->driver->get($url->getUrl());
+
+        if ($response->getStatusCode() !== 200) {
+            return false;
+        }
+
+        return $response->getBody();
     }
 
     /**
