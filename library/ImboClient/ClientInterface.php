@@ -33,8 +33,8 @@
 namespace ImboClient;
 
 use ImboClient\Driver\DriverInterface,
-    ImboClient\ImagesQuery\Query,
-    ImboClient\ImageUrl\ImageUrl;
+    ImboClient\ImagesQuery\QueryInterface,
+    ImboClient\ImageUrl\ImageUrlInterface;
 
 /**
  * Interface for the client
@@ -161,32 +161,33 @@ interface ClientInterface {
      *
      * If the server responds with an error, this method must return false.
      *
-     * @param ImboClient\ImagesQuery\Query $query A query instance
-     * @return ImboClient\ImagesQuery\Image[]|boolean Returns false on error, and an array of
-     *                                                ImboClient\ImageQuery\Image instances on
-     *                                                success (can be empty)
+     * @param ImboClient\ImagesQuery\QueryInterface $query A query instance
+     * @return ImboClient\ImagesQuery\ImageInterface[]|boolean Returns false on error, and an array
+     *                                                         of ImboClient\ImageQuery\ImageInterface
+     *                                                         instances on success (can be empty)
      */
-    function getImages(Query $query = null);
-    
+    function getImages(QueryInterface $query = null);
+
     /**
      * Get the binary data of an image stored on the server
-     * 
+     *
      * If the server responds with an error, this method must return false.
-     * 
+     *
      * @param string $imageIdentifier The image identifier
      * @return string|boolean
      */
     function getImageData($imageIdentifier);
-    
+
     /**
      * Get the binary data of an image stored on the server
-     * 
+     *
      * If the server responds with an error, this method must return false.
      *
-     * @param ImboClient\ImageUrl\ImageUrl $url ImageUrl-instance for the image you want to retrieve
+     * @param ImboClient\ImageUrl\ImageUrlInterface $url ImageUrl-instance for the image you want
+     *                                                   to retrieve
      * @return string|boolean
      */
-    function getImageDataFromUrl(ImageUrl $url);
+    function getImageDataFromUrl(ImageUrlInterface $url);
 
     /**
      * Get properties of an image
