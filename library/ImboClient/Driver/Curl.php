@@ -204,10 +204,10 @@ class Curl implements DriverInterface {
         // Set extra headers
         curl_setopt($handle, CURLOPT_HTTPHEADER, $this->headers);
 
-        $content = curl_exec($handle);
+        $content      = curl_exec($handle);
         $connectTime  = (int) curl_getinfo($handle, CURLINFO_CONNECT_TIME);
         $transferTime = (int) curl_getinfo($handle, CURLINFO_TOTAL_TIME);
-        $statusCode = (int) curl_getinfo($handle, CURLINFO_HTTP_CODE);
+        $statusCode   = (int) curl_getinfo($handle, CURLINFO_HTTP_CODE);
 
         curl_close($handle);
 
@@ -221,12 +221,12 @@ class Curl implements DriverInterface {
             throw new RuntimeException('An error occured. Could not complete request (Response code: ' . $statusCode . ').');
         }
 
-        $content = str_replace("\r", '', $content);
-
         // Remove any HTTP/1.1 100 Continue from the response
         $content = preg_replace('/HTTP\/[.\d]+ 100.*?^HTTP/sm', 'HTTP', $content);
 
-        list($headers, $body) = explode("\n\n", $content, 2);
+        list($headers, $body) = explode("\r\n\r\n", $content, 2);
+
+        $headers = str_replace("\r", '', $headers);
         $headers = explode("\n", $headers);
 
         // Remove the first element (status line)
