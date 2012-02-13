@@ -5,6 +5,7 @@ ImboClient-0.1.1
 -------------
 __N/A__
 
+* PR #12: Binary data from requests are (possibly) broken
 * PR #11: Added getImageData() and getImageDataFromUrl()-methods
 
 ImboClient-0.1.0
