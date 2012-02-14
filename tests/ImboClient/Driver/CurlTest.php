@@ -109,6 +109,21 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers ImboClient\Driver\Curl::putData
+     * @covers ImboClient\Driver\Curl::request
+     */
+    public function testPutData() {
+        $file = file_get_contents(__FILE__);
+
+        $url = $this->testUrl;
+        $response = $this->driver->putData($url, $file);
+        $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $response);
+        $data = unserialize($response->getBody());
+
+        $this->assertSame($data['md5'], md5($file));
+    }
+
+    /**
      * @covers ImboClient\Driver\Curl::get
      * @covers ImboClient\Driver\Curl::request
      */

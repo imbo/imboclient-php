@@ -79,6 +79,16 @@ interface DriverInterface {
     function put($url, $filePath);
 
     /**
+     * PUT in-memory data to an URL
+     *
+     * @param string $url The URL to PUT to
+     * @param string $data The data to PUT
+     * @return ImboClient\Http\Response\ResponseInterface
+     * @throws RuntimeException
+     */
+    function putData($url, $data);
+
+    /**
      * Perform a GET to $url
      *
      * @param string $url The URL to GET
