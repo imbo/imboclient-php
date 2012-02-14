@@ -97,6 +97,14 @@ interface ClientInterface {
     function addImage($path);
 
     /**
+     * Add a new image to the server by using an image in memory and not a local path
+     *
+     * @param string $image The actual image data to add to the server
+     * @return ImboClient\Http\Response\ResponseInterface
+     */
+    function addImageFromString($image);
+
+    /**
      * Checks if a given image exists on the server already
      *
      * @param string $path Path to the local image
@@ -212,4 +220,12 @@ interface ClientInterface {
      * @return string The image identifier to use with the imbo server
      */
     function getImageIdentifier($path);
+
+    /**
+     * Generate an image identifier based on actual image data
+     *
+     * @param string $image String containing an image
+     * @return string The image identifier to use with the imbo server
+     */
+    function getImageIdentifierFromString($image);
 }

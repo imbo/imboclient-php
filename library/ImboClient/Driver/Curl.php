@@ -177,6 +177,20 @@ class Curl implements DriverInterface {
     }
 
     /**
+     * @see ImboClient\Driver\DriverInterface::putData()
+     */
+    public function putData($url, $data) {
+        $handle = curl_copy_handle($this->curlHandle);
+
+        curl_setopt_array($handle, array(
+            CURLOPT_CUSTOMREQUEST => 'PUT',
+            CURLOPT_POSTFIELDS    => $data,
+        ));
+
+        return $this->request($handle, $url);
+    }
+
+    /**
      * @see ImboClient\Driver\DriverInterface::addRequestHeader()
      */
     public function addRequestHeader($key, $value) {

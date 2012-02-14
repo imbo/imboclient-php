@@ -401,7 +401,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertFalse($this->client->getImages());
     }
-    
+
     /**
      * @covers ImboClient\Client::getImageData
      * @covers ImboClient\Client::getImageDataFromUrl
@@ -418,38 +418,38 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $imageIdentifier = md5(microtime());
         $this->assertSame($expectedData, $this->client->getImageData($imageIdentifier));
     }
-    
+
     /**
      * @covers ImboClient\Client::getImageData
      * @covers ImboClient\Client::getImageDataFromUrl
      */
     public function testGetImageDataWhenServerRespondsWithAnError() {
         $imageUrl = $this->client->getImageUrl(md5(microtime()));
-        
+
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(500));
-    
+
         $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern['image']))->will($this->returnValue($response));
-    
+
         $imageIdentifier = md5(microtime());
         $this->assertSame(false, $this->client->getImageData($imageIdentifier));
     }
-    
+
     /**
      * @covers ImboClient\Client::getImageDataFromUrl
      */
     public function testGetImageDataFromUrl() {
         $expectedData = 'someBinaryImageData';
-        
+
         $imageUrl = $this->client->getImageUrl(md5(microtime()));
-        
+
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
         $response->expects($this->once())->method('getBody')->will($this->returnValue($expectedData));
-    
+
         $regex = '|^http://host/users/[a-zA-Z0-9]{3,}/images/[a-f0-9]{32}\?t\[\]=|';
         $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($regex))->will($this->returnValue($response));
-    
+
         $this->assertSame($expectedData, $this->client->getImageDataFromUrl($imageUrl->flipHorizontally()));
     }
 
@@ -524,10 +524,11 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers ImboClient\Client::getImageIdentifier
+     * @covers ImboClient\Client::generateImageIdentifier
      */
     public function testGetImageIdentifier() {
         $imagePath = __DIR__ . '/_files/image.png';
-        $this->assertSame(md5_file($imagePath), $this->client->getImageIdentifier($imagePath));
+        $this->assertSame('929db9c5fc3099f7576f5655207eba47', $this->client->getImageIdentifier($imagePath));
     }
 
     /**
@@ -547,5 +548,15 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     public function testGetImageIdentifierWhenImageIsEmpty() {
         $path = __DIR__ . '/_files/emptyImage.png';
         $this->client->getImageIdentifier($path);
+    }
+
+    /**
+     * @covers ImboClient\Client::getImageIDentifierFromString
+     * @covers ImboClient\Client::generateImageIdentifier
+     */
+    public function testGetImageIdentifierFromString() {
+        $imagePath = __DIR__ . '/_files/image.png';
+        $image = file_get_contents($imagePath);
+        $this->assertSame('929db9c5fc3099f7576f5655207eba47', $this->client->getImageIdentifierFromString($image));
     }
 }

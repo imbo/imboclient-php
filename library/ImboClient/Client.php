@@ -173,6 +173,18 @@ class Client implements ClientInterface {
     }
 
     /**
+     * @see ImboClient\ClientInterface::addImageFromString()
+     */
+    public function addImageFromString($image) {
+        $imageIdentifier = $this->getImageIdentifierFromString($image);
+        $imageUrl = $this->getImageUrl($imageIdentifier, true);
+
+        $url = $this->getSignedUrl(DriverInterface::PUT, $imageUrl);
+
+        return $this->driver->putData($url, $image);
+    }
+
+    /**
      * @see ImboClient\ClientInterface::imageExists()
      */
     public function imageExists($path) {
@@ -339,7 +351,26 @@ class Client implements ClientInterface {
     public function getImageIdentifier($path) {
         $this->validateLocalFile($path);
 
-        return md5_file($path);
+        return $this->generateImageIdentifier(
+            file_get_contents($path)
+        );
+    }
+
+    /**
+     * @see ImboClient\ClientInterface::getImageIdentifierFromString()
+     */
+    public function getImageIdentifierFromString($image) {
+        return $this->generateImageIdentifier($image);
+    }
+
+    /**
+     * Generate an image identifier based on the data of the image
+     *
+     * @param string $data The actual image data
+     * @return string
+     */
+    private function generateImageIdentifier($data) {
+        return md5($data);
     }
 
     /**
