@@ -1,6 +1,12 @@
 Changelog for ImboClient
 =====================
 
+ImboClient-0.2.0
+-------------
+__N/A__
+
+* Implemented support for adding in-memory images to the server (Issue #13)
+
 ImboClient-0.1.1
 -------------
 __2012-02-13__
