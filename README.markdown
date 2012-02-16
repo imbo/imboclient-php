@@ -6,6 +6,14 @@ A PHP client for [imbo](https://github.com/christeredvartsen/imbo).
 ## Requirements
 ImboClient requires a [PSR-0](http://groups.google.com/group/php-standards) compatible autoloader and only works on [PHP-5.3](http://php.net/) or above.
 
+## Installation
+ImboClient can be installed using [PEAR](http://pear.php.net/).
+
+```
+sudo pear config-set auto_discover 1
+sudo pear install --alldeps pear.starzinger.net/ImboClient
+```
+
 ## Add an image
 ```php
 <?php
