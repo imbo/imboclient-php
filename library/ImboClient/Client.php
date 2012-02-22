@@ -84,13 +84,13 @@ class Client implements ClientInterface {
     /**
      * Class constructor
      *
-     * @param array|string $serverUrls One or more URL to the Imbo server, including protocol
+     * @param array|string $serverUrls One or more URLs to the Imbo server, including protocol
      * @param string $publicKey The public key to use
      * @param string $privateKey The private key to use
      * @param ImboClient\Driver\DriverInterface $driver Optional driver to set
      */
     public function __construct($serverUrls, $publicKey, $privateKey, DriverInterface $driver = null) {
-        $this->serverUrls = $this->parseHosts($serverUrls);
+        $this->serverUrls = $this->parseUrls($serverUrls);
         $this->publicKey  = $publicKey;
         $this->privateKey = $privateKey;
 
@@ -415,24 +415,25 @@ class Client implements ClientInterface {
     /**
      * Get a predictable hostname for the given image identifier
      *
-     * @param string $imageIdentifier
+     * @param string $imageIdentifier The image identifier
      * @return string
      */
     private function getHostForImageIdentifier($imageIdentifier) {
         $dec = hexdec($imageIdentifier[0] . $imageIdentifier[1]);
+
         return $this->serverUrls[$dec % count($this->serverUrls)];
     }
 
     /**
      * Parse server host URLs and prepare them for usage
      *
-     * @param array|string $hosts
-     * @return array
+     * @param array|string $urls One or more URLs to an Imbo server
+     * @return array Returns an array of URLs
      */
-    private function parseHosts($hosts) {
-        $hosts = (array) $hosts;
+    private function parseUrls($urls) {
+        $urls = (array) $urls;
 
-        foreach ($hosts as &$serverUrl) {
+        foreach ($urls as &$serverUrl) {
             $parts = parse_url($serverUrl);
 
             // Remove the port from the server url if it's equal to 80
@@ -447,6 +448,6 @@ class Client implements ClientInterface {
             $serverUrl  = rtrim($serverUrl, '/');
         }
 
-        return $hosts;
+        return $urls;
     }
 }

@@ -310,7 +310,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getMultiHostServers()
      * @covers ImboClient\Client::__construct
-     * @covers ImboClient\Client::parseHosts
+     * @covers ImboClient\Client::parseUrls
      * @covers ImboClient\Client::getImageUrl
      * @covers ImboClient\Client::getHostForImageIdentifier
      */
@@ -525,7 +525,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      * @dataProvider getServerUrls()
      * @covers ImboClient\Client::getUserUrl
      * @covers ImboClient\Client::__construct
-     * @covers ImboClient\Client::parseHosts
+     * @covers ImboClient\Client::parseUrls
      */
     public function testServerUrls($url, $publicKey, $expected) {
         $client = new Client($url, $publicKey, $this->privateKey);
