@@ -153,6 +153,18 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers ImboClient\Client::addImageFromString
+     * @covers ImboClient\Client::getSignedUrl
+     * @covers ImboClient\Client::generateSignature
+     */
+    public function testAddImageFromString() {
+        $imageData = file_get_contents(__DIR__ . '/_files/image.png');
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $this->driver->expects($this->once())->method('putData')->with($this->matchesRegularExpression($this->signedUrlPattern['image']), $imageData)->will($this->returnValue($response));
+        $this->assertSame($response, $this->client->addImageFromString($imageData));
+    }
+
+    /**
      * @covers ImboClient\Client::deleteImage
      * @covers ImboClient\Client::getSignedUrl
      * @covers ImboClient\Client::generateSignature
@@ -255,6 +267,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers ImboClient\Client::getImageUrl
+     * @covers ImboClient\Client::getHostForImageIdentifier
      */
     public function testGetImageUrl() {
         $identifier = md5(microtime());
@@ -264,10 +277,47 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers ImboClient\Client::getImageUrl
+     * @covers ImboClient\Client::getHostForImageIdentifier
      */
     public function testGetImageUrlAsString() {
         $expectedUrl = $this->serverUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier;
         $this->assertSame($expectedUrl, $this->client->getImageUrl($this->imageIdentifier, true));
+    }
+
+    /**
+     * Server hostname data provider
+     *
+     * @return array
+     */
+    public function getMultiHostServers() {
+        $publicKey = md5(microtime());
+
+        $hosts = array('http://imbo0', 'http://imbo1/prefix', 'http://imbo2:81', 'http://imbo3:81/prefix', 'http://imbo4:80');
+
+        return array(
+            array($hosts, $publicKey, 'd1afdbe2950dc1e9fa134d8c91cd1a8b', 'http://imbo4'),
+            array($hosts, $publicKey, '5fda26a928c9b0b90ef7b2db0031bfcf', 'http://imbo0'),
+            array($hosts, $publicKey, '5d028794b32c2b127875a336b1220dab', 'http://imbo3:81/prefix'),
+            array($hosts, $publicKey, 'f7dc62518f2967dacbc4c0eead5fabe5', 'http://imbo2:81'),
+            array($hosts, $publicKey, '7a4cac9e82c06010293cd6d23708e147', 'http://imbo2:81'),
+            array($hosts, $publicKey, '609c8d8350d3b6b294a628835b8e9b59', 'http://imbo1/prefix'),
+            array($hosts, $publicKey, '1e68c888fbe0a27276141a1e6fb576f4', 'http://imbo0'),
+            array($hosts, $publicKey, '67e45db3a472a90a26bda000c0818bfc', 'http://imbo3:81/prefix'),
+            array($hosts, $publicKey, '3ad35117949c5a17b9df82c343b4f763', 'http://imbo3:81/prefix'),
+        );
+    }
+
+    /**
+     * @dataProvider getMultiHostServers()
+     * @covers ImboClient\Client::__construct
+     * @covers ImboClient\Client::parseHosts
+     * @covers ImboClient\Client::getImageUrl
+     * @covers ImboClient\Client::getHostForImageIdentifier
+     */
+    public function testImageUrlHostnames($urls, $publicKey, $imageIdentifier, $expected) {
+        $expectedUrl = $expected . '/users/' . $publicKey . '/images/' . $imageIdentifier;
+        $client = new Client($urls, $publicKey, $this->privateKey);
+        $this->assertSame($expectedUrl, $client->getImageUrl($imageIdentifier, true));
     }
 
     /**
@@ -474,6 +524,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getServerUrls()
      * @covers ImboClient\Client::getUserUrl
+     * @covers ImboClient\Client::__construct
+     * @covers ImboClient\Client::parseHosts
      */
     public function testServerUrls($url, $publicKey, $expected) {
         $client = new Client($url, $publicKey, $this->privateKey);
@@ -551,7 +603,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\Client::getImageIDentifierFromString
+     * @covers ImboClient\Client::getImageIdentifierFromString
      * @covers ImboClient\Client::generateImageIdentifier
      */
     public function testGetImageIdentifierFromString() {
