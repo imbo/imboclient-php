@@ -3,7 +3,7 @@ Changelog for ImboClient
 
 ImboClient-0.2.0
 -------------
-__N/A__
+__2012-02-22__
 
 * Pull request #15: Added support for multiple hostnames (Espen Hovlandsdal)
 * Fixed issue #14: Provide a simple way to fetch the error from a failed request

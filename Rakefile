@@ -124,7 +124,9 @@ task :github, :version do |t, args|
 
     if /^[\d]+\.[\d]+\.[\d]+$/ =~ version
         system "git checkout master"
+        system "git merge develop"
         system "git tag #{version}"
+        system "git push"
         system "git push --tags"
     end
 end
