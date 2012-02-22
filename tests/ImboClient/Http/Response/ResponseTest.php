@@ -161,4 +161,33 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($this->response, $this->response->setBody(json_encode(array('foo' => 'bar'))));
         $this->assertInstanceOf('stdClass', $this->response->asObject());
     }
+
+    public function testGetImboErrorCodeWithNoBody() {
+        $this->assertNull($this->response->getImboErrorCode());
+    }
+
+    public function testGetImboErrorCodeWhenBodyHasNoErrorElement() {
+        $this->response->setBody(json_encode(array('foo' => 'bar')));
+        $this->assertNull($this->response->getImboErrorCode());
+    }
+
+    public function testGetImboErrorCodeWhenErrorElementHasNoImboErrorCodeElement() {
+        $this->response->setBody(json_encode(array('error' => array('code' => 400))));
+        $this->assertNull($this->response->getImboErrorCode());
+    }
+
+    public function getErrorCodes() {
+        return array(
+            array(123, 123),
+            array('123', 123),
+        );
+    }
+
+    /**
+     * @dataProvider getErrorCodes
+     */
+    public function testGetImboErrorCode($code, $expected) {
+        $this->response->setBody(json_encode(array('error' => array('imboErrorCode' => $code))));
+        $this->assertSame($expected, $this->response->getImboErrorCode());
+    }
 }

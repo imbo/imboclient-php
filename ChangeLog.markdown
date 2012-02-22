@@ -5,7 +5,8 @@ ImboClient-0.2.0
 -------------
 __N/A__
 
-* Implemented support for adding in-memory images to the server (Issue #13)
+* Fixed issue #14: Provide a simple way to fetch the error from a failed request
+* Fixed issue #13: Implemented support for adding in-memory images to the server
 
 ImboClient-0.1.1
 -------------

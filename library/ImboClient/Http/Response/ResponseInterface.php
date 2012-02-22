@@ -45,6 +45,26 @@ use ImboClient\Http\HeaderContainerInterface;
  * @link https://github.com/christeredvartsen/imboclient-php
  */
 interface ResponseInterface {
+    /**#@+
+     * Internal error codes sent from the imbo server
+     *
+     * @var int
+     */
+    const ERR_UNSPECIFIED = 0;
+
+    // Auth errors
+    const AUTH_UNKNOWN_PUBLIC_KEY = 100;
+    const AUTH_MISSING_PARAM      = 101;
+    const AUTH_INVALID_TIMESTAMP  = 102;
+    const AUTH_SIGNATURE_MISMATCH = 103;
+
+    // Image resource errors
+    const IMAGE_ALREADY_EXISTS       = 200;
+    const IMAGE_NO_IMAGE_ATTACHED    = 201;
+    const IMAGE_HASH_MISMATCH        = 202;
+    const IMAGE_UNSUPPORTED_MIMETYPE = 203;
+    /**#@-*/
+
     /**
      * Get the headers
      *
@@ -89,6 +109,13 @@ interface ResponseInterface {
      * @return ImboClient\Http\Response\ResponseInterface
      */
     function setStatusCode($code);
+
+    /**
+     * Get the optional imbo error code from the body
+     *
+     * @return null|int
+     */
+    function getImboErrorCode();
 
     /**
      * Wether or not the response is a success (in the 2xx range)
