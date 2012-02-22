@@ -114,6 +114,23 @@ class Response implements ResponseInterface {
     }
 
     /**
+     * @see ImboClient\Http\Response\ResponseInterface::getImboErrorCode()
+     */
+    public function getImboErrorCode() {
+        if ($this->body === null) {
+            return null;
+        }
+
+        $body = json_decode($this->body, true);
+
+        if (empty($body['error'])) {
+            return null;
+        }
+
+        return empty($body['error']['imboErrorCode']) ? null : (int) $body['error']['imboErrorCode'];
+    }
+
+    /**
      * @see ImboClient\Http\Response\ResponseInterface::isSuccess()
      */
     public function isSuccess() {

@@ -22,7 +22,18 @@ $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey
 // Path to local image
 $path = '/path/to/image.png';
 
-$response = $client->addImage($path);
+try {
+	$response = $client->addImage($path);
+
+    if ($response->isSuccess()) {
+        echo "The image was added! Image identifier: " . $response->getImageIdentifier();
+    } else {
+        echo "The image was not added!";
+    }
+} catch (RuntimeException $e) {
+    echo "An error occured: " . $e->getMessage();
+}
+
 ```
 ## Add/edit meta data
 ```php
