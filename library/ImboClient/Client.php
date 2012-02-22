@@ -84,7 +84,7 @@ class Client implements ClientInterface {
     /**
      * Class constructor
      *
-     * @param string $serverUrls The URL to the ImboClient server, including protocol
+     * @param array|string $serverUrls One or more URL to the Imbo server, including protocol
      * @param string $publicKey The public key to use
      * @param string $privateKey The private key to use
      * @param ImboClient\Driver\DriverInterface $driver Optional driver to set
