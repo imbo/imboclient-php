@@ -153,6 +153,18 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers ImboClient\Client::addImageFromString
+     * @covers ImboClient\Client::getSignedUrl
+     * @covers ImboClient\Client::generateSignature
+     */
+    public function testAddImageFromString() {
+        $imageData = file_get_contents(__DIR__ . '/_files/image.png');
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $this->driver->expects($this->once())->method('putData')->with($this->matchesRegularExpression($this->signedUrlPattern['image']), $imageData)->will($this->returnValue($response));
+        $this->assertSame($response, $this->client->addImageFromString($imageData));
+    }
+
+    /**
      * @covers ImboClient\Client::deleteImage
      * @covers ImboClient\Client::getSignedUrl
      * @covers ImboClient\Client::generateSignature
@@ -591,7 +603,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\Client::getImageIDentifierFromString
+     * @covers ImboClient\Client::getImageIdentifierFromString
      * @covers ImboClient\Client::generateImageIdentifier
      */
     public function testGetImageIdentifierFromString() {
