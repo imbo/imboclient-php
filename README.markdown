@@ -163,17 +163,19 @@ Builds a new canvas and allows easy positioning of the original image within it.
 * `(int) $y` Y coordinate of the placement of the upper left corner of the existing image.
 * `(string) $bg` Background color of the canvas.
 
-## Multiple hostname support
+## Multiple URL support
 
-Following the recommendation of the HTTP 1.1 specification, browsers typically default to two simultaneous requests per hostname. If you wish to generate URLs that point to a range of different hostnames, you can do this by passing an array of hostnames to the ImboClient when instantiating:
+Following the recommendation of the HTTP 1.1 specification, browsers typically default to two simultaneous requests per hostname. If you wish to generate URLs that point to a range of different hostnames, you can do this by passing an array of URLs to the ImboClient when instantiating:
 
 ```php
 <?php
 $client = new ImboClient\Client(array(
-    'http://<hostname1>',
-    'http://<hostname2>',
-    'http://<hostname3>',
+    'http://<url1>',
+    'http://<url2>',
+    'http://<url3>',
 ), '<publickey>', '<privatekey>');
 ```
 
-When using `getImageUrl($imageIdentifier)`, the client will pick one of the hosts defined. The same image identifier will result in the hostname, as long as the number of hosts given does not change.
+When using `getImageUrl($imageIdentifier)`, the client will pick one of the URLs defined. The same image identifier will result in the URL, as long as the number of URLs given does not change.
+
+Calls to `getUserUrl()` and `getImagesUrl()` will always use the first URL in the list supplied to the constructor.
