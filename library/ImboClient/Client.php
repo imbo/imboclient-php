@@ -54,11 +54,11 @@ use ImboClient\Driver\DriverInterface,
  */
 class Client implements ClientInterface {
     /**
-     * The server URL
+     * The server URLs
      *
-     * @var string
+     * @var array
      */
-    private $serverUrl;
+    private $serverUrls;
 
     /**
      * Driver used by the client
@@ -84,24 +84,13 @@ class Client implements ClientInterface {
     /**
      * Class constructor
      *
-     * @param string $serverUrl The URL to the ImboClient server, including protocol
+     * @param string $serverUrls The URL to the ImboClient server, including protocol
      * @param string $publicKey The public key to use
      * @param string $privateKey The private key to use
      * @param ImboClient\Driver\DriverInterface $driver Optional driver to set
      */
-    public function __construct($serverUrl, $publicKey, $privateKey, DriverInterface $driver = null) {
-        $parts = parse_url($serverUrl);
-
-        // Remove the port from the server url if it's equal to 80
-        if (isset($parts['port']) && $parts['port'] == 80) {
-            if (empty($parts['path'])) {
-                $parts['path'] = '';
-            }
-
-            $serverUrl = $parts['scheme'] . '://' . $parts['host'] . $parts['path'];
-        }
-
-        $this->serverUrl  = rtrim($serverUrl, '/');
+    public function __construct($serverUrls, $publicKey, $privateKey, DriverInterface $driver = null) {
+        $this->serverUrls = $this->parseHosts($serverUrls);
         $this->publicKey  = $publicKey;
         $this->privateKey = $privateKey;
 
@@ -130,21 +119,22 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::getUserUrl()
      */
     public function getUserUrl() {
-        return $this->serverUrl . '/users/' . $this->publicKey;
+        return $this->serverUrls[0] . '/users/' . $this->publicKey;
     }
 
     /**
      * @see ImboClient\ClientInterface::getImagesUrl()
      */
     public function getImagesUrl() {
-        return $this->serverUrl . '/users/' . $this->publicKey . '/images';
+        return $this->serverUrls[0] . '/users/' . $this->publicKey . '/images';
     }
 
     /**
      * @see ImboClient\ClientInterface::getImageUrl()
      */
     public function getImageUrl($imageIdentifier, $asString = false) {
-        $imageUrl = new ImageUrl($this->serverUrl, $this->publicKey, $this->privateKey, $imageIdentifier);
+        $hostname = $this->getHostForImageIdentifier($imageIdentifier);
+        $imageUrl = new ImageUrl($hostname, $this->publicKey, $this->privateKey, $imageIdentifier);
 
         if ($asString) {
             return (string) $imageUrl;
@@ -420,5 +410,43 @@ class Client implements ClientInterface {
         if (!filesize($path)) {
             throw new InvalidArgumentException('File is of zero length: ' . $path);
         }
+    }
+
+    /**
+     * Get a predictable hostname for the given image identifier
+     *
+     * @param string $imageIdentifier
+     * @return string
+     */
+    private function getHostForImageIdentifier($imageIdentifier) {
+        $dec = hexdec($imageIdentifier[0] . $imageIdentifier[1]);
+        return $this->serverUrls[$dec % count($this->serverUrls)];
+    }
+
+    /**
+     * Parse server host URLs and prepare them for usage
+     *
+     * @param array|string $hosts
+     * @return array
+     */
+    private function parseHosts($hosts) {
+        $hosts = (array) $hosts;
+
+        foreach ($hosts as &$serverUrl) {
+            $parts = parse_url($serverUrl);
+
+            // Remove the port from the server url if it's equal to 80
+            if (isset($parts['port']) && $parts['port'] == 80) {
+                if (empty($parts['path'])) {
+                    $parts['path'] = '';
+                }
+
+                $serverUrl = $parts['scheme'] . '://' . $parts['host'] . $parts['path'];
+            }
+
+            $serverUrl  = rtrim($serverUrl, '/');
+        }
+
+        return $hosts;
     }
 }
