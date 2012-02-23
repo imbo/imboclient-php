@@ -135,6 +135,18 @@ task :github, :version do |t, args|
     end
 end
 
+desc "Publish API docs"
+task :docs do
+    system "git checkout master"
+    system "docblox"
+    system "cp -r build/docs/* /home/christer/dev/imboclient-php-ghpages"
+    Dir.chdir("/home/christer/dev/imboclient-php-ghpages")
+    system "git add --all"
+    system "git commit -a -m 'Updated API docs [ci skip]'"
+    system "git push origin gh-pages"
+    Dir.chdir("/home/christer/dev/imboclient-php")
+end
+
 desc "Release a new version (builds PEAR package, updates PEAR channel and pushes tag to GitHub)"
 task :release, :version do |t, args|
     version = args[:version]
@@ -151,5 +163,8 @@ task :release, :version do |t, args|
 
         # Tag the current state of master and push to GitHub
         Rake::Task["github"].invoke(version)
+
+        # Update the API docs and push to gh-pages
+        Rake::Task["docs"]
     end
 end
