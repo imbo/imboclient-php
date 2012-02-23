@@ -20,7 +20,7 @@ task :pear, :version do |t, args|
     version = args[:version]
 
     if /^[\d]+\.[\d]+\.[\d]+$/ =~ version
-        Dir.chdir('library')
+        Dir.chdir("library")
 
         now     = DateTime.now
         hash    = Digest::MD5.new
@@ -112,8 +112,12 @@ task :publish, :version do |t, args|
     version = args[:version]
 
     if /^[\d]+\.[\d]+\.[\d]+$/ =~ version
-        system "scp library/ImboClient-#{version}.tgz pear.starzinger.net:~"
-        system "ssh pear.starzinger.net 'pirum add /services/apache/pear.starzinger.net/html ImboClient-#{version}.tgz'"
+        system "pirum add /home/christer/dev/christeredvartsen.github.com library/ImboClient-#{version}.tgz"
+        Dir.chdir("/home/christer/dev/christeredvartsen.github.com")
+        system "git add --all"
+        system "git commit -a -m 'Added ImboClient-#{version}'"
+        system "git push"
+        Dir.chdir("/home/christer/dev/imboclient-php")
         File.unlink("library/ImboClient-#{version}.tgz")
     end
 end
