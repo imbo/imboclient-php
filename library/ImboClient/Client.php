@@ -436,8 +436,14 @@ class Client implements ClientInterface {
         foreach ($urls as &$serverUrl) {
             $parts = parse_url($serverUrl);
 
-            // Remove the port from the server url if it's equal to 80
-            if (isset($parts['port']) && $parts['port'] == 80) {
+            // Remove the port from the server url if it's equal to 80 when scheme is http, or if
+            // it's equal to 443 when the scheme is https
+            if (
+                isset($parts['port']) && (
+                    ($parts['scheme'] === 'http' && $parts['port'] == 80) ||
+                    ($parts['scheme'] === 'https' && $parts['port'] == 443)
+                )
+            ) {
                 if (empty($parts['path'])) {
                     $parts['path'] = '';
                 }

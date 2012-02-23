@@ -516,6 +516,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
             array('http://imbo:81/prefix', $publicKey, 'http://imbo:81/prefix/users/' . $publicKey),
             array('http://imbo:80', $publicKey, 'http://imbo/users/' . $publicKey),
             array('http://imbo:80/prefix', $publicKey, 'http://imbo/prefix/users/' . $publicKey),
+
+            array('https://imbo', $publicKey, 'https://imbo/users/' . $publicKey),
+            array('https://imbo/prefix', $publicKey, 'https://imbo/prefix/users/' . $publicKey),
+            array('https://imbo:444', $publicKey, 'https://imbo:444/users/' . $publicKey),
+            array('https://imbo:444/prefix', $publicKey, 'https://imbo:444/prefix/users/' . $publicKey),
+            array('https://imbo:443', $publicKey, 'https://imbo/users/' . $publicKey),
+            array('https://imbo:443/prefix', $publicKey, 'https://imbo/prefix/users/' . $publicKey),
         );
     }
 
