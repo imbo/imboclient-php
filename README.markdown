@@ -1,7 +1,7 @@
 # PHP client for imbo
-A PHP client for [imbo](https://github.com/christeredvartsen/imbo).
+A PHP client for [imbo](https://github.com/imbo/imbo).
 
-[![Current build Status](https://secure.travis-ci.org/christeredvartsen/imboclient-php.png)](http://travis-ci.org/christeredvartsen/imboclient-php)
+[![Current build Status](https://secure.travis-ci.org/imbo/imboclient-php.png)](http://travis-ci.org/imbo/imboclient-php)
 
 ## Requirements
 ImboClient requires a [PSR-0](http://groups.google.com/group/php-standards) compatible autoloader and only works on [PHP-5.3](http://php.net/) or above.

@@ -59,7 +59,7 @@ task :pear, :version do |t, args|
                     xml.api "beta"
                 }
                 xml.license "MIT", :uri => "http://www.opensource.org/licenses/mit-license.php"
-                xml.notes "http://github.com/christeredvartsen/imboclient-php/blob/#{version}/README.markdown"
+                xml.notes "http://github.com/imbo/imboclient-php/blob/#{version}/README.markdown"
                 xml.contents {
                     xml.dir(:name => "/") {
                         `git ls-files`.split("\n").each { |f|

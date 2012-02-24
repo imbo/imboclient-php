@@ -27,7 +27,7 @@
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
- * @link https://github.com/christeredvartsen/imboclient-php
+ * @link https://github.com/imbo/imboclient-php
  */
 
 namespace ImboClient;
@@ -44,7 +44,7 @@ use ImboClient\Driver\DriverInterface,
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
- * @link https://github.com/christeredvartsen/imboclient-php
+ * @link https://github.com/imbo/imboclient-php
  */
 interface ClientInterface {
     /**
