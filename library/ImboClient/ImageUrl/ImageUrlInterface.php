@@ -125,6 +125,15 @@ interface ImageUrlInterface {
     function resize($width = null, $height = null);
 
     /**
+     * Trigger a maxSize transformation
+     *
+     * @param int $maxWidth Max width of the resized image
+     * @param int $maxHeight Max height of the resized image
+     * @return ImboClient\ImageUrl\ImageUrlInterface
+     */
+    function maxSize($maxWidth = null, $maxHeight = null);
+
+    /**
      * Trigger a rotate transformation
      *
      * @param int $angle The angle to rotate
