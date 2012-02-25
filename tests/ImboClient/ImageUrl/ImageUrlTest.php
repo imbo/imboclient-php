@@ -24,6 +24,7 @@
  *
  * @package Unittests
  * @author Christer Edvartsen <cogo@starzinger.net>
+ * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
@@ -34,6 +35,7 @@ namespace ImboClient\ImageUrl;
 /**
  * @package Unittests
  * @author Christer Edvartsen <cogo@starzinger.net>
+ * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
@@ -218,6 +220,33 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
     public function testResize() {
         $this->assertSame($this->url, $this->url->resize(1, 2));
         $this->assertContains('?t[]=resize:width=1,height=2', (string) $this->url);
+        $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
+    }
+
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::maxSize
+     */
+    public function testMaxSizeWithOnlyWidth() {
+        $this->assertSame($this->url, $this->url->maxSize(100));
+        $this->assertContains('?t[]=maxSize:width=100', (string) $this->url);
+        $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
+    }
+
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::maxSize
+     */
+    public function testMaxSizeWithOnlyHeight() {
+        $this->assertSame($this->url, $this->url->maxSize(null, 100));
+        $this->assertContains('?t[]=maxSize:height=100', (string) $this->url);
+        $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
+    }
+
+    /**
+     * @covers ImboClient\ImageUrl\ImageUrl::maxSize
+     */
+    public function testMaxSize() {
+        $this->assertSame($this->url, $this->url->maxSize(1, 2));
+        $this->assertContains('?t[]=maxSize:width=1,height=2', (string) $this->url);
         $this->assertRegExp('/tk=[a-f0-9]{32}$/', (string) $this->url);
     }
 
