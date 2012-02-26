@@ -25,6 +25,7 @@
  * @package Client
  * @subpackage ImageUrl
  * @author Christer Edvartsen <cogo@starzinger.net>
+ * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
@@ -38,6 +39,7 @@ namespace ImboClient\ImageUrl;
  * @package Client
  * @subpackage ImageUrl
  * @author Christer Edvartsen <cogo@starzinger.net>
+ * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
@@ -173,6 +175,23 @@ class ImageUrl implements ImageUrlInterface {
         }
 
         return $this->append('resize:' . implode(',', $params));
+    }
+
+    /**
+     * @see ImboClient\ImageUrl\ImageUrlInterface::maxSize()
+     */
+    public function maxSize($maxWidth = null, $maxHeight = null) {
+        $params = array();
+
+        if ($maxWidth) {
+            $params[] = 'width=' . (int) $maxWidth;
+        }
+
+        if ($maxHeight) {
+            $params[] = 'height=' . (int) $maxHeight;
+        }
+
+        return $this->append('maxSize:' . implode(',', $params));
     }
 
     /**
