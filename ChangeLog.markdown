@@ -1,10 +1,11 @@
 Changelog for ImboClient
 ========================
 
-ImboClient-0.2.1
+ImboClient-0.3.0
 ----------------
 __N/A__
 
+* Pull request #15: Added maxSize-transformation to clients ImageUrl-interface (Espen Hovlandsdal)
 * Fixed issue #16: ImboClient does not remove an explicitly set port 443 from the URL when using https://
 
 ImboClient-0.2.0
