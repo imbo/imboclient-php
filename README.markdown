@@ -23,7 +23,14 @@ $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey
 $path = '/path/to/image.png';
 
 try {
-	$response = $client->addImage($path);
+    $response = $client->addImage('/path/to/image.png'); // Local image
+    // OR
+    $response = $client->addImageFromString(file_get_contents('/path/to/image.png'); // In-memory image
+    // OR
+    $response = $client->addImageFromUrl('http://example.com/image.png'); // Image from URL
+    // OR
+    $imageUrl = $client->getImageUrl('<image identifier>')->resize(200);
+    $response = $client->addImageFromUrl($imageUrl); // Image from ImageUrl instance
 
     if ($response->isSuccess()) {
         echo "The image was added! Image identifier: " . $response->getImageIdentifier();
