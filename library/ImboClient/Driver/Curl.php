@@ -69,8 +69,15 @@ class Curl implements DriverInterface {
      * @var array
      */
     private $params = array(
+        // Timeout options
         'timeout'        => 2,
         'connectTimeout' => 2,
+
+        // SSL options
+        'sslVerifyPeer'  => true,
+        'sslVerifyHost'  => 2,
+        'sslCaInfo'      => null,
+        'sslCaPath'      => null,
     );
 
     /**
@@ -211,9 +218,20 @@ class Curl implements DriverInterface {
      * @throws RuntimeException
      */
     protected function request($handle, $url) {
-        curl_setopt_array($handle, array(
-            CURLOPT_URL => $url,
-        ));
+        // Initialize options for the cURL handle
+        $options = array(CURLOPT_URL => $url);
+
+        if (substr($url, 0, 8) === 'https://') {
+            // Add SSL options
+            $options += array(
+                CURLOPT_SSL_VERIFYPEER => $this->params['sslVerifyPeer'],
+                CURLOPT_SSL_VERIFYHOST => $this->params['sslVerifyHost'],
+                CURLOPT_CAINFO         => $this->params['sslCaInfo'],
+                CURLOPT_CAPATH         => $this->params['sslCaPath'],
+            );
+        }
+
+        curl_setopt_array($handle, $options);
 
         // Set extra headers
         curl_setopt($handle, CURLOPT_HTTPHEADER, $this->headers);
