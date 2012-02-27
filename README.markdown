@@ -89,6 +89,17 @@ Add a border around the image.
 * `(int) $width` Width of the border on the left and right sides of the image. Defaults to 1.
 * `(int) $height` Height of the border on the top and bottoms sides of the image. Defaults to 1.
 
+**canvas()**
+
+Builds a new canvas and allows easy positioning of the original image within it.
+
+* `(int) $width` Width of the new canvas.
+* `(int) $height` Height of the new canvas.
+* `(string) $mode` Placement mode. 'free' (uses $x and $y), 'center', 'center-x' (centers horizontally, uses $y for vertical placement), 'center-y' (centers vertically, uses $x for horizontal placement). Default to 'free'.
+* `(int) $x` X coordinate of the placement of the upper left corner of the existing image.
+* `(int) $y` Y coordinate of the placement of the upper left corner of the existing image.
+* `(string) $bg` Background color of the canvas.
+
 **compress()**
 
 Compress the image on the fly.
@@ -100,6 +111,23 @@ Compress the image on the fly.
 Converts the image to another type.
 
 * `(string) $type` The type to convert to. Supported types are: 'gif', 'jpg' and 'png'.
+
+**crop()**
+
+Crop the image.
+
+* `(int) $x` The X coordinate of the cropped region's top left corner.
+* `(int) $y` The Y coordinate of the cropped region's top left corner.
+* `(int) $width` The width of the crop.
+* `(int) $height` The height of the crop.
+
+**flipHorizontally()**
+
+Flip the image horizontally.
+
+**flipVertically()**
+
+Flip the image vertically.
 
 **gif()**
 
@@ -119,23 +147,6 @@ Resize the image using the original aspect ratio.
 **png()**
 
 Proxies to `convert('png')`.
-
-**crop()**
-
-Crop the image.
-
-* `(int) $x` The X coordinate of the cropped region's top left corner.
-* `(int) $y` The Y coordinate of the cropped region's top left corner.
-* `(int) $width` The width of the crop.
-* `(int) $height` The height of the crop.
-
-**flipHorizontally()**
-
-Flip the image horizontally.
-
-**flipVertically()**
-
-Flip the image vertically.
 
 **resize()**
 
@@ -158,17 +169,6 @@ Generate a thumbnail of the image.
 * `(int) $width` Width of the thumbnail. Defaults to 50.
 * `(int) $height` Height of the thumbnail. Defaults to 50.
 * `(string) $fit` Fit style. 'inset' or 'outbound'. Default to 'outbound'.
-
-**canvas()**
-
-Builds a new canvas and allows easy positioning of the original image within it.
-
-* `(int) $width` Width of the new canvas.
-* `(int) $height` Height of the new canvas.
-* `(string) $mode` Placement mode. 'free' (uses $x and $y), 'center', 'center-x' (centers horizontally, uses $y for vertical placement), 'center-y' (centers vertically, uses $x for horizontal placement). Default to 'free'.
-* `(int) $x` X coordinate of the placement of the upper left corner of the existing image.
-* `(int) $y` Y coordinate of the placement of the upper left corner of the existing image.
-* `(string) $bg` Background color of the canvas.
 
 ## Multiple URL support
 
