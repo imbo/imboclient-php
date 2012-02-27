@@ -31,8 +31,8 @@
 
 namespace ImboClient\Http\Response;
 
-use ImboClient\Http\HeaderContainerInterface;
-use ImboClient\Http\HeaderContainer;
+use ImboClient\Http\HeaderContainerInterface,
+    ImboClient\Http\HeaderContainer;
 
 /**
  * Client response
