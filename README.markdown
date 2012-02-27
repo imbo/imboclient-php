@@ -109,6 +109,13 @@ Proxies to `convert('gif')`.
 
 Proxies to `convert('jpg')`.
 
+**maxSize()**
+
+Resize the image using the original aspect ratio.
+
+* `(int) width` The max width of the resulting image in pixels. If not specified the width will be calculated using the same ratio as the original image.
+* `(int) height` The max height of the resulting image in pixels. If not specified the height will be calculated using the same ratio as the original image.
+
 **png()**
 
 Proxies to `convert('png')`.
