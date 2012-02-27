@@ -175,6 +175,24 @@ class Client implements ClientInterface {
     }
 
     /**
+     * @see ImboClient\ClientInterface::addImageFromUrl()
+     */
+    public function addImageFromUrl($url) {
+        if ($url instanceof ImageUrlInterface) {
+            $url = (string) $url;
+        }
+
+        // Fetch remote image
+        $response = $this->driver->get($url);
+
+        if ($response->isSuccess()) {
+            return $this->addImageFromString($response->getBody());
+        }
+
+        return $response;
+    }
+
+    /**
      * @see ImboClient\ClientInterface::imageExists()
      */
     public function imageExists($path) {

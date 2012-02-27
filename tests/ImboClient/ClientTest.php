@@ -163,6 +163,52 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers ImboClient\Client::addImageFromUrl
+     */
+    public function testAddImageFromUrlWithString() {
+        $url = 'http://example.com/image.jpg';
+
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $response->expects($this->once())->method('isSuccess')->will($this->returnValue(true));
+        $response->expects($this->once())->method('getBody')->will($this->returnValue('binary image data'));
+
+        $this->driver->expects($this->once())->method('get')->with($url)->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('putData')->with($this->matchesRegularExpression($this->signedUrlPattern['image']), 'binary image data')->will($this->returnValue($response));
+        $this->assertSame($response, $this->client->addImageFromUrl($url));
+    }
+
+    /**
+     * @covers ImboClient\Client::addImageFromUrl
+     */
+    public function testAddImageFromUrlWithInstanceOfImageUrl() {
+        $url = 'http://example.com/image.jpg';
+
+        $imageUrl = $this->getMock('ImboClient\ImageUrl\ImageUrlInterface');
+        $imageUrl->expects($this->once())->method('__toString')->will($this->returnValue($url));
+
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $response->expects($this->once())->method('isSuccess')->will($this->returnValue(true));
+        $response->expects($this->once())->method('getBody')->will($this->returnValue('binary image data'));
+
+        $this->driver->expects($this->once())->method('get')->with($url)->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('putData')->with($this->matchesRegularExpression($this->signedUrlPattern['image']), 'binary image data')->will($this->returnValue($response));
+        $this->assertSame($response, $this->client->addImageFromUrl($imageUrl));
+    }
+
+    /**
+     * @covers ImboClient\Client::addImageFromUrl
+     */
+    public function testAddImageFromUrlWithInvalidUrl() {
+        $url = 'http://example.com/image.jpg';
+
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $response->expects($this->once())->method('isSuccess')->will($this->returnValue(false));
+
+        $this->driver->expects($this->once())->method('get')->with($url)->will($this->returnValue($response));
+        $this->assertSame($response, $this->client->addImageFromUrl($url));
+    }
+
+    /**
      * @covers ImboClient\Client::deleteImage
      * @covers ImboClient\Client::getSignedUrl
      * @covers ImboClient\Client::generateSignature

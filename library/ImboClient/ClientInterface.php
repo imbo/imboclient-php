@@ -105,6 +105,14 @@ interface ClientInterface {
     function addImageFromString($image);
 
     /**
+     * Add a new image to the server by specifying a URL to an existing image
+     *
+     * @param ImboClient\ImageUrl\ImageUrlInterface|string $url URL to the image you want to add
+     * @return ImboClient\Http\Response\ResponseInterface
+     */
+    function addImageFromUrl($url);
+
+    /**
      * Checks if a given image exists on the server already
      *
      * @param string $path Path to the local image
