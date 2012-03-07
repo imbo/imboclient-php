@@ -475,7 +475,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->driver->expects($this->once())->method('get')->with($this->stringContains('query=%7B%22foo%22%3A%22bar%22%7D'))->will($this->returnValue($response));
 
         $query = new ImagesQuery\Query();
-        $query->page(3)->metadataQuery(array('foo' => 'bar'))->num(5);
+        $query->page(3)->metadataQuery(array('foo' => 'bar'))->limit(5);
 
         $images = $this->client->getImages($query);
 

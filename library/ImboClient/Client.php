@@ -276,7 +276,7 @@ class Client implements ClientInterface {
             // Retrieve query parameters, reduce array down to non-empty values
             $params = array_filter(array(
                 'page'      => $query->page(),
-                'num'       => $query->num(),
+                'limit'     => $query->limit(),
                 'metadata'  => $query->returnMetadata(),
                 'from'      => $query->from(),
                 'to'        => $query->to(),
