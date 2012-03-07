@@ -61,7 +61,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     private $privateKey;
 
     /**
-     * The server url passed to the constructor
+     * The server URL passed to the constructor
      *
      * @var string
      */
@@ -75,7 +75,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     private $imageIdentifier;
 
     /**
-     * Pattern used in the mock matchers when url is signed
+     * Pattern used in the mock matchers when URL is signed
      *
      * @var string
      */
@@ -85,7 +85,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     );
 
     /**
-     * Pattern used in the mock matchers with regular urls
+     * Pattern used in the mock matchers with regular URLs
      *
      * @var string
      */
@@ -475,7 +475,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->driver->expects($this->once())->method('get')->with($this->stringContains('query=%7B%22foo%22%3A%22bar%22%7D'))->will($this->returnValue($response));
 
         $query = new ImagesQuery\Query();
-        $query->page(3)->metadataQuery(array('foo' => 'bar'))->num(5);
+        $query->page(3)->metadataQuery(array('foo' => 'bar'))->limit(5);
 
         $images = $this->client->getImages($query);
 
@@ -548,7 +548,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Server urls data provider
+     * Server URLs data provider
      *
      * @return array
      */

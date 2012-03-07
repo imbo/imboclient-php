@@ -34,7 +34,7 @@
 namespace ImboClient\ImageUrl;
 
 /**
- * Image url implementation
+ * Image URL implementation
  *
  * @package Client
  * @subpackage ImageUrl
@@ -46,7 +46,7 @@ namespace ImboClient\ImageUrl;
  */
 class ImageUrl implements ImageUrlInterface {
     /**
-     * Baseurl
+     * Base URL
      *
      * @var string
      */
@@ -83,7 +83,7 @@ class ImageUrl implements ImageUrlInterface {
     /**
      * Class constructor
      *
-     * @param string $baseUrl The baseurl to the server
+     * @param string $baseUrl The base URL to the server
      * @param string $publicKey The public key to use
      * @param string $privateKey The private key to use
      * @param string $imageIdentifier The image identifier

@@ -42,14 +42,14 @@ namespace ImboClient\ImageUrl;
  */
 class ImageUrlTest extends \PHPUnit_Framework_TestCase {
     /**
-     * Url instance
+     * URL instance
      *
      * @var ImboClient\ImageUrl\ImageUrl
      */
     private $url;
 
     /**
-     * Base url
+     * Base URL
      *
      * @var string
      */

@@ -54,12 +54,12 @@ interface QueryInterface {
     function page($page = null);
 
     /**
-     * Set or get the num property
+     * Set or get the limit property
      *
-     * @param int $num Give this a value to set the num property
+     * @param int $limit Give this a value to set the limit property
      * @return int|Imbo\Resource\ImagesQuery\QueryInterface
      */
-    function num($num = null);
+    function limit($limit = null);
 
     /**
      * Set or get the returnMetadata flag
