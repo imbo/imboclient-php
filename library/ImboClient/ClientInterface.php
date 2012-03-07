@@ -56,14 +56,14 @@ interface ClientInterface {
     function setDriver(DriverInterface $driver);
 
     /**
-     * Get the url to the current user
+     * Get the URL to the current user
      *
      * @return string
      */
     function getUserUrl();
 
     /**
-     * Get the url to the images resource of the current user
+     * Get the URL to the images resource of the current user
      *
      * @return string
      */
@@ -73,13 +73,13 @@ interface ClientInterface {
      * Fetch an ImboClient\ImageUrl\ImageUrlInterface instance
      *
      * @param string $imageIdentifier The image identifier
-     * @param boolean $asString Set this to false to get the url as a string
+     * @param boolean $asString Set this to true to get the URL as a string
      * @return ImboClient\ImageUrl\ImageUrlInterface|string
      */
     function getImageUrl($imageIdentifier, $asString = false);
 
     /**
-     * Fetch the metadata url to a given image
+     * Fetch the metadata URL to a given image
      *
      * @param string $imageIdentifier The image identifier
      * @return string
@@ -113,7 +113,7 @@ interface ClientInterface {
     function addImageFromUrl($url);
 
     /**
-     * Checks if a given image exists on the server already
+     * Checks if a given image exists on the server already by specifying a local path
      *
      * @param string $path Path to the local image
      * @throws InvalidArgumentException Throws an exception if the specified file does not exist or

@@ -65,13 +65,13 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Query::num
+     * @covers ImboClient\ImagesQuery\Query::limit
      */
-    public function testNum() {
+    public function testLimit() {
         $value = 30;
-        $this->assertSame(20, $this->query->num());
-        $this->assertSame($this->query, $this->query->num($value));
-        $this->assertSame($value, $this->query->num());
+        $this->assertSame(20, $this->query->limit());
+        $this->assertSame($this->query, $this->query->limit($value));
+        $this->assertSame($value, $this->query->limit());
     }
 
     /**
