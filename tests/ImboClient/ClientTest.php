@@ -61,7 +61,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     private $privateKey;
 
     /**
-     * The server url passed to the constructor
+     * The server URL passed to the constructor
      *
      * @var string
      */
@@ -75,7 +75,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     private $imageIdentifier;
 
     /**
-     * Pattern used in the mock matchers when url is signed
+     * Pattern used in the mock matchers when URL is signed
      *
      * @var string
      */
@@ -85,7 +85,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     );
 
     /**
-     * Pattern used in the mock matchers with regular urls
+     * Pattern used in the mock matchers with regular URLs
      *
      * @var string
      */
@@ -548,7 +548,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Server urls data provider
+     * Server URLs data provider
      *
      * @return array
      */

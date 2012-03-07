@@ -33,7 +33,7 @@
 namespace ImboClient\ImageUrl;
 
 /**
- * Interface for the image url
+ * Interface for the image URL
  *
  * @package Interfaces
  * @subpackage Client\ImageUrl
@@ -62,7 +62,7 @@ interface ImageUrlInterface {
     function compress($quality = 75);
 
     /**
-     * Change the url to trigger the convert transformation
+     * Change the URL to trigger the convert transformation
      *
      * @param string $type The type to convert to
      * @return ImboClient\ImageUrl\ImageUrlInterface
@@ -173,14 +173,14 @@ interface ImageUrlInterface {
     function reset();
 
     /**
-     * Represent the complete image url as an URL-encoded string
+     * Represent the complete image URL as an URL-encoded string
      *
      * @return string
      */
     function getUrlEncoded();
 
     /**
-     * Represent the complete image url as a string
+     * Represent the complete image URL as a string
      *
      * @return string
      */

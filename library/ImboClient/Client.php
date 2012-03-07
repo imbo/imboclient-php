@@ -399,7 +399,7 @@ class Client implements ClientInterface {
     }
 
     /**
-     * Get a signed url
+     * Get a signed URL
      *
      * @param string $method HTTP method
      * @param string $url The URL to send a request to
@@ -454,7 +454,7 @@ class Client implements ClientInterface {
         foreach ($urls as &$serverUrl) {
             $parts = parse_url($serverUrl);
 
-            // Remove the port from the server url if it's equal to 80 when scheme is http, or if
+            // Remove the port from the server URL if it's equal to 80 when scheme is http, or if
             // it's equal to 443 when the scheme is https
             if (
                 isset($parts['port']) && (
