@@ -3,7 +3,7 @@ Changelog for ImboClient
 
 ImboClient-0.3.0
 ----------------
-__N/A__
+__2012-03-08__
 
 * Fixed issue #19: Method for adding images via URLs
 * Fixed issue #17: Allow passing cURL-driver options related to SSL
