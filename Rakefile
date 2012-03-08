@@ -6,7 +6,7 @@ require 'nokogiri'
 
 desc "Check syntax on all php files in the project"
 task :lint do
-    `git ls-files "*.php"`.each do |f|
+    `git ls-files "*.php"`.split("\n").each do |f|
         begin
             sh %{php -l #{f}}
         rescue Exception
