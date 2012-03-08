@@ -139,8 +139,9 @@ desc "Publish API docs"
 task :docs do
     system "git checkout master"
     system "docblox"
-    system "cp -r build/docs/* /home/christer/dev/imboclient-php-ghpages"
     Dir.chdir("/home/christer/dev/imboclient-php-ghpages")
+    system "git pull origin gh-pages"
+    system "cp -r /home/christer/dev/imboclient-php/build/docs/* ."
     system "git add --all"
     system "git commit -a -m 'Updated API docs [ci skip]'"
     system "git push origin gh-pages"
