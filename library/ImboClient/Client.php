@@ -41,10 +41,9 @@ use ImboClient\Driver\DriverInterface,
     InvalidArgumentException;
 
 /**
- * Client that interacts with the server part of ImboClient
+ * Client that interacts with Imbo servers
  *
- * This client includes methods that can be used to easily interact with a ImboClient server. All
- * requests made by the client goes through a driver.
+ * This client includes methods that can be used to easily interact with Imbo servers.
  *
  * @package Client
  * @author Christer Edvartsen <cogo@starzinger.net>
@@ -95,10 +94,8 @@ class Client implements ClientInterface {
         $this->privateKey = $privateKey;
 
         if ($driver === null) {
-            // @codeCoverageIgnoreStart
             $driver = new DefaultDriver();
         }
-        // @codeCoverageIgnoreEnd
 
         // Only accept json
         $driver->addRequestHeader('Accept', 'application/json');
