@@ -23,7 +23,7 @@
  * IN THE SOFTWARE.
  *
  * @package Interfaces
- * @subpackage Url
+ * @subpackage Url\Images
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
@@ -37,7 +37,7 @@ namespace ImboClient\Url\Images;
  * Images query interface
  *
  * @package Interfaces
- * @subpackage Url
+ * @subpackage Url\Images
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
