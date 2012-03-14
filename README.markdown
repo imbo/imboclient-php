@@ -89,9 +89,9 @@ The client has several methods for fetching URLs to an Imbo installation. The fo
 These classes implements the `ImboClient\Url\UrlInterface` interface which includes the following methods:
 
 * `getUrl()` Returns the URL as a string.
-* `getUrlWithAccessToken()` Returns the URL as a string with an access token appended.
+* `getUrlEncoded()` Returns the URL as a URL-encoded string.
 
-When the classes listed above is used in a string context (for instance `print` or `echo`) the `getUrlWithAccessToken()` method will be used. Pr. default Imbo requires access tokens for all requests, and unless you remove that feature manually this is the method you most likely want to use.
+When the classes listed above is used in a string context (for instance `print` or `echo`) the `getUrl()` method will be used. All URLs have an access token appended to them that is used by Imbo servers to make sure you have access to the URL you are requesting. The access token is a keyed MD5 hash using the HMAC method. The key used is the private key given to the client upon instantiation.
 
 ### Image URLs
 

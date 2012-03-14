@@ -61,9 +61,9 @@ class Metadata extends Url implements UrlInterface {
     }
 
     /**
-     * @see ImboClient\Url\UrlInterface::getUrl()
+     * @see ImboClient\Url\Url::getRawUrl()
      */
-    public function getUrl() {
+    protected function getRawUrl() {
         return sprintf(
             '%s/users/%s/images/%s/meta',
             $this->baseUrl,

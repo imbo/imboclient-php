@@ -52,10 +52,13 @@ class MetadataTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @dataProvider getUrlData
-     * @covers ImboClient\Url\Metadata::getUrl
+     * @covers ImboClient\Url\Url::getUrl
+     * @covers ImboClient\Url\Metadata::getRawUrl
+     * @covers ImboClient\Url\Metadata::__construct
      */
     public function testGetUrl($host, $publicKey, $image, $expected) {
         $url = new Metadata($host, $publicKey, 'privateKey', $image);
-        $this->assertSame($expected, $url->getUrl());
+        $this->assertStringStartsWith($expected, $url->getUrl());
+        $this->assertRegExp('/accessToken=[a-f0-9]{32}$/', $url->getUrl());
     }
 }

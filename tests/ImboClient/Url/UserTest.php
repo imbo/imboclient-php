@@ -52,10 +52,12 @@ class UserTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @dataProvider getUrlData
-     * @covers ImboClient\Url\User::getUrl
+     * @covers ImboClient\Url\Url::getUrl
+     * @covers ImboClient\Url\User::getRawUrl
      */
     public function testGetUrl($host, $publicKey, $expected) {
         $url = new User($host, $publicKey, 'privateKey');
-        $this->assertSame($expected, $url->getUrl());
+        $this->assertStringStartsWith($expected, $url->getUrl());
+        $this->assertRegExp('/accessToken=[a-f0-9]{32}$/', $url->getUrl());
     }
 }

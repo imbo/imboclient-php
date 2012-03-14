@@ -51,16 +51,16 @@ interface UrlInterface {
     function getUrl();
 
     /**
-     * Fetch the complete URL with an access token appended
+     * Get the complete URL as an URL-encoded string
      *
      * @return string
      */
-    function getUrlWithAccessToken();
+    function getUrlEncoded();
 
     /**
      * Magic to string method
      *
-     * This method should proxy to getUrlWithAccessToken()
+     * This method should proxy to getUrl()
      *
      * @return string
      */

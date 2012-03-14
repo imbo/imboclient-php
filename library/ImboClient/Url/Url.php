@@ -83,20 +83,33 @@ abstract class Url implements UrlInterface {
     }
 
     /**
-     * @see ImboClient\Url\UrlInterface::getUrlWithAccessToken()
+     * @see ImboClient\Url\UrlInterface::getUrl()
      */
-    public function getUrlWithAccessToken() {
-        $url = $this->getUrl();
+    public function getUrl() {
+        $url = $this->getRawUrl();
         $token = $this->getAccessToken()->generateToken($url, $this->privateKey);
 
         return $url . (strpos($url, '?') === false ? '?' : '&') . 'accessToken=' . $token;
     }
 
     /**
+     * @see ImboClient\Url\UrlInterface::getUrlEncoded()
+     */
+    public function getUrlEncoded() {
+        $url = $this->getUrl();
+
+        $parts = parse_url($url);
+        $parts['query'] = htmlspecialchars($parts['query']);
+        $parts['query'] = str_replace('[]', '%5B%5D', $parts['query']);
+
+        return $parts['scheme'] . '://' . $parts['host'] . $parts['path'] . '?' . $parts['query'];
+    }
+
+    /**
      * @see ImboClient\Url\UrlInterface::__toString()
      */
     public function __toString() {
-        return $this->getUrlWithAccessToken();
+        return $this->getUrl();
     }
 
     /**
@@ -118,4 +131,11 @@ abstract class Url implements UrlInterface {
 
         return $this;
     }
+
+    /**
+     * Get the raw URL (with no access token appended)
+     *
+     * @return string
+     */
+    abstract protected function getRawUrl();
 }

@@ -126,7 +126,7 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
      */
     public function testConvert($extension) {
         $this->assertSame($this->url, $this->url->convert($extension));
-        $this->assertSame($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.' . $extension, $this->url->getUrl());
+        $this->assertStringStartsWith($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.' . $extension, $this->url->getUrl());
     }
 
     /**
@@ -134,7 +134,7 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
      */
     public function testGif() {
         $this->assertSame($this->url, $this->url->gif());
-        $this->assertSame($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.gif', $this->url->getUrl());
+        $this->assertStringStartsWith($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.gif', $this->url->getUrl());
     }
 
     /**
@@ -142,7 +142,7 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
      */
     public function testJpg() {
         $this->assertSame($this->url, $this->url->jpg());
-        $this->assertSame($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.jpg', $this->url->getUrl());
+        $this->assertStringStartsWith($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.jpg', $this->url->getUrl());
     }
 
     /**
@@ -150,7 +150,7 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
      */
     public function testPng() {
         $this->assertSame($this->url, $this->url->png());
-        $this->assertSame($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png', $this->url->getUrl());
+        $this->assertStringStartsWith($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png', $this->url->getUrl());
     }
 
     /**
@@ -158,7 +158,7 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
      */
     public function testCrop() {
         $this->assertSame($this->url, $this->url->crop(1, 2, 3, 4));
-        $this->assertSame($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '?t[]=crop:x=1,y=2,width=3,height=4', $this->url->getUrl());
+        $this->assertStringStartsWith($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '?t[]=crop:x=1,y=2,width=3,height=4', $this->url->getUrl());
     }
 
     /**
@@ -271,27 +271,49 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
     public function testResetUrl() {
         $this->url->thumbnail(1, 2, 'inset')->png();
         $this->assertSame($this->url, $this->url->reset());
-        $this->assertStringEndsWith($this->imageIdentifier, $this->url->getUrl());
+        $this->assertNotContains('.png', $this->url->getUrl());
     }
 
     /**
-     * @covers ImboClient\Url\Image::getUrl
+     * @covers ImboClient\Url\Image::getRawUrl
      * @covers ImboClient\Url\Image::getQueryString
      * @covers ImboClient\Url\Image::append
      */
     public function testGetUrlWithTransformations() {
         $this->url->flipHorizontally()->png();
         $url = $this->url->getUrl();
-        $this->assertSame($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png?t[]=flipHorizontally', $url);
+        $this->assertStringStartsWith($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png?t[]=flipHorizontally', $url);
     }
 
     /**
-     * @covers ImboClient\Url\Image::getUrl
+     * @covers ImboClient\Url\Image::getRawUrl
      * @covers ImboClient\Url\Image::getQueryString
      */
     public function testGetUrlWithConvertOnly() {
         $this->url->png();
         $url = $this->url->getUrl();
-        $this->assertSame($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png', $url);
+        $this->assertStringStartsWith($this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '.png', $url);
+    }
+
+    /**
+     * Data provider for testGetUrl()
+     *
+     * @return array
+     */
+    public function getUrlData() {
+        return array(
+            array('http://imbo', 'publicKey', 'image', 'http://imbo/users/publicKey/images/image'),
+        );
+    }
+
+    /**
+     * @dataProvider getUrlData
+     * @covers ImboClient\Url\Url::getUrl
+     * @covers ImboClient\Url\Image::getRawUrl
+     */
+    public function testGetUrl($host, $publicKey, $imageIdentifier, $expected) {
+        $url = new Image($host, $publicKey, 'privateKey', $imageIdentifier);
+        $this->assertStringStartsWith($expected, $url->getUrl());
+        $this->assertRegExp('/accessToken=[a-f0-9]{32}$/', $url->getUrl());
     }
 }

@@ -172,7 +172,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $data = 'binary image data';
 
         $imageUrl = $this->getMock('ImboClient\Url\ImageInterface');
-        $imageUrl->expects($this->once())->method('getUrlWithAccessToken')->will($this->returnValue($url));
+        $imageUrl->expects($this->once())->method('getUrl')->will($this->returnValue($url));
 
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('isSuccess')->will($this->returnValue(true));

@@ -38,26 +38,52 @@ namespace ImboClient\Url;
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
-class ImagesTest extends \PHPUnit_Framework_TestCase {
+class UrlTest extends \PHPUnit_Framework_TestCase {
+    private $url;
+    private $baseUrl = 'http://imbo';
+    private $publicKey = 'key';
+    private $privateKey = 'key';
+    private $imageIdentifier = 'image';
+
     /**
-     * Data provider for testGetUrl()
-     *
-     * @return array
+     * @covers ImboClient\Url\Url::__construct
      */
-    public function getUrlData() {
-        return array(
-            array('http://imbo', 'publicKey', 'http://imbo/users/publicKey/images'),
-        );
+    public function setUp() {
+        // Use the Image implementation to test
+        $this->url = new Image($this->baseUrl, $this->publicKey, $this->privateKey, $this->imageIdentifier);
+    }
+
+    public function tearDown() {
+        $this->url = null;
     }
 
     /**
-     * @dataProvider getUrlData
+     * @covers ImboClient\Url\Url::__toString
      * @covers ImboClient\Url\Url::getUrl
-     * @covers ImboClient\Url\Images::getRawUrl
      */
-    public function testGetUrl($host, $publicKey, $expected) {
-        $url = new Images($host, $publicKey, 'privateKey');
-        $this->assertStringStartsWith($expected, $url->getUrl());
-        $this->assertRegExp('/accessToken=[a-f0-9]{32}$/', $url->getUrl());
+    public function testMagicToString() {
+        $asString = (string) $this->url;
+        $this->assertSame($this->url->getUrl(), $asString);
+        $this->assertStringStartsWith($this->baseUrl, $asString);
+    }
+
+    /**
+     * @covers ImboClient\Url\Url::getAccessToken
+     * @covers ImboClient\Url\Url::setAccessToken
+     */
+    public function testSetGetAccessToken() {
+        $this->assertInstanceOf('ImboClient\Url\AccessToken', $this->url->getAccessToken());
+        $accessToken = $this->getMock('ImboClient\Url\AccessTokenInterface');
+        $this->assertSame($this->url, $this->url->setAccessToken($accessToken));
+        $this->assertSame($accessToken, $this->url->getAccessToken());
+    }
+
+    /**
+     * @covers ImboClient\Url\Url::getUrlEncoded
+     */
+    public function testGetUrlEncoded() {
+        // add some transformations
+        $this->url->border();
+        $this->assertContains('t%5B%5D=border:color=000000,width=1,height=1&amp;accessToken=', $this->url->getUrlEncoded());
     }
 }

@@ -68,9 +68,9 @@ class Image extends Url implements ImageInterface {
     }
 
     /**
-     * @see ImboClient\Url\UrlInterface::getUrl()
+     * @see ImboClient\Url\Url::getRawUrl()
      */
-    public function getUrl() {
+    protected function getRawUrl() {
         $queryString = $this->getQueryString();
 
         return sprintf(
