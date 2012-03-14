@@ -50,32 +50,32 @@ $metadata = array(
     'bar' => 'foo',
 );
 
-$hash = '<hash>';
-$response = $client->editMetadata($hash, $metadata);
+$imageIdentifier = '<image identifier>';
+$response = $client->editMetadata($imageIdentifier, $metadata);
 ```
 ## Get meta data
 ```php
 <?php
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-$hash = '<hash>';
-$response = $client->getMetadata($hash);
+$imageIdentifier = '<image identifier>';
+$response = $client->getMetadata($imageIdentifier);
 ```
 ## Delete an image
 ```php
 <?php
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-$hash = '<hash>';
-$response = $client->deleteImage($hash);
+$imageIdentifier = '<image identifier>';
+$response = $client->deleteImage($imageIdentifier);
 ```
 ## Delete all meta data attached to an image
 ```php
 <?php
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-$hash = '<hash>';
-$response = $client->deleteMetadata($hash);
+$imageIdentifier = '<image identifier>';
+$response = $client->deleteMetadata($imageIdentifier);
 ```
 ## Generate Imbo URLs
 
