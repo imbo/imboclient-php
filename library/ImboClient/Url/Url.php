@@ -67,7 +67,7 @@ abstract class Url implements UrlInterface {
      *
      * @var ImboClient\Url\AccessTokenInterface
      */
-    protected $accessToken;
+    private $accessToken;
 
     /**
      * Class constructor
@@ -113,7 +113,12 @@ abstract class Url implements UrlInterface {
     }
 
     /**
-     * @see ImboClient\Url\UrlInterface::getAccessToken()
+     * Get an instance of the access token
+     *
+     * If no instance have been provided prior to calling this method, this method must instantiate
+     * the ImboClient\Url\AccessToken class and return that instance.
+     *
+     * @return ImboClient\Url\AccessTokenInterface
      */
     public function getAccessToken() {
         if ($this->accessToken === null) {
@@ -124,7 +129,10 @@ abstract class Url implements UrlInterface {
     }
 
     /**
-     * @see ImboClient\Url\UrlInterface::setAccessToken()
+     * Set an instance of the access token
+     *
+     * @return ImboClient\Url\AccessTokenInterface $accessToken An instance of the access token
+     * @return ImboClient\Url\UrlInterface
      */
     public function setAccessToken(AccessTokenInterface $accessToken) {
         $this->accessToken = $accessToken;

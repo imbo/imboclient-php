@@ -65,22 +65,4 @@ interface UrlInterface {
      * @return string
      */
     function __toString();
-
-    /**
-     * Get an instance of the access token
-     *
-     * If no instance have been provided prior to calling this method, this method must instantiate
-     * the ImboClient\Url\AccessToken class and return that instance.
-     *
-     * @return ImboClient\Url\AccessTokenInterface
-     */
-    function getAccessToken();
-
-    /**
-     * Set an instance of the access token
-     *
-     * @return ImboClient\Url\AccessTokenInterface $accessToken An instance of the access token
-     * @return ImboClient\Url\UrlInterface
-     */
-    function setAccessToken(AccessTokenInterface $accessToken);
 }
