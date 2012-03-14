@@ -11,6 +11,5 @@
   </transformations>
   <files>
     <directory>library/ImboClient</directory>
-    <directory>tests/ImboClient</directory>
   </files>
 </docblox>
