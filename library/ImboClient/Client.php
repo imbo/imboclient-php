@@ -33,11 +33,9 @@ namespace ImboClient;
 
 use ImboClient\Driver\DriverInterface,
     ImboClient\Driver\Curl as DefaultDriver,
-    ImboClient\ImageUrl\ImageUrl,
-    ImboClient\ImageUrl\ImageUrlInterface,
-    ImboClient\ImagesQuery\ImageInterface,
-    ImboClient\ImagesQuery\Image,
-    ImboClient\ImagesQuery\QueryInterface,
+    ImboClient\Url\Images\ImageInterface,
+    ImboClient\Url\Images\Image,
+    ImboClient\Url\Images\QueryInterface,
     InvalidArgumentException;
 
 /**
@@ -104,6 +102,13 @@ class Client implements ClientInterface {
     }
 
     /**
+     * @see ImboClient\ClientInterface::getServerUrls()
+     */
+    public function getServerUrls() {
+        return $this->serverUrls;
+    }
+
+    /**
      * @see ImboClient\ClientInterface::setDriver()
      */
     public function setDriver(DriverInterface $driver) {
@@ -116,35 +121,32 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::getUserUrl()
      */
     public function getUserUrl() {
-        return $this->serverUrls[0] . '/users/' . $this->publicKey;
+        return new Url\User($this->serverUrls[0], $this->publicKey, $this->privateKey);
     }
 
     /**
      * @see ImboClient\ClientInterface::getImagesUrl()
      */
     public function getImagesUrl() {
-        return $this->serverUrls[0] . '/users/' . $this->publicKey . '/images';
+        return new Url\Images($this->serverUrls[0], $this->publicKey, $this->privateKey);
     }
 
     /**
      * @see ImboClient\ClientInterface::getImageUrl()
      */
-    public function getImageUrl($imageIdentifier, $asString = false) {
+    public function getImageUrl($imageIdentifier) {
         $hostname = $this->getHostForImageIdentifier($imageIdentifier);
-        $imageUrl = new ImageUrl($hostname, $this->publicKey, $this->privateKey, $imageIdentifier);
 
-        if ($asString) {
-            return (string) $imageUrl;
-        }
-
-        return $imageUrl;
+        return new Url\Image($hostname, $this->publicKey, $this->privateKey, $imageIdentifier);
     }
 
     /**
      * @see ImboClient\ClientInterface::getMetadataUrl()
      */
     public function getMetadataUrl($imageIdentifier) {
-        return $this->getImageUrl($imageIdentifier, true) . '/meta';
+        $hostname = $this->getHostForImageIdentifier($imageIdentifier);
+
+        return new Url\Metadata($hostname, $this->publicKey, $this->privateKey, $imageIdentifier);
     }
 
     /**
@@ -152,7 +154,7 @@ class Client implements ClientInterface {
      */
     public function addImage($path) {
         $imageIdentifier = $this->getImageIdentifier($path);
-        $imageUrl = $this->getImageUrl($imageIdentifier, true);
+        $imageUrl = $this->getImageUrl($imageIdentifier)->getUrlWithAccessToken();
 
         $url = $this->getSignedUrl(DriverInterface::PUT, $imageUrl);
 
@@ -164,7 +166,7 @@ class Client implements ClientInterface {
      */
     public function addImageFromString($image) {
         $imageIdentifier = $this->getImageIdentifierFromString($image);
-        $imageUrl = $this->getImageUrl($imageIdentifier, true);
+        $imageUrl = $this->getImageUrl($imageIdentifier)->getUrlWithAccessToken();
 
         $url = $this->getSignedUrl(DriverInterface::PUT, $imageUrl);
 
@@ -175,8 +177,8 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::addImageFromUrl()
      */
     public function addImageFromUrl($url) {
-        if ($url instanceof ImageUrlInterface) {
-            $url = (string) $url;
+        if ($url instanceof Url\ImageInterface) {
+            $url = $url->getUrlWithAccessToken();
         }
 
         // Fetch remote image
@@ -203,7 +205,7 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::headImage()
      */
     public function headImage($imageIdentifier) {
-        $url = $this->getImageUrl($imageIdentifier, true);
+        $url = $this->getImageUrl($imageIdentifier)->getUrlWithAccessToken();
 
         return $this->driver->head($url);
     }
@@ -212,7 +214,7 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::deleteImage()
      */
     public function deleteImage($imageIdentifier) {
-        $imageUrl = $this->getImageUrl($imageIdentifier);
+        $imageUrl = $this->getImageUrl($imageIdentifier)->getUrlWithAccessToken();
         $url = $this->getSignedUrl(DriverInterface::DELETE, $imageUrl);
 
         return $this->driver->delete($url);
@@ -222,7 +224,7 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::editMetadata()
      */
     public function editMetadata($imageIdentifier, array $metadata) {
-        $metadataUrl = $this->getMetadataUrl($imageIdentifier);
+        $metadataUrl = $this->getMetadataUrl($imageIdentifier)->getUrlWithAccessToken();
         $url = $this->getSignedUrl(DriverInterface::POST, $metadataUrl);
 
         return $this->driver->post($url, $metadata);
@@ -232,7 +234,7 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::deleteMetadata()
      */
     public function deleteMetadata($imageIdentifier) {
-        $metadataUrl = $this->getMetadataUrl($imageIdentifier);
+        $metadataUrl = $this->getMetadataUrl($imageIdentifier)->getUrlWithAccessToken();
         $url = $this->getSignedUrl(DriverInterface::DELETE, $metadataUrl);
 
         return $this->driver->delete($url);
@@ -242,7 +244,7 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::getMetadata()
      */
     public function getMetadata($imageIdentifier) {
-        $url = $this->getMetadataUrl($imageIdentifier);
+        $url = $this->getMetadataUrl($imageIdentifier)->getUrlWithAccessToken();
 
         return $this->driver->get($url);
     }
@@ -251,7 +253,7 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::getNumImages()
      */
     public function getNumImages() {
-        $url = $this->getUserUrl();
+        $url = $this->getUserUrl()->getUrlWithAccessToken();
         $response = $this->driver->get($url);
 
         if ($response->getStatusCode() !== 200) {
@@ -289,8 +291,8 @@ class Client implements ClientInterface {
         }
 
         // Build the complete URL
-        $url  = $this->getImagesUrl();
-        $url .= $params ? '?' . http_build_query($params) : '';
+        $url  = $this->getImagesUrl()->getUrlWithAccessToken();
+        $url .= $params ? (strpos($url, '?') === false ? '?' : '&') . http_build_query($params) : '';
 
         // Fetch the response
         $response = $this->driver->get($url);
@@ -321,8 +323,8 @@ class Client implements ClientInterface {
     /**
      * @see ImboClient\ClientInterface::getImageDataFromUrl()
      */
-    public function getImageDataFromUrl(ImageUrlInterface $url) {
-        $response = $this->driver->get($url->getUrl());
+    public function getImageDataFromUrl(Url\ImageInterface $url) {
+        $response = $this->driver->get($url->getUrlWithAccessToken());
 
         if ($response->getStatusCode() !== 200) {
             return false;
@@ -406,7 +408,13 @@ class Client implements ClientInterface {
         $timestamp = gmdate('Y-m-d\TH:i:s\Z');
         $signature = $this->generateSignature($method, $url, $timestamp);
 
-        $url = sprintf('%s?signature=%s&timestamp=%s', $url, rawurlencode($signature), rawurlencode($timestamp));
+        $url = sprintf(
+            '%s%ssignature=%s&timestamp=%s',
+            $url,
+            (strpos($url, '?') === false ? '?' : '&'),
+            rawurlencode($signature),
+            rawurlencode($timestamp)
+        );
 
         return $url;
     }

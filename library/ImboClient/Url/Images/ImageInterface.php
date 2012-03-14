@@ -23,7 +23,7 @@
  * IN THE SOFTWARE.
  *
  * @package Interfaces
- * @subpackage Client\ImagesQuery
+ * @subpackage Url
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
@@ -31,13 +31,13 @@
  * @link https://github.com/imbo/imboclient-php
  */
 
-namespace ImboClient\ImagesQuery;
+namespace ImboClient\Url\Images;
 
 /**
  * Interface for an image found in a response to an images query
  *
  * @package Interfaces
- * @subpackage Client\ImagesQuery
+ * @subpackage Url
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
