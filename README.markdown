@@ -97,9 +97,7 @@ When the classes listed above is used in a string context (for instance `print` 
 
 The `ImboClient\Url\Image` class also implements some other methods that can be used to easily add transformations to the URL (which is only relevant for image URLs). All these methods can be chained and the transformations will be applied to the URL in the chained order.
 
-The `convert()` method is special in that it does not append anything to the URL, excpect injects an image extension to the image identifier. `convert()` (and `gif()`, `jpg()` and `png()` which proxies to `convert()`) can therefore be added anywhere in the chain.
-
-The class also includes two methods for fetching a string representation of the URL with the transformations added: `getUrl()` and `getUrlEncoded()`. When the object is used in string context the `getUrl()` method will be used.
+The `convert()` method is special in that it does not append anything to the URL, except injects an image extension to the image identifier. `convert()` (and `gif()`, `jpg()` and `png()` which proxies to `convert()`) can therefore be added anywhere in the chain.
 
 The transformations that can be chained are:
 
@@ -109,7 +107,7 @@ Add a border around the image.
 
 * `(string) $color` Color in hexadecimal. Defaults to '000000' (also supports short values like 'f00' ('ff0000')).
 * `(int) $width` Width of the border on the left and right sides of the image. Defaults to 1.
-* `(int) $height` Height of the border on the top and bottoms sides of the image. Defaults to 1.
+* `(int) $height` Height of the border on the top and bottom sides of the image. Defaults to 1.
 
 **canvas()**
 
@@ -117,7 +115,7 @@ Builds a new canvas and allows easy positioning of the original image within it.
 
 * `(int) $width` Width of the new canvas.
 * `(int) $height` Height of the new canvas.
-* `(string) $mode` Placement mode. 'free' (uses $x and $y), 'center', 'center-x' (centers horizontally, uses $y for vertical placement), 'center-y' (centers vertically, uses $x for horizontal placement). Default to 'free'.
+* `(string) $mode` Placement mode. 'free' (uses `$x` and `$y`), 'center', 'center-x' (centers horizontally, uses `$y` for vertical placement), 'center-y' (centers vertically, uses `$x` for horizontal placement). Default to 'free'.
 * `(int) $x` X coordinate of the placement of the upper left corner of the existing image.
 * `(int) $y` Y coordinate of the placement of the upper left corner of the existing image.
 * `(string) $bg` Background color of the canvas.
