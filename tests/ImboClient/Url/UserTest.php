@@ -58,6 +58,6 @@ class UserTest extends \PHPUnit_Framework_TestCase {
     public function testGetUrl($host, $publicKey, $expected) {
         $url = new User($host, $publicKey, 'privateKey');
         $this->assertStringStartsWith($expected, $url->getUrl());
-        $this->assertRegExp('/accessToken=[a-f0-9]{32}$/', $url->getUrl());
+        $this->assertRegExp('/accessToken=[a-f0-9]{64}$/', $url->getUrl());
     }
 }

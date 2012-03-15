@@ -45,6 +45,6 @@ class AccessToken implements AccessTokenInterface {
      * @see ImboClient\Url\AccessTokenInterface::generateToken()
      */
     public function generateToken($url, $key) {
-        return hash_hmac('md5', $url, $key);
+        return hash_hmac('sha256', $url, $key);
     }
 }

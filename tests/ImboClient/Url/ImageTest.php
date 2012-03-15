@@ -314,6 +314,6 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
     public function testGetUrl($host, $publicKey, $imageIdentifier, $expected) {
         $url = new Image($host, $publicKey, 'privateKey', $imageIdentifier);
         $this->assertStringStartsWith($expected, $url->getUrl());
-        $this->assertRegExp('/accessToken=[a-f0-9]{32}$/', $url->getUrl());
+        $this->assertRegExp('/accessToken=[a-f0-9]{64}$/', $url->getUrl());
     }
 }
