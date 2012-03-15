@@ -386,7 +386,7 @@ class Client implements ClientInterface {
      *
      * @param string $method HTTP method (PUT, POST or DELETE)
      * @param string $url The URL to send a request to
-     * @param string $timestamp GMT timestamp
+     * @param string $timestamp UTC timestamp
      * @return string
      */
     private function generateSignature($method, $url, $timestamp) {
