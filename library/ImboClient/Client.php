@@ -269,7 +269,7 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::getImages()
      */
     public function getImages(QueryInterface $query = null) {
-        $params = null;
+        $params = array();
 
         if ($query) {
             // Retrieve query parameters, reduce array down to non-empty values
@@ -290,12 +290,15 @@ class Client implements ClientInterface {
             }
         }
 
-        // Build the complete URL
-        $url  = $this->getImagesUrl()->getUrl();
-        $url .= $params ? (strpos($url, '?') === false ? '?' : '&') . http_build_query($params) : '';
+        $url = $this->getImagesUrl();
+
+        // Loop through the params and set custom query params via __call on the URL instance
+        foreach ($params as $key => $value) {
+            $url->$key($value);
+        }
 
         // Fetch the response
-        $response = $this->driver->get($url);
+        $response = $this->driver->get($url->getUrl());
 
         if ($response->getStatusCode() !== 200) {
             return false;
