@@ -3,7 +3,7 @@ Changelog for ImboClient
 
 ImboClient-0.4.0
 ----------------
-__N/A__
+__2012-03-21__
 
 This version of the client includes some backward compatibility breaks. The client now returns different implementations of `ImboClient\Url\UrlInterface` for the following methods in the client:
 
