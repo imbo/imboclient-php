@@ -1,6 +1,12 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-0.4.1
+----------------
+__2012-03-21__
+
+Fixed bug with query params not being included when generating the access token. This bug broke get `getImages()` method in the client.
+
 ImboClient-0.4.0
 ----------------
 __2012-03-21__
