@@ -30,7 +30,7 @@
  * @link https://github.com/imbo/imboclient-php
  */
 
-namespace ImboClient\ImagesQuery;
+namespace ImboClient\Url\Images;
 
 use DateTime;
 
@@ -46,7 +46,7 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
     /**
      * Image instance
      *
-     * @var ImboClient\ImagesQuery\Image
+     * @var ImboClient\Url\Images\Image
      */
     private $image;
 
@@ -69,8 +69,8 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
     );
 
     /**
-     * @covers ImboClient\ImagesQuery\Image::__construct
-     * @covers ImboClient\ImagesQuery\Image::populate
+     * @covers ImboClient\Url\Images\Image::__construct
+     * @covers ImboClient\Url\Images\Image::populate
      */
     public function setUp() {
         $this->image = new Image($this->data);
@@ -81,40 +81,40 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Image::getIdentifier
-     * @covers ImboClient\ImagesQuery\Image::setIdentifier
+     * @covers ImboClient\Url\Images\Image::getIdentifier
+     * @covers ImboClient\Url\Images\Image::setIdentifier
      */
     public function testGetIdentifier() {
         $this->assertSame($this->data['imageIdentifier'], $this->image->getIdentifier());
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Image::getSize
-     * @covers ImboClient\ImagesQuery\Image::setSize
+     * @covers ImboClient\Url\Images\Image::getSize
+     * @covers ImboClient\Url\Images\Image::setSize
      */
     public function testGetSize() {
         $this->assertSame($this->data['size'], $this->image->getSize());
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Image::getExtension
-     * @covers ImboClient\ImagesQuery\Image::setExtension
+     * @covers ImboClient\Url\Images\Image::getExtension
+     * @covers ImboClient\Url\Images\Image::setExtension
      */
     public function testGetExtension() {
         $this->assertSame($this->data['extension'], $this->image->getExtension());
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Image::getMimeType
-     * @covers ImboClient\ImagesQuery\Image::setMimeType
+     * @covers ImboClient\Url\Images\Image::getMimeType
+     * @covers ImboClient\Url\Images\Image::setMimeType
      */
     public function testGetMimeType() {
         $this->assertSame($this->data['mime'], $this->image->getMimeType());
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Image::getAddedDate
-     * @covers ImboClient\ImagesQuery\Image::setAddedDate
+     * @covers ImboClient\Url\Images\Image::getAddedDate
+     * @covers ImboClient\Url\Images\Image::setAddedDate
      */
     public function testGetAddedDate() {
         $added = new DateTime('@' . $this->data['added']);
@@ -122,8 +122,8 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Image::getUpdatedDate
-     * @covers ImboClient\ImagesQuery\Image::setUpdatedDate
+     * @covers ImboClient\Url\Images\Image::getUpdatedDate
+     * @covers ImboClient\Url\Images\Image::setUpdatedDate
      */
     public function testGetUpdatedDate() {
         $updated = new DateTime('@' . $this->data['updated']);
@@ -131,32 +131,32 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Image::getWidth
-     * @covers ImboClient\ImagesQuery\Image::setWidth
+     * @covers ImboClient\Url\Images\Image::getWidth
+     * @covers ImboClient\Url\Images\Image::setWidth
      */
     public function testGetWidth() {
         $this->assertSame($this->data['width'], $this->image->getWidth());
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Image::getHeight
-     * @covers ImboClient\ImagesQuery\Image::setHeight
+     * @covers ImboClient\Url\Images\Image::getHeight
+     * @covers ImboClient\Url\Images\Image::setHeight
      */
     public function testGetHeight() {
         $this->assertSame($this->data['height'], $this->image->getHeight());
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Image::getChecksum
-     * @covers ImboClient\ImagesQuery\Image::setChecksum
+     * @covers ImboClient\Url\Images\Image::getChecksum
+     * @covers ImboClient\Url\Images\Image::setChecksum
      */
     public function testChecksum() {
         $this->assertSame($this->data['checksum'], $this->image->getChecksum());
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Image::getPublicKey
-     * @covers ImboClient\ImagesQuery\Image::setPublicKey
+     * @covers ImboClient\Url\Images\Image::getPublicKey
+     * @covers ImboClient\Url\Images\Image::setPublicKey
      */
     public function testGetPublicKey() {
         $this->assertSame($this->data['publicKey'], $this->image->getPublicKey());

@@ -33,8 +33,7 @@
 namespace ImboClient;
 
 use ImboClient\Driver\DriverInterface,
-    ImboClient\ImagesQuery\QueryInterface,
-    ImboClient\ImageUrl\ImageUrlInterface;
+    ImboClient\Url\Images\QueryInterface;
 
 /**
  * Interface for the client
@@ -48,6 +47,13 @@ use ImboClient\Driver\DriverInterface,
  */
 interface ClientInterface {
     /**
+     * Return the current server URL's used by the client
+     *
+     * @return array
+     */
+    function getServerUrls();
+
+    /**
      * Set the driver
      *
      * @param ImboClient\Driver\DriverInterface $driver The driver to set
@@ -58,31 +64,30 @@ interface ClientInterface {
     /**
      * Get the URL to the current user
      *
-     * @return string
+     * @return ImboClient\Url\UrlInterface
      */
     function getUserUrl();
 
     /**
      * Get the URL to the images resource of the current user
      *
-     * @return string
+     * @return ImboClient\Url\UrlInterface
      */
     function getImagesUrl();
 
     /**
-     * Fetch an ImboClient\ImageUrl\ImageUrlInterface instance
+     * Get the URL to a specific image
      *
      * @param string $imageIdentifier The image identifier
-     * @param boolean $asString Set this to true to get the URL as a string
-     * @return ImboClient\ImageUrl\ImageUrlInterface|string
+     * @return ImboClient\Url\ImageInterface
      */
-    function getImageUrl($imageIdentifier, $asString = false);
+    function getImageUrl($imageIdentifier);
 
     /**
-     * Fetch the metadata URL to a given image
+     * Get the URL to the metadata of a specific image
      *
      * @param string $imageIdentifier The image identifier
-     * @return string
+     * @return ImboClient\Url\UrlInterface
      */
     function getMetadataUrl($imageIdentifier);
 
@@ -107,7 +112,7 @@ interface ClientInterface {
     /**
      * Add a new image to the server by specifying a URL to an existing image
      *
-     * @param ImboClient\ImageUrl\ImageUrlInterface|string $url URL to the image you want to add
+     * @param ImboClient\Url\ImageInterface|string $url URL to the image you want to add
      * @return ImboClient\Http\Response\ResponseInterface
      */
     function addImageFromUrl($url);
@@ -177,12 +182,12 @@ interface ClientInterface {
      *
      * If the server responds with an error, this method must return false.
      *
-     * @param ImboClient\ImagesQuery\QueryInterface $query A query instance
-     * @return ImboClient\ImagesQuery\ImageInterface[]|boolean Returns false on error, and an array
-     *                                                         of ImboClient\ImageQuery\ImageInterface
-     *                                                         instances on success (can be empty)
+     * @param ImboClient\Url\Images\QueryInterface $query A query instance
+     * @return array|boolean Returns false on error, and an array of
+     *                       ImboClient\Url\Images\ImageInterface instances on success (can be
+     *                       empty)
      */
-    function getImages(QueryInterface $query = null);
+    function getImages(QueryInterface$query = null);
 
     /**
      * Get the binary data of an image stored on the server
@@ -199,11 +204,10 @@ interface ClientInterface {
      *
      * If the server responds with an error, this method must return false.
      *
-     * @param ImboClient\ImageUrl\ImageUrlInterface $url ImageUrl-instance for the image you want
-     *                                                   to retrieve
+     * @param ImboClient\Url\ImageInterface $url URL instance for the image you want to retrieve
      * @return string|boolean
      */
-    function getImageDataFromUrl(ImageUrlInterface $url);
+    function getImageDataFromUrl(Url\ImageInterface $url);
 
     /**
      * Get properties of an image

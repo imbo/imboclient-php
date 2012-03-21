@@ -22,96 +22,33 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Interfaces
- * @subpackage Client\ImagesQuery
- * @author Espen Hovlandsdal <espen@hovlandsdal.com>
+ * @package Url
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
 
-namespace ImboClient\ImagesQuery;
+namespace ImboClient\Url;
 
 /**
- * Interface for an image found in a response to an images query
+ * Images URL
  *
- * @package Interfaces
- * @subpackage Client\ImagesQuery
- * @author Espen Hovlandsdal <espen@hovlandsdal.com>
+ * @package Url
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
-interface ImageInterface {
+class Images extends Url implements UrlInterface {
     /**
-     * Returns the image identifier for the image
-     *
-     * @return string
+     * @see ImboClient\Url\Url::getRawUrl()
      */
-    function getIdentifier();
-
-    /**
-     * Returns the size of the image, in bytes
-     *
-     * @return int
-     */
-    function getSize();
-
-    /**
-     * Returns the original extension for the image
-     *
-     * @return string
-     */
-    function getExtension();
-
-    /**
-     * Returns the mime type of the image
-     *
-     * @return string
-     */
-    function getMimeType();
-
-    /**
-     * Returns the date which the image which added
-     *
-     * @return DateTime
-     */
-    function getAddedDate();
-
-    /**
-     * Returns the date which the image was last updated
-     *
-     * @return DateTime
-     */
-    function getUpdatedDate();
-
-    /**
-     * Returns the width of the image, in pixels
-     *
-     * @return int
-     */
-    function getWidth();
-
-    /**
-     * Returns the height of the image, in pixels
-     *
-     * @return int
-     */
-    function getHeight();
-
-    /**
-     * Returns an MD5 checksum of the image data
-     *
-     * @return string
-     */
-    function getChecksum();
-
-    /**
-     * Returns the public key in which the image is catalogued under
-     *
-     * @return string
-     */
-    function getPublicKey();
+    protected function getRawUrl() {
+        return sprintf(
+            '%s/users/%s/images',
+            $this->baseUrl,
+            $this->publicKey
+        );
+    }
 }
