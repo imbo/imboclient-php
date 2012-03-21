@@ -91,7 +91,7 @@ These classes implements the `ImboClient\Url\UrlInterface` interface which inclu
 * `getUrl()` Returns the URL as a string.
 * `getUrlEncoded()` Returns the URL as a URL-encoded string.
 
-When the classes listed above is used in a string context (for instance `print` or `echo`) the `getUrl()` method will be used. All URLs have an access token appended to them that is used by Imbo servers to make sure you have access to the URL you are requesting. The access token is a keyed MD5 hash using the HMAC method. The key used is the private key given to the client upon instantiation.
+When the classes listed above is used in a string context (for instance `print` or `echo`) the `getUrl()` method will be used. All URLs have an access token appended to them that is used by Imbo servers to make sure you have access to the URL you are requesting. The access token is a keyed SHA256 hash using the HMAC method. The key used is the private key given to the client upon instantiation.
 
 ### Image URLs
 
