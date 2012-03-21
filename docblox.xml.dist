@@ -10,7 +10,6 @@
     <template name="new_black" />
   </transformations>
   <files>
-    <directory>library</directory>
-    <directory>tests</directory>
+    <directory>library/ImboClient</directory>
   </files>
 </docblox>

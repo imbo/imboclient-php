@@ -29,7 +29,7 @@
  * @link https://github.com/imbo/imboclient-php
  */
 
-namespace ImboClient\ImagesQuery;
+namespace ImboClient\Url\Images;
 
 /**
  * @package Unittests
@@ -42,7 +42,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
     /**
      * Query instance
      *
-     * @var Imbo\Resource\Images\Query
+     * @var ImboClient\Url\Images\Query
      */
     private $query;
 
@@ -55,7 +55,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Query::page
+     * @covers ImboClient\Url\Images\Query::page
      */
     public function testPage() {
         $value = 2;
@@ -65,7 +65,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Query::limit
+     * @covers ImboClient\Url\Images\Query::limit
      */
     public function testLimit() {
         $value = 30;
@@ -75,7 +75,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Query::returnMetadata
+     * @covers ImboClient\Url\Images\Query::returnMetadata
      */
     public function testReturnMetadata() {
         $this->assertFalse($this->query->returnMetadata());
@@ -84,7 +84,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Query::metadataQuery
+     * @covers ImboClient\Url\Images\Query::metadataQuery
      */
     public function testMetadataQuery() {
         $value = array('category' => 'some category');
@@ -94,7 +94,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Query::from
+     * @covers ImboClient\Url\Images\Query::from
      */
     public function testFrom() {
         $value = 123123123;
@@ -104,7 +104,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\ImagesQuery\Query::to
+     * @covers ImboClient\Url\Images\Query::to
      */
     public function testTo() {
         $value = 123123123;
