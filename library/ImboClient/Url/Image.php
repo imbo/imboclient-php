@@ -22,52 +22,27 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Client
- * @subpackage ImageUrl
+ * @package Url
  * @author Christer Edvartsen <cogo@starzinger.net>
- * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
 
-namespace ImboClient\ImageUrl;
+namespace ImboClient\Url;
 
 /**
- * Image URL implementation
+ * Image URL
  *
- * @package Client
- * @subpackage ImageUrl
+ * @package Url
  * @author Christer Edvartsen <cogo@starzinger.net>
- * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
-class ImageUrl implements ImageUrlInterface {
+class Image extends Url implements ImageInterface {
     /**
-     * Base URL
-     *
-     * @var string
-     */
-    private $baseUrl;
-
-    /**
-     * The public key
-     *
-     * @var string
-     */
-    private $publicKey;
-
-    /**
-     * The private key
-     *
-     * @var string
-     */
-    private $privateKey;
-
-    /**
-     * The image identifier
+     * Image identifier
      *
      * @var string
      */
@@ -76,41 +51,53 @@ class ImageUrl implements ImageUrlInterface {
     /**
      * Query data
      *
-     * @var string[]
+     * @var array
      */
     private $data;
 
     /**
      * Class constructor
      *
-     * @param string $baseUrl The base URL to the server
-     * @param string $publicKey The public key to use
-     * @param string $privateKey The private key to use
-     * @param string $imageIdentifier The image identifier
+     * @see ImboClient\Url\Url::__construct()
+     * @param string $imageIdentifier The image identifier to use in the URL
      */
     public function __construct($baseUrl, $publicKey, $privateKey, $imageIdentifier) {
-        $this->baseUrl = rtrim($baseUrl, '/');
-        $this->publicKey = $publicKey;
-        $this->privateKey = $privateKey;
+        parent::__construct($baseUrl, $publicKey, $privateKey);
+
         $this->imageIdentifier = $imageIdentifier;
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::border()
+     * @see ImboClient\Url\Url::getRawUrl()
+     */
+    protected function getRawUrl() {
+        $queryString = $this->getQueryString();
+
+        return sprintf(
+            '%s/users/%s/images/%s%s',
+            $this->baseUrl,
+            $this->publicKey,
+            $this->imageIdentifier,
+            ($queryString ? '?' . $queryString : '')
+        );
+    }
+
+    /**
+     * @see ImboClient\Url\ImageInterface::border()
      */
     public function border($color = '000000', $width = 1, $height = 1) {
         return $this->append(sprintf('border:color=%s,width=%d,height=%d', $color, $width, $height));
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::compress()
+     * @see ImboClient\Url\ImageInterface::compress()
      */
     public function compress($quality = 75) {
         return $this->append('compress:quality=' . (int) $quality);
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::convert()
+     * @see ImboClient\Url\ImageInterface::convert()
      */
     public function convert($type) {
         $this->imageIdentifier = substr($this->imageIdentifier, 0, 32) . '.' . $type;
@@ -119,49 +106,49 @@ class ImageUrl implements ImageUrlInterface {
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::gif()
+     * @see ImboClient\Url\ImageInterface::gif()
      */
     public function gif() {
         return $this->convert('gif');
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::jpg()
+     * @see ImboClient\Url\ImageInterface::jpg()
      */
     public function jpg() {
         return $this->convert('jpg');
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::png()
+     * @see ImboClient\Url\ImageInterface::png()
      */
     public function png() {
         return $this->convert('png');
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::crop()
+     * @see ImboClient\Url\ImageInterface::crop()
      */
     public function crop($x, $y, $width, $height) {
         return $this->append(sprintf('crop:x=%d,y=%d,width=%d,height=%d', $x, $y, $width, $height));
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::flipHorizontally()
+     * @see ImboClient\Url\ImageInterface::flipHorizontally()
      */
     public function flipHorizontally() {
         return $this->append('flipHorizontally');
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::flipVertically()
+     * @see ImboClient\Url\ImageInterface::flipVertically()
      */
     public function flipVertically() {
         return $this->append('flipVertically');
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::resize()
+     * @see ImboClient\Url\ImageInterface::resize()
      */
     public function resize($width = null, $height = null) {
         $params = array();
@@ -178,7 +165,7 @@ class ImageUrl implements ImageUrlInterface {
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::maxSize()
+     * @see ImboClient\Url\ImageInterface::maxSize()
      */
     public function maxSize($maxWidth = null, $maxHeight = null) {
         $params = array();
@@ -195,21 +182,21 @@ class ImageUrl implements ImageUrlInterface {
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::rotate()
+     * @see ImboClient\Url\ImageInterface::rotate()
      */
     public function rotate($angle, $bg = '000000') {
         return $this->append(sprintf('rotate:angle=%d,bg=%s', $angle, $bg));
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::thumbnail()
+     * @see ImboClient\Url\ImageInterface::thumbnail()
      */
     public function thumbnail($width = 50, $height = 50, $fit = 'outbound') {
         return $this->append(sprintf('thumbnail:width=%d,height=%s,fit=%s', $width, $height, $fit));
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::canvas()
+     * @see ImboClient\Url\ImageInterface::canvas()
      */
     public function canvas($width, $height, $mode = null, $x = null, $y = null, $bg = null) {
         $params = array(
@@ -237,7 +224,7 @@ class ImageUrl implements ImageUrlInterface {
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::reset()
+     * @see ImboClient\Url\ImageInterface::reset()
      */
     public function reset() {
         $this->data = array();
@@ -247,36 +234,10 @@ class ImageUrl implements ImageUrlInterface {
     }
 
     /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::getUrlEncoded()
-     */
-    public function getUrlEncoded() {
-        $queryString = htmlspecialchars($this->getQueryString());
-        $queryString = str_replace('[]', '%5B%5D', $queryString);
-
-        return $this->getImageUrl() . ($queryString ? '?' . $queryString : '');
-    }
-
-    /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::getUrl()
-     */
-    public function getUrl() {
-        $queryString = $this->getQueryString();
-
-        return $this->getImageUrl() . ($queryString ? '?' . $queryString : '');
-    }
-
-    /**
-     * @see ImboClient\ImageUrl\ImageUrlInterface::__toString()
-     */
-    public function __toString() {
-        return $this->getUrl();
-    }
-
-    /**
      * Append a string to the query
      *
      * @param string $part The string to append
-     * @return ImboClient\ImageUrl\ImageUrlInterface
+     * @return ImboClient\Url\ImageInterface
      */
     private function append($part) {
         $this->data[] = $part;
@@ -285,50 +246,21 @@ class ImageUrl implements ImageUrlInterface {
     }
 
     /**
-     * Return the URL for the image, without transformations
-     *
-     * @return string
-     */
-    private function getImageUrl() {
-        return $this->baseUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier;
-    }
-
-    /**
      * Return the query string
      *
      * @return string
      */
     private function getQueryString() {
-        if (empty($this->data) && !isset($this->imageIdentifier[32])) {
-            // We don't have any transformations added or a custom extension
+        if (empty($this->data)) {
             return '';
         }
 
-        // Initialize data for the transformation key hash
-        $data = $this->publicKey . '|' . $this->imageIdentifier;
-        $queryString = '';
+        $queryString = array_reduce($this->data, function($query, $element) {
+            return $query . 't[]=' . $element . '&';
+        }, '');
 
-        if (!empty($this->data)) {
-            // We have some transformations. Generate a transformation key that will be sent to the
-            // server so the server can verify if the transformations are valid or not.
-            $queryString = array_reduce($this->data, function($query, $element) {
-                return $query . 't[]=' . $element . '&';
-            }, $queryString);
+        $queryString = rtrim($queryString, '&');
 
-            $queryString = rtrim($queryString, '&');
-
-            $data .= '|' . $queryString;
-        }
-
-        // Prepare data for the hash
-        $transformationKey = hash_hmac('md5', $data, $this->privateKey);
-
-        if (empty($queryString)) {
-            // No query string. Return only the transformation key
-            return 'tk=' . $transformationKey;
-        }
-
-        // Return the query string with the transformation key appended
-        return $queryString . '&tk=' . $transformationKey;
+        return $queryString;
     }
 }

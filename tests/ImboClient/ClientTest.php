@@ -47,20 +47,6 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     private $client;
 
     /**
-     * Public key
-     *
-     * @var string
-     */
-    private $publicKey;
-
-    /**
-     * Private key
-     *
-     * @var string
-     */
-    private $privateKey;
-
-    /**
      * The server URL passed to the constructor
      *
      * @var string
@@ -68,43 +54,43 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     private $serverUrl = 'http://host';
 
     /**
+     * Public key
+     *
+     * @var string
+     */
+    private $publicKey = 'key';
+
+    /**
+     * Private key
+     *
+     * @var string
+     */
+    private $privateKey = '8495c97ea3a313c12c0661dc5526e769';
+
+    /**
      * Image identifier used for tests
      *
      * @var string
      */
-    private $imageIdentifier;
+    private $imageIdentifier = '23d7f91b25f3013fcc75ce070c40e004';
 
     /**
-     * Pattern used in the mock matchers when URL is signed
+     * Regexp pattern that matches the end of a signed URL
+     *
+     * This value is used in some matchers in this test case.
      *
      * @var string
      */
-    private $signedUrlPattern = array(
-        'image'    => '|^http://host/users/[a-zA-Z0-9]{3,}/images/[a-f0-9]{32}\?signature=(.*?)&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\d%3A\d\dZ$|',
-        'metadata' => '|^http://host/users/[a-zA-Z0-9]{3,}/images/[a-f0-9]{32}/meta\?signature=(.*?)&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\d%3A\d\dZ$|',
-    );
-
-    /**
-     * Pattern used in the mock matchers with regular URLs
-     *
-     * @var string
-     */
-    private $urlPattern = array(
-        'user'     => '|^http://host/users/[a-zA-Z0-9]{3,}$|',
-        'image'    => '|^http://host/users/[a-zA-Z0-9]{3,}/images/[a-f0-9]{32}$|',
-        'images'   => '|^http://host/users/[a-zA-Z0-9]{3,}/images(/?\?.*)?$|',
-        'metadata' => '|^http://host/users/[a-zA-Z0-9]{3,}/images/[a-f0-9]{32}/meta$|',
-    );
+    private $signedUrlPattern = '/signature=.*?&timestamp=\d\d\d\d-\d\d-\d\dT\d\d%3A\d\d%3A\d\dZ$/';
 
     /**
      * Set up method
+     *
+     * @covers ImboClient\Client::__construct
+     * @covers ImboClient\Client::setDriver
      */
     public function setUp() {
-        $this->publicKey = 'publicKey';
-        $this->privateKey = md5(microtime());
-        $this->imageIdentifier = md5(microtime());
         $this->driver = $this->getMock('ImboClient\Driver\DriverInterface');
-
         $this->client = new Client($this->serverUrl, $this->publicKey, $this->privateKey, $this->driver);
     }
 
@@ -141,57 +127,60 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Client::addImage
      * @covers ImboClient\Client::validateLocalFile
      * @covers ImboClient\Client::getSignedUrl
-     * @covers ImboClient\Client::generateSignature
      */
     public function testAddImage() {
         $imagePath = __DIR__ . '/_files/image.png';
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $this->driver->expects($this->once())->method('put')->with($this->matchesRegularExpression($this->signedUrlPattern['image']), $imagePath)->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('put')->with($this->matchesRegularExpression($this->signedUrlPattern), $imagePath)->will($this->returnValue($response));
         $this->assertSame($response, $this->client->addImage($imagePath));
     }
 
     /**
      * @covers ImboClient\Client::addImageFromString
      * @covers ImboClient\Client::getSignedUrl
-     * @covers ImboClient\Client::generateSignature
      */
     public function testAddImageFromString() {
         $imageData = file_get_contents(__DIR__ . '/_files/image.png');
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $this->driver->expects($this->once())->method('putData')->with($this->matchesRegularExpression($this->signedUrlPattern['image']), $imageData)->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('putData')->with($this->matchesRegularExpression($this->signedUrlPattern), $imageData)->will($this->returnValue($response));
         $this->assertSame($response, $this->client->addImageFromString($imageData));
     }
 
     /**
      * @covers ImboClient\Client::addImageFromUrl
+     * @covers ImboClient\Client::getSignedUrl
      */
     public function testAddImageFromUrlWithString() {
         $url = 'http://example.com/image.jpg';
+        $data = 'binary image data';
 
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('isSuccess')->will($this->returnValue(true));
-        $response->expects($this->once())->method('getBody')->will($this->returnValue('binary image data'));
+        $response->expects($this->once())->method('getBody')->will($this->returnValue($data));
 
         $this->driver->expects($this->once())->method('get')->with($url)->will($this->returnValue($response));
-        $this->driver->expects($this->once())->method('putData')->with($this->matchesRegularExpression($this->signedUrlPattern['image']), 'binary image data')->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('putData')->with($this->matchesRegularExpression($this->signedUrlPattern), $data)->will($this->returnValue($response));
         $this->assertSame($response, $this->client->addImageFromUrl($url));
     }
 
     /**
      * @covers ImboClient\Client::addImageFromUrl
+     * @covers ImboClient\Client::getSignedUrl
      */
     public function testAddImageFromUrlWithInstanceOfImageUrl() {
-        $url = 'http://example.com/image.jpg';
+        $url = 'http://example.com/image.jpg?accessToken=token';
+        $data = 'binary image data';
 
-        $imageUrl = $this->getMock('ImboClient\ImageUrl\ImageUrlInterface');
-        $imageUrl->expects($this->once())->method('__toString')->will($this->returnValue($url));
+        $imageUrl = $this->getMock('ImboClient\Url\ImageInterface');
+        $imageUrl->expects($this->once())->method('getUrl')->will($this->returnValue($url));
 
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('isSuccess')->will($this->returnValue(true));
-        $response->expects($this->once())->method('getBody')->will($this->returnValue('binary image data'));
+        $response->expects($this->once())->method('getBody')->will($this->returnValue($data));
 
         $this->driver->expects($this->once())->method('get')->with($url)->will($this->returnValue($response));
-        $this->driver->expects($this->once())->method('putData')->with($this->matchesRegularExpression($this->signedUrlPattern['image']), 'binary image data')->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('putData')->with($this->matchesRegularExpression($this->signedUrlPattern), $data)->will($this->returnValue($response));
+
         $this->assertSame($response, $this->client->addImageFromUrl($imageUrl));
     }
 
@@ -211,18 +200,16 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     /**
      * @covers ImboClient\Client::deleteImage
      * @covers ImboClient\Client::getSignedUrl
-     * @covers ImboClient\Client::generateSignature
      */
     public function testDeleteImage() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $this->driver->expects($this->once())->method('delete')->with($this->matchesRegularExpression($this->signedUrlPattern['image']))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('delete')->with($this->matchesRegularExpression($this->signedUrlPattern))->will($this->returnValue($response));
         $this->assertSame($response, $this->client->deleteImage($this->imageIdentifier));
     }
 
     /**
      * @covers ImboClient\Client::editMetadata
      * @covers ImboClient\Client::getSignedUrl
-     * @covers ImboClient\Client::generateSignature
      */
     public function testEditMetadata() {
         $data = array(
@@ -231,18 +218,17 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         );
 
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $this->driver->expects($this->once())->method('post')->with($this->matchesRegularExpression($this->signedUrlPattern['metadata']), $data)->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('post')->with($this->matchesRegularExpression($this->signedUrlPattern))->will($this->returnValue($response));
         $this->assertSame($response, $this->client->editMetadata($this->imageIdentifier, $data));
     }
 
     /**
      * @covers ImboClient\Client::deleteMetadata
      * @covers ImboClient\Client::getSignedUrl
-     * @covers ImboClient\Client::generateSignature
      */
     public function testDeleteMetadata() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $this->driver->expects($this->once())->method('delete')->with($this->matchesRegularExpression($this->signedUrlPattern['metadata']))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('delete')->with($this->matchesRegularExpression($this->signedUrlPattern))->will($this->returnValue($response));
         $this->assertSame($response, $this->client->deleteMetadata($this->imageIdentifier));
     }
 
@@ -251,7 +237,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function testGetMetadata() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern['metadata']))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
         $this->assertSame($response, $this->client->getMetadata($this->imageIdentifier));
     }
 
@@ -260,7 +246,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function testHeadImage() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern['image']))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('head')->with($this->isType('string'))->will($this->returnValue($response));
         $this->assertSame($response, $this->client->headImage($this->imageIdentifier));
     }
 
@@ -291,7 +277,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(404));
 
-        $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern['image']))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('head')->with($this->isType('string'))->will($this->returnValue($response));
 
         $this->assertFalse($this->client->imageExists($imagePath));
     }
@@ -304,7 +290,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
 
-        $this->driver->expects($this->once())->method('head')->with($this->matchesRegularExpression($this->urlPattern['image']))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('head')->with($this->isType('string'))->will($this->returnValue($response));
 
         $this->assertTrue($this->client->imageExists($imagePath));
     }
@@ -316,16 +302,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     public function testGetImageUrl() {
         $identifier = md5(microtime());
         $url = $this->client->getImageUrl($identifier);
-        $this->assertInstanceOf('ImboClient\ImageUrl\ImageUrl', $url);
-    }
-
-    /**
-     * @covers ImboClient\Client::getImageUrl
-     * @covers ImboClient\Client::getHostForImageIdentifier
-     */
-    public function testGetImageUrlAsString() {
-        $expectedUrl = $this->serverUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier;
-        $this->assertSame($expectedUrl, $this->client->getImageUrl($this->imageIdentifier, true));
+        $this->assertInstanceOf('ImboClient\Url\ImageInterface', $url);
     }
 
     /**
@@ -334,20 +311,24 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      * @return array
      */
     public function getMultiHostServers() {
-        $publicKey = md5(microtime());
-
-        $hosts = array('http://imbo0', 'http://imbo1/prefix', 'http://imbo2:81', 'http://imbo3:81/prefix', 'http://imbo4:80');
+        $hosts = array(
+            'http://imbo0',
+            'http://imbo1/prefix',
+            'http://imbo2:81',
+            'http://imbo3:81/prefix',
+            'http://imbo4:80',
+        );
 
         return array(
-            array($hosts, $publicKey, 'd1afdbe2950dc1e9fa134d8c91cd1a8b', 'http://imbo4'),
-            array($hosts, $publicKey, '5fda26a928c9b0b90ef7b2db0031bfcf', 'http://imbo0'),
-            array($hosts, $publicKey, '5d028794b32c2b127875a336b1220dab', 'http://imbo3:81/prefix'),
-            array($hosts, $publicKey, 'f7dc62518f2967dacbc4c0eead5fabe5', 'http://imbo2:81'),
-            array($hosts, $publicKey, '7a4cac9e82c06010293cd6d23708e147', 'http://imbo2:81'),
-            array($hosts, $publicKey, '609c8d8350d3b6b294a628835b8e9b59', 'http://imbo1/prefix'),
-            array($hosts, $publicKey, '1e68c888fbe0a27276141a1e6fb576f4', 'http://imbo0'),
-            array($hosts, $publicKey, '67e45db3a472a90a26bda000c0818bfc', 'http://imbo3:81/prefix'),
-            array($hosts, $publicKey, '3ad35117949c5a17b9df82c343b4f763', 'http://imbo3:81/prefix'),
+            array($hosts, 'd1afdbe2950dc1e9fa134d8c91cd1a8b', 'http://imbo4'),
+            array($hosts, '5fda26a928c9b0b90ef7b2db0031bfcf', 'http://imbo0'),
+            array($hosts, '5d028794b32c2b127875a336b1220dab', 'http://imbo3:81/prefix'),
+            array($hosts, 'f7dc62518f2967dacbc4c0eead5fabe5', 'http://imbo2:81'),
+            array($hosts, '7a4cac9e82c06010293cd6d23708e147', 'http://imbo2:81'),
+            array($hosts, '609c8d8350d3b6b294a628835b8e9b59', 'http://imbo1/prefix'),
+            array($hosts, '1e68c888fbe0a27276141a1e6fb576f4', 'http://imbo0'),
+            array($hosts, '67e45db3a472a90a26bda000c0818bfc', 'http://imbo3:81/prefix'),
+            array($hosts, '3ad35117949c5a17b9df82c343b4f763', 'http://imbo3:81/prefix'),
         );
     }
 
@@ -355,29 +336,37 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      * @dataProvider getMultiHostServers()
      * @covers ImboClient\Client::__construct
      * @covers ImboClient\Client::parseUrls
-     * @covers ImboClient\Client::getImageUrl
      * @covers ImboClient\Client::getHostForImageIdentifier
      */
-    public function testImageUrlHostnames($urls, $publicKey, $imageIdentifier, $expected) {
-        $expectedUrl = $expected . '/users/' . $publicKey . '/images/' . $imageIdentifier;
-        $client = new Client($urls, $publicKey, $this->privateKey);
-        $this->assertSame($expectedUrl, $client->getImageUrl($imageIdentifier, true));
+    public function testImageUrlHostnames($urls, $imageIdentifier, $expected) {
+        $client = new Client($urls, $this->publicKey, $this->privateKey);
+
+        $reflection = new \ReflectionClass($client);
+        $method = $reflection->getMethod('getHostForImageIdentifier');
+        $method->setAccessible(true);
+
+        $this->assertSame($expected, $method->invoke($client, $imageIdentifier));
     }
 
     /**
      * @covers ImboClient\Client::getMetadataUrl
      */
     public function testGetMetadataUrl() {
-        $expectedUrl = $this->serverUrl . '/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '/meta';
-        $this->assertSame($expectedUrl, $this->client->getMetadataUrl($this->imageIdentifier));
+        $this->assertInstanceOf('ImboClient\Url\Metadata', $this->client->getMetadataUrl($this->imageIdentifier));
+    }
+
+    /**
+     * @covers ImboClient\Client::getUserUrl
+     */
+    public function testGetUserUrl() {
+        $this->assertInstanceOf('ImboClient\Url\User', $this->client->getUserUrl());
     }
 
     /**
      * @covers ImboClient\Client::getImagesUrl
      */
     public function testGetImagesUrl() {
-        $expectedUrl = $this->serverUrl . '/users/' . $this->publicKey . '/images';
-        $this->assertSame($expectedUrl, $this->client->getImagesUrl());
+        $this->assertInstanceOf('ImboClient\Url\Images', $this->client->getImagesUrl());
     }
 
     /**
@@ -388,7 +377,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
         $response->expects($this->once())->method('getBody')->will($this->returnValue(json_encode(array('numImages' => 42))));
 
-        $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern['user']))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
 
         $this->assertSame(42, $this->client->getNumImages());
     }
@@ -400,7 +389,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(500));
 
-        $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern['user']))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
 
         $this->assertFalse($this->client->getNumImages());
     }
@@ -448,17 +437,16 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Client::getImages
      */
     public function testGetImages($data) {
-
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
         $response->expects($this->once())->method('getBody')->will($this->returnValue($data));
 
-        $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern['images']))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
 
         $images = $this->client->getImages();
 
         foreach ($images as $image) {
-            $this->assertInstanceOf('ImboClient\ImagesQuery\Image', $image);
+            $this->assertInstanceOf('ImboClient\Url\Images\Image', $image);
         }
     }
 
@@ -467,20 +455,21 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Client::getImages
      */
     public function testGetImagesWithQuery($data) {
-
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
         $response->expects($this->once())->method('getBody')->will($this->returnValue($data));
 
-        $this->driver->expects($this->once())->method('get')->with($this->stringContains('query=%7B%22foo%22%3A%22bar%22%7D'))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('get')->with($this->stringContains('page=3&limit=5&query=%7B%22foo%22%3A%22bar%22%7D'))->will($this->returnValue($response));
 
-        $query = new ImagesQuery\Query();
-        $query->page(3)->metadataQuery(array('foo' => 'bar'))->limit(5);
+        $query = $this->getMock('ImboClient\Url\Images\QueryInterface');
+        $query->expects($this->once())->method('page')->will($this->returnValue(3));
+        $query->expects($this->once())->method('metadataQuery')->will($this->returnValue(array('foo' => 'bar')));
+        $query->expects($this->once())->method('limit')->will($this->returnValue(5));
 
         $images = $this->client->getImages($query);
 
         foreach ($images as $image) {
-            $this->assertInstanceOf('ImboClient\ImagesQuery\Image', $image);
+            $this->assertInstanceOf('ImboClient\Url\Images\Image', $image);
         }
     }
 
@@ -491,7 +480,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(500));
 
-        $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern['images']))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
 
         $this->assertFalse($this->client->getImages());
     }
@@ -507,10 +496,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
         $response->expects($this->once())->method('getBody')->will($this->returnValue($expectedData));
 
-        $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern['image']))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
 
-        $imageIdentifier = md5(microtime());
-        $this->assertSame($expectedData, $this->client->getImageData($imageIdentifier));
+        $this->assertSame($expectedData, $this->client->getImageData($this->imageIdentifier));
     }
 
     /**
@@ -518,15 +506,12 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Client::getImageDataFromUrl
      */
     public function testGetImageDataWhenServerRespondsWithAnError() {
-        $imageUrl = $this->client->getImageUrl(md5(microtime()));
-
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(500));
 
-        $this->driver->expects($this->once())->method('get')->with($this->matchesRegularExpression($this->urlPattern['image']))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
 
-        $imageIdentifier = md5(microtime());
-        $this->assertSame(false, $this->client->getImageData($imageIdentifier));
+        $this->assertSame(false, $this->client->getImageData($this->imageIdentifier));
     }
 
     /**
@@ -556,31 +541,35 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $publicKey = md5(microtime());
 
         return array(
-            array('http://imbo', $publicKey, 'http://imbo/users/' . $publicKey),
-            array('http://imbo/prefix', $publicKey, 'http://imbo/prefix/users/' . $publicKey),
-            array('http://imbo:81', $publicKey, 'http://imbo:81/users/' . $publicKey),
-            array('http://imbo:81/prefix', $publicKey, 'http://imbo:81/prefix/users/' . $publicKey),
-            array('http://imbo:80', $publicKey, 'http://imbo/users/' . $publicKey),
-            array('http://imbo:80/prefix', $publicKey, 'http://imbo/prefix/users/' . $publicKey),
+            array('http://imbo', 'http://imbo'),
+            array('http://imbo/prefix', 'http://imbo/prefix'),
+            array('http://imbo:81', 'http://imbo:81'),
+            array('http://imbo:81/prefix', 'http://imbo:81/prefix'),
+            array('http://imbo:80', 'http://imbo'),
+            array('http://imbo:80/prefix', 'http://imbo/prefix'),
 
-            array('https://imbo', $publicKey, 'https://imbo/users/' . $publicKey),
-            array('https://imbo/prefix', $publicKey, 'https://imbo/prefix/users/' . $publicKey),
-            array('https://imbo:444', $publicKey, 'https://imbo:444/users/' . $publicKey),
-            array('https://imbo:444/prefix', $publicKey, 'https://imbo:444/prefix/users/' . $publicKey),
-            array('https://imbo:443', $publicKey, 'https://imbo/users/' . $publicKey),
-            array('https://imbo:443/prefix', $publicKey, 'https://imbo/prefix/users/' . $publicKey),
+            array('https://imbo', 'https://imbo'),
+            array('https://imbo/prefix', 'https://imbo/prefix'),
+            array('https://imbo:444', 'https://imbo:444'),
+            array('https://imbo:444/prefix', 'https://imbo:444/prefix'),
+            array('https://imbo:443', 'https://imbo'),
+            array('https://imbo:443/prefix', 'https://imbo/prefix'),
         );
     }
 
     /**
      * @dataProvider getServerUrls()
-     * @covers ImboClient\Client::getUserUrl
      * @covers ImboClient\Client::__construct
+     * @covers ImboClient\Client::getServerUrls
      * @covers ImboClient\Client::parseUrls
      */
-    public function testServerUrls($url, $publicKey, $expected) {
-        $client = new Client($url, $publicKey, $this->privateKey);
-        $this->assertSame($expected, $client->getUserUrl());
+    public function testServerUrls($url, $expected) {
+        $client = new Client($url, 'publicKey', 'privateKey');
+        $urls = $client->getServerUrls();
+
+        $this->assertInternalType('array', $urls);
+        $this->assertCount(1, $urls);
+        $this->assertSame($expected, $urls[0]);
     }
 
     /**
@@ -661,5 +650,48 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $imagePath = __DIR__ . '/_files/image.png';
         $image = file_get_contents($imagePath);
         $this->assertSame('929db9c5fc3099f7576f5655207eba47', $this->client->getImageIdentifierFromString($image));
+    }
+
+    public function getSignatureData() {
+        return array(
+            array(
+                'PUT', 'http://imbo/users/' . $this->publicKey . '/images/' . $this->imageIdentifier, '2012-03-14T10:04:06Z',
+                '2237c6da85b7270e443ce07e2788e0df858abba3e83059b984d2822c36d2b4ba'
+            ),
+            array(
+                'PUT', 'http://imbo/users/' . $this->publicKey . '/images/' . $this->imageIdentifier, '2012-03-14T10:04:07Z',
+                '6b0db609609a6dec864a50ad41bdd1077df04f8f1bf40104cde249ad913c6ec3'
+            ),
+            array(
+                'POST', 'http://imbo/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '/meta', '2012-03-14T10:04:06Z',
+                '29efe947d53fa0e51d416a5a05f01420ec27c8f182c44b63186574b5d54f8a8c'
+            ),
+            array(
+                'POST', 'http://imbo/users/' . $this->publicKey . '/images/' . $this->imageIdentifier . '/meta', '2012-03-14T10:04:07Z',
+                'c6cd382a60b4bd988a2d8426000af353e7a5569a42604e5a30a7a65bce77d334'
+            ),
+            array(
+                'DELETE', 'http://imbo/users/' . $this->publicKey . '/images/' . $this->imageIdentifier, '2012-03-14T10:04:06Z',
+                '48d605563d761d2155939873fe4a820fbcac69c1d3e3df82c3ac92097f2ae9f2'
+            ),
+            array(
+                'DELETE', 'http://imbo/users/' . $this->publicKey . '/images/' . $this->imageIdentifier, '2012-03-14T10:04:07Z',
+                '242f79f025ce7c463b8826e87c335293c2bf552bea11ea6b47c5ed5ae6657061'
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider getSignatureData
+     * @covers ImboClient\Client::generateSignature
+     */
+    public function testGenerateSignature($httpMethod, $url, $timestamp, $expected) {
+        $client = new Client($this->serverUrl, $this->publicKey, $this->privateKey);
+
+        $reflection = new \ReflectionClass($client);
+        $method = $reflection->getMethod('generateSignature');
+        $method->setAccessible(true);
+
+        $this->assertSame($expected, $method->invoke($client, $httpMethod, $url, $timestamp));
     }
 }

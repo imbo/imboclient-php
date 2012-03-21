@@ -22,74 +22,42 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Interfaces
- * @subpackage Client\ImagesQuery
- * @author Espen Hovlandsdal <espen@hovlandsdal.com>
+ * @package Unittests
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
 
-namespace ImboClient\ImagesQuery;
+namespace ImboClient\Url;
 
 /**
- * Images query interface
- *
- * @package Interfaces
- * @subpackage Client\ImagesQuery
- * @author Espen Hovlandsdal <espen@hovlandsdal.com>
+ * @package Unittests
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
-interface QueryInterface {
+class ImagesTest extends \PHPUnit_Framework_TestCase {
     /**
-     * Set or get the page property
+     * Data provider for testGetUrl()
      *
-     * @param int $page Give this a value to set the page property
-     * @return int|Imbo\Resource\ImagesQuery\QueryInterface
+     * @return array
      */
-    function page($page = null);
+    public function getUrlData() {
+        return array(
+            array('http://imbo', 'publicKey', 'http://imbo/users/publicKey/images'),
+        );
+    }
 
     /**
-     * Set or get the limit property
-     *
-     * @param int $limit Give this a value to set the limit property
-     * @return int|Imbo\Resource\ImagesQuery\QueryInterface
+     * @dataProvider getUrlData
+     * @covers ImboClient\Url\Url::getUrl
+     * @covers ImboClient\Url\Images::getRawUrl
      */
-    function limit($limit = null);
-
-    /**
-     * Set or get the returnMetadata flag
-     *
-     * @param boolean $returnMetadata Give this a value to set the returnMetadata flag
-     * @return boolean|Imbo\Resource\ImagesQuery\QueryInterface
-     */
-    function returnMetadata($returnMetadata = null);
-
-    /**
-     * Set or get the metadataQuery property
-     *
-     * @param array $metadataQuery Give this a value to set the property
-     * @return array|Imbo\Resource\ImagesQuery\QueryInterface
-     */
-    function metadataQuery(array $metadataQuery = null);
-
-    /**
-     * Set or get the from attribute
-     *
-     * @param int $from Give this a value to set the from property
-     * @return int|Imbo\Resource\ImagesQuery\QueryInterface
-     */
-    function from($from = null);
-
-    /**
-     * Set or get the to attribute
-     *
-     * @param int $from Give this a value to set the to property
-     * @return int|Imbo\Resource\ImagesQuery\QueryInterface
-     */
-    function to($to = null);
+    public function testGetUrl($host, $publicKey, $expected) {
+        $url = new Images($host, $publicKey, 'privateKey');
+        $this->assertStringStartsWith($expected, $url->getUrl());
+        $this->assertRegExp('/accessToken=[a-f0-9]{64}$/', $url->getUrl());
+    }
 }

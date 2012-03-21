@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Client\ImagesQuery
+ * @package Url\Images
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
@@ -30,12 +30,12 @@
  * @link https://github.com/imbo/imboclient-php
  */
 
-namespace ImboClient\ImagesQuery;
+namespace ImboClient\Url\Images;
 
 /**
  * Query object for the images resource
  *
- * @package Client\ImagesQuery
+ * @package Url\Images
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
@@ -60,7 +60,7 @@ class Query implements QueryInterface {
     /**
      * Return metadata or not
      *
-     * @var string
+     * @var boolean
      */
     private $returnMetadata = false;
 
@@ -72,21 +72,21 @@ class Query implements QueryInterface {
     private $metadataQuery = array();
 
     /**
-     * Timestamp to start fetching from
+     * Unix timestamp to start fetching from
      *
      * @var int
      */
     private $from;
 
     /**
-     * Timestamp to fetch to
+     * Unix timestamp to fetch until
      *
      * @var int
      */
     private $to;
 
     /**
-     * @see ImboClient\ImagesQuery\QueryInterface::page()
+     * @see ImboClient\Url\Images\QueryInterface::page()
      */
     public function page($page = null) {
         if ($page === null) {
@@ -99,7 +99,7 @@ class Query implements QueryInterface {
     }
 
     /**
-     * @see ImboClient\ImagesQuery\QueryInterface::limit()
+     * @see ImboClient\Url\Images\QueryInterface::limit()
      */
     public function limit($limit = null) {
         if ($limit === null) {
@@ -112,7 +112,7 @@ class Query implements QueryInterface {
     }
 
     /**
-     * @see ImboClient\ImagesQuery\QueryInterface::returnMetadata()
+     * @see ImboClient\Url\Images\QueryInterface::returnMetadata()
      */
     public function returnMetadata($returnMetadata = null) {
         if ($returnMetadata === null) {
@@ -125,7 +125,7 @@ class Query implements QueryInterface {
     }
 
     /**
-     * @see ImboClient\ImagesQuery\QueryInterface::metadataQuery()
+     * @see ImboClient\Url\Images\QueryInterface::metadataQuery()
      */
     public function metadataQuery(array $metadataQuery = null) {
         if ($metadataQuery === null) {
@@ -138,7 +138,7 @@ class Query implements QueryInterface {
     }
 
     /**
-     * @see ImboClient\ImagesQuery\QueryInterface::from()
+     * @see ImboClient\Url\Images\QueryInterface::from()
      */
     public function from($from = null) {
         if ($from === null) {
@@ -151,7 +151,7 @@ class Query implements QueryInterface {
     }
 
     /**
-     * @see ImboClient\ImagesQuery\QueryInterface::to()
+     * @see ImboClient\Url\Images\QueryInterface::to()
      */
     public function to($to = null) {
         if ($to === null) {

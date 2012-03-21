@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Client\ImagesQuery
+ * @package Url\Images
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
@@ -30,14 +30,14 @@
  * @link https://github.com/imbo/imboclient-php
  */
 
-namespace ImboClient\ImagesQuery;
+namespace ImboClient\Url\Images;
 
 use DateTime;
 
 /**
  * Image implementation
  *
- * @package Client\ImagesQuery
+ * @package Url\Images
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
@@ -145,70 +145,70 @@ class Image implements ImageInterface {
     }
 
     /**
-     * @see ImboClient\ImagesQuery\ImageInterface::getIdentifier()
+     * @see ImboClient\Url\Images\ImageInterface::getIdentifier()
      */
     public function getIdentifier() {
         return $this->identifier;
     }
 
     /**
-     * @see ImboClient\ImagesQuery\ImageInterface::getSize()
+     * @see ImboClient\Url\Images\ImageInterface::getSize()
      */
     public function getSize() {
         return $this->size;
     }
 
     /**
-     * @see ImboClient\ImagesQuery\ImageInterface::getExtension()
+     * @see ImboClient\Url\Images\ImageInterface::getExtension()
      */
     public function getExtension() {
         return $this->extension;
     }
 
     /**
-     * @see ImboClient\ImagesQuery\ImageInterface::getMimeType()
+     * @see ImboClient\Url\Images\ImageInterface::getMimeType()
      */
     public function getMimeType() {
         return $this->mimeType;
     }
 
     /**
-     * @see ImboClient\ImagesQuery\ImageInterface::getAddedDate()
+     * @see ImboClient\Url\Images\ImageInterface::getAddedDate()
      */
     public function getAddedDate() {
         return $this->addedDate;
     }
 
     /**
-     * @see ImboClient\ImagesQuery\ImageInterface::getUpdatedDate()
+     * @see ImboClient\Url\Images\ImageInterface::getUpdatedDate()
      */
     public function getUpdatedDate() {
         return $this->updatedDate;
     }
 
     /**
-     * @see ImboClient\ImagesQuery\ImageInterface::getWidth()
+     * @see ImboClient\Url\Images\ImageInterface::getWidth()
      */
     public function getWidth() {
         return $this->width;
     }
 
     /**
-     * @see ImboClient\ImagesQuery\ImageInterface::getHeight()
+     * @see ImboClient\Url\Images\ImageInterface::getHeight()
      */
     public function getHeight() {
         return $this->height;
     }
 
     /**
-     * @see ImboClient\ImagesQuery\ImageInterface::getChecksum()
+     * @see ImboClient\Url\Images\ImageInterface::getChecksum()
      */
     public function getChecksum() {
         return $this->checksum;
     }
 
     /**
-     * @see ImboClient\ImagesQuery\ImageInterface::getPublicKey()
+     * @see ImboClient\Url\Images\ImageInterface::getPublicKey()
      */
     public function getPublicKey() {
         return $this->publicKey;

@@ -1,5 +1,5 @@
-# PHP client for imbo
-A PHP client for [imbo](https://github.com/imbo/imbo).
+# PHP client for Imbo
+A PHP client for [Imbo](https://github.com/imbo/imbo).
 
 [![Current build Status](https://secure.travis-ci.org/imbo/imboclient-php.png)](http://travis-ci.org/imbo/imboclient-php)
 
@@ -19,9 +19,6 @@ sudo pear install --alldeps pear.starzinger.net/ImboClient
 <?php
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-// Path to local image
-$path = '/path/to/image.png';
-
 try {
     $response = $client->addImage('/path/to/image.png'); // Local image
     // OR
@@ -30,7 +27,7 @@ try {
     $response = $client->addImageFromUrl('http://example.com/image.png'); // Image from URL
     // OR
     $imageUrl = $client->getImageUrl('<image identifier>')->resize(200);
-    $response = $client->addImageFromUrl($imageUrl); // Image from ImageUrl instance
+    $response = $client->addImageFromUrl($imageUrl); // Image from `ImboClient\Url\Image` instance
 
     if ($response->isSuccess()) {
         echo "The image was added! Image identifier: " . $response->getImageIdentifier();
@@ -53,40 +50,56 @@ $metadata = array(
     'bar' => 'foo',
 );
 
-$hash = '<hash>';
-$response = $client->editMetadata($hash, $metadata);
+$imageIdentifier = '<image identifier>';
+$response = $client->editMetadata($imageIdentifier, $metadata);
 ```
 ## Get meta data
 ```php
 <?php
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-$hash = '<hash>';
-$response = $client->getMetadata($hash);
+$imageIdentifier = '<image identifier>';
+$response = $client->getMetadata($imageIdentifier);
 ```
 ## Delete an image
 ```php
 <?php
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-$hash = '<hash>';
-$response = $client->deleteImage($hash);
+$imageIdentifier = '<image identifier>';
+$response = $client->deleteImage($imageIdentifier);
 ```
 ## Delete all meta data attached to an image
 ```php
 <?php
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-$hash = '<hash>';
-$response = $client->deleteMetadata($hash);
+$imageIdentifier = '<image identifier>';
+$response = $client->deleteMetadata($imageIdentifier);
 ```
-## Generate image urls
+## Generate Imbo URLs
 
-The client has a method called `getImageUrl($imageIdentifier)` that can be used to fetch an instance of the `ImboClient\ImageUrl\ImageUrl` class. This class has convenience methods for adding transformations to the url. All these methods can be chained and the transformations will be applied to the url in the chaining order. The `convert()` method is special in that it does not append anything to the url, excpect injects an image extension to the image identifier. `convert()`, `gif()`, `jpg()` and `png()` can therefore be added anywhere in the chain.
+The client has several methods for fetching URLs to an Imbo installation. The following methods exist:
 
-The class also includes two methods for fetching a string representation of the URL with the transformations added: `getUrl()` and `getUrlEncoded()`. When the object is used in string context the `getUrl()` method will be used.
+* `getUserUrl()` Returns an instance of `ImboClient\Url\User`.
+* `getImagesUrl()` Returns an instance of `ImboClient\Url\Images`.
+* `getImageUrl($imageIdentifier)` Returns an instance of `ImboClient\Url\Image`.
+* `getMetadataUrl($imageIdentifier)` Returns an instance of `ImboClient\Url\Metadata`.
 
-### Methods
+These classes implements the `ImboClient\Url\UrlInterface` interface which includes the following methods:
+
+* `getUrl()` Returns the URL as a string.
+* `getUrlEncoded()` Returns the URL as a URL-encoded string.
+
+When the classes listed above is used in a string context (for instance `print` or `echo`) the `getUrl()` method will be used. All URLs have an access token appended to them that is used by Imbo servers to make sure you have access to the URL you are requesting. The access token is a keyed MD5 hash using the HMAC method. The key used is the private key given to the client upon instantiation.
+
+### Image URLs
+
+The `ImboClient\Url\Image` class also implements some other methods that can be used to easily add transformations to the URL (which is only relevant for image URLs). All these methods can be chained and the transformations will be applied to the URL in the chained order.
+
+The `convert()` method is special in that it does not append anything to the URL, except injects an image extension to the image identifier. `convert()` (and `gif()`, `jpg()` and `png()` which proxies to `convert()`) can therefore be added anywhere in the chain.
+
+The transformations that can be chained are:
 
 **border()**
 
@@ -94,7 +107,7 @@ Add a border around the image.
 
 * `(string) $color` Color in hexadecimal. Defaults to '000000' (also supports short values like 'f00' ('ff0000')).
 * `(int) $width` Width of the border on the left and right sides of the image. Defaults to 1.
-* `(int) $height` Height of the border on the top and bottoms sides of the image. Defaults to 1.
+* `(int) $height` Height of the border on the top and bottom sides of the image. Defaults to 1.
 
 **canvas()**
 
@@ -102,7 +115,7 @@ Builds a new canvas and allows easy positioning of the original image within it.
 
 * `(int) $width` Width of the new canvas.
 * `(int) $height` Height of the new canvas.
-* `(string) $mode` Placement mode. 'free' (uses $x and $y), 'center', 'center-x' (centers horizontally, uses $y for vertical placement), 'center-y' (centers vertically, uses $x for horizontal placement). Default to 'free'.
+* `(string) $mode` Placement mode. 'free' (uses `$x` and `$y`), 'center', 'center-x' (centers horizontally, uses `$y` for vertical placement), 'center-y' (centers vertically, uses `$x` for horizontal placement). Default to 'free'.
 * `(int) $x` X coordinate of the placement of the upper left corner of the existing image.
 * `(int) $y` Y coordinate of the placement of the upper left corner of the existing image.
 * `(string) $bg` Background color of the canvas.
@@ -177,7 +190,7 @@ Generate a thumbnail of the image.
 * `(int) $height` Height of the thumbnail. Defaults to 50.
 * `(string) $fit` Fit style. 'inset' or 'outbound'. Default to 'outbound'.
 
-## Multiple URL support
+## Support for multiple hostnames
 
 Following the recommendation of the HTTP 1.1 specification, browsers typically default to two simultaneous requests per hostname. If you wish to generate URLs that point to a range of different hostnames, you can do this by passing an array of URLs to the ImboClient when instantiating:
 
@@ -190,6 +203,6 @@ $client = new ImboClient\Client(array(
 ), '<publickey>', '<privatekey>');
 ```
 
-When using `getImageUrl($imageIdentifier)`, the client will pick one of the URLs defined. The same image identifier will result in the URL, as long as the number of URLs given does not change.
+When using `getImageUrl($imageIdentifier)` and `getMetadataUrl($imageIdentifier)`, the client will pick one of the URLs defined. The same image identifier will result in the same URL, as long as the number of URLs given does not change.
 
 Calls to `getUserUrl()` and `getImagesUrl()` will always use the first URL in the list supplied to the constructor.
