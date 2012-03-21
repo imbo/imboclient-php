@@ -70,6 +70,13 @@ abstract class Url implements UrlInterface {
     private $accessToken;
 
     /**
+     * Custom query params that can be set via __call
+     *
+     * @var array
+     */
+    private $customParams;
+
+    /**
      * Class constructor
      *
      * @param string $baseUrl The base URL to use
@@ -87,6 +94,13 @@ abstract class Url implements UrlInterface {
      */
     public function getUrl() {
         $url = $this->getRawUrl();
+
+        if (!empty($this->customParams)) {
+            $queryString = http_build_query($this->customParams);
+
+            $url .= (strpos($url, '?') === false ? '?' : '&') . $queryString;
+        }
+
         $token = $this->getAccessToken()->generateToken($url, $this->privateKey);
 
         return $url . (strpos($url, '?') === false ? '?' : '&') . 'accessToken=' . $token;
@@ -110,6 +124,22 @@ abstract class Url implements UrlInterface {
      */
     public function __toString() {
         return $this->getUrl();
+    }
+
+    /**
+     * Magic call method that can be used to add custom query parameters
+     *
+     * @param string $method The method called (will be used as query parameter name)
+     * @param array $args Arguments to the method. The first argument will be used as query
+     *                    parameter value
+     * @return ImboClient\Url\UrlInterface
+     */
+    public function __call($method, array $args) {
+        if (count($args)) {
+            $this->customParams[$method] = $args[0];
+        }
+
+        return $this;
     }
 
     /**
