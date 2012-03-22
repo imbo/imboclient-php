@@ -70,11 +70,11 @@ abstract class Url implements UrlInterface {
     private $accessToken;
 
     /**
-     * Custom query params that can be set via __call
+     * Query params for the URL
      *
      * @var array
      */
-    private $customParams;
+    private $queryParams;
 
     /**
      * Class constructor
@@ -93,17 +93,17 @@ abstract class Url implements UrlInterface {
      * @see ImboClient\Url\UrlInterface::getUrl()
      */
     public function getUrl() {
-        $url = $this->getRawUrl();
+        $url = $this->getResourceUrl();
 
-        if (!empty($this->customParams)) {
-            $queryString = http_build_query($this->customParams);
+        $queryString = $this->getQueryString();
 
-            $url .= (strpos($url, '?') === false ? '?' : '&') . $queryString;
+        if (!empty($this->queryParams)) {
+            $url .= '?' . $queryString;
         }
 
         $token = $this->getAccessToken()->generateToken($url, $this->privateKey);
 
-        return $url . (strpos($url, '?') === false ? '?' : '&') . 'accessToken=' . $token;
+        return $url . (empty($this->queryParams) ? '?' : '&') . 'accessToken=' . $token;
     }
 
     /**
@@ -127,17 +127,30 @@ abstract class Url implements UrlInterface {
     }
 
     /**
-     * Magic call method that can be used to add custom query parameters
-     *
-     * @param string $method The method called (will be used as query parameter name)
-     * @param array $args Arguments to the method. The first argument will be used as query
-     *                    parameter value
-     * @return ImboClient\Url\UrlInterface
+     * @see ImboClient\Url\UrlInterface::__call()
      */
     public function __call($method, array $args) {
-        if (count($args)) {
-            $this->customParams[$method] = $args[0];
+        if (!count($args)) {
+            return $this;
         }
+
+        return $this->addQueryParam($method, $args[0]);
+    }
+
+    /**
+     * @see ImboClient\Url\UrlInterface::addQueryParam()
+     */
+    public function addQueryParam($key, $value) {
+        $this->queryParams[] = $key . '=' . urlencode($value);
+
+        return $this;
+    }
+
+    /**
+     * @see ImboClient\Url\UrlInterface::reset()
+     */
+    public function reset() {
+        $this->queryParams = array();
 
         return $this;
     }
@@ -171,9 +184,22 @@ abstract class Url implements UrlInterface {
     }
 
     /**
+     * Return the query string
+     *
+     * @return string
+     */
+    private function getQueryString() {
+        if (empty($this->queryParams)) {
+            return '';
+        }
+
+        return implode('&', $this->queryParams);
+    }
+
+    /**
      * Get the raw URL (with no access token appended)
      *
      * @return string
      */
-    abstract protected function getRawUrl();
+    abstract protected function getResourceUrl();
 }

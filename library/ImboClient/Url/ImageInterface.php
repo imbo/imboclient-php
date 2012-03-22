@@ -44,7 +44,7 @@ namespace ImboClient\Url;
  */
 interface ImageInterface extends UrlInterface {
     /**
-     * Append a query that triggers a border transformation
+     * Append a border transformation query parameter to the URL
      *
      * @param string $color Color of the border
      * @param int $width Width of the left and right sides of the border
@@ -54,7 +54,7 @@ interface ImageInterface extends UrlInterface {
     function border($color = '000000', $width = 1, $height = 1);
 
     /**
-     * Append a query that triggers a compress transformation
+     * Append a compress transformation query parameter to the URL
      *
      * @param int $quality A value between 0 and 100 where 100 is the best
      * @return ImboClient\Url\ImageInterface
@@ -91,7 +91,7 @@ interface ImageInterface extends UrlInterface {
     function png();
 
     /**
-     * Trigger a crop transformation
+     * Append a crop transformation query parameter to the URL
      *
      * @param int $x X coordinate of the top left corner of the crop
      * @param int $y Y coordinate of the top left corner of the crop
@@ -102,21 +102,21 @@ interface ImageInterface extends UrlInterface {
     function crop($x, $y, $width, $height);
 
     /**
-     * Trigger a flip horizontally transformation
+     * Append a flipHorizontally transformation query parameter to the URL
      *
      * @return ImboClient\Url\ImageInterface
      */
     function flipHorizontally();
 
     /**
-     * Trigger a flip vertically transformation
+     * Append a flipVertically transformation query parameter to the URL
      *
      * @return ImboClient\Url\ImageInterface
      */
     function flipVertically();
 
     /**
-     * Trigger a resize transformation
+     * Append a resize transformation query parameter to the URL
      *
      * @param int $width Width of the resized image
      * @param int $height Height of the resized image
@@ -125,7 +125,7 @@ interface ImageInterface extends UrlInterface {
     function resize($width = null, $height = null);
 
     /**
-     * Trigger a maxSize transformation
+     * Append a maxSize transformation query parameter to the URL
      *
      * @param int $maxWidth Max width of the resized image
      * @param int $maxHeight Max height of the resized image
@@ -134,7 +134,7 @@ interface ImageInterface extends UrlInterface {
     function maxSize($maxWidth = null, $maxHeight = null);
 
     /**
-     * Trigger a rotate transformation
+     * Append a rotate transformation query parameter to the URL
      *
      * @param int $angle The angle to rotate
      * @param string $bg Background color of the rotated image
@@ -143,7 +143,7 @@ interface ImageInterface extends UrlInterface {
     function rotate($angle, $bg = '000000');
 
     /**
-     * Trigger a thumbnail transformation
+     * Append a thumbnail transformation query parameter to the URL
      *
      * @param int $width Width of the thumbnail
      * @param int $height Height of the thumbnail
@@ -153,7 +153,7 @@ interface ImageInterface extends UrlInterface {
     function thumbnail($width = 50, $height = 50, $fit = 'outbound');
 
     /**
-     * Trigger a canvas transformation
+     * Append a canvas transformation query parameter to the URL
      *
      * @param int $width Width of the new canvas
      * @param int $height Height of the new canvas
@@ -164,11 +164,4 @@ interface ImageInterface extends UrlInterface {
      * @return ImboClient\Url\ImageInterface
      */
     function canvas($width, $height, $mode = null, $x = null, $y = null, $bg = null);
-
-    /**
-     * Resets the URL - removes all transformations
-     *
-     * @return ImboClient\Url\ImageInterface
-     */
-    function reset();
 }

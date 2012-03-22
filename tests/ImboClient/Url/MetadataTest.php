@@ -53,7 +53,7 @@ class MetadataTest extends \PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getUrlData
      * @covers ImboClient\Url\Url::getUrl
-     * @covers ImboClient\Url\Metadata::getRawUrl
+     * @covers ImboClient\Url\Metadata::getResourceUrl
      * @covers ImboClient\Url\Metadata::__construct
      */
     public function testGetUrl($host, $publicKey, $image, $expected) {

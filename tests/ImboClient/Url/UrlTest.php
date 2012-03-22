@@ -43,14 +43,12 @@ class UrlTest extends \PHPUnit_Framework_TestCase {
     private $baseUrl = 'http://imbo';
     private $publicKey = 'key';
     private $privateKey = 'key';
-    private $imageIdentifier = 'image';
 
     /**
      * @covers ImboClient\Url\Url::__construct
      */
     public function setUp() {
-        // Use the Image implementation to test
-        $this->url = new Image($this->baseUrl, $this->publicKey, $this->privateKey, $this->imageIdentifier);
+        $this->url = new UrlImplementation($this->baseUrl, $this->publicKey, $this->privateKey);
     }
 
     public function tearDown() {
@@ -64,7 +62,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase {
     public function testMagicToString() {
         $asString = (string) $this->url;
         $this->assertSame($this->url->getUrl(), $asString);
-        $this->assertStringStartsWith($this->baseUrl, $asString);
+        $this->assertStringStartsWith($this->baseUrl . '/resource?', $asString);
     }
 
     /**
@@ -79,11 +77,76 @@ class UrlTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\Url\Url::getUrlEncoded
+     * Data provider
+     *
+     * @return array
      */
-    public function testGetUrlEncoded() {
-        // add some transformations
-        $this->url->border();
-        $this->assertContains('t%5B%5D=border:color=000000,width=1,height=1&amp;accessToken=', $this->url->getUrlEncoded());
+    public function getQueryParams() {
+        return array(
+            array(
+                'key', 'value',
+                'http://imbo/resource?key=value&accessToken=',
+                'http://imbo/resource?key=value&amp;accessToken=',
+            ),
+            array(
+                't[]', 'border',
+                'http://imbo/resource?t[]=border&',
+                'http://imbo/resource?t%5B%5D=border&amp;',
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider getQueryParams
+     * @covers ImboClient\Url\Url::addQueryParam
+     * @covers ImboClient\Url\Url::getUrl
+     * @covers ImboClient\Url\Url::getUrlEncoded
+     * @covers ImboClient\Url\Url::getQueryString
+     */
+    public function testAddQueryParams($key, $value, $expectedUrl, $expectedEscapedUrl) {
+        $this->assertSame($this->url, $this->url->addQueryParam($key, $value));
+        $this->assertStringStartsWith($expectedUrl, $this->url->getUrl());
+        $this->assertStringStartsWith($expectedEscapedUrl, $this->url->getUrlEncoded());
+    }
+
+    /**
+     * @covers ImboClient\Url\Url::addQueryParam
+     * @covers ImboClient\Url\Url::reset
+     * @covers ImboClient\Url\Url::getUrl
+     * @covers ImboClient\Url\Url::getUrlEncoded
+     * @covers ImboClient\Url\Url::getQueryString
+     */
+    public function testAddMultipleQueryParamsAndReset() {
+        $this->assertSame($this->url, $this->url->addQueryParam('key', 'value'));
+        $this->assertSame($this->url, $this->url->addQueryParam('t[]', 'border'));
+        $this->assertSame($this->url, $this->url->addQueryParam('query', '{"foo":"bar"}'));
+        $this->assertSame($this->url, $this->url->addQueryParam('foo', 'bar'));
+        $this->assertSame($this->url, $this->url->addQueryParam('t[]', 'resize'));
+
+        $this->assertStringStartsWith('http://imbo/resource?key=value&t[]=border&query=' . urlencode('{"foo":"bar"}') . '&foo=bar&t[]=resize&accessToken=', $this->url->getUrl());
+        $this->assertStringStartsWith('http://imbo/resource?key=value&amp;t%5B%5D=border&amp;query=' . urlencode('{"foo":"bar"}') . '&amp;foo=bar&amp;t%5B%5D=resize&amp;accessToken=', $this->url->getUrlEncoded());
+
+        $this->assertSame($this->url, $this->url->reset());
+        $this->assertStringStartsWith('http://imbo/resource?accessToken=', $this->url->getUrlEncoded());
+    }
+
+    /**
+     * @covers ImboClient\Url\Url::__call
+     * @covers ImboClient\Url\Url::addQueryParam
+     * @covers ImboClient\Url\Url::getUrl
+     * @covers ImboClient\Url\Url::getUrlEncoded
+     * @covers ImboClient\Url\Url::getQueryString
+     */
+    public function testMagicCall() {
+        $this->assertSame($this->url, $this->url->foo('bar')->bar()->baz(''));
+
+        $this->assertStringStartsWith('http://imbo/resource?foo=bar&baz=&accessToken=', $this->url->getUrl());
+        $this->assertStringStartsWith('http://imbo/resource?foo=bar&amp;baz=&amp;accessToken=', $this->url->getUrlEncoded());
+    }
+}
+
+class UrlImplementation extends Url {
+    protected function getResourceUrl() {
+        return $this->baseUrl . '/resource';
     }
 }
