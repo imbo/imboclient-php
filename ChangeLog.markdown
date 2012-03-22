@@ -1,6 +1,12 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-0.4.2
+----------------
+__2012-03-22__
+
+Fixed more issues regarding the access token generation.
+
 ImboClient-0.4.1
 ----------------
 __2012-03-21__
