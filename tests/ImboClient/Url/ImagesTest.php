@@ -53,7 +53,7 @@ class ImagesTest extends \PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getUrlData
      * @covers ImboClient\Url\Url::getUrl
-     * @covers ImboClient\Url\Images::getRawUrl
+     * @covers ImboClient\Url\Images::getResourceUrl
      */
     public function testGetUrl($host, $publicKey, $expected) {
         $url = new Images($host, $publicKey, 'privateKey');

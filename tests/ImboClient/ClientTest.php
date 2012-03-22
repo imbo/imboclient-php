@@ -459,7 +459,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
         $response->expects($this->once())->method('getBody')->will($this->returnValue($data));
 
-        $this->driver->expects($this->once())->method('get')->with($this->stringContains('page=3&limit=5&query=%7B%22foo%22%3A%22bar%22%7D'))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('get')->with($this->stringContains('page=3&limit=5&query=' . urlencode('{"foo":"bar"}')))->will($this->returnValue($response));
 
         $query = $this->getMock('ImboClient\Url\Images\QueryInterface');
         $query->expects($this->once())->method('page')->will($this->returnValue(3));

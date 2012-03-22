@@ -42,9 +42,9 @@ namespace ImboClient\Url;
  */
 class User extends Url implements UrlInterface {
     /**
-     * @see ImboClient\Url\Url::getRawUrl()
+     * @see ImboClient\Url\Url::getResourceUrl()
      */
-    protected function getRawUrl() {
+    protected function getResourceUrl() {
         return sprintf(
             '%s/users/%s',
             $this->baseUrl,
