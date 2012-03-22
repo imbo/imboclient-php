@@ -131,7 +131,7 @@ abstract class Url implements UrlInterface {
      */
     public function __call($method, array $args) {
         if (!count($args)) {
-            $args[0] = null;
+            return $this;
         }
 
         return $this->addQueryParam($method, $args[0]);
@@ -140,12 +140,8 @@ abstract class Url implements UrlInterface {
     /**
      * @see ImboClient\Url\UrlInterface::addQueryParam()
      */
-    public function addQueryParam($key, $value = null) {
-        if ($value !== null) {
-            $value = '=' . urlencode($value);
-        }
-
-        $this->queryParams[] = $key . $value;
+    public function addQueryParam($key, $value) {
+        $this->queryParams[] = $key . '=' . urlencode($value);
 
         return $this;
     }

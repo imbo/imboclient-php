@@ -140,8 +140,8 @@ class UrlTest extends \PHPUnit_Framework_TestCase {
     public function testMagicCall() {
         $this->assertSame($this->url, $this->url->foo('bar')->bar()->baz(''));
 
-        $this->assertStringStartsWith('http://imbo/resource?foo=bar&bar&baz=&accessToken=', $this->url->getUrl());
-        $this->assertStringStartsWith('http://imbo/resource?foo=bar&amp;bar&amp;baz=&amp;accessToken=', $this->url->getUrlEncoded());
+        $this->assertStringStartsWith('http://imbo/resource?foo=bar&baz=&accessToken=', $this->url->getUrl());
+        $this->assertStringStartsWith('http://imbo/resource?foo=bar&amp;baz=&amp;accessToken=', $this->url->getUrlEncoded());
     }
 }
 
