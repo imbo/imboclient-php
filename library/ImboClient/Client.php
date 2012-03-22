@@ -292,9 +292,9 @@ class Client implements ClientInterface {
 
         $url = $this->getImagesUrl();
 
-        // Loop through the params and set custom query params via __call on the URL instance
+        // Add query params
         foreach ($params as $key => $value) {
-            $url->$key($value);
+            $url->addQueryParam($key, $value);
         }
 
         // Fetch the response
