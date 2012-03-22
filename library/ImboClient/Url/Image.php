@@ -49,13 +49,6 @@ class Image extends Url implements ImageInterface {
     private $imageIdentifier;
 
     /**
-     * Query data
-     *
-     * @var array
-     */
-    private $data;
-
-    /**
      * Class constructor
      *
      * @see ImboClient\Url\Url::__construct()
@@ -68,32 +61,17 @@ class Image extends Url implements ImageInterface {
     }
 
     /**
-     * @see ImboClient\Url\Url::getRawUrl()
-     */
-    protected function getRawUrl() {
-        $queryString = $this->getQueryString();
-
-        return sprintf(
-            '%s/users/%s/images/%s%s',
-            $this->baseUrl,
-            $this->publicKey,
-            $this->imageIdentifier,
-            ($queryString ? '?' . $queryString : '')
-        );
-    }
-
-    /**
      * @see ImboClient\Url\ImageInterface::border()
      */
     public function border($color = '000000', $width = 1, $height = 1) {
-        return $this->append(sprintf('border:color=%s,width=%d,height=%d', $color, $width, $height));
+        return $this->addQueryParam('t[]', sprintf('border:color=%s,width=%d,height=%d', $color, $width, $height));
     }
 
     /**
      * @see ImboClient\Url\ImageInterface::compress()
      */
     public function compress($quality = 75) {
-        return $this->append('compress:quality=' . (int) $quality);
+        return $this->addQueryParam('t[]', 'compress:quality=' . (int) $quality);
     }
 
     /**
@@ -130,21 +108,21 @@ class Image extends Url implements ImageInterface {
      * @see ImboClient\Url\ImageInterface::crop()
      */
     public function crop($x, $y, $width, $height) {
-        return $this->append(sprintf('crop:x=%d,y=%d,width=%d,height=%d', $x, $y, $width, $height));
+        return $this->addQueryParam('t[]', sprintf('crop:x=%d,y=%d,width=%d,height=%d', $x, $y, $width, $height));
     }
 
     /**
      * @see ImboClient\Url\ImageInterface::flipHorizontally()
      */
     public function flipHorizontally() {
-        return $this->append('flipHorizontally');
+        return $this->addQueryParam('t[]', 'flipHorizontally');
     }
 
     /**
      * @see ImboClient\Url\ImageInterface::flipVertically()
      */
     public function flipVertically() {
-        return $this->append('flipVertically');
+        return $this->addQueryParam('t[]', 'flipVertically');
     }
 
     /**
@@ -161,7 +139,7 @@ class Image extends Url implements ImageInterface {
             $params[] = 'height=' . (int) $height;
         }
 
-        return $this->append('resize:' . implode(',', $params));
+        return $this->addQueryParam('t[]', 'resize:' . implode(',', $params));
     }
 
     /**
@@ -178,21 +156,21 @@ class Image extends Url implements ImageInterface {
             $params[] = 'height=' . (int) $maxHeight;
         }
 
-        return $this->append('maxSize:' . implode(',', $params));
+        return $this->addQueryParam('t[]', 'maxSize:' . implode(',', $params));
     }
 
     /**
      * @see ImboClient\Url\ImageInterface::rotate()
      */
     public function rotate($angle, $bg = '000000') {
-        return $this->append(sprintf('rotate:angle=%d,bg=%s', $angle, $bg));
+        return $this->addQueryParam('t[]', sprintf('rotate:angle=%d,bg=%s', $angle, $bg));
     }
 
     /**
      * @see ImboClient\Url\ImageInterface::thumbnail()
      */
     public function thumbnail($width = 50, $height = 50, $fit = 'outbound') {
-        return $this->append(sprintf('thumbnail:width=%d,height=%s,fit=%s', $width, $height, $fit));
+        return $this->addQueryParam('t[]', sprintf('thumbnail:width=%d,height=%s,fit=%s', $width, $height, $fit));
     }
 
     /**
@@ -220,47 +198,30 @@ class Image extends Url implements ImageInterface {
             $params[] = 'bg=' . $bg;
         }
 
-        return $this->append('canvas:' . implode(',', $params));
+        return $this->addQueryParam('t[]', 'canvas:' . implode(',', $params));
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::reset()
+     * @see ImboClient\Url\Url::reset()
+     * @see ImboClient\Url\UrlInterface::reset()
      */
     public function reset() {
-        $this->data = array();
+        parent::reset();
+
         $this->imageIdentifier = substr($this->imageIdentifier, 0, 32);
 
         return $this;
     }
 
     /**
-     * Append a string to the query
-     *
-     * @param string $part The string to append
-     * @return ImboClient\Url\ImageInterface
+     * @see ImboClient\Url\Url::getResourceUrl()
      */
-    private function append($part) {
-        $this->data[] = $part;
-
-        return $this;
-    }
-
-    /**
-     * Return the query string
-     *
-     * @return string
-     */
-    private function getQueryString() {
-        if (empty($this->data)) {
-            return '';
-        }
-
-        $queryString = array_reduce($this->data, function($query, $element) {
-            return $query . 't[]=' . $element . '&';
-        }, '');
-
-        $queryString = rtrim($queryString, '&');
-
-        return $queryString;
+    protected function getResourceUrl() {
+        return sprintf(
+            '%s/users/%s/images/%s',
+            $this->baseUrl,
+            $this->publicKey,
+            $this->imageIdentifier
+        );
     }
 }

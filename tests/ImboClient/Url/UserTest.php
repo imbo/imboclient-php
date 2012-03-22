@@ -53,7 +53,7 @@ class UserTest extends \PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getUrlData
      * @covers ImboClient\Url\Url::getUrl
-     * @covers ImboClient\Url\User::getRawUrl
+     * @covers ImboClient\Url\User::getResourceUrl
      */
     public function testGetUrl($host, $publicKey, $expected) {
         $url = new User($host, $publicKey, 'privateKey');
