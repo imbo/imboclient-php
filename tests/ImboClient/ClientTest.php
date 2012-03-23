@@ -223,6 +223,17 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers ImboClient\Client::replaceMetadata
+     * @covers ImboClient\Client::getSignedUrl
+     */
+    public function testReplaceMetadata() {
+        $metadata = array('foo' => 'bar');
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $this->driver->expects($this->once())->method('putData')->with($this->matchesRegularExpression($this->signedUrlPattern), '{"foo":"bar"}')->will($this->returnValue($response));
+        $this->assertSame($response, $this->client->replaceMetadata($this->imageIdentifier, $metadata));
+    }
+
+    /**
      * @covers ImboClient\Client::deleteMetadata
      * @covers ImboClient\Client::getSignedUrl
      */
