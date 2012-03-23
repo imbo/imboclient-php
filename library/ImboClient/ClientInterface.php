@@ -153,6 +153,15 @@ interface ClientInterface {
     function editMetadata($imageIdentifier, array $metadata);
 
     /**
+     * Replace all existing metadata
+     *
+     * @param string $imageIdentifier The image identifier
+     * @param array $metadata An array of metadata
+     * @return ImboClient\Http\Response\ResponseInterface
+     */
+    function replaceMetadata($imageIdentifier, array $metadata);
+
+    /**
      * Delete metadata
      *
      * @param string $imageIdentifier The image identifier
