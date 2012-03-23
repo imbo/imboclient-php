@@ -77,6 +77,14 @@ $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey
 $imageIdentifier = '<image identifier>';
 $response = $client->deleteMetadata($imageIdentifier);
 ```
+## Replace existing meta data attached to an image
+```php
+<?php
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
+
+$imageIdentifier = '<image identifier>';
+$response = $client->replaceMetadata($imageIdentifier, array('key' => 'value'));
+```
 ## Generate Imbo URLs
 
 The client has several methods for fetching URLs to an Imbo installation. The following methods exist:

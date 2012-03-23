@@ -231,6 +231,16 @@ class Client implements ClientInterface {
     }
 
     /**
+     * @see ImboClient\ClientInterface::replaceMetadata()
+     */
+    public function replaceMetadata($imageIdentifier, array $metadata) {
+        $metadataUrl = $this->getMetadataUrl($imageIdentifier)->getUrl();
+        $url = $this->getSignedUrl(DriverInterface::PUT, $metadataUrl);
+
+        return $this->driver->putData($url, json_encode($metadata));
+    }
+
+    /**
      * @see ImboClient\ClientInterface::deleteMetadata()
      */
     public function deleteMetadata($imageIdentifier) {
