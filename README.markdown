@@ -198,6 +198,14 @@ Generate a thumbnail of the image.
 * `(int) $height` Height of the thumbnail. Defaults to 50.
 * `(string) $fit` Fit style. 'inset' or 'outbound'. Default to 'outbound'.
 
+**transpose()**
+
+Creates a vertical mirror image by reflecting the pixels around the central x-axis while rotating them 90-degrees.
+
+**transverse()**
+
+Creates a horizontal mirror image by reflecting the pixels around the central y-axis while rotating them 270-degrees.
+
 ## Support for multiple hostnames
 
 Following the recommendation of the HTTP 1.1 specification, browsers typically default to two simultaneous requests per hostname. If you wish to generate URLs that point to a range of different hostnames, you can do this by passing an array of URLs to the ImboClient when instantiating:

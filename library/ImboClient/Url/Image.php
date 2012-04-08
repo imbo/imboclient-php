@@ -202,6 +202,20 @@ class Image extends Url implements ImageInterface {
     }
 
     /**
+     * @see ImboClient\Url\ImageInterface::transpose()
+     */
+    public function transpose() {
+        return $this->addQueryParam('t[]', 'transpose');
+    }
+
+    /**
+     * @see ImboClient\Url\ImageInterface::transverse()
+     */
+    public function transverse() {
+        return $this->addQueryParam('t[]', 'transverse');
+    }
+
+    /**
      * @see ImboClient\Url\Url::reset()
      * @see ImboClient\Url\UrlInterface::reset()
      */
