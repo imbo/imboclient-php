@@ -164,4 +164,18 @@ interface ImageInterface extends UrlInterface {
      * @return ImboClient\Url\ImageInterface
      */
     function canvas($width, $height, $mode = null, $x = null, $y = null, $bg = null);
+
+    /**
+     * Append a transpose transformation query parameter to the URL
+     *
+     * @return ImboClient\Url\ImageInterface
+     */
+    function transpose();
+
+    /**
+     * Append a transverse transformation query parameter to the URL
+     *
+     * @return ImboClient\Url\ImageInterface
+     */
+    function transverse();
 }

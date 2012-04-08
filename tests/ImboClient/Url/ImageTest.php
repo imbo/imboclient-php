@@ -196,6 +196,26 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers ImboClient\Url\Image::transpose
+     * @covers ImboClient\Url\Url::addQueryParam
+     * @covers ImboClient\Url\Url::getUrl
+     */
+    public function testTranspose() {
+        $this->assertSame($this->url, $this->url->transpose());
+        $this->assertContains('?t[]=transpose', $this->url->getUrl());
+    }
+
+    /**
+     * @covers ImboClient\Url\Image::transverse
+     * @covers ImboClient\Url\Url::addQueryParam
+     * @covers ImboClient\Url\Url::getUrl
+     */
+    public function testTransverse() {
+        $this->assertSame($this->url, $this->url->transverse());
+        $this->assertContains('?t[]=transverse', $this->url->getUrl());
+    }
+
+    /**
      * @covers ImboClient\Url\Image::resize
      * @covers ImboClient\Url\Url::addQueryParam
      * @covers ImboClient\Url\Url::getUrl

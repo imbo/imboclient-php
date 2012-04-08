@@ -1,11 +1,17 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-0.5.0
+----------------
+__N/A__
+
+* Pull request #35: Added support for transpose and transverse-transformations. (Espen Hovlandsdal)
+
 ImboClient-0.4.2
 ----------------
 __2012-03-22__
 
-Fixed more issues regarding the access token generation.
+* Fixed more issues regarding the access token generation.
 
 ImboClient-0.4.1
 ----------------
