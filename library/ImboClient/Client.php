@@ -96,7 +96,7 @@ class Client implements ClientInterface {
         }
 
         // Only accept json
-        $driver->addRequestHeader('Accept', 'application/json');
+        $driver->addRequestHeader('Accept', 'application/json,image/*');
 
         $this->setDriver($driver);
     }
@@ -115,6 +115,13 @@ class Client implements ClientInterface {
         $this->driver = $driver;
 
         return $this;
+    }
+
+    /**
+     * @see ImboClient\ClientInterface::getStatusUrl()
+     */
+    public function getStatusUrl() {
+        return new Url\Status($this->serverUrls[0]);
     }
 
     /**
@@ -381,6 +388,16 @@ class Client implements ClientInterface {
      */
     public function getImageIdentifierFromString($image) {
         return $this->generateImageIdentifier($image);
+    }
+
+    /**
+     * @see ImboClient\ClientInterface::getServerStatus()
+     */
+    public function getServerStatus() {
+        $response = $this->driver->get($this->getStatusUrl()->getUrl());
+        $status = json_decode($response->getBody(), true);
+
+        return $status ?: false;
     }
 
     /**

@@ -83,7 +83,7 @@ abstract class Url implements UrlInterface {
      * @param string $publicKey The public key to use
      * @param string $privateKey The private key to use
      */
-    public function __construct($baseUrl, $publicKey, $privateKey) {
+    public function __construct($baseUrl, $publicKey = null, $privateKey = null) {
         $this->baseUrl = rtrim($baseUrl, '/');
         $this->publicKey = $publicKey;
         $this->privateKey = $privateKey;
@@ -99,6 +99,10 @@ abstract class Url implements UrlInterface {
 
         if (!empty($this->queryParams)) {
             $url .= '?' . $queryString;
+        }
+
+        if (empty($this->publicKey) || empty($this->privateKey)) {
+            return $url;
         }
 
         $token = $this->getAccessToken()->generateToken($url, $this->privateKey);
