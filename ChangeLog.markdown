@@ -5,6 +5,7 @@ ImboClient-0.5.0
 ----------------
 __N/A__
 
+* Added support for the status resource on the server
 * Pull request #35: Added support for transpose and transverse-transformations. (Espen Hovlandsdal)
 
 ImboClient-0.4.2

@@ -62,16 +62,23 @@ interface ClientInterface {
     function setDriver(DriverInterface $driver);
 
     /**
+     * Get the URL to the status resource
+     *
+     * @return ImboClient\Url\Status
+     */
+    function getStatusUrl();
+
+    /**
      * Get the URL to the current user
      *
-     * @return ImboClient\Url\UrlInterface
+     * @return ImboClient\Url\User
      */
     function getUserUrl();
 
     /**
      * Get the URL to the images resource of the current user
      *
-     * @return ImboClient\Url\UrlInterface
+     * @return ImboClient\Url\Images
      */
     function getImagesUrl();
 
@@ -87,7 +94,7 @@ interface ClientInterface {
      * Get the URL to the metadata of a specific image
      *
      * @param string $imageIdentifier The image identifier
-     * @return ImboClient\Url\UrlInterface
+     * @return ImboClient\Url\Metadata
      */
     function getMetadataUrl($imageIdentifier);
 
@@ -249,4 +256,11 @@ interface ClientInterface {
      * @return string The image identifier to use with the imbo server
      */
     function getImageIdentifierFromString($image);
+
+    /**
+     * Get the server status
+     *
+     * @return array|boolean Returns false on error or an array with the server status on success.
+     */
+    function getServerStatus();
 }

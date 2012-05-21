@@ -374,6 +374,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers ImboClient\Client::getStatusUrl
+     */
+    public function testGetStatusUrl() {
+        $this->assertInstanceOf('ImboClient\Url\Status', $this->client->getStatusUrl());
+    }
+
+    /**
      * @covers ImboClient\Client::getImagesUrl
      */
     public function testGetImagesUrl() {
@@ -704,5 +711,29 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $method->setAccessible(true);
 
         $this->assertSame($expected, $method->invoke($client, $httpMethod, $url, $timestamp));
+    }
+
+    /**
+     * @covers ImboClient\Client::getServerStatus
+     */
+    public function testGetServerStatusWhenServerResponseWithUnsupportedData() {
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $response->expects($this->once())->method('getBody')->will($this->returnValue('some string'));
+        $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
+
+        $this->assertFalse($this->client->getServerStatus());
+    }
+
+    /**
+     * @covers ImboClient\Client::getServerStatus
+     */
+    public function testGetServerStatus() {
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+        $response->expects($this->once())->method('getBody')->will($this->returnValue('{"date":"some date","database":true,"storage":false}'));
+        $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
+
+        $status = $this->client->getServerStatus();
+
+        $this->assertInternalType('array', $status);
     }
 }
