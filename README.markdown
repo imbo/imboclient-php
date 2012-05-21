@@ -89,6 +89,7 @@ $response = $client->replaceMetadata($imageIdentifier, array('key' => 'value'));
 
 The client has several methods for fetching URLs to an Imbo installation. The following methods exist:
 
+* `getStatusUrl()` Returns an instance of `ImboClient\Url\Status`.
 * `getUserUrl()` Returns an instance of `ImboClient\Url\User`.
 * `getImagesUrl()` Returns an instance of `ImboClient\Url\Images`.
 * `getImageUrl($imageIdentifier)` Returns an instance of `ImboClient\Url\Image`.
@@ -98,6 +99,8 @@ These classes implements the `ImboClient\Url\UrlInterface` interface which inclu
 
 * `getUrl()` Returns the URL as a string.
 * `getUrlEncoded()` Returns the URL as a URL-encoded string.
+* `reset()` Reset the query parameters added to the URL.
+* `addQueryParam()` Add a query parameter to the URL.
 
 When the classes listed above is used in a string context (for instance `print` or `echo`) the `getUrl()` method will be used. All URLs have an access token appended to them that is used by Imbo servers to make sure you have access to the URL you are requesting. The access token is a keyed SHA256 hash using the HMAC method. The key used is the private key given to the client upon instantiation.
 
