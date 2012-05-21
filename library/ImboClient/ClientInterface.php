@@ -260,7 +260,7 @@ interface ClientInterface {
     /**
      * Get the server status
      *
-     * @return array
+     * @return array|boolean Returns false on error or an array with the server status on success.
      */
     function getServerStatus();
 }
