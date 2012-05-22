@@ -46,7 +46,7 @@ class Images extends Url implements UrlInterface {
      */
     protected function getResourceUrl() {
         return sprintf(
-            '%s/users/%s/images',
+            '%s/users/%s/images.json',
             $this->baseUrl,
             $this->publicKey
         );
