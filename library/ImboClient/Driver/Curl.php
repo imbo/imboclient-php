@@ -93,7 +93,6 @@ class Curl implements DriverInterface {
         }
 
         curl_setopt_array($this->curlHandle, array(
-            CURLOPT_USERAGENT      => __CLASS__,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HEADER         => true,
             CURLOPT_CONNECTTIMEOUT => $this->params['connectTimeout'],
@@ -111,9 +110,9 @@ class Curl implements DriverInterface {
     /**
      * @see ImboClient\Driver\DriverInterface::post()
      */
-    public function post($url, array $metadata = null) {
+    public function post($url, $metadata) {
         $postFields = array(
-            'metadata' => json_encode($metadata),
+            'metadata' => $metadata,
         );
 
         $handle = curl_copy_handle($this->curlHandle);
@@ -202,6 +201,17 @@ class Curl implements DriverInterface {
      */
     public function addRequestHeader($key, $value) {
         $this->headers[] = $key . ': ' . $value;
+
+        return $this;
+    }
+
+    /**
+     * @see ImboClient\Driver\DriverInterface::addRequestHeaders()
+     */
+    public function addRequestHeaders(array $headers) {
+        foreach ($headers as $key => $value) {
+            $this->addRequestHeader($key, $value);
+        }
 
         return $this;
     }
