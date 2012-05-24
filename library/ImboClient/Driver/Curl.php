@@ -111,15 +111,11 @@ class Curl implements DriverInterface {
      * @see ImboClient\Driver\DriverInterface::post()
      */
     public function post($url, $metadata) {
-        $postFields = array(
-            'metadata' => $metadata,
-        );
-
         $handle = curl_copy_handle($this->curlHandle);
 
         curl_setopt_array($handle, array(
             CURLOPT_POST       => true,
-            CURLOPT_POSTFIELDS => $postFields,
+            CURLOPT_POSTFIELDS => $metadata,
         ));
 
         return $this->request($handle, $url);

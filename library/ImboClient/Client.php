@@ -85,8 +85,9 @@ class Client implements ClientInterface {
      * @param string $publicKey The public key to use
      * @param string $privateKey The private key to use
      * @param ImboClient\Driver\DriverInterface $driver Optional driver to set
+     * @param ImboClient\Version $version A version instance
      */
-    public function __construct($serverUrls, $publicKey, $privateKey, DriverInterface $driver = null) {
+    public function __construct($serverUrls, $publicKey, $privateKey, DriverInterface $driver = null, Version $version = null) {
         $this->serverUrls = $this->parseUrls($serverUrls);
         $this->publicKey  = $publicKey;
         $this->privateKey = $privateKey;
@@ -95,8 +96,14 @@ class Client implements ClientInterface {
             $driver = new DefaultDriver();
         }
 
-        // Only accept json
-        $driver->addRequestHeader('Accept', 'application/json,image/*');
+        if ($version === null) {
+            $version = new Version();
+        }
+
+        $driver->addRequestHeaders(array(
+            'Accept' => 'application/json,image/*',
+            'User-Agent' => $version->getVersionString(),
+        ));
 
         $this->setDriver($driver);
     }
@@ -234,7 +241,15 @@ class Client implements ClientInterface {
         $metadataUrl = $this->getMetadataUrl($imageIdentifier)->getUrl();
         $url = $this->getSignedUrl(DriverInterface::POST, $metadataUrl);
 
-        return $this->driver->post($url, $metadata);
+        $data = json_encode($metadata);
+
+        $this->driver->addRequestHeaders(array(
+            'Content-Type' => 'application/json',
+            'Content-Length' => strlen($data),
+            'Content-MD5' => md5($data),
+        ));
+
+        return $this->driver->post($url, $data);
     }
 
     /**
@@ -244,7 +259,15 @@ class Client implements ClientInterface {
         $metadataUrl = $this->getMetadataUrl($imageIdentifier)->getUrl();
         $url = $this->getSignedUrl(DriverInterface::PUT, $metadataUrl);
 
-        return $this->driver->putData($url, json_encode($metadata));
+        $data = json_encode($metadata);
+
+        $this->driver->addRequestHeaders(array(
+            'Content-Type' => 'application/json',
+            'Content-Length' => strlen($data),
+            'Content-MD5' => md5($data),
+        ));
+
+        return $this->driver->putData($url, $data);
     }
 
     /**

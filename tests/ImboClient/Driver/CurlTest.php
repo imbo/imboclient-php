@@ -88,7 +88,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
 
         $result = unserialize($response->getBody());
         $this->assertSame('POST', $result['method']);
-        $this->assertSame($metadata, json_decode($result['data']['metadata'], true));
+        $this->assertSame($metadata, json_decode($result['data'], true));
     }
 
     /**

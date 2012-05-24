@@ -59,11 +59,11 @@ $data = array(
 
 switch ($data['method']) {
     case 'PUT':
-        // Fetch image data from input
-        $imageBlob = file_get_contents('php://input');
-        $data['md5'] = md5($imageBlob);
     case 'POST':
-        $data['data'] = $_POST;
+        $rawData = file_get_contents('php://input');
+
+        $data['md5'] = md5($rawData);
+        $data['data'] = $rawData;
         break;
     case 'GET':
         $data['data'] = $_GET;
