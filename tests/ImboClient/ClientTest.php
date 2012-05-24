@@ -31,6 +31,8 @@
 
 namespace ImboClient;
 
+use ReflectionClass;
+
 /**
  * @package Unittests
  * @author Christer Edvartsen <cogo@starzinger.net>
@@ -352,7 +354,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     public function testImageUrlHostnames($urls, $imageIdentifier, $expected) {
         $client = new Client($urls, $this->publicKey, $this->privateKey);
 
-        $reflection = new \ReflectionClass($client);
+        $reflection = new ReflectionClass($client);
         $method = $reflection->getMethod('getHostForImageIdentifier');
         $method->setAccessible(true);
 
@@ -706,7 +708,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     public function testGenerateSignature($httpMethod, $url, $timestamp, $expected) {
         $client = new Client($this->serverUrl, $this->publicKey, $this->privateKey);
 
-        $reflection = new \ReflectionClass($client);
+        $reflection = new ReflectionClass($client);
         $method = $reflection->getMethod('generateSignature');
         $method->setAccessible(true);
 
