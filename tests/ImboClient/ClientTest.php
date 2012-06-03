@@ -31,6 +31,8 @@
 
 namespace ImboClient;
 
+use ReflectionClass;
+
 /**
  * @package Unittests
  * @author Christer Edvartsen <cogo@starzinger.net>
@@ -88,9 +90,15 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      *
      * @covers ImboClient\Client::__construct
      * @covers ImboClient\Client::setDriver
+     * @covers ImboClient\Version::getVersionString
+     * @covers ImboClient\Version::getVersionNumber
      */
     public function setUp() {
         $this->driver = $this->getMock('ImboClient\Driver\DriverInterface');
+        $this->driver->expects($this->at(0))->method('addRequestHeaders')->with(array(
+            'Accept' => 'application/json,image/*',
+            'User-Agent' => 'ImboClient-php-dev',
+        ));
         $this->client = new Client($this->serverUrl, $this->publicKey, $this->privateKey, $this->driver);
     }
 
@@ -216,9 +224,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
             'foo' => 'bar',
             'bar' => 'foo',
         );
+        $encodedData = json_encode($data);
 
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $this->driver->expects($this->once())->method('post')->with($this->matchesRegularExpression($this->signedUrlPattern))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('post')->with($this->matchesRegularExpression($this->signedUrlPattern), $encodedData)->will($this->returnValue($response));
         $this->assertSame($response, $this->client->editMetadata($this->imageIdentifier, $data));
     }
 
@@ -352,7 +361,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     public function testImageUrlHostnames($urls, $imageIdentifier, $expected) {
         $client = new Client($urls, $this->publicKey, $this->privateKey);
 
-        $reflection = new \ReflectionClass($client);
+        $reflection = new ReflectionClass($client);
         $method = $reflection->getMethod('getHostForImageIdentifier');
         $method->setAccessible(true);
 
@@ -706,7 +715,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     public function testGenerateSignature($httpMethod, $url, $timestamp, $expected) {
         $client = new Client($this->serverUrl, $this->publicKey, $this->privateKey);
 
-        $reflection = new \ReflectionClass($client);
+        $reflection = new ReflectionClass($client);
         $method = $reflection->getMethod('generateSignature');
         $method->setAccessible(true);
 
