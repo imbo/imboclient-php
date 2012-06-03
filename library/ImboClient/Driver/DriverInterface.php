@@ -61,12 +61,11 @@ interface DriverInterface {
      * POST some data to an URL
      *
      * @param string $url The URL to POST to
-     * @param array $metadata The metadata to POST. This array will be json_encoded and sent to the
-     *                        server as $_POST['metadata']
+     * @param string $metadata The metadata to POST. The data must be JSON-encoded
      * @return ImboClient\Http\Response\ResponseInterface
      * @throws RuntimeException
      */
-    function post($url, array $metadata = null);
+    function post($url, $metadata);
 
     /**
      * PUT a file to an URL
@@ -123,4 +122,12 @@ interface DriverInterface {
      * @return ImboClient\Driver\DriverInterface
      */
     function addRequestHeader($key, $value);
+
+    /**
+     * Add one or more request headers
+     *
+     * @param array $headers Associative array
+     * @return ImboClient\Driver\DriverInterface
+     */
+    function addRequestHeaders(array $headers);
 }

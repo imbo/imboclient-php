@@ -67,6 +67,8 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * Tear down the driver
+     *
+     * @covers ImboClient\Driver\Curl::__destruct
      */
     public function tearDown() {
         $this->driver = null;
@@ -81,12 +83,12 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
             'foo' => 'bar',
             'bar' => 'foo',
         );
-        $response = $this->driver->post($this->testUrl, $metadata);
+        $response = $this->driver->post($this->testUrl, json_encode($metadata));
         $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $response);
 
         $result = unserialize($response->getBody());
         $this->assertSame('POST', $result['method']);
-        $this->assertSame($metadata, json_decode($result['data']['metadata'], true));
+        $this->assertSame($metadata, json_decode($result['data'], true));
     }
 
     /**
@@ -185,8 +187,9 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Driver\Curl::request
      */
     public function testExpectHeaderNotPresent() {
+        $postData = '{"some":"data"}';
         $url = $this->testUrl . '?headers';
-        $response = $this->driver->post($url);
+        $response = $this->driver->post($url, $postData);
         $headers = unserialize($response->getBody());
 
         $this->assertArrayNotHasKey('HTTP_EXPECT', $headers);
@@ -195,7 +198,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($this->driver, $this->driver->addRequestHeader('Header', 'value'));
 
         $url = $this->testUrl . '?headers';
-        $response = $this->driver->post($url);
+        $response = $this->driver->post($url, $postData);
         $headers = unserialize($response->getBody());
 
         $this->assertArrayNotHasKey('HTTP_EXPECT', $headers);
@@ -212,5 +215,25 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertArrayHasKey('HTTP_HEADER', $headers);
         $this->assertSame('value', $headers['HTTP_HEADER']);
+    }
+
+    /**
+     * @covers ImboClient\Driver\Curl::addRequestHeader
+     * @covers ImboClient\Driver\Curl::addRequestHeaders
+     */
+    public function testAddRequestHeaders() {
+        $this->assertSame($this->driver, $this->driver->addRequestHeaders(array(
+            'Header' => 'value',
+            'User-Agent' => 'ImboClient',
+        )));
+        $url = $this->testUrl . '?headers';
+        $response = $this->driver->get($url);
+        $headers = unserialize($response->getBody());
+
+        $this->assertArrayHasKey('HTTP_HEADER', $headers);
+        $this->assertArrayHasKey('HTTP_USER_AGENT', $headers);
+
+        $this->assertSame('value', $headers['HTTP_HEADER']);
+        $this->assertSame('ImboClient', $headers['HTTP_USER_AGENT']);
     }
 }

@@ -22,52 +22,53 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Unittests
+ * @package Client
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
 
+namespace ImboClient;
+
 /**
- * This script is a part of ImboClient' test suite. The client drivers use this script when doing
- * actual HTTP requests.
+ * Version class
+ *
+ * @package Client
+ * @author Christer Edvartsen <cogo@starzinger.net>
+ * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
+ * @license http://www.opensource.org/licenses/mit-license MIT License
+ * @link https://github.com/imbo/imboclient-php
  */
+class Version {
+    /**
+     * The current version
+     *
+     * This string will be replaced by pear when the package is installed
+     *
+     * @var string
+     */
+    private $version = '@package_version@';
 
-if (isset($_GET['headers'])) {
-    $headers = array();
-
-    foreach ($_SERVER as $key => $value) {
-        if (substr($key, 0, 5) === 'HTTP_') {
-            $headers[$key] = $value;
+    /**
+     * Get the version number only
+     *
+     * @return string
+     */
+    public function getVersionNumber() {
+        if (strpos($this->version, '@package_version') === 0) {
+            return 'dev';
         }
+
+        return $this->version;
     }
 
-    print(serialize($headers));
-    exit;
+    /**
+     * Get the version string
+     *
+     * @return string
+     */
+    public function getVersionString() {
+        return 'ImboClient-php-' . $this->getVersionNumber();
+    }
 }
-
-// Sleep some some seconds if specified (to test timeouts)
-if (isset($_REQUEST['sleep'])) {
-    sleep($_REQUEST['sleep']);
-}
-
-// Initialize return data
-$data = array(
-    'method' => $_SERVER['REQUEST_METHOD'],
-);
-
-switch ($data['method']) {
-    case 'PUT':
-    case 'POST':
-        $rawData = file_get_contents('php://input');
-
-        $data['md5'] = md5($rawData);
-        $data['data'] = $rawData;
-        break;
-    case 'GET':
-        $data['data'] = $_GET;
-        break;
-}
-
-print(serialize($data));
