@@ -268,7 +268,7 @@ class Curl implements DriverInterface {
         $headers = explode("\n", $headers);
 
         // Remove the first element (status line)
-        $protocol = array_shift($headers);
+        array_shift($headers);
 
         // Create a container for the headers
         $headerContainer = new HeaderContainer();
