@@ -3,6 +3,29 @@ require 'digest/md5'
 require 'fileutils'
 require 'nokogiri'
 
+basedir = "."
+build   = "#{basedir}/build"
+source  = "#{basedir}/library/ImboClient"
+
+desc "Task used by Jenkins-CI"
+task :jenkins => [:prepare, :phpunit, :phploc, :phpcs_ci, :phpcb, :phpcpd, :pdepend, :phpmd, :phpmd_html]
+
+desc "Task used by Travis-CI"
+task :travis => [:phpunit]
+
+desc "Default task"
+task :default => [:lint, :phpunit, :phpdoc, :phpcs]
+
+desc "Clean up and create artifact directories"
+task :prepare do
+  FileUtils.rm_rf build
+  FileUtils.mkdir build
+
+  ["coverage", "logs", "docs", "code-browser", "pdepend"].each do |d|
+    FileUtils.mkdir "#{build}/#{d}"
+  end
+end
+
 desc "Check syntax on all php files in the project"
 task :lint do
   `git ls-files "*.php"`.split("\n").each do |f|
@@ -15,24 +38,85 @@ task :lint do
 end
 
 desc "Run PHPUnit tests (config in phpunit.xml)"
-task :test do
-  begin
-    sh %{phpunit}
-  rescue Exception
+task :phpunit do
+  if ENV["TRAVIS"] == "true"
+    puts "Opening phpunit.xml.dist"
+    document = Nokogiri::XML(File.open("phpunit.xml.dist"))
+    document.xpath("//phpunit/logging").remove
+
+    puts "Writing edited version of phpunit.xml"
+    File.open("phpunit.xml", "w+") do |f|
+        f.write(document.to_xml)
+    end
+  end
+
+  if File.exists?("phpunit.xml")
+    begin
+      sh %{phpunit --verbose -c phpunit.xml}
+    rescue Exception
+      exit 1
+    end
+  else
+    puts "phpunit.xml does not exist"
     exit 1
   end
 end
 
+desc "Generate API documentation using phpdoc (config in phpdoc.xml)"
+task :phpdoc do
+  system "phpdoc -d #{source} -t #{build}/docs"
+end
+
+desc "Generate phploc logs"
+task :phploc do
+  system "phploc --log-csv #{build}/logs/phploc.csv --log-xml #{build}/logs/phploc.xml #{source}"
+end
+
+desc "Generate checkstyle.xml using PHP_CodeSniffer"
+task :phpcs_ci do
+  system "phpcs --report=checkstyle --report-file=#{build}/logs/checkstyle.xml --standard=Imbo #{source}"
+end
+
+desc "Check CS"
+task :phpcs do
+  system "phpcs --standard=Imbo #{source}"
+end
+
+desc "Aggregate tool output with PHP_CodeBrowser"
+task :phpcb do
+  system "phpcb --source #{source} --output #{build}/code-browser"
+end
+
+desc "Generate pmd-cpd.xml using PHPCPD"
+task :phpcpd do
+  system "phpcpd --log-pmd #{build}/logs/pmd-cpd.xml #{source}"
+end
+
+desc "Generate jdepend.xml and software metrics charts using PHP_Depend"
+task :pdepend do
+  system "pdepend --jdepend-xml=#{build}/logs/jdepend.xml --jdepend-chart=#{build}/pdepend/dependencies.svg --overview-pyramid=#{build}/pdepend/overview-pyramid.svg #{source}"
+end
+
+desc "Generate pmd.xml using PHPMD (configuration in phpmd.xml)"
+task :phpmd do
+  system "phpmd #{source} xml #{basedir}/phpmd.xml --reportfile #{build}/logs/pmd.xml"
+end
+
+desc "Generate pmd.html using PHPMD (configuration in phpmd.xml)"
+task :phpmd_html do
+  system "phpmd #{source} html #{basedir}/phpmd.xml --reportfile #{build}/logs/pmd.html"
+end
+
 desc "Create a PEAR package"
-task :pear, :version do |t, args|
+task :generate_pear_package, :version do |t, args|
   version = args[:version]
 
   if /^[\d]+\.[\d]+\.[\d]+$/ =~ version
     Dir.chdir("library")
 
-    now     = DateTime.now
-    hash    = Digest::MD5.new
-    xml     = Nokogiri::XML::Builder.new { |xml|
+    now = DateTime.now
+    hash = Digest::MD5.new
+    xml = Nokogiri::XML::Builder.new { |xml|
       xml.package(:version => "2.0", :xmlns => "http://pear.php.net/dtd/package-2.0", "xmlns:tasks" => "http://pear.php.net/dtd/tasks-1.0", "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation" => ["http://pear.php.net/dtd/tasks-1.0", "http://pear.php.net/dtd/tasks-1.0.xsd", "http://pear.php.net/dtd/package-2.0", "http://pear.php.net/dtd/package-2.0.xsd"].join(" ")) {
         xml.name "ImboClient"
         xml.channel "pear.starzinger.net"
@@ -105,6 +189,8 @@ task :pear, :version do |t, args|
       File.unlink(f)
     }
 
+    system "mv ImboClient-* .."
+
     Dir.chdir("..")
   else
     puts "'#{version}' is not a valid version"
@@ -112,22 +198,92 @@ task :pear, :version do |t, args|
   end
 end
 
+desc "Generate phar archive"
+task :generate_phar_archive do
+  # Path to stub
+  stub = "#{basedir}/stub.php"
+
+  # Generate stub
+  File.open(stub, "w") do |f|
+    f.write(<<-STUB)
+<?php
+/**
+ * ImboClient
+ *
+ * Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * * The above copyright notice and this permission notice shall be included in
+ *   all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ *
+ * @package Client
+ * @author Christer Edvartsen <cogo@starzinger.net>
+ * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
+ * @license http://www.opensource.org/licenses/mit-license MIT License
+ * @link https://github.com/imbo/imboclient-php
+ */
+
+Phar::mapPhar();
+
+$basePath = 'phar://' . __FILE__;
+
+spl_autoload_register(function($class) use ($basePath) {
+    if (strpos($class, 'ImboClient\\\\') !== 0) {
+        return false;
+    }
+
+    $file = $basePath . DIRECTORY_SEPARATOR . str_replace('\\\\', DIRECTORY_SEPARATOR, $class) . '.php';
+
+    if (file_exists($file)) {
+        require $file;
+        return true;
+    }
+});
+
+__HALT_COMPILER();
+STUB
+  end
+
+  # Generate the phar archive
+  system "phar-build -s #{basedir}/library -S #{stub} --phar #{basedir}/imboclient.phar --ns --strip-files '.php$'"
+
+  # Remove the stub
+  File.unlink("stub.php")
+end
+
 desc "Publish a PEAR package to pear.starzinger.net"
-task :publish, :version do |t, args|
+task :publish_pear_package, :version do |t, args|
   version = args[:version]
 
   if /^[\d]+\.[\d]+\.[\d]+$/ =~ version
-    package = "library/ImboClient-#{version}.tgz"
+    # Generate PEAR package
+    Rake::Task["generate_pear_package"].invoke(version)
+
+    package = "ImboClient-#{version}.tgz"
 
     if File.exists?(package)
       wd = Dir.getwd
-      system "pirum add /home/christer/dev/christeredvartsen.github.com #{package}"
       Dir.chdir("/home/christer/dev/christeredvartsen.github.com")
+      system "git pull origin master"
+      system "pirum add . #{wd}/#{package}"
       system "git add --all"
-      system "git commit -a -m 'Added #{package[8..-5]}'"
+      system "git commit -am 'Added #{package[0..-5]}'"
       system "git push"
       Dir.chdir(wd)
-      File.unlink(package)
     else
       puts "#{package} does not exist. Run the pear task first to create the package"
     end
@@ -138,15 +294,26 @@ task :publish, :version do |t, args|
 end
 
 desc "Tag current state of the master branch and push it to GitHub"
-task :github, :version do |t, args|
+task :tag_master_branch, :version do |t, args|
   version = args[:version]
 
   if /^[\d]+\.[\d]+\.[\d]+$/ =~ version
+    # Checkout the master branch
     system "git checkout master"
+
+    # Merge in the current state of the develop branch
     system "git merge develop"
+
+    # Update phar arhive
+    Rake::Task["generate_phar_archive"].invoke
+    system "git add imboclient.phar"
+    system "git commit -m 'Updated phar archive' imboclient.phar"
+
+    # Tag release and push
     system "git tag #{version}"
     system "git push"
     system "git push --tags"
+    system "git checkout develop"
   else
     puts "'#{version}' is not a valid version"
     exit 1
@@ -154,41 +321,34 @@ task :github, :version do |t, args|
 end
 
 desc "Publish API docs"
-task :docs do
-    system "git checkout master"
-    system "docblox"
-    wd = Dir.getwd
-    Dir.chdir("/home/christer/dev/imboclient-php-ghpages")
-    system "git pull origin gh-pages"
-    system "cp -r #{wd}/build/docs/* ."
-    system "git add --all"
-    system "git commit -a -m 'Updated API docs [ci skip]'"
-    system "git push origin gh-pages"
-    Dir.chdir(wd)
+task :publish_docs do
+  system "git checkout master"
+
+  Rake::Task["phpdoc"].invoke
+
+  wd = Dir.getwd
+  Dir.chdir("/home/christer/dev/imboclient-php-ghpages")
+  system "git pull origin gh-pages"
+  system "cp -r #{wd}/build/docs/* ."
+  system "git add --all"
+  system "git commit -am 'Updated API docs [ci skip]'"
+  system "git push origin gh-pages"
+  Dir.chdir(wd)
 end
 
-desc "Release a new version (builds PEAR package, updates PEAR channel and pushes tag to GitHub)"
+desc "Release a new version"
 task :release, :version do |t, args|
   version = args[:version]
 
   if /^[\d]+\.[\d]+\.[\d]+$/ =~ version
-    # Syntax check
-    Rake::Task["lint"].invoke
-
-    # Unit tests
-    Rake::Task["test"].invoke
-
-    # Build PEAR package
-    Rake::Task["pear"].invoke(version)
-
     # Publish to the PEAR channel
-    Rake::Task["publish"].invoke(version)
+    Rake::Task["publish_pear_package"].invoke(version)
 
     # Tag the current state of master and push to GitHub
-    Rake::Task["github"].invoke(version)
+    Rake::Task["tag_master_branch"].invoke(version)
 
     # Update the API docs and push to gh-pages
-    Rake::Task["docs"].invoke
+    Rake::Task["publish_docs"].invoke
   else
     puts "'#{version}' is not a valid version"
     exit 1

@@ -5,6 +5,8 @@ ImboClient-0.5.0
 ----------------
 __N/A__
 
+* Added generation of imboclient.phar in the release process
+* Added composer.json so ImboClient can be installed with Composer (http://getcomposer.org/)
 * Added support for the status resource on the server
 * Pull request #35: Added support for transpose and transverse-transformations. (Espen Hovlandsdal)
 
@@ -18,7 +20,7 @@ ImboClient-0.4.1
 ----------------
 __2012-03-21__
 
-Fixed bug with query params not being included when generating the access token. This bug broke get `getImages()` method in the client.
+* Fixed bug with query params not being included when generating the access token. This bug broke get `getImages()` method in the client.
 
 ImboClient-0.4.0
 ----------------
