@@ -1,6 +1,12 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-0.5.1
+----------------
+__2012-06-18__
+
+* Fixed composer.json
+
 ImboClient-0.5.0
 ----------------
 __2012-06-18__
