@@ -58,7 +58,7 @@ class AccessTokenTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Url\AccessToken::generateToken
      */
     public function testGenerateTokenWithSameUrlAndKeyTwice() {
-        $url = 'http://imbo/users/user/images';
+        $url = 'http://imbo/users/user/images.json';
         $key = 'some key';
 
         $this->assertSame(
@@ -71,7 +71,7 @@ class AccessTokenTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Url\AccessToken::generateToken
      */
     public function testGenerateTokenWithSameUrlButDifferentKey() {
-        $url = 'http://imbo/users/user/images';
+        $url = 'http://imbo/users/user/images.json';
         $key1 = 'some key';
         $key2 = 'some other key';
 

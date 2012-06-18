@@ -46,7 +46,7 @@ class ImagesTest extends \PHPUnit_Framework_TestCase {
      */
     public function getUrlData() {
         return array(
-            array('http://imbo', 'publicKey', 'http://imbo/users/publicKey/images'),
+            array('http://imbo', 'publicKey', 'http://imbo/users/publicKey/images.json'),
         );
     }
 

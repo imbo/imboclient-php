@@ -46,7 +46,7 @@ class User extends Url implements UrlInterface {
      */
     protected function getResourceUrl() {
         return sprintf(
-            '%s/users/%s',
+            '%s/users/%s.json',
             $this->baseUrl,
             $this->publicKey
         );

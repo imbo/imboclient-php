@@ -46,7 +46,7 @@ class MetadataTest extends \PHPUnit_Framework_TestCase {
      */
     public function getUrlData() {
         return array(
-            array('http://imbo', 'publicKey', 'image', 'http://imbo/users/publicKey/images/image/meta'),
+            array('http://imbo', 'publicKey', 'image', 'http://imbo/users/publicKey/images/image/meta.json'),
         );
     }
 

@@ -65,7 +65,7 @@ class Metadata extends Url implements UrlInterface {
      */
     protected function getResourceUrl() {
         return sprintf(
-            '%s/users/%s/images/%s/meta',
+            '%s/users/%s/images/%s/meta.json',
             $this->baseUrl,
             $this->publicKey,
             $this->imageIdentifier
