@@ -84,20 +84,30 @@ class Curl implements DriverInterface {
      * Class constructor
      *
      * @param array $params Parameters for the driver
+     * @param array $curlOptions Optional extra cURL options (ref: http://no2.php.net/curl_setopt)
      */
-    public function __construct(array $params = array()) {
+    public function __construct(array $params = array(), array $curlOptions = array()) {
         $this->curlHandle = curl_init();
 
         if (!empty($params)) {
             $this->params = array_merge($this->params, $params);
         }
 
-        curl_setopt_array($this->curlHandle, array(
+        // Default cURL options
+        $options = array(
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HEADER         => true,
             CURLOPT_CONNECTTIMEOUT => $this->params['connectTimeout'],
             CURLOPT_TIMEOUT        => $this->params['timeout'],
-        ));
+            CURLOPT_FOLLOWLOCATION => true,
+        );
+
+        if (!empty($curlOptions)) {
+            // Merge with user specified options, overwriting default values
+            $options = $curlOptions + $options;
+        }
+
+        curl_setopt_array($this->curlHandle, $options);
     }
 
     /**
@@ -228,7 +238,7 @@ class Curl implements DriverInterface {
         $options = array(CURLOPT_URL => $url);
 
         if (substr($url, 0, 8) === 'https://') {
-            // Add SSL options
+            // Add SSL options (not overwriting options already set)
             $options += array(
                 CURLOPT_SSL_VERIFYPEER => $this->params['sslVerifyPeer'],
                 CURLOPT_SSL_VERIFYHOST => $this->params['sslVerifyHost'],
