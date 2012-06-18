@@ -252,6 +252,8 @@ spl_autoload_register(function($class) use ($basePath) {
         require $file;
         return true;
     }
+
+    return false;
 });
 
 __HALT_COMPILER();

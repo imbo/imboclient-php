@@ -3,7 +3,7 @@ Changelog for ImboClient
 
 ImboClient-0.5.0
 ----------------
-__N/A__
+__2012-06-18__
 
 * Added generation of imboclient.phar in the release process
 * Added composer.json so ImboClient can be installed with Composer (http://getcomposer.org/)
