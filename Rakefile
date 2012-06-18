@@ -199,13 +199,16 @@ task :generate_pear_package, :version do |t, args|
 end
 
 desc "Generate phar archive"
-task :generate_phar_archive do
-  # Path to stub
-  stub = "#{basedir}/stub.php"
+task :generate_phar_archive, :version do |t, args|
+  version = args[:version]
 
-  # Generate stub
-  File.open(stub, "w") do |f|
-    f.write(<<-STUB)
+  if /^[\d]+\.[\d]+\.[\d]+$/ =~ version
+    # Path to stub
+    stub = "#{basedir}/stub.php"
+
+    # Generate stub
+    File.open(stub, "w") do |f|
+      f.write(<<-STUB)
 <?php
 /**
  * ImboClient
@@ -235,6 +238,7 @@ task :generate_phar_archive do
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
+ * @version #{version}
  */
 
 Phar::mapPhar();
@@ -258,13 +262,17 @@ spl_autoload_register(function($class) use ($basePath) {
 
 __HALT_COMPILER();
 STUB
+    end
+
+    # Generate the phar archive
+    system "phar-build -s #{basedir}/library -S #{stub} --phar #{basedir}/imboclient.phar --ns --strip-files '.php$'"
+
+    # Remove the stub
+    File.unlink("stub.php")
+  else
+    puts "'#{version}' is not a valid version"
+    exit 1
   end
-
-  # Generate the phar archive
-  system "phar-build -s #{basedir}/library -S #{stub} --phar #{basedir}/imboclient.phar --ns --strip-files '.php$'"
-
-  # Remove the stub
-  File.unlink("stub.php")
 end
 
 desc "Publish a PEAR package to pear.starzinger.net"
@@ -307,7 +315,7 @@ task :tag_master_branch, :version do |t, args|
     system "git merge develop"
 
     # Update phar arhive
-    Rake::Task["generate_phar_archive"].invoke
+    Rake::Task["generate_phar_archive"].invoke(version)
     system "git add imboclient.phar"
     system "git commit -m 'Updated phar archive' imboclient.phar"
 
