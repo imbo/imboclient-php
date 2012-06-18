@@ -9,6 +9,7 @@ __N/A__
 * Added composer.json so ImboClient can be installed with Composer (http://getcomposer.org/)
 * Added support for the status resource on the server
 * Pull request #35: Added support for transpose and transverse-transformations. (Espen Hovlandsdal)
+* cURL driver now accepts cURL options
 
 ImboClient-0.4.2
 ----------------
