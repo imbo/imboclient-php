@@ -46,7 +46,7 @@ class Status extends Url implements UrlInterface {
      */
     protected function getResourceUrl() {
         return sprintf(
-            '%s/status',
+            '%s/status.json',
             $this->baseUrl
         );
     }

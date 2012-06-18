@@ -46,8 +46,8 @@ class StatusTest extends \PHPUnit_Framework_TestCase {
      */
     public function getUrlData() {
         return array(
-            array('http://imbo', 'http://imbo/status'),
-            array('http://host/imbo', 'http://host/imbo/status'),
+            array('http://imbo', 'http://imbo/status.json'),
+            array('http://host/imbo', 'http://host/imbo/status.json'),
         );
     }
 
