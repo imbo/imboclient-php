@@ -1,6 +1,12 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-0.5.2
+----------------
+__2012-06-21__
+
+* Fixed issue #43: Fixed a bug where CURLOPT\_FOLLOWLOCATION would cause the response to include several HTTP header blocks when hitting a 3xx-response from the server (Espen Hovlandsdal)
+
 ImboClient-0.5.1
 ----------------
 __2012-06-18__
