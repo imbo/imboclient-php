@@ -236,4 +236,11 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame('value', $headers['HTTP_HEADER']);
         $this->assertSame('ImboClient', $headers['HTTP_USER_AGENT']);
     }
+
+    public function testUrlThatRedirects() {
+        $url = $this->testUrl . '?redirect=2';
+        $response = unserialize($this->driver->get($url)->getBody());
+
+        $this->assertEquals(0, $response['data']['redirect']);
+    }
 }
