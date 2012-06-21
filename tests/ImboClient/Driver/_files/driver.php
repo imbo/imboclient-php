@@ -34,6 +34,17 @@
  * actual HTTP requests.
  */
 
+if (isset($_GET['redirect'])) {
+    $num = (int) $_GET['redirect'];
+
+    if ($num) {
+        $num--;
+        $url = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'] . '?redirect=' . $num;
+        header('Location: ' . $url);
+        exit;
+    }
+}
+
 if (isset($_GET['headers'])) {
     $headers = array();
 
