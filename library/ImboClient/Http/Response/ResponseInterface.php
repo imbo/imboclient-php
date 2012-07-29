@@ -119,11 +119,18 @@ interface ResponseInterface {
     function getImboErrorCode();
 
     /**
-     * Wether or not the response is a success (in the 2xx range)
+     * Whether or not the response is a success (in the 2xx range)
      *
      * @return boolean
      */
     function isSuccess();
+
+    /**
+     * Whether or not the response is an error (> 4xx range)
+     *
+     * @return boolean
+     */
+    function isError();
 
     /**
      * Returns the image identifier associated with the response

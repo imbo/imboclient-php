@@ -140,6 +140,13 @@ class Response implements ResponseInterface {
     }
 
     /**
+     * @see ImboClient\Http\Response\ResponseInterface::isError()
+     */
+    public function isError() {
+        return $this->getStatusCode() >= 400;
+    }
+
+    /**
      * @see ImboClient\Http\Response\ResponseInterface::getImageIdentifier()
      */
     public function getImageIdentifier() {
