@@ -508,8 +508,14 @@ class Client implements ClientInterface {
      */
     private function parseUrls($urls) {
         $urls = (array) $urls;
+        $result = array();
+        $counter = 0;
 
-        foreach ($urls as &$serverUrl) {
+        foreach ($urls as $serverUrl) {
+            if (!preg_match('|^https?://|', $serverUrl)) {
+                $serverUrl = 'http://' . $serverUrl;
+            }
+
             $parts = parse_url($serverUrl);
 
             // Remove the port from the server URL if it's equal to 80 when scheme is http, or if
@@ -527,9 +533,13 @@ class Client implements ClientInterface {
                 $serverUrl = $parts['scheme'] . '://' . $parts['host'] . $parts['path'];
             }
 
-            $serverUrl  = rtrim($serverUrl, '/');
+            $serverUrl = rtrim($serverUrl, '/');
+
+            if (!isset($result[$serverUrl])) {
+                $result[$serverUrl] = $counter++;
+            }
         }
 
-        return $urls;
+        return array_flip($result);
     }
 }
