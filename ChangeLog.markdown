@@ -5,6 +5,7 @@ ImboClient-0.6.0
 ----------------
 __N/A__
 
+* Fixed issue #46: Automatically add "http://" to the server URL(s) is not specified
 * Fixed issue #45: Drivers should throw an exception if the response contains an error
 * Renamed cURL driver to `ImboClient\Driver\cURL`
 
