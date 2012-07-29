@@ -1,6 +1,13 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-0.6.0
+----------------
+__N/A__
+
+* Fixed issue #45: Drivers should throw an exception if the response contains an error
+* Renamed cURL driver to `ImboClient\Driver\cURL`
+
 ImboClient-0.5.2
 ----------------
 __2012-06-21__
