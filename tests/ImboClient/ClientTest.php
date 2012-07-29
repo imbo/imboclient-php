@@ -358,7 +358,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Client::parseUrls
      * @covers ImboClient\Client::getHostForImageIdentifier
      */
-    public function ttestImageUrlHostnames($urls, $imageIdentifier, $expected) {
+    public function testImageUrlHostnames($urls, $imageIdentifier, $expected) {
         $client = new Client($urls, $this->publicKey, $this->privateKey, $this->getMock('ImboClient\Driver\DriverInterface'));
 
         $reflection = new ReflectionClass($client);
@@ -744,5 +744,28 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $status = $this->client->getServerStatus();
 
         $this->assertInternalType('array', $status);
+    }
+
+    public function getUrls() {
+        return array(
+            array('imbo', array('http://imbo')),
+            array('http://imbo', array('http://imbo')),
+            array(array('imbo', 'http://imbo', 'https://imbo', 'imbo2'), array('http://imbo', 'https://imbo', 'http://imbo2')),
+        );
+    }
+
+    /**
+     * @dataProvider getUrls()
+     * @covers ImboClient\Client::__construct
+     * @covers ImboClient\Client::parseUrls
+     */
+    public function testParseUrlsShouldAddMissingHttp($url, $expected) {
+        $client = new Client($url, $this->publicKey, $this->privateKey, $this->getMock('ImboClient\Driver\DriverInterface'));
+
+        $reflection = new ReflectionClass($client);
+        $method = $reflection->getMethod('parseUrls');
+        $method->setAccessible(true);
+
+        $this->assertSame($expected, $method->invoke($client, $url));
     }
 }
