@@ -31,7 +31,7 @@
 
 namespace ImboClient\Driver;
 
-use ImboClient\Exception;
+use ImboClient\Exception\ServerException;
 
 /**
  * @package Unittests
@@ -160,8 +160,8 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedException An error occured. Request timed out during transfer (limit: 2s).
+     * @expectedException ImboClient\Exception\RuntimeException
+     * @expectedExceptionMessage An error occured. Request timed out during transfer (limit: 2s).
      * @covers ImboClient\Driver\cURL::get
      * @covers ImboClient\Driver\cURL::request
      */
@@ -171,8 +171,8 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedException An error occured. Request timed out during transfer (limit: 1s).
+     * @expectedException ImboClient\Exception\RuntimeException
+     * @expectedExceptionMessage An error occured. Request timed out during transfer (limit: 1s).
      * @covers ImboClient\Driver\cURL::__construct
      */
     public function testConstructWithCustomParams() {
@@ -250,6 +250,9 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @expectedException ImboClient\Exception\ServerException
+     * @expectedExceptionMessage bad request
+     * @expectedExceptionCode 400
      * @covers ImboClient\Driver\cURL::request
      */
     public function testRequestWhenServerRespondsWithClientError() {
@@ -258,13 +261,16 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
         try {
             $this->driver->get($url);
             $this->fail('Expected exception');
-        } catch (Exception $e) {
+        } catch (ServerException $e) {
             $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $e->getResponse());
-            $this->assertSame(400, $e->getResponse()->getStatusCode());
+            throw $e;
         }
     }
 
     /**
+     * @expectedException ImboClient\Exception\ServerException
+     * @expectedExceptionMessage internal server error
+     * @expectedExceptionCode 500
      * @covers ImboClient\Driver\cURL::request
      */
     public function testRequestWhenServerRespondsWithServerError() {
@@ -273,9 +279,9 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
         try {
             $this->driver->get($url);
             $this->fail('Expected exception');
-        } catch (Exception $e) {
+        } catch (ServerException $e) {
             $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $e->getResponse());
-            $this->assertSame(500, $e->getResponse()->getStatusCode());
+            throw $e;
         }
     }
 }

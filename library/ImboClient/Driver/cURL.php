@@ -303,7 +303,7 @@ class cURL implements DriverInterface {
 
         if ($response->isError()) {
             // The server responded with some sort of error
-            $exception = new ServerException('Received an error from the server: ' . $response->getStatusCode());
+            $exception = new ServerException($response->asObject()->error->message, $response->getStatusCode());
             $exception->setResponse($response);
 
             throw $exception;
