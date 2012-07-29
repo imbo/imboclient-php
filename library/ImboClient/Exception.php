@@ -31,8 +31,6 @@
 
 namespace ImboClient;
 
-use ImboClient\Http\Response\ResponseInterface;
-
 /**
  * Base exception interface
  *
@@ -42,23 +40,4 @@ use ImboClient\Http\Response\ResponseInterface;
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
-interface Exception {
-    /**
-     * Set the response instance
-     *
-     * @param ResponseInterface $response The response object containing info about the server
-     *                                    response.
-     * @return Exception
-     */
-    function setResponse(ResponseInterface $response);
-
-    /**
-     * Get the response instance
-     *
-     * If the cURL driver causes an error that ends in the client not being able to set a proper
-     * response this method must return null.
-     *
-     * @return ResponseInterface|null
-     */
-    function getResponse();
-}
+interface Exception {}

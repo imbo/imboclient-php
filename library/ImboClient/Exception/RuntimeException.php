@@ -32,7 +32,6 @@
 namespace ImboClient\Exception;
 
 use ImboClient\Exception,
-    ImboClient\Http\Response\ResponseInterface,
     RuntimeException as BaseRuntimeException;
 
 /**
@@ -44,27 +43,4 @@ use ImboClient\Exception,
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
-class RuntimeException extends BaseRuntimeException implements Exception {
-    /**
-     * Response instance
-     *
-     * @var ResponseInterface
-     */
-    private $response;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setResponse(ResponseInterface $response) {
-        $this->response = $response;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getResponse() {
-        return $this->response;
-    }
-}
+class RuntimeException extends BaseRuntimeException implements Exception {}

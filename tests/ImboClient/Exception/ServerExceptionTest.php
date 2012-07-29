@@ -37,13 +37,13 @@ namespace ImboClient\Exception;
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
- * @covers ImboClient\Exception\RuntimeException
  */
-class RuntimeExceptionTest extends ExceptionTests {
-    /**
-     * {@inheritdoc}
-     */
-    protected function getException() {
-        return new RuntimeException();
+class ServerExceptionTest extends \PHPUnit_Framework_TestCase {
+    public function testSetAndGetResponse() {
+        $exception = new ServerException();
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+
+        $this->assertNull($exception->setResponse($response));
+        $this->assertSame($response, $exception->getResponse());
     }
 }
