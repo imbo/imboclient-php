@@ -31,6 +31,8 @@
 
 namespace ImboClient\Driver;
 
+use ImboClient\Exception;
+
 /**
  * @package Unittests
  * @author Christer Edvartsen <cogo@starzinger.net>
@@ -237,10 +239,43 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame('ImboClient', $headers['HTTP_USER_AGENT']);
     }
 
+    /**
+     * @covers ImboClient\Driver\Curl::request
+     */
     public function testUrlThatRedirects() {
         $url = $this->testUrl . '?redirect=2';
         $response = unserialize($this->driver->get($url)->getBody());
 
         $this->assertEquals(0, $response['data']['redirect']);
+    }
+
+    /**
+     * @covers ImboClient\Driver\Curl::request
+     */
+    public function testRequestWhenServerRespondsWithClientError() {
+        $url = $this->testUrl . '?clientError';
+
+        try {
+            $this->driver->get($url);
+            $this->fail('Expected exception');
+        } catch (Exception $e) {
+            $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $e->getResponse());
+            $this->assertSame(400, $e->getResponse()->getStatusCode());
+        }
+    }
+
+    /**
+     * @covers ImboClient\Driver\Curl::request
+     */
+    public function testRequestWhenServerRespondsWithServerError() {
+        $url = $this->testUrl . '?serverError';
+
+        try {
+            $this->driver->get($url);
+            $this->fail('Expected exception');
+        } catch (Exception $e) {
+            $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $e->getResponse());
+            $this->assertSame(500, $e->getResponse()->getStatusCode());
+        }
     }
 }

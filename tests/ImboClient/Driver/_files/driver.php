@@ -81,4 +81,10 @@ switch ($data['method']) {
         break;
 }
 
+if (isset($_GET['clientError'])) {
+    header('HTTP/1.0 400 Bad Request');
+} else if (isset($_GET['serverError'])) {
+    header('HTTP/1.0 500 Internal Server Error');
+}
+
 print(serialize($data));

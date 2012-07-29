@@ -32,8 +32,9 @@
 namespace ImboClient\Driver;
 
 use ImboClient\Http\Response\Response,
+    ImboClient\Http\Response\ResponseInterface,
     ImboClient\Http\HeaderContainer,
-    RuntimeException;
+    ImboClient\Exception\RuntimeException;
 
 /**
  * cURL client driver
@@ -230,7 +231,7 @@ class Curl implements DriverInterface {
      *
      * @param resource $handle A cURL handle
      * @param string $url The URL to request
-     * @return ImboClient\Http\Response\ResponseInterface
+     * @return ResponseInterface
      * @throws RuntimeException
      */
     protected function request($handle, $url) {
@@ -293,10 +294,19 @@ class Curl implements DriverInterface {
             $headerContainer->set($key, $value);
         }
 
+        // Create the response instance
         $response = new Response();
         $response->setBody($body)
                  ->setHeaders($headerContainer)
                  ->setStatusCode($statusCode);
+
+        if ($response->isError()) {
+            // The server responded with some sort of error
+            $exception = new RuntimeException('Received an error from the server: ' . $response->getStatusCode());
+            $exception->setResponse($response);
+
+            throw $exception;
+        }
 
         return $response;
     }
