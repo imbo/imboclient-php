@@ -32,6 +32,10 @@
 
 namespace ImboClient\Driver;
 
+use ImboClient\Http\Response\ResponseInterface,
+    ImboClient\Exception\ServerException,
+    ImboClient\Exception\RuntimeException;
+
 /**
  * Client driver interface
  *
@@ -62,8 +66,8 @@ interface DriverInterface {
      *
      * @param string $url The URL to POST to
      * @param string $metadata The metadata to POST. The data must be JSON-encoded
-     * @return ImboClient\Http\Response\ResponseInterface
-     * @throws RuntimeException
+     * @return ResponseInterface
+     * @throws RuntimeException|ServerException
      */
     function post($url, $metadata);
 
@@ -72,8 +76,8 @@ interface DriverInterface {
      *
      * @param string $url The URL to PUT to
      * @param string $filePath Path to the local file
-     * @return ImboClient\Http\Response\ResponseInterface
-     * @throws RuntimeException
+     * @return ResponseInterface
+     * @throws RuntimeException|ServerException
      */
     function put($url, $filePath);
 
@@ -82,8 +86,8 @@ interface DriverInterface {
      *
      * @param string $url The URL to PUT to
      * @param string $data The data to PUT
-     * @return ImboClient\Http\Response\ResponseInterface
-     * @throws RuntimeException
+     * @return ResponseInterface
+     * @throws RuntimeException|ServerException
      */
     function putData($url, $data);
 
@@ -91,8 +95,8 @@ interface DriverInterface {
      * Perform a GET to $url
      *
      * @param string $url The URL to GET
-     * @return ImboClient\Http\Response\ResponseInterface
-     * @throws RuntimeException
+     * @return ResponseInterface
+     * @throws RuntimeException|ServerException
      */
     function get($url);
 
@@ -100,8 +104,8 @@ interface DriverInterface {
      * Perform a HEAD to $url
      *
      * @param string $url The URL to HEAD
-     * @return ImboClient\Http\Response\ResponseInterface
-     * @throws RuntimeException
+     * @return ResponseInterface
+     * @throws RuntimeException|ServerException
      */
     function head($url);
 
@@ -109,8 +113,8 @@ interface DriverInterface {
      * Perform a DELETE request to $url
      *
      * @param string $url The URL to DELETE
-     * @return ImboClient\Http\Response\ResponseInterface
-     * @throws RuntimeException
+     * @return ResponseInterface
+     * @throws RuntimeException|ServerException
      */
     function delete($url);
 
@@ -119,7 +123,7 @@ interface DriverInterface {
      *
      * @param string $key The header key
      * @param string $value The value to send
-     * @return ImboClient\Driver\DriverInterface
+     * @return DriverInterface
      */
     function addRequestHeader($key, $value);
 
@@ -127,7 +131,7 @@ interface DriverInterface {
      * Add one or more request headers
      *
      * @param array $headers Associative array
-     * @return ImboClient\Driver\DriverInterface
+     * @return DriverInterface
      */
     function addRequestHeaders(array $headers);
 }
