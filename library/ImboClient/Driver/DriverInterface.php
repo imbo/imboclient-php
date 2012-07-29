@@ -33,6 +33,7 @@
 namespace ImboClient\Driver;
 
 use ImboClient\Http\Response\ResponseInterface,
+    ImboClient\Exception\ServerException,
     ImboClient\Exception\RuntimeException;
 
 /**
@@ -66,7 +67,7 @@ interface DriverInterface {
      * @param string $url The URL to POST to
      * @param string $metadata The metadata to POST. The data must be JSON-encoded
      * @return ResponseInterface
-     * @throws RuntimeException
+     * @throws RuntimeException|ServerException
      */
     function post($url, $metadata);
 
@@ -76,7 +77,7 @@ interface DriverInterface {
      * @param string $url The URL to PUT to
      * @param string $filePath Path to the local file
      * @return ResponseInterface
-     * @throws RuntimeException
+     * @throws RuntimeException|ServerException
      */
     function put($url, $filePath);
 
@@ -86,7 +87,7 @@ interface DriverInterface {
      * @param string $url The URL to PUT to
      * @param string $data The data to PUT
      * @return ResponseInterface
-     * @throws RuntimeException
+     * @throws RuntimeException|ServerException
      */
     function putData($url, $data);
 
@@ -95,7 +96,7 @@ interface DriverInterface {
      *
      * @param string $url The URL to GET
      * @return ResponseInterface
-     * @throws RuntimeException
+     * @throws RuntimeException|ServerException
      */
     function get($url);
 
@@ -104,7 +105,7 @@ interface DriverInterface {
      *
      * @param string $url The URL to HEAD
      * @return ResponseInterface
-     * @throws RuntimeException
+     * @throws RuntimeException|ServerException
      */
     function head($url);
 
@@ -113,7 +114,7 @@ interface DriverInterface {
      *
      * @param string $url The URL to DELETE
      * @return ResponseInterface
-     * @throws RuntimeException
+     * @throws RuntimeException|ServerException
      */
     function delete($url);
 
