@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Unittests
+ * @package Exceptions
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -31,13 +31,34 @@
 
 namespace ImboClient;
 
+use ImboClient\Http\Response\ResponseInterface;
+
 /**
- * @package Unittests
+ * Base exception interface
+ *
+ * @package Exceptions
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
+interface Exception {
+    /**
+     * Set the response instance
+     *
+     * @param ResponseInterface $response The response object containing info about the server
+     *                                    response.
+     * @return Exception
+     */
+    function setResponse(ResponseInterface $response);
 
-$autoloader = require __DIR__ . '/../vendor/autoload.php';
-$autoloader->add(__NAMESPACE__, __DIR__);
+    /**
+     * Get the response instance
+     *
+     * If the cURL driver causes an error that ends in the client not being able to set a proper
+     * response this method must return null.
+     *
+     * @return ResponseInterface|null
+     */
+    function getResponse();
+}

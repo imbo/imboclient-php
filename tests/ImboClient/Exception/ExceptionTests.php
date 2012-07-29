@@ -29,7 +29,7 @@
  * @link https://github.com/imbo/imboclient-php
  */
 
-namespace ImboClient;
+namespace ImboClient\Exception;
 
 /**
  * @package Unittests
@@ -38,6 +38,19 @@ namespace ImboClient;
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
+abstract class ExceptionTests extends \PHPUnit_Framework_TestCase {
+    /**
+     * Get the exception to be tested
+     *
+     * @return ImboClient\Exception
+     */
+    abstract protected function getException();
 
-$autoloader = require __DIR__ . '/../vendor/autoload.php';
-$autoloader->add(__NAMESPACE__, __DIR__);
+    public function testSetAndGetResponse() {
+        $exception = $this->getException();
+        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
+
+        $this->assertSame($exception, $exception->setResponse($response));
+        $this->assertSame($response, $exception->getResponse());
+    }
+}

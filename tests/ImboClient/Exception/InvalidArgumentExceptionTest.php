@@ -29,7 +29,7 @@
  * @link https://github.com/imbo/imboclient-php
  */
 
-namespace ImboClient;
+namespace ImboClient\Exception;
 
 /**
  * @package Unittests
@@ -37,7 +37,13 @@ namespace ImboClient;
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
+ * @covers ImboClient\Exception\InvalidArgumentException
  */
-
-$autoloader = require __DIR__ . '/../vendor/autoload.php';
-$autoloader->add(__NAMESPACE__, __DIR__);
+class InvalidArgumentExceptionTest extends ExceptionTests {
+    /**
+     * {@inheritdoc}
+     */
+    protected function getException() {
+        return new InvalidArgumentException();
+    }
+}
