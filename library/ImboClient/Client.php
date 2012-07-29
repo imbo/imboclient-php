@@ -32,7 +32,7 @@
 namespace ImboClient;
 
 use ImboClient\Driver\DriverInterface,
-    ImboClient\Driver\Curl as DefaultDriver,
+    ImboClient\Driver\cURL as DefaultDriver,
     ImboClient\Url\Images\ImageInterface,
     ImboClient\Url\Images\Image,
     ImboClient\Url\Images\QueryInterface,

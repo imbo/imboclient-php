@@ -47,7 +47,7 @@ use ImboClient\Http\Response\Response,
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
-class Curl implements DriverInterface {
+class cURL implements DriverInterface {
     /**
      * The cURL handle used by the client
      *
@@ -273,7 +273,7 @@ class Curl implements DriverInterface {
         // Remove any HTTP/1.1 100 Continue from the response
         $content = preg_replace('/HTTP\/[.\d]+ 100 .*?\r\n\r\n/sm', '', $content);
 
-        // Curl will include headers from all requests if hitting 3xx responses (and CURLOPT_FOLLOWLOCATION is on)
+        // cURL will include headers from all requests if hitting 3xx responses (and CURLOPT_FOLLOWLOCATION is on)
         // Strip away all 3xx-header sets from the content, leaving only the last set of headers and the body
         $content = preg_replace('/^HTTP\/[.\d]+ 3\d+.*?\r\n\r\n/sm', '', $content);
 
