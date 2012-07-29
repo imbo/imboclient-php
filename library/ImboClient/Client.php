@@ -510,6 +510,10 @@ class Client implements ClientInterface {
         $urls = (array) $urls;
 
         foreach ($urls as &$serverUrl) {
+            if (!preg_match('#^https?://#', $serverUrl)) {
+                $serverUrl = 'http://' . $serverUrl;
+            }
+
             $parts = parse_url($serverUrl);
 
             // Remove the port from the server URL if it's equal to 80 when scheme is http, or if

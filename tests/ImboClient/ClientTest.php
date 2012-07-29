@@ -581,6 +581,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
             array('https://imbo:444/prefix', 'https://imbo:444/prefix'),
             array('https://imbo:443', 'https://imbo'),
             array('https://imbo:443/prefix', 'https://imbo/prefix'),
+
+            array('imbo', 'http://imbo'),
+            array('imbo/prefix', 'http://imbo/prefix'),
+            array('imbo:81', 'http://imbo:81'),
+            array('imbo:81/prefix', 'http://imbo:81/prefix'),
+            array('imbo:80', 'http://imbo'),
+            array('imbo:80/prefix', 'http://imbo/prefix'),
         );
     }
 
