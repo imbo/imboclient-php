@@ -14,7 +14,12 @@ sudo pear config-set auto_discover 1
 sudo pear install --alldeps pear.starzinger.net/ImboClient
 ```
 
-or with [Composer](http://getcomposer.org/) by specifying `imbo/imboclient` in your dependencies.
+or with [Composer](http://getcomposer.org/) by specifying `imbo/imboclient` in your dependencies, or by running the following commands:
+
+```
+curl -s https://getcomposer.org/installer | php
+php composer.phar create-project imbo/imboclient [<dir>] [<version>]
+```
 
 You can also download [imboclient.phar](https://github.com/imbo/imboclient-php/raw/master/imboclient.phar) and simply include that file where you want to use ImboClient.
 
