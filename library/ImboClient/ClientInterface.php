@@ -33,7 +33,8 @@
 namespace ImboClient;
 
 use ImboClient\Driver\DriverInterface,
-    ImboClient\Url\Images\QueryInterface;
+    ImboClient\Url\Images\QueryInterface,
+    ImboClient\Exception\InvalidArgumentException;
 
 /**
  * Interface for the client

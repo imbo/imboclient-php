@@ -99,16 +99,40 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($code, $this->response->getStatusCode());
     }
 
+    public function getCodesForIsSuccess() {
+        return array(
+            array(200, true),
+            array(300, false),
+            array(400, false),
+            array(500, false),
+        );
+    }
+
     /**
-     * Test the isSuccess method
-     *
+     * @dataProvider getCodesforIsSuccess
      * @covers ImboClient\Http\Response\Response::isSuccess
      */
-    public function testIsSuccess() {
-        $this->response->setStatusCode(200);
-        $this->assertTrue($this->response->isSuccess());
-        $this->response->setStatusCode(404);
-        $this->assertFalse($this->response->isSuccess());
+    public function testIsSuccess($code, $success) {
+        $this->response->setStatusCode($code);
+        $this->assertSame($success, $this->response->isSuccess());
+    }
+
+    public function getCodesForIsError() {
+        return array(
+            array(200, false),
+            array(300, false),
+            array(400, true),
+            array(500, true),
+        );
+    }
+
+    /**
+     * @dataProvider getCodesforIsError
+     * @covers ImboClient\Http\Response\Response::isError
+     */
+    public function testIsError($code, $error) {
+        $this->response->setStatusCode($code);
+        $this->assertSame($error, $this->response->isError());
     }
 
     /**

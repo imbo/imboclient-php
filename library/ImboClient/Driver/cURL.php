@@ -32,8 +32,10 @@
 namespace ImboClient\Driver;
 
 use ImboClient\Http\Response\Response,
+    ImboClient\Http\Response\ResponseInterface,
     ImboClient\Http\HeaderContainer,
-    RuntimeException;
+    ImboClient\Exception\ServerException,
+    ImboClient\Exception\RuntimeException;
 
 /**
  * cURL client driver
@@ -46,7 +48,7 @@ use ImboClient\Http\Response\Response,
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
-class Curl implements DriverInterface {
+class cURL implements DriverInterface {
     /**
      * The cURL handle used by the client
      *
@@ -230,8 +232,8 @@ class Curl implements DriverInterface {
      *
      * @param resource $handle A cURL handle
      * @param string $url The URL to request
-     * @return ImboClient\Http\Response\ResponseInterface
-     * @throws RuntimeException
+     * @return ResponseInterface
+     * @throws RuntimeException|ServerException
      */
     protected function request($handle, $url) {
         // Initialize options for the cURL handle
@@ -272,7 +274,7 @@ class Curl implements DriverInterface {
         // Remove any HTTP/1.1 100 Continue from the response
         $content = preg_replace('/HTTP\/[.\d]+ 100 .*?\r\n\r\n/sm', '', $content);
 
-        // Curl will include headers from all requests if hitting 3xx responses (and CURLOPT_FOLLOWLOCATION is on)
+        // cURL will include headers from all requests if hitting 3xx responses (and CURLOPT_FOLLOWLOCATION is on)
         // Strip away all 3xx-header sets from the content, leaving only the last set of headers and the body
         $content = preg_replace('/^HTTP\/[.\d]+ 3\d+.*?\r\n\r\n/sm', '', $content);
 
@@ -293,10 +295,19 @@ class Curl implements DriverInterface {
             $headerContainer->set($key, $value);
         }
 
+        // Create the response instance
         $response = new Response();
         $response->setBody($body)
                  ->setHeaders($headerContainer)
                  ->setStatusCode($statusCode);
+
+        if ($response->isError()) {
+            // The server responded with some sort of error
+            $exception = new ServerException($response->asObject()->error->message, $response->getStatusCode());
+            $exception->setResponse($response);
+
+            throw $exception;
+        }
 
         return $response;
     }

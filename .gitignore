@@ -1,3 +1,6 @@
 build
 phpunit.xml
 ImboClient-*.tgz
+composer.phar
+composer.lock
+vendor
