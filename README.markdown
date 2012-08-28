@@ -126,6 +126,18 @@ The `ImboClient\Url\Image` class also implements some other methods that can be 
 
 The `convert()` method is special in that it does not append anything to the URL, except injects an image extension to the image identifier. `convert()` (and `gif()`, `jpg()` and `png()` which proxies to `convert()`) can therefore be added anywhere in the chain.
 
+An example of how we can use the `ImboClient\Url\Image` class to resize an image while maintaining aspect ratio, then adding a border and outputting it in PNG format:
+
+```php
+<?php
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
+
+$imageIdentifier = '<image identifier>';
+$imageUrl = $client->getImageUrl($imageIdentifier);
+
+echo '<img src="' . $imageUrl->maxSize(320, 240)->border('f00baa', 2, 2)->png() . '">';
+```
+
 The transformations that can be chained are:
 
 **border()**
