@@ -197,7 +197,7 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
         $this->assertArrayNotHasKey('HTTP_EXPECT', $headers);
 
         // Add a header
-        $this->assertSame($this->driver, $this->driver->addRequestHeader('Header', 'value'));
+        $this->assertSame($this->driver, $this->driver->setRequestHeader('Header', 'value'));
 
         $url = $this->testUrl . '?headers';
         $response = $this->driver->post($url, $postData);
@@ -207,10 +207,10 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\Driver\cURL::addRequestHeader
+     * @covers ImboClient\Driver\cURL::setRequestHeader
      */
-    public function testAddRequestHeader() {
-        $this->assertSame($this->driver, $this->driver->addRequestHeader('Header', 'value'));
+    public function testSetRequestHeader() {
+        $this->assertSame($this->driver, $this->driver->setRequestHeader('Header', 'value'));
         $url = $this->testUrl . '?headers';
         $response = $this->driver->get($url);
         $headers = unserialize($response->getBody());
@@ -220,11 +220,11 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\Driver\cURL::addRequestHeader
-     * @covers ImboClient\Driver\cURL::addRequestHeaders
+     * @covers ImboClient\Driver\cURL::setRequestHeader
+     * @covers ImboClient\Driver\cURL::setRequestHeaders
      */
-    public function testAddRequestHeaders() {
-        $this->assertSame($this->driver, $this->driver->addRequestHeaders(array(
+    public function testSetRequestHeaders() {
+        $this->assertSame($this->driver, $this->driver->setRequestHeaders(array(
             'Header' => 'value',
             'User-Agent' => 'ImboClient',
         )));
@@ -283,5 +283,31 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
             $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $e->getResponse());
             throw $e;
         }
+    }
+
+    /**
+     * @see https://github.com/imbo/imboclient-php/issues/52
+     * @covers ImboClient\Driver\cURL::setRequestHeader
+     * @covers ImboClient\Driver\cURL::setRequestHeaders
+     */
+    public function testSetSameHeaderSeveralTimes() {
+        $this->driver->setRequestHeader('Foo', 'foo1');
+        $this->driver->setRequestHeader('Foo', 'foo2');
+        $this->driver->setRequestHeaders(array(
+            'Bar' => 'bar1',
+            'Bar' => 'bar2',
+            'Foo' => 'foo3',
+        ));
+
+        $reflection = new \ReflectionClass($this->driver);
+        $property = $reflection->getProperty('headers');
+        $property->setAccessible(true);
+
+        $headers = $property->getValue($this->driver);
+
+        $this->assertArrayHasKey('Foo', $headers);
+        $this->assertArrayHasKey('Bar', $headers);
+        $this->assertSame('foo3', $headers['Foo']);
+        $this->assertSame('bar2', $headers['Bar']);
     }
 }
