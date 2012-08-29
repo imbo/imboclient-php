@@ -122,7 +122,7 @@ class cURL implements DriverInterface {
     /**
      * @see ImboClient\Driver\DriverInterface::post()
      */
-    public function post($url, $metadata) {
+    public function post($url, $metadata, array $headers = array()) {
         $handle = curl_copy_handle($this->curlHandle);
 
         curl_setopt_array($handle, array(
@@ -130,7 +130,7 @@ class cURL implements DriverInterface {
             CURLOPT_POSTFIELDS => $metadata,
         ));
 
-        return $this->request($handle, $url);
+        return $this->request($handle, $url, $headers);
     }
 
     /**
@@ -193,7 +193,7 @@ class cURL implements DriverInterface {
     /**
      * @see ImboClient\Driver\DriverInterface::putData()
      */
-    public function putData($url, $data) {
+    public function putData($url, $data, array $headers = array()) {
         $handle = curl_copy_handle($this->curlHandle);
 
         curl_setopt_array($handle, array(
@@ -201,24 +201,24 @@ class cURL implements DriverInterface {
             CURLOPT_POSTFIELDS    => $data,
         ));
 
-        return $this->request($handle, $url);
+        return $this->request($handle, $url, $headers);
     }
 
     /**
-     * @see ImboClient\Driver\DriverInterface::addRequestHeader()
+     * @see ImboClient\Driver\DriverInterface::setRequestHeader()
      */
-    public function addRequestHeader($key, $value) {
-        $this->headers[] = $key . ': ' . $value;
+    public function setRequestHeader($key, $value) {
+        $this->headers[$key] = $value;
 
         return $this;
     }
 
     /**
-     * @see ImboClient\Driver\DriverInterface::addRequestHeaders()
+     * @see ImboClient\Driver\DriverInterface::setRequestHeaders()
      */
-    public function addRequestHeaders(array $headers) {
+    public function setRequestHeaders(array $headers) {
         foreach ($headers as $key => $value) {
-            $this->addRequestHeader($key, $value);
+            $this->setRequestHeader($key, $value);
         }
 
         return $this;
@@ -232,10 +232,11 @@ class cURL implements DriverInterface {
      *
      * @param resource $handle A cURL handle
      * @param string $url The URL to request
+     * @param array $headers Additional headers to send in this request as an associative array
      * @return ResponseInterface
      * @throws RuntimeException|ServerException
      */
-    protected function request($handle, $url) {
+    protected function request($handle, $url, array $headers = array()) {
         // Initialize options for the cURL handle
         $options = array(CURLOPT_URL => $url);
 
@@ -252,7 +253,14 @@ class cURL implements DriverInterface {
         curl_setopt_array($handle, $options);
 
         // Set extra headers
-        curl_setopt($handle, CURLOPT_HTTPHEADER, $this->headers);
+        $headers = array_merge($this->headers, $headers);
+        $requestHeaders = array();
+
+        foreach ($headers as $key => $value) {
+            $requestHeaders[] = $key . ':' . $value;
+        }
+
+        curl_setopt($handle, CURLOPT_HTTPHEADER, $requestHeaders);
 
         $content      = curl_exec($handle);
         $connectTime  = (int) curl_getinfo($handle, CURLINFO_CONNECT_TIME);

@@ -66,10 +66,11 @@ interface DriverInterface {
      *
      * @param string $url The URL to POST to
      * @param string $metadata The metadata to POST. The data must be JSON-encoded
+     * @param array $headers Additional headers to send in this request as an associative array
      * @return ResponseInterface
      * @throws RuntimeException|ServerException
      */
-    function post($url, $metadata);
+    function post($url, $metadata, array $headers = array());
 
     /**
      * PUT a file to an URL
@@ -86,10 +87,11 @@ interface DriverInterface {
      *
      * @param string $url The URL to PUT to
      * @param string $data The data to PUT
+     * @param array $headers Additional headers to send in this request as an associative array
      * @return ResponseInterface
      * @throws RuntimeException|ServerException
      */
-    function putData($url, $data);
+    function putData($url, $data, array $headers = array());
 
     /**
      * Perform a GET to $url
@@ -119,19 +121,19 @@ interface DriverInterface {
     function delete($url);
 
     /**
-     * Add a request header
+     * Set a request header
      *
      * @param string $key The header key
      * @param string $value The value to send
      * @return DriverInterface
      */
-    function addRequestHeader($key, $value);
+    function setRequestHeader($key, $value);
 
     /**
-     * Add one or more request headers
+     * Set one or more request headers
      *
      * @param array $headers Associative array
      * @return DriverInterface
      */
-    function addRequestHeaders(array $headers);
+    function setRequestHeaders(array $headers);
 }
