@@ -100,7 +100,7 @@ class Client implements ClientInterface {
             $version = new Version();
         }
 
-        $driver->addRequestHeaders(array(
+        $driver->setRequestHeaders(array(
             'Accept' => 'application/json,image/*',
             'User-Agent' => $version->getVersionString(),
         ));
@@ -243,13 +243,11 @@ class Client implements ClientInterface {
 
         $data = json_encode($metadata);
 
-        $this->driver->addRequestHeaders(array(
+        return $this->driver->post($url, $data, array(
             'Content-Type' => 'application/json',
             'Content-Length' => strlen($data),
             'Content-MD5' => md5($data),
         ));
-
-        return $this->driver->post($url, $data);
     }
 
     /**
@@ -261,13 +259,11 @@ class Client implements ClientInterface {
 
         $data = json_encode($metadata);
 
-        $this->driver->addRequestHeaders(array(
+        return $this->driver->putData($url, $data, array(
             'Content-Type' => 'application/json',
             'Content-Length' => strlen($data),
             'Content-MD5' => md5($data),
         ));
-
-        return $this->driver->putData($url, $data);
     }
 
     /**
