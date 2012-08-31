@@ -95,7 +95,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function setUp() {
         $this->driver = $this->getMock('ImboClient\Driver\DriverInterface');
-        $this->driver->expects($this->at(0))->method('addRequestHeaders')->with(array(
+        $this->driver->expects($this->at(0))->method('setRequestHeaders')->with(array(
             'Accept' => 'application/json,image/*',
             'User-Agent' => 'ImboClient-php-dev',
         ));
@@ -359,7 +359,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Client::getHostForImageIdentifier
      */
     public function testImageUrlHostnames($urls, $imageIdentifier, $expected) {
-        $client = new Client($urls, $this->publicKey, $this->privateKey);
+        $client = new Client($urls, $this->publicKey, $this->privateKey, $this->getMock('ImboClient\Driver\DriverInterface'));
 
         $reflection = new ReflectionClass($client);
         $method = $reflection->getMethod('getHostForImageIdentifier');
@@ -591,7 +591,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Client::parseUrls
      */
     public function testServerUrls($url, $expected) {
-        $client = new Client($url, 'publicKey', 'privateKey');
+        $client = new Client($url, 'publicKey', 'privateKey', $this->getMock('ImboClient\Driver\DriverInterface'));
         $urls = $client->getServerUrls();
 
         $this->assertInternalType('array', $urls);
@@ -713,7 +713,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Client::generateSignature
      */
     public function testGenerateSignature($httpMethod, $url, $timestamp, $expected) {
-        $client = new Client($this->serverUrl, $this->publicKey, $this->privateKey);
+        $client = new Client($this->serverUrl, $this->publicKey, $this->privateKey, $this->getMock('ImboClient\Driver\DriverInterface'));
 
         $reflection = new ReflectionClass($client);
         $method = $reflection->getMethod('generateSignature');
@@ -744,5 +744,28 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $status = $this->client->getServerStatus();
 
         $this->assertInternalType('array', $status);
+    }
+
+    public function getUrls() {
+        return array(
+            array('imbo', array('http://imbo')),
+            array('http://imbo', array('http://imbo')),
+            array(array('imbo', 'http://imbo', 'https://imbo', 'imbo2'), array('http://imbo', 'https://imbo', 'http://imbo2')),
+        );
+    }
+
+    /**
+     * @dataProvider getUrls()
+     * @covers ImboClient\Client::__construct
+     * @covers ImboClient\Client::parseUrls
+     */
+    public function testParseUrlsShouldAddMissingHttp($url, $expected) {
+        $client = new Client($url, $this->publicKey, $this->privateKey, $this->getMock('ImboClient\Driver\DriverInterface'));
+
+        $reflection = new ReflectionClass($client);
+        $method = $reflection->getMethod('parseUrls');
+        $method->setAccessible(true);
+
+        $this->assertSame($expected, $method->invoke($client, $url));
     }
 }

@@ -32,11 +32,11 @@
 namespace ImboClient;
 
 use ImboClient\Driver\DriverInterface,
-    ImboClient\Driver\Curl as DefaultDriver,
+    ImboClient\Driver\cURL as DefaultDriver,
     ImboClient\Url\Images\ImageInterface,
     ImboClient\Url\Images\Image,
     ImboClient\Url\Images\QueryInterface,
-    InvalidArgumentException;
+    ImboClient\Exception\InvalidArgumentException;
 
 /**
  * Client that interacts with Imbo servers
@@ -100,7 +100,7 @@ class Client implements ClientInterface {
             $version = new Version();
         }
 
-        $driver->addRequestHeaders(array(
+        $driver->setRequestHeaders(array(
             'Accept' => 'application/json,image/*',
             'User-Agent' => $version->getVersionString(),
         ));
@@ -243,13 +243,11 @@ class Client implements ClientInterface {
 
         $data = json_encode($metadata);
 
-        $this->driver->addRequestHeaders(array(
+        return $this->driver->post($url, $data, array(
             'Content-Type' => 'application/json',
             'Content-Length' => strlen($data),
             'Content-MD5' => md5($data),
         ));
-
-        return $this->driver->post($url, $data);
     }
 
     /**
@@ -261,13 +259,11 @@ class Client implements ClientInterface {
 
         $data = json_encode($metadata);
 
-        $this->driver->addRequestHeaders(array(
+        return $this->driver->putData($url, $data, array(
             'Content-Type' => 'application/json',
             'Content-Length' => strlen($data),
             'Content-MD5' => md5($data),
         ));
-
-        return $this->driver->putData($url, $data);
     }
 
     /**
@@ -508,8 +504,14 @@ class Client implements ClientInterface {
      */
     private function parseUrls($urls) {
         $urls = (array) $urls;
+        $result = array();
+        $counter = 0;
 
-        foreach ($urls as &$serverUrl) {
+        foreach ($urls as $serverUrl) {
+            if (!preg_match('|^https?://|', $serverUrl)) {
+                $serverUrl = 'http://' . $serverUrl;
+            }
+
             $parts = parse_url($serverUrl);
 
             // Remove the port from the server URL if it's equal to 80 when scheme is http, or if
@@ -527,9 +529,13 @@ class Client implements ClientInterface {
                 $serverUrl = $parts['scheme'] . '://' . $parts['host'] . $parts['path'];
             }
 
-            $serverUrl  = rtrim($serverUrl, '/');
+            $serverUrl = rtrim($serverUrl, '/');
+
+            if (!isset($result[$serverUrl])) {
+                $result[$serverUrl] = $counter++;
+            }
         }
 
-        return $urls;
+        return array_flip($result);
     }
 }

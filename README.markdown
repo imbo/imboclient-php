@@ -14,36 +14,45 @@ sudo pear config-set auto_discover 1
 sudo pear install --alldeps pear.starzinger.net/ImboClient
 ```
 
-or with [Composer](http://getcomposer.org/) by specifying `imbo/imboclient` in your dependencies.
+or with [Composer](http://getcomposer.org/) by specifying `imbo/imboclient` in your dependencies, or by running the following commands:
+
+```
+curl -s https://getcomposer.org/installer | php
+php composer.phar create-project imbo/imboclient [<dir>] [<version>]
+```
 
 You can also download [imboclient.phar](https://github.com/imbo/imboclient-php/raw/master/imboclient.phar) and simply include that file where you want to use ImboClient.
 
-## Add an image
+## Usage
+### Exceptions
+The client throws exceptions whenever an error occurs. There are currently three different exceptions you can expect:
+
+* `ImboClient\Exception\RuntimeException`
+* `ImboClient\Exception\InvalidArgumentException`
+* `ImboClient\Exception\ServerException`
+
+The server exception is thrown if the Imbo server responds with an error (status code equal to or above 400). The response object is available via the `getResponse()` method on the exception instance. The other two exceptions are thrown if some other error occurs.
+
+These exceptions all implement the `ImboClient\Exception` interface, so if you don't care about the specific error, simply catch `ImboClient\Exception`.
+
+### Add an image
 ```php
 <?php
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
 
-try {
-    $response = $client->addImage('/path/to/image.png'); // Local image
-    // OR
-    $response = $client->addImageFromString(file_get_contents('/path/to/image.png'); // In-memory image
-    // OR
-    $response = $client->addImageFromUrl('http://example.com/image.png'); // Image from URL
-    // OR
-    $imageUrl = $client->getImageUrl('<image identifier>')->resize(200);
-    $response = $client->addImageFromUrl($imageUrl); // Image from `ImboClient\Url\Image` instance
+$response = $client->addImage('/path/to/image.png'); // Local image
+// OR
+$response = $client->addImageFromString(file_get_contents('/path/to/image.png'); // In-memory image
+// OR
+$response = $client->addImageFromUrl('http://example.com/image.png'); // Image from URL
+// OR
+$imageUrl = $client->getImageUrl('<image identifier>')->resize(200);
+$response = $client->addImageFromUrl($imageUrl); // Image from `ImboClient\Url\Image` instance
 
-    if ($response->isSuccess()) {
-        echo "The image was added! Image identifier: " . $response->getImageIdentifier();
-    } else {
-        echo "The image was not added!";
-    }
-} catch (RuntimeException $e) {
-    echo "An error occured: " . $e->getMessage();
-}
-
+echo "The image was added! Image identifier: " . $response->getImageIdentifier();
 ```
-## Add/edit meta data
+
+### Add/edit meta data
 ```php
 <?php
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
@@ -57,7 +66,8 @@ $metadata = array(
 $imageIdentifier = '<image identifier>';
 $response = $client->editMetadata($imageIdentifier, $metadata);
 ```
-## Get meta data
+
+### Get meta data
 ```php
 <?php
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
@@ -65,7 +75,8 @@ $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey
 $imageIdentifier = '<image identifier>';
 $response = $client->getMetadata($imageIdentifier);
 ```
-## Delete an image
+
+### Delete an image
 ```php
 <?php
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
@@ -73,7 +84,8 @@ $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey
 $imageIdentifier = '<image identifier>';
 $response = $client->deleteImage($imageIdentifier);
 ```
-## Delete all meta data attached to an image
+
+### Delete all meta data attached to an image
 ```php
 <?php
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
@@ -81,7 +93,8 @@ $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey
 $imageIdentifier = '<image identifier>';
 $response = $client->deleteMetadata($imageIdentifier);
 ```
-## Replace existing meta data attached to an image
+
+### Replace existing meta data attached to an image
 ```php
 <?php
 $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
@@ -89,8 +102,8 @@ $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey
 $imageIdentifier = '<image identifier>';
 $response = $client->replaceMetadata($imageIdentifier, array('key' => 'value'));
 ```
-## Generate Imbo URLs
 
+### Generate Imbo URLs
 The client has several methods for fetching URLs to an Imbo installation. The following methods exist:
 
 * `getStatusUrl()` Returns an instance of `ImboClient\Url\Status`.
@@ -108,11 +121,22 @@ These classes implements the `ImboClient\Url\UrlInterface` interface which inclu
 
 When the classes listed above is used in a string context (for instance `print` or `echo`) the `getUrl()` method will be used. All URLs have an access token appended to them that is used by Imbo servers to make sure you have access to the URL you are requesting. The access token is a keyed SHA256 hash using the HMAC method. The key used is the private key given to the client upon instantiation.
 
-### Image URLs
-
+#### Image URLs
 The `ImboClient\Url\Image` class also implements some other methods that can be used to easily add transformations to the URL (which is only relevant for image URLs). All these methods can be chained and the transformations will be applied to the URL in the chained order.
 
 The `convert()` method is special in that it does not append anything to the URL, except injects an image extension to the image identifier. `convert()` (and `gif()`, `jpg()` and `png()` which proxies to `convert()`) can therefore be added anywhere in the chain.
+
+An example of how we can use the `ImboClient\Url\Image` class to resize an image while maintaining aspect ratio, then adding a border and outputting it in PNG format:
+
+```php
+<?php
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
+
+$imageIdentifier = '<image identifier>';
+$imageUrl = $client->getImageUrl($imageIdentifier);
+
+echo '<img src="' . $imageUrl->maxSize(320, 240)->border('f00baa', 2, 2)->png() . '">';
+```
 
 The transformations that can be chained are:
 
@@ -213,8 +237,7 @@ Creates a vertical mirror image by reflecting the pixels around the central x-ax
 
 Creates a horizontal mirror image by reflecting the pixels around the central y-axis while rotating them 270-degrees.
 
-## Support for multiple hostnames
-
+### Support for multiple hostnames
 Following the recommendation of the HTTP 1.1 specification, browsers typically default to two simultaneous requests per hostname. If you wish to generate URLs that point to a range of different hostnames, you can do this by passing an array of URLs to the ImboClient when instantiating:
 
 ```php

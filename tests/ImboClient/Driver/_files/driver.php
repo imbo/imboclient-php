@@ -81,4 +81,14 @@ switch ($data['method']) {
         break;
 }
 
+if (isset($_GET['clientError'])) {
+    header('HTTP/1.0 400 Bad Request');
+    echo json_encode(array('error' => array('code' => 400, 'message' => 'bad request')));
+    exit;
+} else if (isset($_GET['serverError'])) {
+    header('HTTP/1.0 500 Internal Server Error');
+    echo json_encode(array('error' => array('code' => 500, 'message' => 'internal server error')));
+    exit;
+}
+
 print(serialize($data));

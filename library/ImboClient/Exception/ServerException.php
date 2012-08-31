@@ -22,22 +22,55 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Unittests
+ * @package Exceptions
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
 
-namespace ImboClient;
+namespace ImboClient\Exception;
+
+use ImboClient\Exception,
+    ImboClient\Http\Response\ResponseInterface,
+    RuntimeException as BaseRuntimeException;
 
 /**
- * @package Unittests
+ * Runtime exception
+ *
+ * @package Exceptions
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
+class ServerException extends BaseRuntimeException implements Exception {
+    /**
+     * Response instance
+     *
+     * @var ResponseInterface
+     */
+    private $response;
 
-$autoloader = require __DIR__ . '/../vendor/autoload.php';
-$autoloader->add(__NAMESPACE__, __DIR__);
+    /**
+     * Set the response instance
+     *
+     * @param ResponseInterface $response The response object containing info about the server
+     *                                    response.
+     */
+    public function setResponse(ResponseInterface $response) {
+        $this->response = $response;
+    }
+
+    /**
+     * Get the response instance
+     *
+     * If the cURL driver causes an error that ends in the client not being able to set a proper
+     * response this method must return null.
+     *
+     * @return ResponseInterface|null
+     */
+    public function getResponse() {
+        return $this->response;
+    }
+}

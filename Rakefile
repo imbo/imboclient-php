@@ -8,13 +8,13 @@ build   = "#{basedir}/build"
 source  = "#{basedir}/library/ImboClient"
 
 desc "Task used by Jenkins-CI"
-task :jenkins => [:prepare, :phpunit, :phploc, :phpcs_ci, :phpcb, :phpcpd, :pdepend, :phpmd, :phpmd_html]
+task :jenkins => [:prepare, :lint, :composer, :test, :apidocs, :phploc, :phpcs_ci, :phpcb, :phpcpd, :pdepend, :phpmd, :phpmd_html]
 
 desc "Task used by Travis-CI"
-task :travis => [:phpunit]
+task :travis => [:composer, :test]
 
 desc "Default task"
-task :default => [:lint, :phpunit, :phpdoc, :phpcs]
+task :default => [:lint, :composer, :test, :phpcs, :apidocs]
 
 desc "Clean up and create artifact directories"
 task :prepare do
@@ -23,6 +23,21 @@ task :prepare do
 
   ["coverage", "logs", "docs", "code-browser", "pdepend"].each do |d|
     FileUtils.mkdir "#{build}/#{d}"
+  end
+end
+
+desc "Fetch or update composer.phar and update the dependencies"
+task :composer do
+  if ENV["TRAVIS"] == "true"
+    system "composer --no-ansi update --dev"
+  else
+    if File.exists?("composer.phar")
+      system "php -d \"apc.enable_cli=0\" composer.phar self-update"
+    else
+      system "curl -s http://getcomposer.org/installer | php -d \"apc.enable_cli=0\""
+    end
+
+    system "php -d \"apc.enable_cli=0\" composer.phar --no-ansi update --dev"
   end
 end
 
@@ -38,7 +53,7 @@ task :lint do
 end
 
 desc "Run PHPUnit tests (config in phpunit.xml)"
-task :phpunit do
+task :test do
   if ENV["TRAVIS"] == "true"
     puts "Opening phpunit.xml.dist"
     document = Nokogiri::XML(File.open("phpunit.xml.dist"))
@@ -50,20 +65,20 @@ task :phpunit do
     end
   end
 
-  if File.exists?("phpunit.xml")
-    begin
+  begin
+    if File.exists?("phpunit.xml")
       sh %{phpunit --verbose -c phpunit.xml}
-    rescue Exception
-      exit 1
+    else
+      puts "Using phpunit.xml.dist"
+      sh %{phpunit --verbose -c phpunit.xml.dist}
     end
-  else
-    puts "phpunit.xml does not exist"
+  rescue Exception
     exit 1
   end
 end
 
-desc "Generate API documentation using phpdoc (config in phpdoc.xml)"
-task :phpdoc do
+desc "Generate API documentation using phpdoc"
+task :apidocs do
   system "phpdoc -d #{source} -t #{build}/docs"
 end
 
@@ -334,7 +349,7 @@ desc "Publish API docs"
 task :publish_docs do
   system "git checkout master"
 
-  Rake::Task["phpdoc"].invoke
+  Rake::Task["apidocs"].invoke
 
   wd = Dir.getwd
   Dir.chdir("/home/christer/dev/imboclient-php-ghpages")

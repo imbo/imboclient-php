@@ -1,6 +1,15 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-0.6.0
+----------------
+__2012-08-31__
+
+* Fixed issue #52: Make sure that requests does not include headers from previous requests
+* Fixed issue #46: Automatically add "http://" to the server URL(s) is not specified
+* Fixed issue #45: Drivers should throw an exception if the response contains an error
+* Renamed cURL driver to `ImboClient\Driver\cURL`
+
 ImboClient-0.5.2
 ----------------
 __2012-06-21__

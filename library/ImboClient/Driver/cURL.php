@@ -32,8 +32,10 @@
 namespace ImboClient\Driver;
 
 use ImboClient\Http\Response\Response,
+    ImboClient\Http\Response\ResponseInterface,
     ImboClient\Http\HeaderContainer,
-    RuntimeException;
+    ImboClient\Exception\ServerException,
+    ImboClient\Exception\RuntimeException;
 
 /**
  * cURL client driver
@@ -46,7 +48,7 @@ use ImboClient\Http\Response\Response,
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
-class Curl implements DriverInterface {
+class cURL implements DriverInterface {
     /**
      * The cURL handle used by the client
      *
@@ -120,7 +122,7 @@ class Curl implements DriverInterface {
     /**
      * @see ImboClient\Driver\DriverInterface::post()
      */
-    public function post($url, $metadata) {
+    public function post($url, $metadata, array $headers = array()) {
         $handle = curl_copy_handle($this->curlHandle);
 
         curl_setopt_array($handle, array(
@@ -128,7 +130,7 @@ class Curl implements DriverInterface {
             CURLOPT_POSTFIELDS => $metadata,
         ));
 
-        return $this->request($handle, $url);
+        return $this->request($handle, $url, $headers);
     }
 
     /**
@@ -191,7 +193,7 @@ class Curl implements DriverInterface {
     /**
      * @see ImboClient\Driver\DriverInterface::putData()
      */
-    public function putData($url, $data) {
+    public function putData($url, $data, array $headers = array()) {
         $handle = curl_copy_handle($this->curlHandle);
 
         curl_setopt_array($handle, array(
@@ -199,24 +201,24 @@ class Curl implements DriverInterface {
             CURLOPT_POSTFIELDS    => $data,
         ));
 
-        return $this->request($handle, $url);
+        return $this->request($handle, $url, $headers);
     }
 
     /**
-     * @see ImboClient\Driver\DriverInterface::addRequestHeader()
+     * @see ImboClient\Driver\DriverInterface::setRequestHeader()
      */
-    public function addRequestHeader($key, $value) {
-        $this->headers[] = $key . ': ' . $value;
+    public function setRequestHeader($key, $value) {
+        $this->headers[$key] = $value;
 
         return $this;
     }
 
     /**
-     * @see ImboClient\Driver\DriverInterface::addRequestHeaders()
+     * @see ImboClient\Driver\DriverInterface::setRequestHeaders()
      */
-    public function addRequestHeaders(array $headers) {
+    public function setRequestHeaders(array $headers) {
         foreach ($headers as $key => $value) {
-            $this->addRequestHeader($key, $value);
+            $this->setRequestHeader($key, $value);
         }
 
         return $this;
@@ -230,10 +232,11 @@ class Curl implements DriverInterface {
      *
      * @param resource $handle A cURL handle
      * @param string $url The URL to request
-     * @return ImboClient\Http\Response\ResponseInterface
-     * @throws RuntimeException
+     * @param array $headers Additional headers to send in this request as an associative array
+     * @return ResponseInterface
+     * @throws RuntimeException|ServerException
      */
-    protected function request($handle, $url) {
+    protected function request($handle, $url, array $headers = array()) {
         // Initialize options for the cURL handle
         $options = array(CURLOPT_URL => $url);
 
@@ -250,7 +253,14 @@ class Curl implements DriverInterface {
         curl_setopt_array($handle, $options);
 
         // Set extra headers
-        curl_setopt($handle, CURLOPT_HTTPHEADER, $this->headers);
+        $headers = array_merge($this->headers, $headers);
+        $requestHeaders = array();
+
+        foreach ($headers as $key => $value) {
+            $requestHeaders[] = $key . ':' . $value;
+        }
+
+        curl_setopt($handle, CURLOPT_HTTPHEADER, $requestHeaders);
 
         $content      = curl_exec($handle);
         $connectTime  = (int) curl_getinfo($handle, CURLINFO_CONNECT_TIME);
@@ -272,7 +282,7 @@ class Curl implements DriverInterface {
         // Remove any HTTP/1.1 100 Continue from the response
         $content = preg_replace('/HTTP\/[.\d]+ 100 .*?\r\n\r\n/sm', '', $content);
 
-        // Curl will include headers from all requests if hitting 3xx responses (and CURLOPT_FOLLOWLOCATION is on)
+        // cURL will include headers from all requests if hitting 3xx responses (and CURLOPT_FOLLOWLOCATION is on)
         // Strip away all 3xx-header sets from the content, leaving only the last set of headers and the body
         $content = preg_replace('/^HTTP\/[.\d]+ 3\d+.*?\r\n\r\n/sm', '', $content);
 
@@ -293,10 +303,19 @@ class Curl implements DriverInterface {
             $headerContainer->set($key, $value);
         }
 
+        // Create the response instance
         $response = new Response();
         $response->setBody($body)
                  ->setHeaders($headerContainer)
                  ->setStatusCode($statusCode);
+
+        if ($response->isError()) {
+            // The server responded with some sort of error
+            $exception = new ServerException($response->asObject()->error->message, $response->getStatusCode());
+            $exception->setResponse($response);
+
+            throw $exception;
+        }
 
         return $response;
     }

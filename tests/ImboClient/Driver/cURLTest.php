@@ -31,6 +31,8 @@
 
 namespace ImboClient\Driver;
 
+use ImboClient\Exception\ServerException;
+
 /**
  * @package Unittests
  * @author Christer Edvartsen <cogo@starzinger.net>
@@ -38,11 +40,11 @@ namespace ImboClient\Driver;
  * @license http://www.opensource.org/licenses/mit-license MIT License
  * @link https://github.com/imbo/imboclient-php
  */
-class CurlTest extends \PHPUnit_Framework_TestCase {
+class cURLTest extends \PHPUnit_Framework_TestCase {
     /**
      * The driver instance
      *
-     * @var ImboClient\Driver\Curl
+     * @var ImboClient\Driver\cURL
      */
     private $driver;
 
@@ -61,22 +63,22 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
             $this->markTestSkipped('IMBOCLIENT_ENABLE_TESTS must be set to true to run these tests');
         }
 
-        $this->driver  = new Curl();
+        $this->driver  = new cURL();
         $this->testUrl = IMBOCLIENT_TESTS_URL;
     }
 
     /**
      * Tear down the driver
      *
-     * @covers ImboClient\Driver\Curl::__destruct
+     * @covers ImboClient\Driver\cURL::__destruct
      */
     public function tearDown() {
         $this->driver = null;
     }
 
     /**
-     * @covers ImboClient\Driver\Curl::post
-     * @covers ImboClient\Driver\Curl::request
+     * @covers ImboClient\Driver\cURL::post
+     * @covers ImboClient\Driver\cURL::request
      */
     public function testPost() {
         $metadata = array(
@@ -96,8 +98,8 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
      * then read this file and inject the md5 sum of the file into the output. This method will
      * then compute the md5 sum and make sure it's the same as the one from the test script.
      *
-     * @covers ImboClient\Driver\Curl::put
-     * @covers ImboClient\Driver\Curl::request
+     * @covers ImboClient\Driver\cURL::put
+     * @covers ImboClient\Driver\cURL::request
      */
     public function testPut() {
         $url = $this->testUrl;
@@ -109,8 +111,8 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\Driver\Curl::putData
-     * @covers ImboClient\Driver\Curl::request
+     * @covers ImboClient\Driver\cURL::putData
+     * @covers ImboClient\Driver\cURL::request
      */
     public function testPutData() {
         $file = file_get_contents(__FILE__);
@@ -124,8 +126,8 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\Driver\Curl::get
-     * @covers ImboClient\Driver\Curl::request
+     * @covers ImboClient\Driver\cURL::get
+     * @covers ImboClient\Driver\cURL::request
      */
     public function testGet() {
         $url = $this->testUrl . '?foo=bar&bar=foo';
@@ -137,8 +139,8 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\Driver\Curl::head
-     * @covers ImboClient\Driver\Curl::request
+     * @covers ImboClient\Driver\cURL::head
+     * @covers ImboClient\Driver\cURL::request
      */
     public function testHead() {
         $response = $this->driver->head($this->testUrl);
@@ -147,8 +149,8 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\Driver\Curl::delete
-     * @covers ImboClient\Driver\Curl::request
+     * @covers ImboClient\Driver\cURL::delete
+     * @covers ImboClient\Driver\cURL::request
      */
     public function testDelete() {
         $response = $this->driver->delete($this->testUrl);
@@ -158,10 +160,10 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedException An error occured. Request timed out during transfer (limit: 2s).
-     * @covers ImboClient\Driver\Curl::get
-     * @covers ImboClient\Driver\Curl::request
+     * @expectedException ImboClient\Exception\RuntimeException
+     * @expectedExceptionMessage An error occured. Request timed out during transfer (limit: 2s).
+     * @covers ImboClient\Driver\cURL::get
+     * @covers ImboClient\Driver\cURL::request
      */
     public function testReadTimeout() {
         $url = $this->testUrl . '?sleep=3';
@@ -169,22 +171,22 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedException An error occured. Request timed out during transfer (limit: 1s).
-     * @covers ImboClient\Driver\Curl::__construct
+     * @expectedException ImboClient\Exception\RuntimeException
+     * @expectedExceptionMessage An error occured. Request timed out during transfer (limit: 1s).
+     * @covers ImboClient\Driver\cURL::__construct
      */
     public function testConstructWithCustomParams() {
         $params = array(
             'timeout' => 1,
         );
-        $driver = new Curl($params);
+        $driver = new cURL($params);
         $url = $this->testUrl . '?sleep=2';
         $driver->get($url);
     }
 
     /**
-     * @covers ImboClient\Driver\Curl::post
-     * @covers ImboClient\Driver\Curl::request
+     * @covers ImboClient\Driver\cURL::post
+     * @covers ImboClient\Driver\cURL::request
      */
     public function testExpectHeaderNotPresent() {
         $postData = '{"some":"data"}';
@@ -195,7 +197,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
         $this->assertArrayNotHasKey('HTTP_EXPECT', $headers);
 
         // Add a header
-        $this->assertSame($this->driver, $this->driver->addRequestHeader('Header', 'value'));
+        $this->assertSame($this->driver, $this->driver->setRequestHeader('Header', 'value'));
 
         $url = $this->testUrl . '?headers';
         $response = $this->driver->post($url, $postData);
@@ -205,10 +207,10 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\Driver\Curl::addRequestHeader
+     * @covers ImboClient\Driver\cURL::setRequestHeader
      */
-    public function testAddRequestHeader() {
-        $this->assertSame($this->driver, $this->driver->addRequestHeader('Header', 'value'));
+    public function testSetRequestHeader() {
+        $this->assertSame($this->driver, $this->driver->setRequestHeader('Header', 'value'));
         $url = $this->testUrl . '?headers';
         $response = $this->driver->get($url);
         $headers = unserialize($response->getBody());
@@ -218,11 +220,11 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\Driver\Curl::addRequestHeader
-     * @covers ImboClient\Driver\Curl::addRequestHeaders
+     * @covers ImboClient\Driver\cURL::setRequestHeader
+     * @covers ImboClient\Driver\cURL::setRequestHeaders
      */
-    public function testAddRequestHeaders() {
-        $this->assertSame($this->driver, $this->driver->addRequestHeaders(array(
+    public function testSetRequestHeaders() {
+        $this->assertSame($this->driver, $this->driver->setRequestHeaders(array(
             'Header' => 'value',
             'User-Agent' => 'ImboClient',
         )));
@@ -237,10 +239,75 @@ class CurlTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame('ImboClient', $headers['HTTP_USER_AGENT']);
     }
 
+    /**
+     * @covers ImboClient\Driver\cURL::request
+     */
     public function testUrlThatRedirects() {
         $url = $this->testUrl . '?redirect=2';
         $response = unserialize($this->driver->get($url)->getBody());
 
         $this->assertEquals(0, $response['data']['redirect']);
+    }
+
+    /**
+     * @expectedException ImboClient\Exception\ServerException
+     * @expectedExceptionMessage bad request
+     * @expectedExceptionCode 400
+     * @covers ImboClient\Driver\cURL::request
+     */
+    public function testRequestWhenServerRespondsWithClientError() {
+        $url = $this->testUrl . '?clientError';
+
+        try {
+            $this->driver->get($url);
+            $this->fail('Expected exception');
+        } catch (ServerException $e) {
+            $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $e->getResponse());
+            throw $e;
+        }
+    }
+
+    /**
+     * @expectedException ImboClient\Exception\ServerException
+     * @expectedExceptionMessage internal server error
+     * @expectedExceptionCode 500
+     * @covers ImboClient\Driver\cURL::request
+     */
+    public function testRequestWhenServerRespondsWithServerError() {
+        $url = $this->testUrl . '?serverError';
+
+        try {
+            $this->driver->get($url);
+            $this->fail('Expected exception');
+        } catch (ServerException $e) {
+            $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $e->getResponse());
+            throw $e;
+        }
+    }
+
+    /**
+     * @see https://github.com/imbo/imboclient-php/issues/52
+     * @covers ImboClient\Driver\cURL::setRequestHeader
+     * @covers ImboClient\Driver\cURL::setRequestHeaders
+     */
+    public function testSetSameHeaderSeveralTimes() {
+        $this->driver->setRequestHeader('Foo', 'foo1');
+        $this->driver->setRequestHeader('Foo', 'foo2');
+        $this->driver->setRequestHeaders(array(
+            'Bar' => 'bar1',
+            'Bar' => 'bar2',
+            'Foo' => 'foo3',
+        ));
+
+        $reflection = new \ReflectionClass($this->driver);
+        $property = $reflection->getProperty('headers');
+        $property->setAccessible(true);
+
+        $headers = $property->getValue($this->driver);
+
+        $this->assertArrayHasKey('Foo', $headers);
+        $this->assertArrayHasKey('Bar', $headers);
+        $this->assertSame('foo3', $headers['Foo']);
+        $this->assertSame('bar2', $headers['Bar']);
     }
 }
