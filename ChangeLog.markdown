@@ -3,7 +3,7 @@ Changelog for ImboClient
 
 ImboClient-0.6.0
 ----------------
-__N/A__
+__2012-08-31__
 
 * Fixed issue #52: Make sure that requests does not include headers from previous requests
 * Fixed issue #46: Automatically add "http://" to the server URL(s) is not specified
