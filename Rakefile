@@ -65,14 +65,14 @@ task :test do
     end
   end
 
-  if File.exists?("phpunit.xml")
-    begin
+  begin
+    if File.exists?("phpunit.xml")
       sh %{phpunit --verbose -c phpunit.xml}
-    rescue Exception
-      exit 1
+    else
+      puts "Using phpunit.xml.dist"
+      sh %{phpunit --verbose -c phpunit.xml.dist}
     end
-  else
-    puts "phpunit.xml does not exist"
+  rescue Exception
     exit 1
   end
 end
