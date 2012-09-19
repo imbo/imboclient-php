@@ -310,8 +310,15 @@ class cURL implements DriverInterface {
                  ->setStatusCode($statusCode);
 
         if ($response->isError()) {
+            if (!empty($body)) {
+                $body = json_decode($body);
+                $errorMessage = $body->error->message;
+            } else {
+                $errorMessage = 'Empty body';
+            }
+
             // The server responded with some sort of error
-            $exception = new ServerException($response->asObject()->error->message, $response->getStatusCode());
+            $exception = new ServerException($errorMessage, $statusCode);
             $exception->setResponse($response);
 
             throw $exception;
