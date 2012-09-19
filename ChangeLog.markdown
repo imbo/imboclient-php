@@ -1,6 +1,12 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-0.6.1
+----------------
+__2012-09-19__
+
+* Fixed issue #55: imageExists() triggers exception if image does not exist
+
 ImboClient-0.6.0
 ----------------
 __2012-08-31__
