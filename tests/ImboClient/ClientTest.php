@@ -31,7 +31,8 @@
 
 namespace ImboClient;
 
-use ReflectionClass;
+use ImboClient\Exception\ServerException,
+    ReflectionClass;
 
 /**
  * @package Unittests
@@ -767,5 +768,14 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $method->setAccessible(true);
 
         $this->assertSame($expected, $method->invoke($client, $url));
+    }
+
+    /**
+     * @covers ImboClient\Client::imageExists
+     */
+    public function testImageExistsMustReturnFalseWhenDriverThrowsException() {
+        $imagePath = __DIR__ . '/_files/image.png';
+        $this->driver->expects($this->once())->method('head')->will($this->throwException(new ServerException()));
+        $this->assertFalse($this->client->imageExists($imagePath));
     }
 }
