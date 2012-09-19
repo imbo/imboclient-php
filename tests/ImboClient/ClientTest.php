@@ -773,9 +773,21 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     /**
      * @covers ImboClient\Client::imageExists
      */
-    public function testImageExistsMustReturnFalseWhenDriverThrowsException() {
+    public function testImageExistsMustReturnFalseWhenDriverThrowsExceptionWith404() {
         $imagePath = __DIR__ . '/_files/image.png';
-        $this->driver->expects($this->once())->method('head')->will($this->throwException(new ServerException()));
+        $this->driver->expects($this->once())->method('head')->will($this->throwException(new ServerException('Message', 404)));
         $this->assertFalse($this->client->imageExists($imagePath));
+    }
+
+    /**
+     * @expectedException ImboClient\Exception\ServerException
+     * @expectedExceptionMessage Message
+     * @expectedExceptionCode 503
+     * @covers ImboClient\Client::imageExists
+     */
+    public function testImageExistsMustReThrowExceptionWhenNot404() {
+        $imagePath = __DIR__ . '/_files/image.png';
+        $this->driver->expects($this->once())->method('head')->will($this->throwException(new ServerException('Message', 503)));
+        $this->client->imageExists($imagePath);
     }
 }

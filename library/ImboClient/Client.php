@@ -215,8 +215,11 @@ class Client implements ClientInterface {
         try {
             $response = $this->headImage($imageIdentifier);
         } catch (ServerException $e) {
-            // Most likely a 404
-            return false;
+            if ($e->getCode() === 404) {
+                return false;
+            }
+
+            throw $e;
         }
 
         return $response->getStatusCode() === 200;
