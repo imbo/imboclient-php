@@ -36,7 +36,8 @@ use ImboClient\Driver\DriverInterface,
     ImboClient\Url\Images\ImageInterface,
     ImboClient\Url\Images\Image,
     ImboClient\Url\Images\QueryInterface,
-    ImboClient\Exception\InvalidArgumentException;
+    ImboClient\Exception\InvalidArgumentException,
+    ImboClient\Exception\ServerException;
 
 /**
  * Client that interacts with Imbo servers
@@ -210,7 +211,16 @@ class Client implements ClientInterface {
      */
     public function imageExists($path) {
         $imageIdentifier = $this->getImageIdentifier($path);
-        $response = $this->headImage($imageIdentifier);
+
+        try {
+            $response = $this->headImage($imageIdentifier);
+        } catch (ServerException $e) {
+            if ($e->getCode() === 404) {
+                return false;
+            }
+
+            throw $e;
+        }
 
         return $response->getStatusCode() === 200;
     }
