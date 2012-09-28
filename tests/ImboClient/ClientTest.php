@@ -32,7 +32,8 @@
 namespace ImboClient;
 
 use ImboClient\Exception\ServerException,
-    ReflectionClass;
+    ReflectionClass,
+    ReflectionProperty;
 
 /**
  * @package Unittests
@@ -789,5 +790,15 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $imagePath = __DIR__ . '/_files/image.png';
         $this->driver->expects($this->once())->method('head')->will($this->throwException(new ServerException('Message', 503)));
         $this->client->imageExists($imagePath);
+    }
+
+    /**
+     * @covers ImboClient\Client::__construct
+     */
+    public function testClientShouldUseTheDefaultDriverIfOneIsNotSpecifiedInTheConstructor() {
+        $client = new Client('http://host', 'publicKey', 'privateKey');
+        $property = new ReflectionProperty('ImboClient\Client', 'driver');
+        $property->setAccessible(true);
+        $this->assertInstanceOf('ImboClient\Driver\cURL', $property->getValue($client));
     }
 }
