@@ -196,14 +196,9 @@ class Client implements ClientInterface {
             $url = $url->getUrl();
         }
 
-        // Fetch remote image
         $response = $this->driver->get($url);
 
-        if ($response->isSuccess()) {
-            return $this->addImageFromString($response->getBody());
-        }
-
-        return $response;
+        return $this->addImageFromString($response->getBody());
     }
 
     /**
@@ -222,7 +217,7 @@ class Client implements ClientInterface {
             throw $e;
         }
 
-        return $response->getStatusCode() === 200;
+        return true;
     }
 
     /**
@@ -302,13 +297,9 @@ class Client implements ClientInterface {
         $url = $this->getUserUrl()->getUrl();
         $response = $this->driver->get($url);
 
-        if ($response->getStatusCode() !== 200) {
-            return false;
-        }
-
         $body = json_decode($response->getBody());
 
-        return $body->numImages;
+        return (int) $body->numImages;
     }
 
     /**
@@ -346,10 +337,6 @@ class Client implements ClientInterface {
         // Fetch the response
         $response = $this->driver->get($url->getUrl());
 
-        if ($response->getStatusCode() !== 200) {
-            return false;
-        }
-
         $images = json_decode($response->getBody(), true);
         $instances = array();
 
@@ -373,13 +360,7 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::getImageDataFromUrl()
      */
     public function getImageDataFromUrl(Url\ImageInterface $url) {
-        $response = $this->driver->get($url->getUrl());
-
-        if ($response->getStatusCode() !== 200) {
-            return false;
-        }
-
-        return $response->getBody();
+        return $this->driver->get($url->getUrl())->getBody();
     }
 
     /**
@@ -387,11 +368,6 @@ class Client implements ClientInterface {
      */
     public function getImageProperties($imageIdentifier) {
         $response = $this->headImage($imageIdentifier);
-
-        if ($response->getStatusCode() !== 200) {
-            return false;
-        }
-
         $headers = $response->getHeaders();
 
         return array(
@@ -423,10 +399,20 @@ class Client implements ClientInterface {
      * @see ImboClient\ClientInterface::getServerStatus()
      */
     public function getServerStatus() {
-        $response = $this->driver->get($this->getStatusUrl()->getUrl());
-        $status = json_decode($response->getBody(), true);
+        $url = $this->getStatusUrl()->getUrl();
 
-        return $status ?: false;
+        try {
+            $response = $this->driver->get($url);
+        } catch (ServerException $e) {
+            if ($e->getCode() === 500) {
+                $response = $e->getResponse();
+            } else {
+                // re-throw same exception
+                throw $e;
+            }
+        }
+
+        return json_decode($response->getBody(), true);
     }
 
     /**
