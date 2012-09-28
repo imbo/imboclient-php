@@ -31,7 +31,9 @@
 
 namespace ImboClient\Driver;
 
-use ImboClient\Exception\ServerException;
+use ImboClient\Exception\ServerException,
+    ReflectionClass,
+    ReflectionProperty;
 
 /**
  * @package Unittests
@@ -299,7 +301,7 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
             'Foo' => 'foo3',
         ));
 
-        $reflection = new \ReflectionClass($this->driver);
+        $reflection = new ReflectionClass($this->driver);
         $property = $reflection->getProperty('headers');
         $property->setAccessible(true);
 
@@ -309,5 +311,35 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('Bar', $headers);
         $this->assertSame('foo3', $headers['Foo']);
         $this->assertSame('bar2', $headers['Bar']);
+    }
+
+    /**
+     * @covers ImboClient\Driver\cURL::__construct
+     */
+    public function testDriverShouldMergeCustomcURLOptionsWithDefaultOptionsWhenSpecified() {
+        $driver = new cURL(array(), array(
+            CURLOPT_TIMEOUT => 666,
+            CURLOPT_CONNECTTIMEOUT => 333,
+        ));
+
+        $property = new ReflectionProperty('ImboClient\Driver\cURL', 'curlOptions');
+        $property->setAccessible(true);
+
+        $options = $property->getValue($driver);
+
+        $this->assertSame(666, $options[CURLOPT_TIMEOUT]);
+        $this->assertSame(333, $options[CURLOPT_CONNECTTIMEOUT]);
+    }
+
+    /**
+     * @expectedException ImboClient\Exception\ServerException
+     * @expectedExceptionMessage Empty body
+     * @expectedExceptionCode 500
+     * @covers ImboClient\Driver\cURL::request
+     */
+    public function testDriverMustSetDefaultErrorMessageWhenResponseBodyIsEmpty() {
+        $url = $this->testUrl . '?serverError&emptyBody';
+
+        $this->driver->get($url);
     }
 }

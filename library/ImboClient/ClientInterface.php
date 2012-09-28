@@ -188,41 +188,31 @@ interface ClientInterface {
     /**
      * Get the number of images currently stored on the server
      *
-     * If the server responds with an error, this method must return false.
-     *
-     * @return int|boolean
+     * @return int
      */
     function getNumImages();
 
     /**
      * Get an array of images currently stored on the server
      *
-     * If the server responds with an error, this method must return false.
-     *
      * @param ImboClient\Url\Images\QueryInterface $query A query instance
-     * @return array|boolean Returns false on error, and an array of
-     *                       ImboClient\Url\Images\ImageInterface instances on success (can be
-     *                       empty)
+     * @return ImageInterface[] Returns an array with images (can be empty)
      */
     function getImages(QueryInterface$query = null);
 
     /**
      * Get the binary data of an image stored on the server
      *
-     * If the server responds with an error, this method must return false.
-     *
      * @param string $imageIdentifier The image identifier
-     * @return string|boolean
+     * @return string
      */
     function getImageData($imageIdentifier);
 
     /**
      * Get the binary data of an image stored on the server
      *
-     * If the server responds with an error, this method must return false.
-     *
      * @param ImboClient\Url\ImageInterface $url URL instance for the image you want to retrieve
-     * @return string|boolean
+     * @return string
      */
     function getImageDataFromUrl(Url\ImageInterface $url);
 
@@ -235,10 +225,8 @@ interface ClientInterface {
      * - height: Height of the image in pixels
      * - size: Size of the image in bytes
      *
-     * If the image does not exist on the server, this method returns false.
-     *
      * @param string $imageIdentifier The image identifier
-     * @return array|boolean
+     * @return array
      */
     function getImageProperties($imageIdentifier);
 
@@ -261,7 +249,7 @@ interface ClientInterface {
     /**
      * Get the server status
      *
-     * @return array|boolean Returns false on error or an array with the server status on success.
+     * @return array Returns an array with the server status
      */
     function getServerStatus();
 }

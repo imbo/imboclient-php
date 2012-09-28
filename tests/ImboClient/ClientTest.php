@@ -32,7 +32,8 @@
 namespace ImboClient;
 
 use ImboClient\Exception\ServerException,
-    ReflectionClass;
+    ReflectionClass,
+    ReflectionProperty;
 
 /**
  * @package Unittests
@@ -164,7 +165,6 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $data = 'binary image data';
 
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('isSuccess')->will($this->returnValue(true));
         $response->expects($this->once())->method('getBody')->will($this->returnValue($data));
 
         $this->driver->expects($this->once())->method('get')->with($url)->will($this->returnValue($response));
@@ -184,7 +184,6 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $imageUrl->expects($this->once())->method('getUrl')->will($this->returnValue($url));
 
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('isSuccess')->will($this->returnValue(true));
         $response->expects($this->once())->method('getBody')->will($this->returnValue($data));
 
         $this->driver->expects($this->once())->method('get')->with($url)->will($this->returnValue($response));
@@ -194,15 +193,17 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @expectedException ImboClient\Exception\ServerException
+     * @expectedExceptionMessage Image does not exist
+     * @expectedExceptionCode 404
      * @covers ImboClient\Client::addImageFromUrl
      */
     public function testAddImageFromUrlWithInvalidUrl() {
         $url = 'http://example.com/image.jpg';
 
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('isSuccess')->will($this->returnValue(false));
 
-        $this->driver->expects($this->once())->method('get')->with($url)->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('get')->with($url)->will($this->throwException(new ServerException('Image does not exist', 404)));
         $this->assertSame($response, $this->client->addImageFromUrl($url));
     }
 
@@ -296,9 +297,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     public function testImageExistsWhenRemoteImageDoesNotExist() {
         $imagePath = __DIR__ . '/_files/image.png';
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(404));
 
-        $this->driver->expects($this->once())->method('head')->with($this->isType('string'))->will($this->returnValue($response));
+        $this->driver->expects($this->once())->method('head')->with($this->isType('string'))->will($this->throwException(new ServerException('Image does not exist', 404)));
 
         $this->assertFalse($this->client->imageExists($imagePath));
     }
@@ -309,7 +309,6 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     public function testImageExistsWhenRemoteImageExist() {
         $imagePath = __DIR__ . '/_files/image.png';
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
 
         $this->driver->expects($this->once())->method('head')->with($this->isType('string'))->will($this->returnValue($response));
 
@@ -402,24 +401,11 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function testGetNumImages() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
         $response->expects($this->once())->method('getBody')->will($this->returnValue(json_encode(array('numImages' => 42))));
 
         $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
 
         $this->assertSame(42, $this->client->getNumImages());
-    }
-
-    /**
-     * @covers ImboClient\Client::getNumImages
-     */
-    public function testGetNumImagesWhenServerRespondsWithAnError() {
-        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(500));
-
-        $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
-
-        $this->assertFalse($this->client->getNumImages());
     }
 
     /**
@@ -466,7 +452,6 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function testGetImages($data) {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
         $response->expects($this->once())->method('getBody')->will($this->returnValue($data));
 
         $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
@@ -484,7 +469,6 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function testGetImagesWithQuery($data) {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
         $response->expects($this->once())->method('getBody')->will($this->returnValue($data));
 
         $this->driver->expects($this->once())->method('get')->with($this->stringContains('page=3&limit=5&query=' . urlencode('{"foo":"bar"}')))->will($this->returnValue($response));
@@ -502,26 +486,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\Client::getImages
-     */
-    public function testGetImagesWhenServerRespondsWithAnError() {
-        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(500));
-
-        $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
-
-        $this->assertFalse($this->client->getImages());
-    }
-
-    /**
      * @covers ImboClient\Client::getImageData
      * @covers ImboClient\Client::getImageDataFromUrl
      */
-    public function testGetImageData() {
+    public function testGetImageDataReturnsBinaryDataWhenNoErrorOccurs() {
         $expectedData = 'someBinaryImageData';
 
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
         $response->expects($this->once())->method('getBody')->will($this->returnValue($expectedData));
 
         $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
@@ -530,28 +501,14 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ImboClient\Client::getImageData
      * @covers ImboClient\Client::getImageDataFromUrl
      */
-    public function testGetImageDataWhenServerRespondsWithAnError() {
-        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(500));
-
-        $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
-
-        $this->assertSame(false, $this->client->getImageData($this->imageIdentifier));
-    }
-
-    /**
-     * @covers ImboClient\Client::getImageDataFromUrl
-     */
-    public function testGetImageDataFromUrl() {
+    public function testGetImageDataFromUrlReturnsBinaryDataWhenNoErrorOccurs() {
         $expectedData = 'someBinaryImageData';
 
         $imageUrl = $this->client->getImageUrl(md5(microtime()));
 
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
         $response->expects($this->once())->method('getBody')->will($this->returnValue($expectedData));
 
         $regex = '|^http://host/users/[a-zA-Z0-9]{3,}/images/[a-f0-9]{32}\?t\[\]=|';
@@ -603,17 +560,6 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     /**
      * @covers ImboClient\Client::getImageProperties
      */
-    public function testGetImagePropertiesWithImageThatDoesNotExist() {
-        $image = '8f552ba2a350be7ac19399365a738202';
-        $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(404));
-        $this->driver->expects($this->once())->method('head')->will($this->returnValue($response));
-        $this->assertFalse($this->client->getImageProperties($image));
-    }
-
-    /**
-     * @covers ImboClient\Client::getImageProperties
-     */
     public function testGetImagePropertiesWithImageThatExists() {
         $image = '8f552ba2a350be7ac19399365a738202';
         $headers = $this->getMock('ImboClient\Http\HeaderContainerInterface');
@@ -626,7 +572,6 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         }));
 
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('getStatusCode')->will($this->returnValue(200));
         $response->expects($this->once())->method('getHeaders')->will($this->returnValue($headers));
 
         $this->driver->expects($this->once())->method('head')->will($this->returnValue($response));
@@ -726,27 +671,53 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     /**
      * @covers ImboClient\Client::getServerStatus
      */
-    public function testGetServerStatusWhenServerResponseWithUnsupportedData() {
+    public function testGetServerStatusReturnsStatusWhenServerRespondsWithHTTP500() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('getBody')->will($this->returnValue('some string'));
-        $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
+        $response->expects($this->once())->method('getBody')->will($this->returnValue('{"date":"some date","database":true,"storage":false}'));
 
-        $this->assertFalse($this->client->getServerStatus());
+        $exception = new ServerException('Internal server error', 500);
+        $exception->setResponse($response);
+
+        $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->throwException($exception));
+
+        $status = $this->client->getServerStatus();
+
+        $this->assertInternalType('array', $status);
+        $this->assertTrue($status['database']);
+        $this->assertFalse($status['storage']);
+    }
+
+    /**
+     * @expectedException ImboClient\Exception\ServerException
+     * @expectedExceptionMessage Bad Request
+     * @expectedExceptionCode 400
+     * @covers ImboClient\Client::getServerStatus
+     */
+    public function testGetServerStatusThrowsExceptionWhenServerReturnsWithAnErrorThatIsNotHTTP500() {
+        $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->throwException(new ServerException('Bad Request', 400)));
+        $this->client->getServerStatus();
     }
 
     /**
      * @covers ImboClient\Client::getServerStatus
      */
-    public function testGetServerStatus() {
+    public function testGetServerStatusReturnsStatusWhenServerRespondsWithHTTP200() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
-        $response->expects($this->once())->method('getBody')->will($this->returnValue('{"date":"some date","database":true,"storage":false}'));
+        $response->expects($this->once())->method('getBody')->will($this->returnValue('{"date":"some date","database":true,"storage":true}'));
         $this->driver->expects($this->once())->method('get')->with($this->isType('string'))->will($this->returnValue($response));
 
         $status = $this->client->getServerStatus();
 
         $this->assertInternalType('array', $status);
+        $this->assertTrue($status['database']);
+        $this->assertTrue($status['storage']);
     }
 
+    /**
+     * Data provider
+     *
+     * @return array[]
+     */
     public function getUrls() {
         return array(
             array('imbo', array('http://imbo')),
@@ -789,5 +760,15 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $imagePath = __DIR__ . '/_files/image.png';
         $this->driver->expects($this->once())->method('head')->will($this->throwException(new ServerException('Message', 503)));
         $this->client->imageExists($imagePath);
+    }
+
+    /**
+     * @covers ImboClient\Client::__construct
+     */
+    public function testClientShouldUseTheDefaultDriverIfOneIsNotSpecifiedInTheConstructor() {
+        $client = new Client('http://host', 'publicKey', 'privateKey');
+        $property = new ReflectionProperty('ImboClient\Client', 'driver');
+        $property->setAccessible(true);
+        $this->assertInstanceOf('ImboClient\Driver\cURL', $property->getValue($client));
     }
 }
