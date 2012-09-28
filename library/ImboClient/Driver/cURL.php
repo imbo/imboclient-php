@@ -57,6 +57,13 @@ class cURL implements DriverInterface {
     private $curlHandle;
 
     /**
+     * Options for cURL
+     *
+     * @var array
+     */
+    private $curlOptions;
+
+    /**
      * Request headers
      *
      * @var array
@@ -96,7 +103,7 @@ class cURL implements DriverInterface {
         }
 
         // Default cURL options
-        $options = array(
+        $this->curlOptions = array(
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HEADER         => true,
             CURLOPT_CONNECTTIMEOUT => $this->params['connectTimeout'],
@@ -106,10 +113,10 @@ class cURL implements DriverInterface {
 
         if (!empty($curlOptions)) {
             // Merge with user specified options, overwriting default values
-            $options = $curlOptions + $options;
+            $this->curlOptions = $curlOptions + $this->curlOptions;
         }
 
-        curl_setopt_array($this->curlHandle, $options);
+        curl_setopt_array($this->curlHandle, $this->curlOptions);
     }
 
     /**
