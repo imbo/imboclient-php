@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Url
+ * @package ImboClient\Urls
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -34,7 +34,7 @@ namespace ImboClient\Url;
 /**
  * Access token implementation
  *
- * @package Url
+ * @package ImboClient\Urls
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -42,7 +42,7 @@ namespace ImboClient\Url;
  */
 class AccessToken implements AccessTokenInterface {
     /**
-     * @see ImboClient\Url\AccessTokenInterface::generateToken()
+     * {@inheritdoc}
      */
     public function generateToken($url, $key) {
         return hash_hmac('sha256', $url, $key);

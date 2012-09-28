@@ -22,8 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Interfaces
- * @subpackage Http
+ * @package ImboClient\Interfaces
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -35,8 +34,7 @@ namespace ImboClient\Http;
 /**
  * Parameter container interface
  *
- * @package Interfaces
- * @subpackage Http
+ * @package ImboClient\Interfaces
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -55,7 +53,7 @@ interface HeaderContainerInterface {
      *
      * @param string $key The key to store the value to
      * @param mixed $value The value itself
-     * @return ImboClient\Http\HeaderContainerInterface
+     * @return HeaderContainerInterface
      */
     function set($key, $value);
 
@@ -72,7 +70,7 @@ interface HeaderContainerInterface {
      * Remove a single value from the parameter list
      *
      * @param string $key The key to remove
-     * @return ImboClient\Http\HeaderContainerInterface
+     * @return HeaderContainerInterface
      */
     function remove($key);
 

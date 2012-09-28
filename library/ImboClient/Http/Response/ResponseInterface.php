@@ -22,8 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Interfaces
- * @subpackage Http\Response
+ * @package ImboClient\Interfaces
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -37,8 +36,7 @@ use ImboClient\Http\HeaderContainerInterface;
 /**
  * Client response interface
  *
- * @package Interfaces
- * @subpackage Http\Response
+ * @package ImboClient\Interfaces
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -69,15 +67,15 @@ interface ResponseInterface {
     /**
      * Get the headers
      *
-     * @return ImboClient\Http\HeaderContainerInterface
+     * @return HeaderContainerInterface
      */
     function getHeaders();
 
     /**
      * Set the headers
      *
-     * @param ImboClient\Http\HeaderContainerInterface $headers The headers to set
-     * @return ImboClient\Http\Response\ResponseInterface
+     * @param HeaderContainerInterface $headers The headers to set
+     * @return ResponseInterface
      */
     function setHeaders(HeaderContainerInterface $headers);
 
@@ -92,7 +90,7 @@ interface ResponseInterface {
      * Set the body contents
      *
      * @param string $body The string to set
-     * @return ImboClient\Http\Response\ResponseInterface
+     * @return ResponseInterface
      */
     function setBody($body);
 
@@ -107,7 +105,7 @@ interface ResponseInterface {
      * Set the status code
      *
      * @param int $code The HTTP status code to set
-     * @return ImboClient\Http\Response\ResponseInterface
+     * @return ResponseInterface
      */
     function setStatusCode($code);
 
