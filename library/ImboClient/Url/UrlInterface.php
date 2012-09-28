@@ -22,8 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Interfaces
- * @subpackage Url
+ * @package ImboClient\Interfaces
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -35,8 +34,7 @@ namespace ImboClient\Url;
 /**
  * Base interface for imbo URL's
  *
- * @package Interfaces
- * @subpackage Url
+ * @package ImboClient\Interfaces
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -60,7 +58,7 @@ interface UrlInterface {
     /**
      * Resets the URL - removes all query parameters
      *
-     * @return ImboClient\Url\UrlInterface
+     * @return UrlInterface
      */
     function reset();
 
@@ -69,7 +67,7 @@ interface UrlInterface {
      *
      * @param string $key The name of the param. For instance "page" or "t[]"
      * @param string $value The value of the param. For instance "10" or "border:width=50,height=50"
-     * @return ImboClient\Url\UrlInterface
+     * @return UrlInterface
      */
     function addQueryParam($key, $value);
 
@@ -88,7 +86,7 @@ interface UrlInterface {
      * @param string $method The method called (will be used as query parameter name)
      * @param array $args Arguments to the method. The first argument will be used as query
      *                    parameter value
-     * @return ImboClient\Url\UrlInterface
+     * @return UrlInterface
      */
     function __call($method, array $args);
 

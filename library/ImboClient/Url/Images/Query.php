@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Url\Images
+ * @package ImboClient\Urls
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
@@ -35,7 +35,7 @@ namespace ImboClient\Url\Images;
 /**
  * Query object for the images resource
  *
- * @package Url\Images
+ * @package ImboClient\Urls
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
@@ -86,7 +86,7 @@ class Query implements QueryInterface {
     private $to;
 
     /**
-     * @see ImboClient\Url\Images\QueryInterface::page()
+     * {@inheritdoc}
      */
     public function page($page = null) {
         if ($page === null) {
@@ -99,7 +99,7 @@ class Query implements QueryInterface {
     }
 
     /**
-     * @see ImboClient\Url\Images\QueryInterface::limit()
+     * {@inheritdoc}
      */
     public function limit($limit = null) {
         if ($limit === null) {
@@ -112,7 +112,7 @@ class Query implements QueryInterface {
     }
 
     /**
-     * @see ImboClient\Url\Images\QueryInterface::returnMetadata()
+     * {@inheritdoc}
      */
     public function returnMetadata($returnMetadata = null) {
         if ($returnMetadata === null) {
@@ -125,7 +125,7 @@ class Query implements QueryInterface {
     }
 
     /**
-     * @see ImboClient\Url\Images\QueryInterface::metadataQuery()
+     * {@inheritdoc}
      */
     public function metadataQuery(array $metadataQuery = null) {
         if ($metadataQuery === null) {
@@ -138,7 +138,7 @@ class Query implements QueryInterface {
     }
 
     /**
-     * @see ImboClient\Url\Images\QueryInterface::from()
+     * {@inheritdoc}
      */
     public function from($from = null) {
         if ($from === null) {
@@ -151,7 +151,7 @@ class Query implements QueryInterface {
     }
 
     /**
-     * @see ImboClient\Url\Images\QueryInterface::to()
+     * {@inheritdoc}
      */
     public function to($to = null) {
         if ($to === null) {

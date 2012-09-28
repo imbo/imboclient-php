@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Http
+ * @package ImboClient\Http
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -36,7 +36,7 @@ namespace ImboClient\Http;
  *
  * This container contains HTTP headers along with some methods for normalizing the header names.
  *
- * @package Http
+ * @package ImboClient\Http
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -62,14 +62,14 @@ class HeaderContainer implements HeaderContainerInterface {
     }
 
     /**
-     * @see ImboClient\Http\HeaderContainerInterface::getAll()
+     * {@inheritdoc}
      */
     public function getAll() {
         return $this->parameters;
     }
 
     /**
-     * @see ImboClient\Http\HeaderContainerInterface::set()
+     * {@inheritdoc}
      */
     public function set($key, $value) {
         $key = $this->getName($key);
@@ -79,7 +79,7 @@ class HeaderContainer implements HeaderContainerInterface {
     }
 
     /**
-     * @see ImboClient\Http\HeaderContainerInterface::get()
+     * {@inheritdoc}
      */
     public function get($key, $default = null) {
         $key = $this->getName($key);
@@ -88,7 +88,7 @@ class HeaderContainer implements HeaderContainerInterface {
     }
 
     /**
-     * @see ImboClient\Http\HeaderContainerInterface::remove()
+     * {@inheritdoc}
      */
     public function remove($key) {
         $key = $this->getName($key);
@@ -98,7 +98,7 @@ class HeaderContainer implements HeaderContainerInterface {
     }
 
     /**
-     * @see ImboClient\Http\HeaderContainerInterface::has()
+     * {@inheritdoc}
      */
     public function has($key) {
         $key = $this->getName($key);
@@ -115,5 +115,4 @@ class HeaderContainer implements HeaderContainerInterface {
     private function getName($name) {
         return strtolower(str_replace('_', '-', $name));
     }
-
 }

@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Url
+ * @package ImboClient\Urls
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -34,7 +34,7 @@ namespace ImboClient\Url;
 /**
  * Status URL
  *
- * @package Url
+ * @package ImboClient\Urls
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -42,7 +42,7 @@ namespace ImboClient\Url;
  */
 class Status extends Url implements UrlInterface {
     /**
-     * @see ImboClient\Url\Url::getResourceUrl()
+     * {@inheritdoc}
      */
     protected function getResourceUrl() {
         return sprintf(

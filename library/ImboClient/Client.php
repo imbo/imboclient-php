@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Client
+ * @package ImboClient\Client
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -44,7 +44,7 @@ use ImboClient\Driver\DriverInterface,
  *
  * This client includes methods that can be used to easily interact with Imbo servers.
  *
- * @package Client
+ * @package ImboClient\Client
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -61,7 +61,7 @@ class Client implements ClientInterface {
     /**
      * Driver used by the client
      *
-     * @var ImboClient\Driver\DriverInterface
+     * @var DriverInterface
      */
     private $driver;
 
@@ -85,8 +85,8 @@ class Client implements ClientInterface {
      * @param array|string $serverUrls One or more URLs to the Imbo server, including protocol
      * @param string $publicKey The public key to use
      * @param string $privateKey The private key to use
-     * @param ImboClient\Driver\DriverInterface $driver Optional driver to set
-     * @param ImboClient\Version $version A version instance
+     * @param DriverInterface $driver Optional driver to set
+     * @param Version $version A version instance
      */
     public function __construct($serverUrls, $publicKey, $privateKey, DriverInterface $driver = null, Version $version = null) {
         $this->serverUrls = $this->parseUrls($serverUrls);
@@ -110,14 +110,14 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::getServerUrls()
+     * {@inheritdoc}
      */
     public function getServerUrls() {
         return $this->serverUrls;
     }
 
     /**
-     * @see ImboClient\ClientInterface::setDriver()
+     * {@inheritdoc}
      */
     public function setDriver(DriverInterface $driver) {
         $this->driver = $driver;
@@ -126,28 +126,28 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::getStatusUrl()
+     * {@inheritdoc}
      */
     public function getStatusUrl() {
         return new Url\Status($this->serverUrls[0]);
     }
 
     /**
-     * @see ImboClient\ClientInterface::getUserUrl()
+     * {@inheritdoc}
      */
     public function getUserUrl() {
         return new Url\User($this->serverUrls[0], $this->publicKey, $this->privateKey);
     }
 
     /**
-     * @see ImboClient\ClientInterface::getImagesUrl()
+     * {@inheritdoc}
      */
     public function getImagesUrl() {
         return new Url\Images($this->serverUrls[0], $this->publicKey, $this->privateKey);
     }
 
     /**
-     * @see ImboClient\ClientInterface::getImageUrl()
+     * {@inheritdoc}
      */
     public function getImageUrl($imageIdentifier) {
         $hostname = $this->getHostForImageIdentifier($imageIdentifier);
@@ -156,7 +156,7 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::getMetadataUrl()
+     * {@inheritdoc}
      */
     public function getMetadataUrl($imageIdentifier) {
         $hostname = $this->getHostForImageIdentifier($imageIdentifier);
@@ -165,7 +165,7 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::addImage()
+     * {@inheritdoc}
      */
     public function addImage($path) {
         $imageIdentifier = $this->getImageIdentifier($path);
@@ -177,7 +177,7 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::addImageFromString()
+     * {@inheritdoc}
      */
     public function addImageFromString($image) {
         $imageIdentifier = $this->getImageIdentifierFromString($image);
@@ -189,7 +189,7 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::addImageFromUrl()
+     * {@inheritdoc}
      */
     public function addImageFromUrl($url) {
         if ($url instanceof Url\ImageInterface) {
@@ -202,7 +202,7 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::imageExists()
+     * {@inheritdoc}
      */
     public function imageExists($path) {
         $imageIdentifier = $this->getImageIdentifier($path);
@@ -221,7 +221,7 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::headImage()
+     * {@inheritdoc}
      */
     public function headImage($imageIdentifier) {
         $url = $this->getImageUrl($imageIdentifier)->getUrl();
@@ -230,7 +230,7 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::deleteImage()
+     * {@inheritdoc}
      */
     public function deleteImage($imageIdentifier) {
         $imageUrl = $this->getImageUrl($imageIdentifier)->getUrl();
@@ -240,7 +240,7 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::editMetadata()
+     * {@inheritdoc}
      */
     public function editMetadata($imageIdentifier, array $metadata) {
         $metadataUrl = $this->getMetadataUrl($imageIdentifier)->getUrl();
@@ -256,7 +256,7 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::replaceMetadata()
+     * {@inheritdoc}
      */
     public function replaceMetadata($imageIdentifier, array $metadata) {
         $metadataUrl = $this->getMetadataUrl($imageIdentifier)->getUrl();
@@ -272,7 +272,7 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::deleteMetadata()
+     * {@inheritdoc}
      */
     public function deleteMetadata($imageIdentifier) {
         $metadataUrl = $this->getMetadataUrl($imageIdentifier)->getUrl();
@@ -282,7 +282,7 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::getMetadata()
+     * {@inheritdoc}
      */
     public function getMetadata($imageIdentifier) {
         $url = $this->getMetadataUrl($imageIdentifier)->getUrl();
@@ -291,7 +291,7 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::getNumImages()
+     * {@inheritdoc}
      */
     public function getNumImages() {
         $url = $this->getUserUrl()->getUrl();
@@ -303,7 +303,7 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::getImages()
+     * {@inheritdoc}
      */
     public function getImages(QueryInterface $query = null) {
         $params = array();
@@ -348,7 +348,7 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::getImageData()
+     * {@inheritdoc}
      */
     public function getImageData($imageIdentifier) {
         $url = $this->getImageUrl($imageIdentifier);
@@ -357,14 +357,14 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::getImageDataFromUrl()
+     * {@inheritdoc}
      */
     public function getImageDataFromUrl(Url\ImageInterface $url) {
         return $this->driver->get($url->getUrl())->getBody();
     }
 
     /**
-     * @see ImboClient\ClientInterface::getImageProperties()
+     * {@inheritdoc}
      */
     public function getImageProperties($imageIdentifier) {
         $response = $this->headImage($imageIdentifier);
@@ -378,7 +378,7 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::getImageIdentifier()
+     * {@inheritdoc}
      */
     public function getImageIdentifier($path) {
         $this->validateLocalFile($path);
@@ -389,14 +389,14 @@ class Client implements ClientInterface {
     }
 
     /**
-     * @see ImboClient\ClientInterface::getImageIdentifierFromString()
+     * {@inheritdoc}
      */
     public function getImageIdentifierFromString($image) {
         return $this->generateImageIdentifier($image);
     }
 
     /**
-     * @see ImboClient\ClientInterface::getServerStatus()
+     * {@inheritdoc}
      */
     public function getServerStatus() {
         $url = $this->getStatusUrl()->getUrl();

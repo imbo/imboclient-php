@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Driver
+ * @package ImboClient\Drivers
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -42,7 +42,7 @@ use ImboClient\Http\Response\Response,
  *
  * This class is a driver for the client using the cURL functions.
  *
- * @package Driver
+ * @package ImboClient\Drivers
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -127,7 +127,7 @@ class cURL implements DriverInterface {
     }
 
     /**
-     * @see ImboClient\Driver\DriverInterface::post()
+     * {@inheritdoc}
      */
     public function post($url, $metadata, array $headers = array()) {
         $handle = curl_copy_handle($this->curlHandle);
@@ -141,7 +141,7 @@ class cURL implements DriverInterface {
     }
 
     /**
-     * @see ImboClient\Driver\DriverInterface::get()
+     * {@inheritdoc}
      */
     public function get($url) {
         $handle = curl_copy_handle($this->curlHandle);
@@ -154,7 +154,7 @@ class cURL implements DriverInterface {
     }
 
     /**
-     * @see ImboClient\Driver\DriverInterface::head()
+     * {@inheritdoc}
      */
     public function head($url) {
         $handle = curl_copy_handle($this->curlHandle);
@@ -168,7 +168,7 @@ class cURL implements DriverInterface {
     }
 
     /**
-     * @see ImboClient\Driver\DriverInterface::delete()
+     * {@inheritdoc}
      */
     public function delete($url) {
         $handle = curl_copy_handle($this->curlHandle);
@@ -181,7 +181,7 @@ class cURL implements DriverInterface {
     }
 
     /**
-     * @see ImboClient\Driver\DriverInterface::put()
+     * {@inheritdoc}
      */
     public function put($url, $filePath) {
         $fr = fopen($filePath, 'r');
@@ -198,7 +198,7 @@ class cURL implements DriverInterface {
     }
 
     /**
-     * @see ImboClient\Driver\DriverInterface::putData()
+     * {@inheritdoc}
      */
     public function putData($url, $data, array $headers = array()) {
         $handle = curl_copy_handle($this->curlHandle);
@@ -212,7 +212,7 @@ class cURL implements DriverInterface {
     }
 
     /**
-     * @see ImboClient\Driver\DriverInterface::setRequestHeader()
+     * {@inheritdoc}
      */
     public function setRequestHeader($key, $value) {
         $this->headers[$key] = $value;
@@ -221,7 +221,7 @@ class cURL implements DriverInterface {
     }
 
     /**
-     * @see ImboClient\Driver\DriverInterface::setRequestHeaders()
+     * {@inheritdoc}
      */
     public function setRequestHeaders(array $headers) {
         foreach ($headers as $key => $value) {

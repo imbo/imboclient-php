@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Url
+ * @package ImboClient\Urls
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -34,7 +34,7 @@ namespace ImboClient\Url;
 /**
  * Abstract imbo URL for other implementations to extend
  *
- * @package Url
+ * @package ImboClient\Urls
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -65,7 +65,7 @@ abstract class Url implements UrlInterface {
     /**
      * Access token generator
      *
-     * @var ImboClient\Url\AccessTokenInterface
+     * @var AccessTokenInterface
      */
     private $accessToken;
 
@@ -90,7 +90,7 @@ abstract class Url implements UrlInterface {
     }
 
     /**
-     * @see ImboClient\Url\UrlInterface::getUrl()
+     * {@inheritdoc}
      */
     public function getUrl() {
         $url = $this->getResourceUrl();
@@ -111,7 +111,7 @@ abstract class Url implements UrlInterface {
     }
 
     /**
-     * @see ImboClient\Url\UrlInterface::getUrlEncoded()
+     * {@inheritdoc}
      */
     public function getUrlEncoded() {
         $url = $this->getUrl();
@@ -124,14 +124,14 @@ abstract class Url implements UrlInterface {
     }
 
     /**
-     * @see ImboClient\Url\UrlInterface::__toString()
+     * {@inheritdoc}
      */
     public function __toString() {
         return $this->getUrl();
     }
 
     /**
-     * @see ImboClient\Url\UrlInterface::__call()
+     * {@inheritdoc}
      */
     public function __call($method, array $args) {
         if (!count($args)) {
@@ -142,7 +142,7 @@ abstract class Url implements UrlInterface {
     }
 
     /**
-     * @see ImboClient\Url\UrlInterface::addQueryParam()
+     * {@inheritdoc}
      */
     public function addQueryParam($key, $value) {
         $this->queryParams[] = $key . '=' . urlencode($value);
@@ -151,7 +151,7 @@ abstract class Url implements UrlInterface {
     }
 
     /**
-     * @see ImboClient\Url\UrlInterface::reset()
+     * {@inheritdoc}
      */
     public function reset() {
         $this->queryParams = array();
@@ -165,7 +165,7 @@ abstract class Url implements UrlInterface {
      * If no instance have been provided prior to calling this method, this method must instantiate
      * the ImboClient\Url\AccessToken class and return that instance.
      *
-     * @return ImboClient\Url\AccessTokenInterface
+     * @return AccessTokenInterface
      */
     public function getAccessToken() {
         if ($this->accessToken === null) {
@@ -178,8 +178,8 @@ abstract class Url implements UrlInterface {
     /**
      * Set an instance of the access token
      *
-     * @return ImboClient\Url\AccessTokenInterface $accessToken An instance of the access token
-     * @return ImboClient\Url\UrlInterface
+     * @return AccessTokenInterface $accessToken An instance of the access token
+     * @return UrlInterface
      */
     public function setAccessToken(AccessTokenInterface $accessToken) {
         $this->accessToken = $accessToken;

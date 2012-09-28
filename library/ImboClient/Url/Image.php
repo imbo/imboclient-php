@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Url
+ * @package ImboClient\Urls
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -34,7 +34,7 @@ namespace ImboClient\Url;
 /**
  * Image URL
  *
- * @package Url
+ * @package ImboClient\Urls
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -51,7 +51,7 @@ class Image extends Url implements ImageInterface {
     /**
      * Class constructor
      *
-     * @see ImboClient\Url\Url::__construct()
+     * {@inheritdoc}
      * @param string $imageIdentifier The image identifier to use in the URL
      */
     public function __construct($baseUrl, $publicKey, $privateKey, $imageIdentifier) {
@@ -61,21 +61,21 @@ class Image extends Url implements ImageInterface {
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::border()
+     * {@inheritdoc}
      */
     public function border($color = '000000', $width = 1, $height = 1) {
         return $this->addQueryParam('t[]', sprintf('border:color=%s,width=%d,height=%d', $color, $width, $height));
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::compress()
+     * {@inheritdoc}
      */
     public function compress($quality = 75) {
         return $this->addQueryParam('t[]', 'compress:quality=' . (int) $quality);
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::convert()
+     * {@inheritdoc}
      */
     public function convert($type) {
         $this->imageIdentifier = substr($this->imageIdentifier, 0, 32) . '.' . $type;
@@ -84,49 +84,49 @@ class Image extends Url implements ImageInterface {
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::gif()
+     * {@inheritdoc}
      */
     public function gif() {
         return $this->convert('gif');
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::jpg()
+     * {@inheritdoc}
      */
     public function jpg() {
         return $this->convert('jpg');
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::png()
+     * {@inheritdoc}
      */
     public function png() {
         return $this->convert('png');
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::crop()
+     * {@inheritdoc}
      */
     public function crop($x, $y, $width, $height) {
         return $this->addQueryParam('t[]', sprintf('crop:x=%d,y=%d,width=%d,height=%d', $x, $y, $width, $height));
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::flipHorizontally()
+     * {@inheritdoc}
      */
     public function flipHorizontally() {
         return $this->addQueryParam('t[]', 'flipHorizontally');
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::flipVertically()
+     * {@inheritdoc}
      */
     public function flipVertically() {
         return $this->addQueryParam('t[]', 'flipVertically');
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::resize()
+     * {@inheritdoc}
      */
     public function resize($width = null, $height = null) {
         $params = array();
@@ -143,7 +143,7 @@ class Image extends Url implements ImageInterface {
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::maxSize()
+     * {@inheritdoc}
      */
     public function maxSize($maxWidth = null, $maxHeight = null) {
         $params = array();
@@ -160,21 +160,21 @@ class Image extends Url implements ImageInterface {
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::rotate()
+     * {@inheritdoc}
      */
     public function rotate($angle, $bg = '000000') {
         return $this->addQueryParam('t[]', sprintf('rotate:angle=%d,bg=%s', $angle, $bg));
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::thumbnail()
+     * {@inheritdoc}
      */
     public function thumbnail($width = 50, $height = 50, $fit = 'outbound') {
         return $this->addQueryParam('t[]', sprintf('thumbnail:width=%d,height=%s,fit=%s', $width, $height, $fit));
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::canvas()
+     * {@inheritdoc}
      */
     public function canvas($width, $height, $mode = null, $x = null, $y = null, $bg = null) {
         $params = array(
@@ -202,22 +202,21 @@ class Image extends Url implements ImageInterface {
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::transpose()
+     * {@inheritdoc}
      */
     public function transpose() {
         return $this->addQueryParam('t[]', 'transpose');
     }
 
     /**
-     * @see ImboClient\Url\ImageInterface::transverse()
+     * {@inheritdoc}
      */
     public function transverse() {
         return $this->addQueryParam('t[]', 'transverse');
     }
 
     /**
-     * @see ImboClient\Url\Url::reset()
-     * @see ImboClient\Url\UrlInterface::reset()
+     * {@inheritdoc}
      */
     public function reset() {
         parent::reset();
@@ -228,7 +227,7 @@ class Image extends Url implements ImageInterface {
     }
 
     /**
-     * @see ImboClient\Url\Url::getResourceUrl()
+     * {@inheritdoc}
      */
     protected function getResourceUrl() {
         return sprintf(
