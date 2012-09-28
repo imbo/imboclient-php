@@ -22,8 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Interfaces
- * @subpackage Client
+ * @package ImboClient\Interfaces
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -34,13 +33,13 @@ namespace ImboClient;
 
 use ImboClient\Driver\DriverInterface,
     ImboClient\Url\Images\QueryInterface,
-    ImboClient\Exception\InvalidArgumentException;
+    ImboClient\Exception\InvalidArgumentException,
+    ImboClient\Http\Response\ResponseInterface;
 
 /**
  * Interface for the client
  *
- * @package Interfaces
- * @subpackage Client
+ * @package ImboClient\Interfaces
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -57,29 +56,29 @@ interface ClientInterface {
     /**
      * Set the driver
      *
-     * @param ImboClient\Driver\DriverInterface $driver The driver to set
-     * @return ImboClient\ClientInterface
+     * @param DriverInterface $driver The driver to set
+     * @return ClientInterface
      */
     function setDriver(DriverInterface $driver);
 
     /**
      * Get the URL to the status resource
      *
-     * @return ImboClient\Url\Status
+     * @return Url\Status
      */
     function getStatusUrl();
 
     /**
      * Get the URL to the current user
      *
-     * @return ImboClient\Url\User
+     * @return Url\User
      */
     function getUserUrl();
 
     /**
      * Get the URL to the images resource of the current user
      *
-     * @return ImboClient\Url\Images
+     * @return Url\Images
      */
     function getImagesUrl();
 
@@ -87,7 +86,7 @@ interface ClientInterface {
      * Get the URL to a specific image
      *
      * @param string $imageIdentifier The image identifier
-     * @return ImboClient\Url\ImageInterface
+     * @return Url\Image
      */
     function getImageUrl($imageIdentifier);
 
@@ -95,7 +94,7 @@ interface ClientInterface {
      * Get the URL to the metadata of a specific image
      *
      * @param string $imageIdentifier The image identifier
-     * @return ImboClient\Url\Metadata
+     * @return Url\Metadata
      */
     function getMetadataUrl($imageIdentifier);
 
@@ -105,7 +104,7 @@ interface ClientInterface {
      * @param string $path Path to the local image
      * @throws InvalidArgumentException Throws an exception if the specified file does not exist or
      *                                  is of zero length
-     * @return ImboClient\Http\Response\ResponseInterface
+     * @return ResponseInterface
      */
     function addImage($path);
 
@@ -113,15 +112,15 @@ interface ClientInterface {
      * Add a new image to the server by using an image in memory and not a local path
      *
      * @param string $image The actual image data to add to the server
-     * @return ImboClient\Http\Response\ResponseInterface
+     * @return ResponseInterface
      */
     function addImageFromString($image);
 
     /**
      * Add a new image to the server by specifying a URL to an existing image
      *
-     * @param ImboClient\Url\ImageInterface|string $url URL to the image you want to add
-     * @return ImboClient\Http\Response\ResponseInterface
+     * @param Url\Image|string $url URL to the image you want to add
+     * @return ResponseInterface
      */
     function addImageFromUrl($url);
 
@@ -139,7 +138,7 @@ interface ClientInterface {
      * Request the image using HEAD
      *
      * @param string $imageIdentifier The image identifier
-     * @return ImboClient\Http\Response\ResponseInterface
+     * @return ResponseInterface
      */
     function headImage($imageIdentifier);
 
@@ -147,7 +146,7 @@ interface ClientInterface {
      * Delete an image from the server
      *
      * @param string $imageIdentifier The image identifier
-     * @return ImboClient\Http\Response\ResponseInterface
+     * @return ResponseInterface
      */
     function deleteImage($imageIdentifier);
 
@@ -156,7 +155,7 @@ interface ClientInterface {
      *
      * @param string $imageIdentifier The image identifier
      * @param array $metadata An array of metadata
-     * @return ImboClient\Http\Response\ResponseInterface
+     * @return ResponseInterface
      */
     function editMetadata($imageIdentifier, array $metadata);
 
@@ -165,7 +164,7 @@ interface ClientInterface {
      *
      * @param string $imageIdentifier The image identifier
      * @param array $metadata An array of metadata
-     * @return ImboClient\Http\Response\ResponseInterface
+     * @return ResponseInterface
      */
     function replaceMetadata($imageIdentifier, array $metadata);
 
@@ -173,7 +172,7 @@ interface ClientInterface {
      * Delete metadata
      *
      * @param string $imageIdentifier The image identifier
-     * @return ImboClient\Http\Response\ResponseInterface
+     * @return ResponseInterface
      */
     function deleteMetadata($imageIdentifier);
 
@@ -195,10 +194,10 @@ interface ClientInterface {
     /**
      * Get an array of images currently stored on the server
      *
-     * @param ImboClient\Url\Images\QueryInterface $query A query instance
+     * @param QueryInterface $query A query instance
      * @return ImageInterface[] Returns an array with images (can be empty)
      */
-    function getImages(QueryInterface$query = null);
+    function getImages(QueryInterface $query = null);
 
     /**
      * Get the binary data of an image stored on the server
@@ -211,7 +210,7 @@ interface ClientInterface {
     /**
      * Get the binary data of an image stored on the server
      *
-     * @param ImboClient\Url\ImageInterface $url URL instance for the image you want to retrieve
+     * @param Url\ImageInterface $url URL instance for the image you want to retrieve
      * @return string
      */
     function getImageDataFromUrl(Url\ImageInterface $url);
