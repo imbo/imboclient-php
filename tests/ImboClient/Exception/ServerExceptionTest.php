@@ -39,11 +39,44 @@ namespace ImboClient\Exception;
  * @link https://github.com/imbo/imboclient-php
  */
 class ServerExceptionTest extends \PHPUnit_Framework_TestCase {
-    public function testSetAndGetResponse() {
-        $exception = new ServerException();
+    /**
+     * @var ServerException
+     */
+    private $exception;
+
+    /**
+     * Set up the exception instance
+     */
+    public function setUp() {
+        $this->exception = new ServerException();
+    }
+
+    /**
+     * Tear down the exception instance
+     */
+    public function tearDown() {
+        $this->exception = null;
+    }
+
+    /**
+     * The server exception must be able to set and get a response instance
+     *
+     * @covers ImboClient\Exception\ServerException::setResponse
+     * @covers ImboClient\Exception\ServerException::getResponse
+     */
+    public function testServerExceptionMustBeAbleToSetAndGetAResponse() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
 
-        $this->assertNull($exception->setResponse($response));
-        $this->assertSame($response, $exception->getResponse());
+        $this->assertSame($this->exception, $this->exception->setResponse($response));
+        $this->assertSame($response, $this->exception->getResponse());
+    }
+
+    /**
+     * Initially the server exception instance does not have a response instance
+     *
+     * @covers ImboClient\Exception\ServerException::getResponse
+     */
+    public function testServerExceptionMustInitiallyHaveNoResponseInstance() {
+        $this->assertNull($this->exception->getResponse());
     }
 }
