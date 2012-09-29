@@ -40,24 +40,30 @@ namespace ImboClient\Url;
  */
 class AccessTokenTest extends \PHPUnit_Framework_TestCase {
     /**
-     * Access token
-     *
      * @var ImboClient\Url\AccessTokenInterface
      */
     private $accessToken;
 
+    /**
+     * Set up the access token instance
+     */
     public function setUp() {
         $this->accessToken = new AccessToken();
     }
 
+    /**
+     * Tear down the access token instance
+     */
     public function tearDown() {
         $this->accessToken = null;
     }
 
     /**
+     * The access token must generate the samen token every time given the same URL and key
+     *
      * @covers ImboClient\Url\AccessToken::generateToken
      */
-    public function testGenerateTokenWithSameUrlAndKeyTwice() {
+    public function testWillGenerateTheSameKeyEveryTimeGivenTheSameUrlAndKey() {
         $url = 'http://imbo/users/user/images.json';
         $key = 'some key';
 
@@ -68,12 +74,31 @@ class AccessTokenTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Fetch keys pairs
+     *
+     * @return array[]
+     */
+    public function getKeys() {
+        return array(
+            array('key1', 'key2'),
+            array('key2', 'key3'),
+            array('key3', 'key4'),
+            array('key4', 'key5'),
+            array('key5', 'key6'),
+            array('key6', 'key7'),
+            array('key7', 'key8'),
+            array('key8', 'key9'),
+        );
+    }
+
+    /**
+     * The access token must generate different tokens given different keys
+     *
+     * @dataProvider getKeys
      * @covers ImboClient\Url\AccessToken::generateToken
      */
-    public function testGenerateTokenWithSameUrlButDifferentKey() {
+    public function testWillGenerateDifferentTokensGivenDifferentKeys($key1, $key2) {
         $url = 'http://imbo/users/user/images.json';
-        $key1 = 'some key';
-        $key2 = 'some other key';
 
         $this->assertNotSame(
             $this->accessToken->generateToken($url, $key1),

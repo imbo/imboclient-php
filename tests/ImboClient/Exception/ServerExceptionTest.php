@@ -64,7 +64,7 @@ class ServerExceptionTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Exception\ServerException::setResponse
      * @covers ImboClient\Exception\ServerException::getResponse
      */
-    public function testServerExceptionMustBeAbleToSetAndGetAResponse() {
+    public function testCanSetAndGetAResponseInstance() {
         $response = $this->getMock('ImboClient\Http\Response\ResponseInterface');
 
         $this->assertSame($this->exception, $this->exception->setResponse($response));
@@ -76,7 +76,7 @@ class ServerExceptionTest extends \PHPUnit_Framework_TestCase {
      *
      * @covers ImboClient\Exception\ServerException::getResponse
      */
-    public function testServerExceptionMustInitiallyHaveNoResponseInstance() {
+    public function testHasInitiallyNoResponseInstance() {
         $this->assertNull($this->exception->getResponse());
     }
 }
