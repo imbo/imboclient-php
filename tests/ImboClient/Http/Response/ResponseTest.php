@@ -40,33 +40,31 @@ namespace ImboClient\Http\Response;
  */
 class ResponseTest extends \PHPUnit_Framework_TestCase {
     /**
-     * Response instance
-     *
      * @var ImboClient\Http\Response\Response
      */
     private $response;
 
     /**
-     * Set up method
+     * Set up the response instance
      */
     public function setUp() {
         $this->response = new Response();
     }
 
     /**
-     * Tear down method
+     * Tear down the response instance
      */
     public function tearDown() {
         $this->response = null;
     }
 
     /**
-     * Test the set and get methods for the headers attribute
+     * The response class must be able to set and get a header container
      *
      * @covers ImboClient\Http\Response\Response::setHeaders
      * @covers ImboClient\Http\Response\Response::getHeaders
      */
-    public function testSetGetHeaders() {
+    public function testCanSetAndGetAHeaderContainer() {
         $headers = $this->getMock('ImboClient\Http\HeaderContainerInterface');
 
         $this->assertSame($this->response, $this->response->setHeaders($headers));
@@ -74,12 +72,12 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test the set and get methods for the body attribute
+     * The response class must be able to set and get a body
      *
      * @covers ImboClient\Http\Response\Response::setBody
      * @covers ImboClient\Http\Response\Response::getBody
      */
-    public function testSetGetBody() {
+    public function testCanSetAndGetABody() {
         $body = 'Content';
 
         $this->assertSame($this->response, $this->response->setBody($body));
@@ -87,18 +85,23 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test the set and get methods for the statusCode attribute
+     * The response class must be able to set and get a body
      *
      * @covers ImboClient\Http\Response\Response::setStatusCode
      * @covers ImboClient\Http\Response\Response::getStatusCode
      */
-    public function testSetGetStatusCode() {
+    public function testCanSetAndGetAStatusCode() {
         $code = 404;
 
         $this->assertSame($this->response, $this->response->setStatusCode($code));
         $this->assertSame($code, $this->response->getStatusCode());
     }
 
+    /**
+     * Get different HTTP status codes and the value for "success"
+     *
+     * @return array[]
+     */
     public function getCodesForIsSuccess() {
         return array(
             array(200, true),
@@ -109,14 +112,23 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The response must tell whether the response is a "success" or not based on an HTTP status
+     * code
+     *
      * @dataProvider getCodesforIsSuccess
      * @covers ImboClient\Http\Response\Response::isSuccess
+     * @covers ImboClient\Http\Response\Response::getStatusCode
      */
-    public function testIsSuccess($code, $success) {
+    public function testCanTellWhetherOrNotTheResponseIsASuccessBasedOnAnHttpStatusCode($code, $success) {
         $this->response->setStatusCode($code);
         $this->assertSame($success, $this->response->isSuccess());
     }
 
+    /**
+     * Get different HTTP status codes and the value for "error"
+     *
+     * @return array[]
+     */
     public function getCodesForIsError() {
         return array(
             array(200, false),
@@ -127,89 +139,111 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The response must tell whether the response is a "success" or not based on an HTTP status
+     * code
+     *
      * @dataProvider getCodesforIsError
      * @covers ImboClient\Http\Response\Response::isError
+     * @covers ImboClient\Http\Response\Response::getStatusCode
      */
-    public function testIsError($code, $error) {
+    public function testCanTellWhetherOrNotTheResponseIsAnErrorBasedOnAnHttpStatusCode($code, $error) {
         $this->response->setStatusCode($code);
         $this->assertSame($error, $this->response->isError());
     }
 
     /**
-     * Test the magic __toString method
+     * The response must return the body in a string context
      *
      * @covers ImboClient\Http\Response\Response::__toString
+     * @covers ImboClient\Http\Response\Response::getBody
      */
-    public function testMagicToStringMethod() {
+    public function testReturnsTheBodyWhenUsedInAStringContext() {
+        $this->assertEmpty((string) $this->response);
         $body = 'Body content';
         $this->response->setBody($body);
         $this->assertSame($body, (string) $this->response);
     }
 
     /**
+     * The response must be able to return the image identifier if it exists in the header
+     * collection
+     *
      * @covers ImboClient\Http\Response\Response::getImageIdentifier
      */
-    public function testGetImageIdentifierWhenHeaderExists() {
-        $imageIdentifier = md5(microtime());
+    public function testCanFetchAnImageIdentifierIfItExistsAsAHeader() {
+        $imageIdentifier = '57cc615a80f6c623a138846cf7509028';
+
         $headers = $this->getMock('ImboClient\Http\HeaderContainerInterface');
-        $headers->expects($this->once())->method('get')->with('x-imbo-imageidentifier')->will($this->returnValue($imageIdentifier));
+        $headers->expects($this->at(0))
+                ->method('get')
+                ->with('x-imbo-imageidentifier')
+                ->will($this->returnValue(null));
+        $headers->expects($this->at(1))
+                ->method('get')
+                ->with('x-imbo-imageidentifier')
+                ->will($this->returnValue($imageIdentifier));
 
         $this->response->setHeaders($headers);
 
+        $this->assertNull($this->response->getImageIdentifier());
         $this->assertSame($imageIdentifier, $this->response->getImageIdentifier());
     }
 
     /**
-     * @covers ImboClient\Http\Response\Response::getImageIdentifier
-     */
-    public function testGetImageIdentifierWhenHeaderDoesNotExist() {
-        $headers = $this->getMock('ImboClient\Http\HeaderContainerInterface');
-        $this->response->setHeaders($headers);
-        $this->assertNull($this->response->getImageIdentifier());
-    }
-
-    /**
+     * Can return the JSON encoded body as an array
+     *
      * @covers ImboClient\Http\Response\Response::asArray
      */
-    public function testAsArray() {
-        $this->assertSame($this->response, $this->response->setBody(json_encode(array('foo' => 'bar'))));
-        $this->assertInternalType('array', $this->response->asArray());
+    public function testCanReturnAJsonEncodedBodyAsAnArray() {
+        $this->assertSame(
+            $this->response,
+            $this->response->setBody(json_encode(array('foo' => 'bar')))
+        );
+
+        $this->assertSame(array('foo' => 'bar'), $this->response->asArray());
     }
 
     /**
+     * Can return the JSON encoded body as an object
+     *
      * @covers ImboClient\Http\Response\Response::asObject
      */
-    public function testAsObject() {
-        $this->assertSame($this->response, $this->response->setBody(json_encode(array('foo' => 'bar'))));
-        $this->assertInstanceOf('stdClass', $this->response->asObject());
+    public function testCanReturnAJsonEncodedBodyAsAnObject() {
+        $this->assertSame(
+            $this->response,
+            $this->response->setBody(json_encode(array('foo' => 'bar')))
+        );
+
+        $body = $this->response->asObject();
+        $this->assertInstanceOf('stdClass', $body);
+        $this->assertSame('bar', $body->foo);
     }
 
-    public function testGetImboErrorCodeWithNoBody() {
-        $this->assertNull($this->response->getImboErrorCode());
-    }
-
-    public function testGetImboErrorCodeWhenBodyHasNoErrorElement() {
-        $this->response->setBody(json_encode(array('foo' => 'bar')));
-        $this->assertNull($this->response->getImboErrorCode());
-    }
-
-    public function testGetImboErrorCodeWhenErrorElementHasNoImboErrorCodeElement() {
-        $this->response->setBody(json_encode(array('error' => array('code' => 400))));
-        $this->assertNull($this->response->getImboErrorCode());
-    }
-
-    public function getErrorCodes() {
+    /**
+     * Return body data along with a resulting imbo error code for that body
+     *
+     * @return array[]
+     */
+    public function getBodyWithErrorCode() {
         return array(
-            array(123, 123),
-            array('123', 123),
+            array(null, null),
+            array(json_encode('foobar'), null),
+            array(json_encode(array('foo' => 'bar')), null),
+            array(json_encode(array('error' => array('code' => 400))), null),
+            array(json_encode(array('error' => array('imboErrorCode' => 400))), 400),
+            array(json_encode(array('error' => array('imboErrorCode' => '400'))), 400),
         );
     }
 
     /**
-     * @dataProvider getErrorCodes
+     * The response must return the imbo error code only if the response body has a correct error
+     * element
+     *
+     * @dataProvider getBodyWithErrorCode
+     * @covers ImboClient\Http\Response\Response::getImboErrorCode
      */
-    public function testGetImboErrorCode($code, $expected) {
-        $this->response->setBody(json_encode(array('error' => array('imboErrorCode' => $code))));
-        $this->assertSame($expected, $this->response->getImboErrorCode());
+    public function testCanReturnAnImboErrorCodeWhenTheBodyHasAnErrorElement($body, $code) {
+        $this->response->setBody($body);
+        $this->assertSame($code, $this->response->getImboErrorCode());
     }
 }
