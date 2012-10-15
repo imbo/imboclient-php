@@ -40,23 +40,27 @@ namespace ImboClient\Url;
  */
 class StatusTest extends \PHPUnit_Framework_TestCase {
     /**
-     * Data provider for testGetUrl()
+     * Fetch URL data
      *
-     * @return array
+     * @return array[]
      */
     public function getUrlData() {
         return array(
             array('http://imbo', 'http://imbo/status.json'),
             array('http://host/imbo', 'http://host/imbo/status.json'),
+            array('http://imbo:6081', 'http://imbo:6081/status.json'),
         );
     }
 
     /**
+     * The status URL must be able to correctly generate a complete URL with no access token
+     *
      * @dataProvider getUrlData
+     * @covers ImboClient\Url\Url::__construct
      * @covers ImboClient\Url\Url::getUrl
      * @covers ImboClient\Url\Status::getResourceUrl
      */
-    public function testGetUrl($host, $expected) {
+    public function testCanGenerateACompleteUrlThatDoesNotIncludeAnAccessToken($host, $expected) {
         $url = new Status($host);
         $this->assertSame($expected, $url->getUrl());
     }

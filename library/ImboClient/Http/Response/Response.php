@@ -175,6 +175,6 @@ class Response implements ResponseInterface {
      * @return string
      */
     public function __toString() {
-        return $this->getBody();
+        return $this->getBody() ?: '';
     }
 }

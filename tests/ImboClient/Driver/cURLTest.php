@@ -32,7 +32,6 @@
 namespace ImboClient\Driver;
 
 use ImboClient\Exception\ServerException,
-    ReflectionClass,
     ReflectionProperty;
 
 /**
@@ -46,7 +45,7 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     /**
      * The driver instance
      *
-     * @var ImboClient\Driver\cURL
+     * @var cURL
      */
     private $driver;
 
@@ -59,6 +58,8 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * Setup the driver
+     *
+     * @covers ImboClient\Driver\cURL::__construct
      */
     public function setUp() {
         if (!IMBOCLIENT_ENABLE_TESTS) {
@@ -79,59 +80,58 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The driver must be able to POST data
+     *
      * @covers ImboClient\Driver\cURL::post
      * @covers ImboClient\Driver\cURL::request
      */
-    public function testPost() {
+    public function testCanPostDataUsingHttpPost() {
         $metadata = array(
             'foo' => 'bar',
             'bar' => 'foo',
         );
         $response = $this->driver->post($this->testUrl, json_encode($metadata));
         $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $response);
-
         $result = unserialize($response->getBody());
         $this->assertSame('POST', $result['method']);
         $this->assertSame($metadata, json_decode($result['data'], true));
     }
 
     /**
-     * This method will PUT the current file (__FILE__) to the test script. The test script will
-     * then read this file and inject the md5 sum of the file into the output. This method will
-     * then compute the md5 sum and make sure it's the same as the one from the test script.
+     * The driver must be able to put a file using HTTP PUT
      *
      * @covers ImboClient\Driver\cURL::put
      * @covers ImboClient\Driver\cURL::request
      */
-    public function testPut() {
-        $url = $this->testUrl;
-        $response = $this->driver->put($url, __FILE__);
+    public function testCanPutAFileUsingHttpPut() {
+        $response = $this->driver->put($this->testUrl, __FILE__);
         $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $response);
         $data = unserialize($response->getBody());
-
         $this->assertSame($data['md5'], md5_file(__FILE__));
     }
 
     /**
+     * The driver must be able to put data using HTTP PUT
+     *
      * @covers ImboClient\Driver\cURL::putData
      * @covers ImboClient\Driver\cURL::request
      */
-    public function testPutData() {
+    public function testCanPutDataUsingHttpPut() {
         $file = file_get_contents(__FILE__);
-
-        $url = $this->testUrl;
-        $response = $this->driver->putData($url, $file);
+        $response = $this->driver->putData($this->testUrl, $file);
         $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $response);
-        $data = unserialize($response->getBody());
-
-        $this->assertSame($data['md5'], md5($file));
+        $result = unserialize($response->getBody());
+        $this->assertSame('PUT', $result['method']);
+        $this->assertSame($result['md5'], md5($file));
     }
 
     /**
+     * The driver must be able to request a URL using HTTP GET
+     *
      * @covers ImboClient\Driver\cURL::get
      * @covers ImboClient\Driver\cURL::request
      */
-    public function testGet() {
+    public function testCanRequestAnUrlWithQueryParametersUsingHttpGet() {
         $url = $this->testUrl . '?foo=bar&bar=foo';
         $response = $this->driver->get($url);
         $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $response);
@@ -141,20 +141,24 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The driver must be able to request a URL using HTTP HEAD
+     *
      * @covers ImboClient\Driver\cURL::head
      * @covers ImboClient\Driver\cURL::request
      */
-    public function testHead() {
+    public function testCanRequestAnUrlUsingHttpHead() {
         $response = $this->driver->head($this->testUrl);
         $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $response);
         $this->assertEmpty($response->getBody());
     }
 
     /**
+     * The driver must be able to request a URL using HTTP DELETE
+     *
      * @covers ImboClient\Driver\cURL::delete
      * @covers ImboClient\Driver\cURL::request
      */
-    public function testDelete() {
+    public function testCanRequestAnUrlUsingHttpDelete() {
         $response = $this->driver->delete($this->testUrl);
         $this->assertInstanceOf('ImboClient\Http\Response\ResponseInterface', $response);
         $result = unserialize($response->getBody());
@@ -162,22 +166,29 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The driver must time out if the server uses more time than what the driver accepts
+     *
      * @expectedException ImboClient\Exception\RuntimeException
      * @expectedExceptionMessage An error occured. Request timed out during transfer (limit: 2s).
      * @covers ImboClient\Driver\cURL::get
      * @covers ImboClient\Driver\cURL::request
      */
-    public function testReadTimeout() {
+    public function testTimesOutWhenTheServerTakesTooLongToRespond() {
         $url = $this->testUrl . '?sleep=3';
         $this->driver->get($url);
     }
 
     /**
+     * The driver must be able to accept custom parameters through the constructor that will
+     * override the default values
+     *
      * @expectedException ImboClient\Exception\RuntimeException
      * @expectedExceptionMessage An error occured. Request timed out during transfer (limit: 1s).
      * @covers ImboClient\Driver\cURL::__construct
+     * @covers ImboClient\Driver\cURL::get
+     * @covers ImboClient\Driver\cURL::request
      */
-    public function testConstructWithCustomParams() {
+    public function testAcceptsCustomParametersThroughConstructor() {
         $params = array(
             'timeout' => 1,
         );
@@ -187,10 +198,13 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The driver must not include the Expect request header pr default
+     *
      * @covers ImboClient\Driver\cURL::post
      * @covers ImboClient\Driver\cURL::request
+     * @covers ImboClient\Driver\cURL::setRequestHeader
      */
-    public function testExpectHeaderNotPresent() {
+    public function testDoesNotIncludeExpectHeaderPrDefault() {
         $postData = '{"some":"data"}';
         $url = $this->testUrl . '?headers';
         $response = $this->driver->post($url, $postData);
@@ -198,10 +212,9 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertArrayNotHasKey('HTTP_EXPECT', $headers);
 
-        // Add a header
+        // Add a header and make the same request
         $this->assertSame($this->driver, $this->driver->setRequestHeader('Header', 'value'));
 
-        $url = $this->testUrl . '?headers';
         $response = $this->driver->post($url, $postData);
         $headers = unserialize($response->getBody());
 
@@ -209,9 +222,11 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The driver must support setting an additional request header
+     *
      * @covers ImboClient\Driver\cURL::setRequestHeader
      */
-    public function testSetRequestHeader() {
+    public function testCanSetAnAdditionalRequestHeader() {
         $this->assertSame($this->driver, $this->driver->setRequestHeader('Header', 'value'));
         $url = $this->testUrl . '?headers';
         $response = $this->driver->get($url);
@@ -222,10 +237,12 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The driver must support setting multiple additional request header
+     *
      * @covers ImboClient\Driver\cURL::setRequestHeader
      * @covers ImboClient\Driver\cURL::setRequestHeaders
      */
-    public function testSetRequestHeaders() {
+    public function testCanSetMultipleAdditionalRequestHeaders() {
         $this->assertSame($this->driver, $this->driver->setRequestHeaders(array(
             'Header' => 'value',
             'User-Agent' => 'ImboClient',
@@ -242,9 +259,12 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The driver must follow redirects
+     *
+     * @covers ImboClient\Driver\cURL::get
      * @covers ImboClient\Driver\cURL::request
      */
-    public function testUrlThatRedirects() {
+    public function testFollowsRedirects() {
         $url = $this->testUrl . '?redirect=2';
         $response = unserialize($this->driver->get($url)->getBody());
 
@@ -252,12 +272,17 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The driver must throw an exception when the server responds with an error as well as make
+     * the response available through the exception
+     *
      * @expectedException ImboClient\Exception\ServerException
-     * @expectedExceptionMessage bad request
+     * @expectedExceptionMessage Bad Request
      * @expectedExceptionCode 400
+     * @covers ImboClient\Driver\cURL::get
      * @covers ImboClient\Driver\cURL::request
+     * @covers ImboClient\Exception\ServerException::getResponse
      */
-    public function testRequestWhenServerRespondsWithClientError() {
+    public function testThrowsExceptionWhenTheServerRespondsWithAClientErrorAndMakesTheResponseAvailableThroughTheException() {
         $url = $this->testUrl . '?clientError';
 
         try {
@@ -270,12 +295,17 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The driver must throw an exception when the server responds with an error as well as make
+     * the response available through the exception
+     *
      * @expectedException ImboClient\Exception\ServerException
-     * @expectedExceptionMessage internal server error
+     * @expectedExceptionMessage Internal Server Error
      * @expectedExceptionCode 500
+     * @covers ImboClient\Driver\cURL::get
      * @covers ImboClient\Driver\cURL::request
+     * @covers ImboClient\Exception\ServerException::getResponse
      */
-    public function testRequestWhenServerRespondsWithServerError() {
+    public function testThrowsExceptionWhenTheServerRespondsWithAServerErrorAndMakesTheResponseAvailableThroughTheException() {
         $url = $this->testUrl . '?serverError';
 
         try {
@@ -288,11 +318,13 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @see https://github.com/imbo/imboclient-php/issues/52
+     * The driver must not include duplicate request headers
+     *
+     * @link https://github.com/imbo/imboclient-php/issues/52
      * @covers ImboClient\Driver\cURL::setRequestHeader
      * @covers ImboClient\Driver\cURL::setRequestHeaders
      */
-    public function testSetSameHeaderSeveralTimes() {
+    public function testDoesNotSendDuplicateRequestHeaders() {
         $this->driver->setRequestHeader('Foo', 'foo1');
         $this->driver->setRequestHeader('Foo', 'foo2');
         $this->driver->setRequestHeaders(array(
@@ -301,22 +333,24 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
             'Foo' => 'foo3',
         ));
 
-        $reflection = new ReflectionClass($this->driver);
-        $property = $reflection->getProperty('headers');
+        $property = new ReflectionProperty('ImboClient\Driver\cURL', 'headers');
         $property->setAccessible(true);
 
-        $headers = $property->getValue($this->driver);
+        $response = $this->driver->get($this->testUrl . '?headers');
+        $headers = unserialize($response->getBody());
 
-        $this->assertArrayHasKey('Foo', $headers);
-        $this->assertArrayHasKey('Bar', $headers);
-        $this->assertSame('foo3', $headers['Foo']);
-        $this->assertSame('bar2', $headers['Bar']);
+        $this->assertArrayHasKey('HTTP_FOO', $headers);
+        $this->assertArrayHasKey('HTTP_BAR', $headers);
+        $this->assertSame('foo3', $headers['HTTP_FOO']);
+        $this->assertSame('bar2', $headers['HTTP_BAR']);
     }
 
     /**
+     * The driver must merge custom cURL options with the default ones provided to the constructor
+     *
      * @covers ImboClient\Driver\cURL::__construct
      */
-    public function testDriverShouldMergeCustomcURLOptionsWithDefaultOptionsWhenSpecified() {
+    public function testAcceptsCustomCurlParametersThroughConstructor() {
         $driver = new cURL(array(), array(
             CURLOPT_TIMEOUT => 666,
             CURLOPT_CONNECTTIMEOUT => 333,
@@ -332,12 +366,16 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The driver must set a default error message when the server responds with an error and an
+     * empty body (typically a response to a HEAD request)
+     *
      * @expectedException ImboClient\Exception\ServerException
      * @expectedExceptionMessage Empty body
      * @expectedExceptionCode 500
+     * @covers ImboClient\Driver\cURL::get
      * @covers ImboClient\Driver\cURL::request
      */
-    public function testDriverMustSetDefaultErrorMessageWhenResponseBodyIsEmpty() {
+    public function testSetsADefaultErrorMessageWhenTheServerRespondsWithAnErrorAndAnEmptyResponseBody() {
         $url = $this->testUrl . '?serverError&emptyBody';
 
         $this->driver->get($url);

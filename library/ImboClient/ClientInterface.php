@@ -112,6 +112,7 @@ interface ClientInterface {
      * Add a new image to the server by using an image in memory and not a local path
      *
      * @param string $image The actual image data to add to the server
+     * @throws InvalidArgumentException Throws an exception if the specified image is empty
      * @return ResponseInterface
      */
     function addImageFromString($image);

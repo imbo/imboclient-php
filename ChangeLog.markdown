@@ -1,6 +1,13 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-0.7.0
+----------------
+__N/A__
+
+* Fixed issue #61: The response can not be used in a string context of the body is empty
+* Fixed issue #60: getMetadata() returns the response and not the metadata
+
 ImboClient-0.6.1
 ----------------
 __2012-09-19__

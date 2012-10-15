@@ -13,10 +13,11 @@
   </php>
 
   <logging>
-    <log type="coverage-html" target="build/coverage" title="Code coverage for imboclient"
-      charset="UTF-8" yui="true" highlight="true" />
+    <log type="coverage-html" target="build/coverage" title="Code coverage for imboclient" charset="UTF-8" yui="true" highlight="true" />
     <log type="coverage-clover" target="build/logs/clover.xml" />
     <log type="junit" target="build/logs/junit.xml" logIncompleteSkipped="false" />
+    <log type="testdox-html" target="build/logs/testdox.html" />
+    <log type="testdox-text" target="build/logs/testdox.txt" />
   </logging>
 
   <filter>

@@ -57,9 +57,12 @@ class ServerException extends BaseRuntimeException implements Exception {
      *
      * @param ResponseInterface $response The response object containing info about the server
      *                                    response.
+     * @return ServerException
      */
     public function setResponse(ResponseInterface $response) {
         $this->response = $response;
+
+        return $this;
     }
 
     /**

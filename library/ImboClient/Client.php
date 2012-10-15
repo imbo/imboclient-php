@@ -180,6 +180,10 @@ class Client implements ClientInterface {
      * {@inheritdoc}
      */
     public function addImageFromString($image) {
+        if (empty($image)) {
+            throw new InvalidArgumentException('Specified image is empty');
+        }
+
         $imageIdentifier = $this->getImageIdentifierFromString($image);
         $imageUrl = $this->getImageUrl($imageIdentifier)->getUrl();
 
@@ -286,8 +290,11 @@ class Client implements ClientInterface {
      */
     public function getMetadata($imageIdentifier) {
         $url = $this->getMetadataUrl($imageIdentifier)->getUrl();
+        $response = $this->driver->get($url);
 
-        return $this->driver->get($url);
+        $body = json_decode($response->getBody(), true);
+
+        return $body;
     }
 
     /**

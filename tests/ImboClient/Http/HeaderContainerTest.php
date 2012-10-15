@@ -40,20 +40,29 @@ namespace ImboClient\Http;
  */
 class HeaderContainerTest extends \PHPUnit_Framework_TestCase {
     /**
-     * HeaderContainer instance
-     *
-     * @var ImboClient\Http\HeaderContainer
+     * @var HeaderContainer
      */
     private $container;
 
+    /**
+     * Set up the header container instance
+     */
     public function setUp() {
         $this->container = new HeaderContainer();
     }
 
+    /**
+     * Tear down the header container instance
+     */
     public function tearDown() {
         $this->container = null;
     }
 
+    /**
+     * Return different keys and values
+     *
+     * @return array[]
+     */
     public function getKeysAndValues() {
         return array(
             array('key', 'key', 'value'),
@@ -64,27 +73,45 @@ class HeaderContainerTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The container must be able to set and get parameters as well as normalize the key names
+     *
      * @dataProvider getKeysAndValues
      * @covers ImboClient\Http\HeaderContainer::set
      * @covers ImboClient\Http\HeaderContainer::get
      * @covers ImboClient\Http\HeaderContainer::getName
      */
-    public function testSetAndGet($key, $internalKey, $value) {
+    public function testCanSetAndGetValues($key, $internalKey, $value) {
         $this->assertSame($this->container, $this->container->set($key, $value));
         $this->assertSame($value, $this->container->get($key));
         $this->assertSame($value, $this->container->get($internalKey));
     }
 
     /**
+     * The container must be able to check for existing keys
+     *
+     * @dataProvider getKeysAndValues
+     * @covers ImboClient\Http\HeaderContainer::set
+     * @covers ImboClient\Http\HeaderContainer::has
+     * @covers ImboClient\Http\HeaderContainer::getName
+     */
+    public function testCanCheckForExistingKeys($key, $internalKey, $value) {
+        $this->assertFalse($this->container->has($key));
+        $this->assertFalse($this->container->has($internalKey));
+        $this->assertSame($this->container, $this->container->set($key, $value));
+        $this->assertTrue($this->container->has($key));
+        $this->assertTrue($this->container->has($internalKey));
+    }
+
+    /**
+     * The container must be able to remove keys
+     *
      * @dataProvider getKeysAndValues
      * @covers ImboClient\Http\HeaderContainer::set
      * @covers ImboClient\Http\HeaderContainer::has
      * @covers ImboClient\Http\HeaderContainer::remove
      * @covers ImboClient\Http\HeaderContainer::getName
      */
-    public function testSetHasAndRemove($key, $internalKey, $value) {
-        $this->assertFalse($this->container->has($key));
-        $this->assertFalse($this->container->has($internalKey));
+    public function testCanRemoveKeys($key, $internalKey, $value) {
         $this->assertSame($this->container, $this->container->set($key, $value));
         $this->assertTrue($this->container->has($key));
         $this->assertTrue($this->container->has($internalKey));
@@ -94,11 +121,13 @@ class HeaderContainerTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The container must be able to return all keys
+     *
      * @covers ImboClient\Http\HeaderContainer::__construct
      * @covers ImboClient\Http\HeaderContainer::getAll
      * @covers ImboClient\Http\HeaderContainer::getName
      */
-    public function testHeaderContainer() {
+    public function testCanReturnAllKeys() {
         $parameters = array(
             'key' => 'value',
             'otherKey' => 'otherValue',
