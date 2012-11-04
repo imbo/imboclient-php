@@ -303,6 +303,18 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The image URL must be able to apply the desaturate transformation
+     *
+     * @covers ImboClient\Url\Image::desaturate
+     * @covers ImboClient\Url\Url::addQueryParam
+     * @covers ImboClient\Url\Url::getUrl
+     */
+    public function testCanApplyTheDesaturateTransformation() {
+        $this->assertSame($this->url, $this->url->desaturate());
+        $this->assertContains('?t[]=desaturate', $this->url->getUrl());
+    }
+
+    /**
      * The image URL must be able to apply the resize transformation using only width
      *
      * @covers ImboClient\Url\Image::resize
@@ -530,6 +542,7 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Url\Image::canvas
      * @covers ImboClient\Url\Image::transpose
      * @covers ImboClient\Url\Image::transverse
+     * @covers ImboClient\Url\Image::desaturate
      */
     public function testCanChainAllTransformations() {
         $url = $this->url->border()
@@ -545,12 +558,13 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
                          ->canvas(300, 300)
                          ->transpose()
                          ->transverse()
+                         ->desaturate()
                          ->getUrl();
 
         $this->assertStringStartsWith(
             sprintf(
                 '%s/users/%s/images/%s.png?t[]=%s&t[]=%s&t[]=%s&t[]=%s&t[]=%s&t[]=%s&t[]=%s&' .
-                't[]=%s&t[]=%s&t[]=%s&t[]=%s&t[]=%s&accessToken=',
+                't[]=%s&t[]=%s&t[]=%s&t[]=%s&t[]=%s&t[]=%s&accessToken=',
 
                 $this->baseUrl, $this->publicKey, $this->imageIdentifier,
                 urlencode('border:color=000000,width=1,height=1'),
@@ -564,7 +578,8 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
                 urlencode('thumbnail:width=50,height=50,fit=outbound'),
                 urlencode('canvas:width=300,height=300'),
                 urlencode('transpose'),
-                urlencode('transverse')
+                urlencode('transverse'),
+                urlencode('desaturate')
             ),
             $url
         );
