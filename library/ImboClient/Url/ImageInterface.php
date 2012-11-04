@@ -176,4 +176,11 @@ interface ImageInterface extends UrlInterface {
      * @return ImageInterface
      */
     function transverse();
+
+    /**
+     * Append a desaturate transformation query parameter to the URL
+     *
+     * @return ImageInterface
+     */
+    function desaturate();
 }

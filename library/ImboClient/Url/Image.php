@@ -218,6 +218,13 @@ class Image extends Url implements ImageInterface {
     /**
      * {@inheritdoc}
      */
+    public function desaturate() {
+        return $this->addQueryParam('t[]', 'desaturate');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function reset() {
         parent::reset();
 
