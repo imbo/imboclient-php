@@ -206,6 +206,10 @@ Crop the image.
 * `(int) $width` The width of the crop.
 * `(int) $height` The height of the crop.
 
+**desaturate()**
+
+Desaturates the image (essentially grayscales it).
+
 **flipHorizontally()**
 
 Flip the image horizontally.
