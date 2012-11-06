@@ -12,5 +12,5 @@ branches:
     - develop
     - master
 before_script:
-  - "sudo gem install nokogiri"
+  - "gem install nokogiri"
 script: rake travis
