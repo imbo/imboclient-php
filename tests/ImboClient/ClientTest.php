@@ -493,6 +493,63 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * When checking if an image identifier exists on the server and it does not,
+     * the client must return false
+     *
+     * @covers ImboClient\Client::imageIdentifierExists
+     * @covers ImboClient\Client::headImage
+     */
+    public function testReturnsFalseWhenCheckingIfARemoteImageIdentifierExistsAndTheImageDoesNotExist() {
+        $response = $this->getResponseMock();
+
+        $this->driver->expects($this->once())
+                     ->method('head')
+                     ->with($this->isType('string'))
+                     ->will($this->throwException(
+                         new ServerException('Image does not exist', 404)
+                     ));
+
+        $this->assertFalse($this->client->imageIdentifierExists($this->imageIdentifier));
+    }
+
+    /**
+     * When checking if an image identifier exists on the server and it does,
+     * the client must return true
+     *
+     * @covers ImboClient\Client::imageIdentifierExists
+     * @covers ImboClient\Client::headImage
+     */
+    public function testReturnsTrueWhenCheckingIfARemoteImageIdentifierExistsAndTheImageExists() {
+        $response = $this->getResponseMock();
+
+        $this->driver->expects($this->once())
+                     ->method('head')
+                     ->with($this->isType('string'))
+                     ->will($this->returnValue($response));
+
+        $this->assertTrue($this->client->imageIdentifierExists($this->imageIdentifier));
+    }
+
+    /**
+     * If the server responds with an error other than 404 the client must re-throw the exception
+     *
+     * @expectedException ImboClient\Exception\ServerException
+     * @expectedExceptionMessage Internal Server Error
+     * @expectedExceptionCode 500
+     * @covers ImboClient\Client::imageIdentifierExists
+     * @covers ImboClient\Client::headImage
+     */
+    public function testThrowsExceptionWhenCheckingIfAnImageIdentifierExistsAndTheServerRespondsWithAnErrorOtherThan404() {
+        $this->driver->expects($this->once())
+                     ->method('head')
+                     ->will($this->throwException(
+                         new ServerException('Internal Server Error', 500)
+                     ));
+
+        $this->client->imageIdentifierExists($this->imageIdentifier);
+    }
+
+    /**
      * The client must be able to return an ImboClient\Url\Image instance based on an image
      * identifier
      *

@@ -129,6 +129,24 @@ $imageIdentifier = '<image identifier>';
 $response = $client->replaceMetadata($imageIdentifier, array('key' => 'value'));
 ```
 
+### Check if a local image exists on server
+```php
+<?php
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
+
+$imagePath = '<path to image>';
+$exists = $client->imageExists($imagePath);
+```
+
+### Check if an image identifier exists on server
+```php
+<?php
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
+
+$imageIdentifier = '<image identifier>';
+$exists = $client->imageIdentifierExists($imageIdentifier);
+```
+
 ### Generate Imbo URLs
 The client has several methods for fetching URLs to an Imbo installation. The following methods exist:
 

@@ -136,6 +136,14 @@ interface ClientInterface {
     function imageExists($path);
 
     /**
+     * Checks if a given image exists on the server already by specifying an image identifier
+     *
+     * @param  string $imageIdentifier The image identifier
+     * @return boolean
+     */
+    function imageIdentifierExists($imageIdentifier);
+
+    /**
      * Request the image using HEAD
      *
      * @param string $imageIdentifier The image identifier
