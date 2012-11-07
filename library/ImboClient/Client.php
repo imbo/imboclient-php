@@ -211,6 +211,13 @@ class Client implements ClientInterface {
     public function imageExists($path) {
         $imageIdentifier = $this->getImageIdentifier($path);
 
+        return $this->imageIdentifierExists($imageIdentifier);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function imageIdentifierExists($imageIdentifier) {
         try {
             $response = $this->headImage($imageIdentifier);
         } catch (ServerException $e) {
