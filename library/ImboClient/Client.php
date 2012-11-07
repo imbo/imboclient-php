@@ -210,6 +210,7 @@ class Client implements ClientInterface {
      */
     public function imageExists($path) {
         $imageIdentifier = $this->getImageIdentifier($path);
+
         return $this->imageIdentifierExists($imageIdentifier);
     }
 
