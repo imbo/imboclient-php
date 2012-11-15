@@ -944,20 +944,33 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @return array[]
+     */
+    public function getImageResponseHeaders() {
+        return array(
+            array(200, 100, 400, 'image/png', 'png'),
+            array(200, 100, 400, null, null), // In case the server does not yet have this feature
+        );
+    }
+
+    /**
      * The client must be able to return image properties of an existing remote image
      *
+     * @dataProvider getImageResponseHeaders
      * @covers ImboClient\Client::getImageProperties
      * @covers ImboClient\Client::headImage
      */
-    public function testCanReturnImagePropertiesOfAnExistingImage() {
+    public function testCanReturnImagePropertiesOfAnExistingImage($width, $height, $size, $mime, $extension) {
         $imageIdentifier = '8f552ba2a350be7ac19399365a738202';
 
         $headers = $this->getMock('ImboClient\Http\HeaderContainerInterface');
-        $headers->expects($this->any())->method('get')->will($this->returnCallback(function ($key) {
+        $headers->expects($this->any())->method('get')->will($this->returnCallback(function ($key) use ($width, $height, $size, $mime, $extension) {
             switch ($key) {
-                case 'x-imbo-originalwidth': return 200; break;
-                case 'x-imbo-originalheight': return 100; break;
-                case 'x-imbo-originalfilesize': return 400; break;
+                case 'x-imbo-originalwidth': return $width; break;
+                case 'x-imbo-originalheight': return $height; break;
+                case 'x-imbo-originalfilesize': return $size; break;
+                case 'x-imbo-originalmimetype': return $mime; break;
+                case 'x-imbo-originalextension': return $extension; break;
             }
         }));
 
@@ -973,10 +986,14 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('width', $properties);
         $this->assertArrayHasKey('height', $properties);
         $this->assertArrayHasKey('filesize', $properties);
+        $this->assertArrayHasKey('mimetype', $properties);
+        $this->assertArrayHasKey('extension', $properties);
 
-        $this->assertSame(200, $properties['width']);
-        $this->assertSame(100, $properties['height']);
-        $this->assertSame(400, $properties['filesize']);
+        $this->assertSame($width, $properties['width']);
+        $this->assertSame($height, $properties['height']);
+        $this->assertSame($size, $properties['filesize']);
+        $this->assertSame($mime, $properties['mimetype']);
+        $this->assertSame($extension, $properties['extension']);
     }
 
     /**

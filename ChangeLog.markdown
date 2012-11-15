@@ -5,6 +5,7 @@ ImboClient-0.7.0
 ----------------
 __N/A__
 
+* Pull request #66: getImageProperties should return more information
 * Pull request #65: Implemented the imageIdentifierExists()-method.
 * Pull request #63: Add support for desaturate transformation (Espen Hovlandsdal)
 * Fixed issue #61: The response can not be used in a string context of the body is empty

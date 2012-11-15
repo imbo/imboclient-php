@@ -232,6 +232,8 @@ interface ClientInterface {
      * - width: Width of the image in pixels
      * - height: Height of the image in pixels
      * - size: Size of the image in bytes
+     * - mimetype: The original mimetype of the image
+     * - extension: The original extension of the image
      *
      * @param string $imageIdentifier The image identifier
      * @return array
