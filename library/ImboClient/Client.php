@@ -385,9 +385,11 @@ class Client implements ClientInterface {
         $headers = $response->getHeaders();
 
         return array(
-            'width'    => (int) $headers->get('x-imbo-originalwidth'),
-            'height'   => (int) $headers->get('x-imbo-originalheight'),
-            'filesize' => (int) $headers->get('x-imbo-originalfilesize'),
+            'width'     => (int) $headers->get('x-imbo-originalwidth'),
+            'height'    => (int) $headers->get('x-imbo-originalheight'),
+            'filesize'  => (int) $headers->get('x-imbo-originalfilesize'),
+            'mimetype'  => $headers->get('x-imbo-originalmimetype'),
+            'extension' => $headers->get('x-imbo-originalextension')
         );
     }
 
