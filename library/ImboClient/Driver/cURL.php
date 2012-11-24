@@ -252,9 +252,15 @@ class cURL implements DriverInterface {
             $options += array(
                 CURLOPT_SSL_VERIFYPEER => $this->params['sslVerifyPeer'],
                 CURLOPT_SSL_VERIFYHOST => $this->params['sslVerifyHost'],
-                CURLOPT_CAINFO         => $this->params['sslCaInfo'],
-                CURLOPT_CAPATH         => $this->params['sslCaPath'],
             );
+
+            if ($this->params['sslCaInfo']) {
+                $options[CURLOPT_CAINFO] = $this->params['sslCaInfo'];
+            }
+
+            if ($this->params['sslCaPath']) {
+                $options[CURLOPT_CAPATH] = $this->params['sslCaPath'];
+            }
         }
 
         curl_setopt_array($handle, $options);
