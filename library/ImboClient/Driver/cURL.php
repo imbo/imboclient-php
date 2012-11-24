@@ -35,7 +35,8 @@ use ImboClient\Http\Response\Response,
     ImboClient\Http\Response\ResponseInterface,
     ImboClient\Http\HeaderContainer,
     ImboClient\Exception\ServerException,
-    ImboClient\Exception\RuntimeException;
+    ImboClient\Exception\RuntimeException,
+    ImboClient\Driver\cURL\Wrapper;
 
 /**
  * cURL client driver
@@ -50,18 +51,11 @@ use ImboClient\Http\Response\Response,
  */
 class cURL implements DriverInterface {
     /**
-     * The cURL handle used by the client
+     * cURL wrapper
      *
-     * @var resource
+     * @var Wrapper
      */
-    private $curlHandle;
-
-    /**
-     * Options for cURL
-     *
-     * @var array
-     */
-    private $curlOptions;
+    private $wrapper;
 
     /**
      * Request headers
@@ -94,16 +88,21 @@ class cURL implements DriverInterface {
      *
      * @param array $params Parameters for the driver
      * @param array $curlOptions Optional extra cURL options (ref: http://no2.php.net/curl_setopt)
+     * @param Wrapper $wrapper Optional wrapper
      */
-    public function __construct(array $params = array(), array $curlOptions = array()) {
-        $this->curlHandle = curl_init();
+    public function __construct(array $params = array(), array $curlOptions = array(), Wrapper $wrapper = null) {
+        if (!$wrapper) {
+            $wrapper = new Wrapper();
+        }
+
+        $this->wrapper = $wrapper;
 
         if (!empty($params)) {
             $this->params = array_merge($this->params, $params);
         }
 
         // Default cURL options
-        $this->curlOptions = array(
+        $options = array(
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HEADER         => true,
             CURLOPT_CONNECTTIMEOUT => $this->params['connectTimeout'],
@@ -113,29 +112,29 @@ class cURL implements DriverInterface {
 
         if (!empty($curlOptions)) {
             // Merge with user specified options, overwriting default values
-            $this->curlOptions = $curlOptions + $this->curlOptions;
+            $options = $curlOptions + $options;
         }
 
-        curl_setopt_array($this->curlHandle, $this->curlOptions);
+        $this->wrapper->setOptArray($options);
     }
 
     /**
      * Class destructor
      */
     public function __destruct() {
-        curl_close($this->curlHandle);
+        $this->wrapper->close();
     }
 
     /**
      * {@inheritdoc}
      */
     public function post($url, $metadata, array $headers = array()) {
-        $handle = curl_copy_handle($this->curlHandle);
+        $handle = $this->wrapper->copy();
 
-        curl_setopt_array($handle, array(
+        $this->wrapper->setOptArray(array(
             CURLOPT_POST       => true,
             CURLOPT_POSTFIELDS => $metadata,
-        ));
+        ), $handle);
 
         return $this->request($handle, $url, $headers);
     }
@@ -144,11 +143,11 @@ class cURL implements DriverInterface {
      * {@inheritdoc}
      */
     public function get($url) {
-        $handle = curl_copy_handle($this->curlHandle);
+        $handle = $this->wrapper->copy();
 
-        curl_setopt_array($handle, array(
+        $this->wrapper->setOptArray(array(
             CURLOPT_HTTPGET => true,
-        ));
+        ), $handle);
 
         return $this->request($handle, $url);
     }
@@ -157,12 +156,12 @@ class cURL implements DriverInterface {
      * {@inheritdoc}
      */
     public function head($url) {
-        $handle = curl_copy_handle($this->curlHandle);
+        $handle = $this->wrapper->copy();
 
-        curl_setopt_array($handle, array(
+        $this->wrapper->setOptArray(array(
             CURLOPT_NOBODY        => true,
             CURLOPT_CUSTOMREQUEST => 'HEAD',
-        ));
+        ), $handle);
 
         return $this->request($handle, $url);
     }
@@ -171,11 +170,11 @@ class cURL implements DriverInterface {
      * {@inheritdoc}
      */
     public function delete($url) {
-        $handle = curl_copy_handle($this->curlHandle);
+        $handle = $this->wrapper->copy();
 
-        curl_setopt_array($handle, array(
+        $this->wrapper->setOptArray(array(
             CURLOPT_CUSTOMREQUEST => 'DELETE',
-        ));
+        ), $handle);
 
         return $this->request($handle, $url);
     }
@@ -186,13 +185,13 @@ class cURL implements DriverInterface {
     public function put($url, $filePath) {
         $fr = fopen($filePath, 'r');
 
-        $handle = curl_copy_handle($this->curlHandle);
+        $handle = $this->wrapper->copy();
 
-        curl_setopt_array($handle, array(
+        $this->wrapper->setOptArray(array(
             CURLOPT_PUT        => true,
             CURLOPT_INFILE     => $fr,
             CURLOPT_INFILESIZE => filesize($filePath),
-        ));
+        ), $handle);
 
         return $this->request($handle, $url);
     }
@@ -201,12 +200,12 @@ class cURL implements DriverInterface {
      * {@inheritdoc}
      */
     public function putData($url, $data, array $headers = array()) {
-        $handle = curl_copy_handle($this->curlHandle);
+        $handle = $this->wrapper->copy();
 
-        curl_setopt_array($handle, array(
+        $this->wrapper->setOptArray(array(
             CURLOPT_CUSTOMREQUEST => 'PUT',
             CURLOPT_POSTFIELDS    => $data,
-        ));
+        ), $handle);
 
         return $this->request($handle, $url, $headers);
     }
@@ -251,7 +250,7 @@ class cURL implements DriverInterface {
             // Add SSL options (not overwriting options already set)
             $options += array(
                 CURLOPT_SSL_VERIFYPEER => $this->params['sslVerifyPeer'],
-                CURLOPT_SSL_VERIFYHOST => $this->params['sslVerifyHost'],
+                CURLOPT_SSL_VERIFYHOST => $this->params['sslVerifyHost']
             );
 
             if ($this->params['sslCaInfo']) {
@@ -263,7 +262,7 @@ class cURL implements DriverInterface {
             }
         }
 
-        curl_setopt_array($handle, $options);
+        $this->wrapper->setOptArray($options, $handle);
 
         // Set extra headers
         $headers = array_merge($this->headers, $headers);
@@ -273,14 +272,14 @@ class cURL implements DriverInterface {
             $requestHeaders[] = $key . ':' . $value;
         }
 
-        curl_setopt($handle, CURLOPT_HTTPHEADER, $requestHeaders);
+        $this->wrapper->setOpt(CURLOPT_HTTPHEADER, $requestHeaders, $handle);
 
-        $content      = curl_exec($handle);
-        $connectTime  = (int) curl_getinfo($handle, CURLINFO_CONNECT_TIME);
-        $transferTime = (int) curl_getinfo($handle, CURLINFO_TOTAL_TIME);
-        $statusCode   = (int) curl_getinfo($handle, CURLINFO_HTTP_CODE);
+        $content      = $this->wrapper->exec($handle);
+        $connectTime  = (int) $this->wrapper->getInfo(CURLINFO_CONNECT_TIME, $handle);
+        $transferTime = (int) $this->wrapper->getInfo(CURLINFO_TOTAL_TIME, $handle);
+        $statusCode   = (int) $this->wrapper->getInfo(CURLINFO_HTTP_CODE, $handle);
 
-        curl_close($handle);
+        $this->wrapper->close($handle);
 
         if ($content === false) {
             if ($connectTime >= $this->params['connectTimeout']) {

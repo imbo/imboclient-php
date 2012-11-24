@@ -32,6 +32,7 @@
 namespace ImboClient\Driver;
 
 use ImboClient\Exception\ServerException,
+    ImboClient\Driver\cURL\Wrapper,
     ReflectionProperty;
 
 /**
@@ -48,6 +49,11 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
      * @var cURL
      */
     private $driver;
+
+    /**
+     * @var Wrapper
+     */
+    private $wrapper;
 
     /**
      * URL to the script that the tests should send requests to
@@ -68,6 +74,7 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
 
         $this->driver  = new cURL();
         $this->testUrl = IMBOCLIENT_TESTS_URL;
+        $this->wrapper = $this->getMock('ImboClient\Driver\cURL\Wrapper');
     }
 
     /**
@@ -77,6 +84,7 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
      */
     public function tearDown() {
         $this->driver = null;
+        $this->wrapper = null;
     }
 
     /**
@@ -351,18 +359,14 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Driver\cURL::__construct
      */
     public function testAcceptsCustomCurlParametersThroughConstructor() {
+        $this->wrapper->expects($this->once())->method('setOptArray')->with($this->callback(function($options) {
+            return $options[CURLOPT_TIMEOUT] == 666 && $options[CURLOPT_CONNECTTIMEOUT] == 333;
+        }));
+
         $driver = new cURL(array(), array(
             CURLOPT_TIMEOUT => 666,
             CURLOPT_CONNECTTIMEOUT => 333,
-        ));
-
-        $property = new ReflectionProperty('ImboClient\Driver\cURL', 'curlOptions');
-        $property->setAccessible(true);
-
-        $options = $property->getValue($driver);
-
-        $this->assertSame(666, $options[CURLOPT_TIMEOUT]);
-        $this->assertSame(333, $options[CURLOPT_CONNECTTIMEOUT]);
+        ), $this->wrapper);
     }
 
     /**
@@ -379,5 +383,125 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
         $url = $this->testUrl . '?serverError&emptyBody';
 
         $this->driver->get($url);
+    }
+
+    /**
+     * Make sure that the driver does not set some of the SSL options if they don't have any values
+     *
+     * @see https://github.com/imbo/imboclient-php/issues/68
+     * @covers ImboClient\Driver\cURL::request
+     */
+    public function testDoesNotSetEmptySslOptions() {
+        $handle = 'curlhandle';
+        $url = 'https://someurl';
+
+        $this->wrapper->expects($this->once())->method('copy')->will($this->returnValue($handle));
+        $this->wrapper->expects($this->at(0))->method('setOptArray')->with($this->isType('array'));
+        // The next index is two because the counter is bumped for all methods called on the mock,
+        // and the copy method is called between the first and second setOptArray
+        $this->wrapper->expects($this->at(2))->method('setOptArray')->with(
+            array(CURLOPT_HTTPGET => true),
+            $handle
+        );
+        $this->wrapper->expects($this->at(3))->method('setOptArray')->with(array(
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_URL => $url,
+        ), $handle);
+        $this->wrapper->expects($this->once())->method('setOpt');
+        $this->wrapper->expects($this->once())->method('exec')->with($handle)->will($this->returnValue("HTTP/1.1 200 OK\r\n\r\ncontent"));
+        $this->wrapper->expects($this->any())->method('getInfo');
+
+        $curl = new cURL(array('sslVerifyPeer' => false, 'sslVerifyHost' => 0), array(), $this->wrapper);
+        $this->assertInstanceOf('ImboClient\Http\Response\Response', $curl->get($url));
+    }
+
+    /**
+     * Make sure that the driver sets all SSL options when they have been given values
+     *
+     * @covers ImboClient\Driver\cURL::request
+     */
+    public function testSetSsslOptionsWhenAValueHasBeenSpecified() {
+        $handle = 'curlhandle';
+        $url = 'https://someurl';
+
+        $this->wrapper->expects($this->once())->method('copy')->will($this->returnValue($handle));
+        $this->wrapper->expects($this->at(0))->method('setOptArray')->with($this->isType('array'));
+        // The next index is two because the counter is bumped for all methods called on the mock,
+        // and the copy method is called between the first and second setOptArray
+        $this->wrapper->expects($this->at(2))->method('setOptArray')->with(
+            array(CURLOPT_HTTPGET => true),
+            $handle
+        );
+        $this->wrapper->expects($this->at(3))->method('setOptArray')->with(array(
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 1,
+            CURLOPT_CAPATH => '/some/path',
+            CURLOPT_CAINFO => 'some info',
+            CURLOPT_URL => $url,
+        ), $handle);
+        $this->wrapper->expects($this->once())->method('setOpt');
+        $this->wrapper->expects($this->once())->method('exec')->with($handle)->will($this->returnValue("HTTP/1.1 200 OK\r\n\r\ncontent"));
+        $this->wrapper->expects($this->any())->method('getInfo');
+
+        $curl = new cURL(array(
+            'sslCaPath' => '/some/path',
+            'sslCaInfo' => 'some info',
+            'sslVerifyPeer' => true,
+            'sslVerifyHost' => 1,
+        ), array(), $this->wrapper);
+        $this->assertInstanceOf('ImboClient\Http\Response\Response', $curl->get($url));
+    }
+
+    /**
+     * Make sure that the driver throws an exception if the connect timeout limit has been exceeded
+     *
+     * @expectedException ImboClient\Exception\RuntimeException
+     * @expectedExceptionMessage An error occured. Request timed out while connecting (limit: 20s).
+     * @covers ImboClient\Driver\cURL::request
+     */
+    public function testThrowsExceptionWhenConnectTimeoutIsHigherThanAllowed() {
+        $handle = 'curlhandle';
+        $url = 'http://someurl';
+
+        $this->wrapper->expects($this->once())->method('copy')->will($this->returnValue($handle));
+        $this->wrapper->expects($this->once())->method('exec')->with($handle)->will($this->returnValue(false));
+        $this->wrapper->expects($this->any())->method('getInfo')->will($this->returnCallback(function($opt) {
+            if ($opt === CURLINFO_CONNECT_TIME) {
+                return 30;
+            }
+
+            return null;
+        }));
+
+        $curl = new cURL(array(
+            'connectTimeout' => 20,
+        ), array(), $this->wrapper);
+        $curl->get($url);
+    }
+
+    /**
+     * Make sure that the driver throws an exception if an unknown error occurs
+     *
+     * @expectedException ImboClient\Exception\RuntimeException
+     * @expectedExceptionMessage An error occured. Could not complete request (Response code: 500).
+     * @covers ImboClient\Driver\cURL::request
+     */
+    public function testThrowsExceptionWhenUndefinedErrorOccurs() {
+        $handle = 'curlhandle';
+        $url = 'http://someurl';
+
+        $this->wrapper->expects($this->once())->method('copy')->will($this->returnValue($handle));
+        $this->wrapper->expects($this->once())->method('exec')->with($handle)->will($this->returnValue(false));
+        $this->wrapper->expects($this->any())->method('getInfo')->will($this->returnCallback(function($opt) {
+            if ($opt === CURLINFO_HTTP_CODE) {
+                return 500;
+            }
+
+            return null;
+        }));
+
+        $curl = new cURL(array(), array(), $this->wrapper);
+        $curl->get($url);
     }
 }
