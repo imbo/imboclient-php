@@ -5,6 +5,7 @@ ImboClient-0.7.0
 ----------------
 __N/A__
 
+* Fixed issue #68: SSL issues because some options are set when they are empty
 * Pull request #66: getImageProperties should return more information
 * Pull request #65: Implemented the imageIdentifierExists()-method.
 * Pull request #63: Add support for desaturate transformation (Espen Hovlandsdal)
