@@ -56,12 +56,12 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
         'size'            => 655114,
         'extension'       => 'png',
         'mime'            => 'image/png',
-        'added'           => 1328559645,
+        'added'           => 'Thu, 15 Nov 2012 16:58:06 GMT',
         'width'           => 640,
         'height'          => 480,
         'checksum'        => '995b506ba1772e6a3fa25a2e3e618b08',
         'publicKey'       => 'testsuite',
-        'updated'         => 1328559945,
+        'updated'         => 'Thu, 15 Nov 2012 16:58:06 GMT',
     );
 
     /**
@@ -127,8 +127,8 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Url\Images\Image::getAddedDate
      * @covers ImboClient\Url\Images\Image::setAddedDate
      */
-    public function testCanGetAddedDateAsDatetimeInstanceAfterBeingPopulatedThroughConstructorAsUnixTimestamp() {
-        $added = new DateTime('@' . $this->data['added']);
+    public function testCanGetAddedDateAsDatetimeInstanceAfterBeingPopulatedThroughConstructorAsFormattedString() {
+        $added = DateTime::createFromFormat('D, d M Y H:i:s T', $this->data['added']);
         $this->assertEquals($added, $this->image->getAddedDate());
     }
 
@@ -138,8 +138,8 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Url\Images\Image::getUpdatedDate
      * @covers ImboClient\Url\Images\Image::setUpdatedDate
      */
-    public function testCanGetUpdatedDateAsDatetimeInstanceAfterBeingPopulatedThroughConstructorAsUnixTimestamp() {
-        $updated = new DateTime('@' . $this->data['updated']);
+    public function testCanGetUpdatedDateAsDatetimeInstanceAfterBeingPopulatedThroughConstructorAsFormattedString() {
+        $updated = DateTime::createFromFormat('D, d M Y H:i:s T', $this->data['updated']);
         $this->assertEquals($updated, $this->image->getUpdatedDate());
     }
 
