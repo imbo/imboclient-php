@@ -74,14 +74,14 @@ interface ImageInterface {
     function getMimeType();
 
     /**
-     * Returns the date which the image which added
+     * Returns the date on which the image was added
      *
      * @return DateTime
      */
     function getAddedDate();
 
     /**
-     * Returns the date which the image was last updated
+     * Returns the date on which the image was last updated
      *
      * @return DateTime
      */
@@ -109,7 +109,7 @@ interface ImageInterface {
     function getChecksum();
 
     /**
-     * Returns the public key in which the image is catalogued under
+     * Returns the public key in which the image is cataloged under
      *
      * @return string
      */
