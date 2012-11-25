@@ -134,7 +134,7 @@ interface ImageInterface extends UrlInterface {
     /**
      * Append a rotate transformation query parameter to the URL
      *
-     * @param int $angle The angle to rotate
+     * @param float $angle The angle to rotate
      * @param string $bg Background color of the rotated image
      * @return ImageInterface
      */

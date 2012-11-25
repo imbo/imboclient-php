@@ -86,7 +86,7 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * The image URL must be able to apply the border transformation with no custom paramters
+     * The image URL must be able to apply the border transformation with no custom parameters
      *
      * @covers ImboClient\Url\Image::border
      * @covers ImboClient\Url\Url::addQueryParam
@@ -101,7 +101,7 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * The image URL must be able to apply the border transformation with custom paramters
+     * The image URL must be able to apply the border transformation with custom parameters
      *
      * @covers ImboClient\Url\Image::border
      * @covers ImboClient\Url\Url::addQueryParam
@@ -116,7 +116,7 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * The image URL must be able to apply the compress transformation with no custom paramters
+     * The image URL must be able to apply the compress transformation with no custom parameters
      *
      * @covers ImboClient\Url\Image::compress
      * @covers ImboClient\Url\Url::addQueryParam
@@ -128,7 +128,7 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * The image URL must be able to apply the compress transformation with custom paramters
+     * The image URL must be able to apply the compress transformation with custom parameters
      *
      * @covers ImboClient\Url\Image::compress
      * @covers ImboClient\Url\Url::addQueryParam

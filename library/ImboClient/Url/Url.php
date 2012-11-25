@@ -178,7 +178,7 @@ abstract class Url implements UrlInterface {
     /**
      * Set an instance of the access token
      *
-     * @return AccessTokenInterface $accessToken An instance of the access token
+     * @param AccessTokenInterface $accessToken An instance of the access token
      * @return UrlInterface
      */
     public function setAccessToken(AccessTokenInterface $accessToken) {

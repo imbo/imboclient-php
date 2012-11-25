@@ -85,7 +85,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * The response class must be able to set and get a body
+     * The response class must be able to set and get a status code
      *
      * @covers ImboClient\Http\Response\Response::setStatusCode
      * @covers ImboClient\Http\Response\Response::getStatusCode
@@ -115,7 +115,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
      * The response must tell whether the response is a "success" or not based on an HTTP status
      * code
      *
-     * @dataProvider getCodesforIsSuccess
+     * @dataProvider getCodesForIsSuccess
      * @covers ImboClient\Http\Response\Response::isSuccess
      * @covers ImboClient\Http\Response\Response::getStatusCode
      */
@@ -139,10 +139,10 @@ class ResponseTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * The response must tell whether the response is a "success" or not based on an HTTP status
+     * The response must tell whether the response is an "error" or not based on an HTTP status
      * code
      *
-     * @dataProvider getCodesforIsError
+     * @dataProvider getCodesForIsError
      * @covers ImboClient\Http\Response\Response::isError
      * @covers ImboClient\Http\Response\Response::getStatusCode
      */
