@@ -115,7 +115,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * The query instance must be able to set and get the page value
+     * The query instance must be able to set and get the limit value
      *
      * @covers ImboClient\Url\Images\Query::limit
      */
