@@ -3,7 +3,7 @@ Changelog for ImboClient
 
 ImboClient-0.7.0
 ----------------
-__N/A__
+__2012-11-26__
 
 * Pull request #72: Image class should expect dates as strings (Espen Hovlandsdal)
 * Fixed issue #68: SSL issues because some options are set when they are empty
