@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Unittests
+ * @package ImboClient\TestSuite
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -31,10 +31,10 @@
 
 namespace ImboClient;
 
-use ReflectionClass;
+use ReflectionProperty;
 
 /**
- * @package Unittests
+ * @package ImboClient\TestSuite
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -44,12 +44,12 @@ class VersionTest extends \PHPUnit_Framework_TestCase {
     /**
      * Client instance
      *
-     * @var ImboClient\Version
+     * @var Version
      */
     private $version;
 
     /**
-     * Set up method
+     * Set up the version instance
      *
      * @covers ImboClient\Client::__construct
      * @covers ImboClient\Client::setDriver
@@ -59,28 +59,31 @@ class VersionTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Tear down method
+     * Tear down the version instance
      */
     public function tearDown() {
         $this->version = null;
     }
 
     /**
+     * The version component reports as "dev" pr. default
+     *
      * @covers ImboClient\Version::getVersionNumber
      * @covers ImboClient\Version::getVersionString
      */
-    public function testGetDefaultVersion() {
+    public function testReportsDevPrDefault() {
         $this->assertSame('dev', $this->version->getVersionNumber());
         $this->assertSame('ImboClient-php-dev', $this->version->getVersionString());
     }
 
     /**
+     * The version component must be able to report the correct version after the internal property has been changed. This is done by the PEAR installer when the package is installed.
+     *
      * @covers ImboClient\Version::getVersionNumber
      * @covers ImboClient\Version::getVersionString
      */
-    public function testGetVersion() {
-        $reflectionClass = new ReflectionClass($this->version);
-        $version = $reflectionClass->getProperty('version');
+    public function testReportsCorrectVersionAfterInternalPropertyHasBeenChanged() {
+        $version = new ReflectionProperty('ImboClient\Version', 'version');
         $version->setAccessible(true);
         $version->setValue($this->version, '1.0.0');
 

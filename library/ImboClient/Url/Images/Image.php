@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Url\Images
+ * @package ImboClient\Urls
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
@@ -37,7 +37,7 @@ use DateTime;
 /**
  * Image implementation
  *
- * @package Url\Images
+ * @package ImboClient\Urls
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
@@ -145,70 +145,70 @@ class Image implements ImageInterface {
     }
 
     /**
-     * @see ImboClient\Url\Images\ImageInterface::getIdentifier()
+     * {@inheritdoc}
      */
     public function getIdentifier() {
         return $this->identifier;
     }
 
     /**
-     * @see ImboClient\Url\Images\ImageInterface::getSize()
+     * {@inheritdoc}
      */
     public function getSize() {
         return $this->size;
     }
 
     /**
-     * @see ImboClient\Url\Images\ImageInterface::getExtension()
+     * {@inheritdoc}
      */
     public function getExtension() {
         return $this->extension;
     }
 
     /**
-     * @see ImboClient\Url\Images\ImageInterface::getMimeType()
+     * {@inheritdoc}
      */
     public function getMimeType() {
         return $this->mimeType;
     }
 
     /**
-     * @see ImboClient\Url\Images\ImageInterface::getAddedDate()
+     * {@inheritdoc}
      */
     public function getAddedDate() {
         return $this->addedDate;
     }
 
     /**
-     * @see ImboClient\Url\Images\ImageInterface::getUpdatedDate()
+     * {@inheritdoc}
      */
     public function getUpdatedDate() {
         return $this->updatedDate;
     }
 
     /**
-     * @see ImboClient\Url\Images\ImageInterface::getWidth()
+     * {@inheritdoc}
      */
     public function getWidth() {
         return $this->width;
     }
 
     /**
-     * @see ImboClient\Url\Images\ImageInterface::getHeight()
+     * {@inheritdoc}
      */
     public function getHeight() {
         return $this->height;
     }
 
     /**
-     * @see ImboClient\Url\Images\ImageInterface::getChecksum()
+     * {@inheritdoc}
      */
     public function getChecksum() {
         return $this->checksum;
     }
 
     /**
-     * @see ImboClient\Url\Images\ImageInterface::getPublicKey()
+     * {@inheritdoc}
      */
     public function getPublicKey() {
         return $this->publicKey;
@@ -251,21 +251,21 @@ class Image implements ImageInterface {
     }
 
     /**
-     * Set date when image was added to the server, as unix timestamp
+     * Set date when image was added to the server
      *
-     * @param int $added
+     * @param string $added
      */
     private function setAddedDate($added) {
-        $this->addedDate = new DateTime('@' . (int) $added);
+        $this->addedDate = DateTime::createFromFormat('D, d M Y H:i:s T', $added);
     }
 
     /**
-     * Set date when image was last updated on the server, as unix timestamp
+     * Set date when image was last updated on the server
      *
-     * @param int $updated
+     * @param string $updated
      */
     private function setUpdatedDate($updated) {
-        $this->updatedDate = new DateTime('@' . (int) $updated);
+        $this->updatedDate = DateTime::createFromFormat('D, d M Y H:i:s T', $updated);
     }
 
     /**

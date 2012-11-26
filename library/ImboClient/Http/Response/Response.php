@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Http\Response
+ * @package ImboClient\Http
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -37,7 +37,7 @@ use ImboClient\Http\HeaderContainerInterface,
 /**
  * Client response
  *
- * @package Http\Response
+ * @package ImboClient\Http
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -47,7 +47,7 @@ class Response implements ResponseInterface {
     /**
      * Response headers
      *
-     * @var ImboClient\Http\HeaderContainerInterface
+     * @var HeaderContainerInterface
      */
     private $headers;
 
@@ -66,14 +66,14 @@ class Response implements ResponseInterface {
     private $statusCode;
 
     /**
-     * @see ImboClient\Http\Response\ResponseInterface::getHeaders()
+     * {@inheritdoc}
      */
     public function getHeaders() {
         return $this->headers;
     }
 
     /**
-     * @see ImboClient\Http\Response\ResponseInterface::setHeaders()
+     * {@inheritdoc}
      */
     public function setHeaders(HeaderContainerInterface $headers) {
         $this->headers = $headers;
@@ -82,14 +82,14 @@ class Response implements ResponseInterface {
     }
 
     /**
-     * @see ImboClient\Http\Response\ResponseInterface::getBody()
+     * {@inheritdoc}
      */
     public function getBody() {
         return $this->body;
     }
 
     /**
-     * @see ImboClient\Http\Response\ResponseInterface::setBody()
+     * {@inheritdoc}
      */
     public function setBody($body) {
         $this->body = $body;
@@ -98,14 +98,14 @@ class Response implements ResponseInterface {
     }
 
     /**
-     * @see ImboClient\Http\Response\ResponseInterface::getStatusCode()
+     * {@inheritdoc}
      */
     public function getStatusCode() {
         return $this->statusCode;
     }
 
     /**
-     * @see ImboClient\Http\Response\ResponseInterface::setStatusCode()
+     * {@inheritdoc}
      */
     public function setStatusCode($code) {
         $this->statusCode = (int) $code;
@@ -114,7 +114,7 @@ class Response implements ResponseInterface {
     }
 
     /**
-     * @see ImboClient\Http\Response\ResponseInterface::getImboErrorCode()
+     * {@inheritdoc}
      */
     public function getImboErrorCode() {
         if ($this->body === null) {
@@ -131,7 +131,7 @@ class Response implements ResponseInterface {
     }
 
     /**
-     * @see ImboClient\Http\Response\ResponseInterface::isSuccess()
+     * {@inheritdoc}
      */
     public function isSuccess() {
         $code = $this->getStatusCode();
@@ -140,28 +140,28 @@ class Response implements ResponseInterface {
     }
 
     /**
-     * @see ImboClient\Http\Response\ResponseInterface::isError()
+     * {@inheritdoc}
      */
     public function isError() {
         return $this->getStatusCode() >= 400;
     }
 
     /**
-     * @see ImboClient\Http\Response\ResponseInterface::getImageIdentifier()
+     * {@inheritdoc}
      */
     public function getImageIdentifier() {
         return $this->getHeaders()->get('x-imbo-imageidentifier');
     }
 
     /**
-     * @see ImboClient\Http\Response\ResponseInterface::asArray()
+     * {@inheritdoc}
      */
     public function asArray() {
         return json_decode($this->getBody(), true);
     }
 
     /**
-     * @see ImboClient\Http\Response\ResponseInterface::asObject()
+     * {@inheritdoc}
      */
     public function asObject() {
         return json_decode($this->getBody());
@@ -175,6 +175,6 @@ class Response implements ResponseInterface {
      * @return string
      */
     public function __toString() {
-        return $this->getBody();
+        return $this->getBody() ?: '';
     }
 }

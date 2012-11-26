@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Unittests
+ * @package ImboClient\TestSuite
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -32,7 +32,7 @@
 namespace ImboClient\Url;
 
 /**
- * @package Unittests
+ * @package ImboClient\TestSuite
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -40,7 +40,7 @@ namespace ImboClient\Url;
  */
 class MetadataTest extends \PHPUnit_Framework_TestCase {
     /**
-     * Data provider for testGetUrl()
+     * Fetch URL data
      *
      * @return array
      */
@@ -51,12 +51,14 @@ class MetadataTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The metadata URL must be able to generate a complete URL with an access token appended
+     *
      * @dataProvider getUrlData
      * @covers ImboClient\Url\Url::getUrl
      * @covers ImboClient\Url\Metadata::getResourceUrl
      * @covers ImboClient\Url\Metadata::__construct
      */
-    public function testGetUrl($host, $publicKey, $image, $expected) {
+    public function testCanGenerateACompleteUrlIncludingAnAccessToken($host, $publicKey, $image, $expected) {
         $url = new Metadata($host, $publicKey, 'privateKey', $image);
         $this->assertStringStartsWith($expected, $url->getUrl());
         $this->assertRegExp('/accessToken=[a-f0-9]{64}$/', $url->getUrl());

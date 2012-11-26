@@ -1,6 +1,18 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-0.7.0
+----------------
+__2012-11-26__
+
+* Pull request #72: Image class should expect dates as strings (Espen Hovlandsdal)
+* Fixed issue #68: SSL issues because some options are set when they are empty
+* Pull request #66: getImageProperties should return more information
+* Pull request #65: Implemented the imageIdentifierExists()-method.
+* Pull request #63: Add support for desaturate transformation (Espen Hovlandsdal)
+* Fixed issue #61: The response can not be used in a string context of the body is empty
+* Fixed issue #60: getMetadata() returns the response and not the metadata
+
 ImboClient-0.6.1
 ----------------
 __2012-09-19__

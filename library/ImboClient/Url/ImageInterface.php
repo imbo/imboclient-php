@@ -22,8 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Interfaces
- * @subpackage Url
+ * @package ImboClient\Interfaces
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -35,8 +34,7 @@ namespace ImboClient\Url;
 /**
  * Custom Interface for image URL's
  *
- * @package Interfaces
- * @subpackage Url
+ * @package ImboClient\Interfaces
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -49,7 +47,7 @@ interface ImageInterface extends UrlInterface {
      * @param string $color Color of the border
      * @param int $width Width of the left and right sides of the border
      * @param int $height Height of the top and bottom parts of the border
-     * @return ImboClient\Url\ImageInterface
+     * @return ImageInterface
      */
     function border($color = '000000', $width = 1, $height = 1);
 
@@ -57,7 +55,7 @@ interface ImageInterface extends UrlInterface {
      * Append a compress transformation query parameter to the URL
      *
      * @param int $quality A value between 0 and 100 where 100 is the best
-     * @return ImboClient\Url\ImageInterface
+     * @return ImageInterface
      */
     function compress($quality = 75);
 
@@ -65,28 +63,28 @@ interface ImageInterface extends UrlInterface {
      * Change the URL to trigger the convert transformation
      *
      * @param string $type The type to convert to
-     * @return ImboClient\Url\ImageInterface
+     * @return ImageInterface
      */
     function convert($type);
 
     /**
      * Convenience method to trigger gif conversion
      *
-     * @return ImboClient\Url\ImageInterface
+     * @return ImageInterface
      */
     function gif();
 
     /**
      * Convenience method to trigger jpg conversion
      *
-     * @return ImboClient\Url\ImageInterface
+     * @return ImageInterface
      */
     function jpg();
 
     /**
      * Convenience method to trigger png conversion
      *
-     * @return ImboClient\Url\ImageInterface
+     * @return ImageInterface
      */
     function png();
 
@@ -97,21 +95,21 @@ interface ImageInterface extends UrlInterface {
      * @param int $y Y coordinate of the top left corner of the crop
      * @param int $width Width of the crop
      * @param int $height Height of the crop
-     * @return ImboClient\Url\ImageInterface
+     * @return ImageInterface
      */
     function crop($x, $y, $width, $height);
 
     /**
      * Append a flipHorizontally transformation query parameter to the URL
      *
-     * @return ImboClient\Url\ImageInterface
+     * @return ImageInterface
      */
     function flipHorizontally();
 
     /**
      * Append a flipVertically transformation query parameter to the URL
      *
-     * @return ImboClient\Url\ImageInterface
+     * @return ImageInterface
      */
     function flipVertically();
 
@@ -120,7 +118,7 @@ interface ImageInterface extends UrlInterface {
      *
      * @param int $width Width of the resized image
      * @param int $height Height of the resized image
-     * @return ImboClient\Url\ImageInterface
+     * @return ImageInterface
      */
     function resize($width = null, $height = null);
 
@@ -129,16 +127,16 @@ interface ImageInterface extends UrlInterface {
      *
      * @param int $maxWidth Max width of the resized image
      * @param int $maxHeight Max height of the resized image
-     * @return ImboClient\Url\ImageInterface
+     * @return ImageInterface
      */
     function maxSize($maxWidth = null, $maxHeight = null);
 
     /**
      * Append a rotate transformation query parameter to the URL
      *
-     * @param int $angle The angle to rotate
+     * @param float $angle The angle to rotate
      * @param string $bg Background color of the rotated image
-     * @return ImboClient\Url\ImageInterface
+     * @return ImageInterface
      */
     function rotate($angle, $bg = '000000');
 
@@ -148,7 +146,7 @@ interface ImageInterface extends UrlInterface {
      * @param int $width Width of the thumbnail
      * @param int $height Height of the thumbnail
      * @param string $fit Fit type. 'outbound' or 'inset'
-     * @return ImboClient\Url\ImageInterface
+     * @return ImageInterface
      */
     function thumbnail($width = 50, $height = 50, $fit = 'outbound');
 
@@ -161,21 +159,28 @@ interface ImageInterface extends UrlInterface {
      * @param int $x X coordinate of the placement of the upper left corner of the existing image
      * @param int $y Y coordinate of the placement of the upper left corner of the existing image
      * @param string $bg Background color of the canvas
-     * @return ImboClient\Url\ImageInterface
+     * @return ImageInterface
      */
     function canvas($width, $height, $mode = null, $x = null, $y = null, $bg = null);
 
     /**
      * Append a transpose transformation query parameter to the URL
      *
-     * @return ImboClient\Url\ImageInterface
+     * @return ImageInterface
      */
     function transpose();
 
     /**
      * Append a transverse transformation query parameter to the URL
      *
-     * @return ImboClient\Url\ImageInterface
+     * @return ImageInterface
      */
     function transverse();
+
+    /**
+     * Append a desaturate transformation query parameter to the URL
+     *
+     * @return ImageInterface
+     */
+    function desaturate();
 }

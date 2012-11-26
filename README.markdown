@@ -52,6 +52,32 @@ $response = $client->addImageFromUrl($imageUrl); // Image from `ImboClient\Url\I
 echo "The image was added! Image identifier: " . $response->getImageIdentifier();
 ```
 
+### Add an image (with exception handling)
+```php
+<?php
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
+
+try {
+    $response = $client->addImage('/path/to/image.png');
+
+    echo "The image was added! Image identifier: " . $response->getImageIdentifier() . PHP_EOL;
+} catch (ImboClient\Exception\ServerException $e) {
+    echo "An error occured (HTTP " . $e->getCode() . "): " . $e->getMessage() . PHP_EOL;
+
+    // You can also inspect the response from the server
+    $response = $e->getResponse();
+    $imboErrorCode = $response->getImboErrorCode();
+
+    if ($imboErrorCode === ImboClient\Http\Response\ResponseInterface::IMAGE_ALDREADY_EXISTS) {
+        echo "The image already exists on the server" . PHP_EOL;
+    }
+
+    // More error codes can be found in ImboClient\Http\Response\ResponseInterface
+} catch (ImboClient\Exception $e) {
+    echo "An error occured: " . $e->getMessage() . PHP_EOL;
+}
+```
+
 ### Add/edit meta data
 ```php
 <?php
@@ -101,6 +127,24 @@ $client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey
 
 $imageIdentifier = '<image identifier>';
 $response = $client->replaceMetadata($imageIdentifier, array('key' => 'value'));
+```
+
+### Check if a local image exists on server
+```php
+<?php
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
+
+$imagePath = '<path to image>';
+$exists = $client->imageExists($imagePath);
+```
+
+### Check if an image identifier exists on server
+```php
+<?php
+$client = new ImboClient\Client('http://<hostname>', '<publickey>', '<privatekey>');
+
+$imageIdentifier = '<image identifier>';
+$exists = $client->imageIdentifierExists($imageIdentifier);
 ```
 
 ### Generate Imbo URLs
@@ -179,6 +223,10 @@ Crop the image.
 * `(int) $y` The Y coordinate of the cropped region's top left corner.
 * `(int) $width` The width of the crop.
 * `(int) $height` The height of the crop.
+
+**desaturate()**
+
+Desaturates the image (essentially grayscales it).
 
 **flipHorizontally()**
 

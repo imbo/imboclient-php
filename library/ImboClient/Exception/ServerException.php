@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Exceptions
+ * @package ImboClient\Exceptions
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -38,7 +38,7 @@ use ImboClient\Exception,
 /**
  * Runtime exception
  *
- * @package Exceptions
+ * @package ImboClient\Exceptions
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -57,9 +57,12 @@ class ServerException extends BaseRuntimeException implements Exception {
      *
      * @param ResponseInterface $response The response object containing info about the server
      *                                    response.
+     * @return ServerException
      */
     public function setResponse(ResponseInterface $response) {
         $this->response = $response;
+
+        return $this;
     }
 
     /**

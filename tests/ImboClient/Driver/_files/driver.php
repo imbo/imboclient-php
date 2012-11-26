@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Unittests
+ * @package ImboClient\TestSuite
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
  * @license http://www.opensource.org/licenses/mit-license MIT License
@@ -83,11 +83,18 @@ switch ($data['method']) {
 
 if (isset($_GET['clientError'])) {
     header('HTTP/1.0 400 Bad Request');
-    echo json_encode(array('error' => array('code' => 400, 'message' => 'bad request')));
+
+    if (!isset($_GET['emptyBody'])) {
+        echo json_encode(array('error' => array('code' => 400, 'message' => 'Bad Request')));
+    }
+
     exit;
 } else if (isset($_GET['serverError'])) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo json_encode(array('error' => array('code' => 500, 'message' => 'internal server error')));
+    if (!isset($_GET['emptyBody'])) {
+        echo json_encode(array('error' => array('code' => 500, 'message' => 'Internal Server Error')));
+    }
+
     exit;
 }
 

@@ -22,8 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
- * @package Interfaces
- * @subpackage Url\Images
+ * @package ImboClient\Interfaces
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
@@ -33,11 +32,12 @@
 
 namespace ImboClient\Url\Images;
 
+use DateTime;
+
 /**
  * Interface for an image found in a response to an images query
  *
- * @package Interfaces
- * @subpackage Url\Images
+ * @package ImboClient\Interfaces
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
@@ -74,14 +74,14 @@ interface ImageInterface {
     function getMimeType();
 
     /**
-     * Returns the date which the image which added
+     * Returns the date on which the image was added
      *
      * @return DateTime
      */
     function getAddedDate();
 
     /**
-     * Returns the date which the image was last updated
+     * Returns the date on which the image was last updated
      *
      * @return DateTime
      */
@@ -109,7 +109,7 @@ interface ImageInterface {
     function getChecksum();
 
     /**
-     * Returns the public key in which the image is catalogued under
+     * Returns the public key in which the image is cataloged under
      *
      * @return string
      */
