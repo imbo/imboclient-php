@@ -98,10 +98,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function setUp() {
         $this->driver = $this->getMock('ImboClient\Driver\DriverInterface');
-        $this->driver->expects($this->at(0))->method('setRequestHeaders')->with(array(
-            'Accept' => 'application/json,image/*',
-            'User-Agent' => 'ImboClient-php-dev',
-        ));
+        $this->driver->expects($this->at(0))->method('setRequestHeaders')->with($this->isType('array'));
         $this->client = new Client($this->serverUrl, $this->publicKey, $this->privateKey, $this->driver);
     }
 

@@ -8,13 +8,13 @@ build   = "#{basedir}/build"
 source  = "#{basedir}/library/ImboClient"
 
 desc "Task used by Jenkins-CI"
-task :jenkins => [:prepare, :lint, :composer, :test, :apidocs, :phploc, :phpcs_ci, :phpcb, :phpcpd, :pdepend, :phpmd, :phpmd_html]
+task :jenkins => [:prepare, :lint, :installdep, :test, :apidocs, :phploc, :phpcs_ci, :phpcb, :phpcpd, :pdepend, :phpmd, :phpmd_html]
 
 desc "Task used by Travis-CI"
-task :travis => [:composer, :test]
+task :travis => [:installdep, :test]
 
 desc "Default task"
-task :default => [:lint, :composer, :test, :phpcs, :apidocs]
+task :default => [:lint, :installdep, :test, :phpcs, :apidocs]
 
 desc "Clean up and create artifact directories"
 task :prepare do
@@ -26,18 +26,28 @@ task :prepare do
   end
 end
 
-desc "Fetch or update composer.phar and update the dependencies"
-task :composer do
+desc "Install dependencies"
+task :installdep do
   if ENV["TRAVIS"] == "true"
-    system "composer --no-ansi update --dev"
+    system "composer --no-ansi install --dev"
   else
-    if File.exists?("composer.phar")
-      system "php -d \"apc.enable_cli=0\" composer.phar self-update"
-    else
-      system "curl -s http://getcomposer.org/installer | php -d \"apc.enable_cli=0\""
-    end
+    Rake::Task["install_composer"].invoke
+    system "php -d \"apc.enable_cli=0\" composer.phar install --dev"
+  end
+end
 
-    system "php -d \"apc.enable_cli=0\" composer.phar --no-ansi update --dev"
+desc "Update dependencies"
+task :updatedep do
+  Rake::Task["install_composer"].invoke
+  system "php -d \"apc.enable_cli=0\" composer.phar update --dev"
+end
+
+desc "Install/update composer itself"
+task :install_composer do
+  if File.exists?("composer.phar")
+    system "php -d \"apc.enable_cli=0\" composer.phar self-update"
+  else
+    system "curl -s http://getcomposer.org/installer | php -d \"apc.enable_cli=0\""
   end
 end
 
@@ -52,28 +62,20 @@ task :lint do
   end
 end
 
-desc "Run PHPUnit tests (config in phpunit.xml)"
+desc "Run unit tests"
 task :test do
   if ENV["TRAVIS"] == "true"
-    puts "Opening phpunit.xml.dist"
-    document = Nokogiri::XML(File.open("phpunit.xml.dist"))
-    document.xpath("//phpunit/logging").remove
-
-    puts "Writing edited version of phpunit.xml"
-    File.open("phpunit.xml", "w+") do |f|
-        f.write(document.to_xml)
+    begin
+      sh %{vendor/bin/phpunit --verbose -c phpunit.xml.travis}
+    rescue Exception
+      exit 1
     end
-  end
-
-  begin
-    if File.exists?("phpunit.xml")
-      sh %{phpunit --verbose -c phpunit.xml}
-    else
-      puts "Using phpunit.xml.dist"
-      sh %{phpunit --verbose -c phpunit.xml.dist}
+  else
+    begin
+      sh %{vendor/bin/phpunit --verbose}
+    rescue Exception
+      exit 1
     end
-  rescue Exception
-    exit 1
   end
 end
 
