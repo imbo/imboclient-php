@@ -44,23 +44,28 @@ class Version {
     /**
      * The current version
      *
-     * This string will be replaced by pear when the package is installed
-     *
      * @var string
      */
-    private $version = '@package_version@';
+    const VERSION = 'dev';
+    private static $version;
 
     /**
-     * Get the version number only
+     * Get the version "number" only
      *
      * @return string
      */
     public function getVersionNumber() {
-        if (strpos($this->version, '@package_version') === 0) {
-            return 'dev';
+        if (self::$version === null) {
+            self::$version = self::VERSION;
+
+            if (is_dir(dirname(dirname(__DIR__)) . '/.git')) {
+                // We have a git checkout. Add commit hash
+                $hash = exec('git rev-parse --short HEAD');
+                self::$version .= '-' . $hash;
+            }
         }
 
-        return $this->version;
+        return self::$version;
     }
 
     /**

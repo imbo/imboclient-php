@@ -72,8 +72,8 @@ class VersionTest extends \PHPUnit_Framework_TestCase {
      * @covers ImboClient\Version::getVersionString
      */
     public function testReportsDevPrDefault() {
-        $this->assertSame('dev', $this->version->getVersionNumber());
-        $this->assertSame('ImboClient-php-dev', $this->version->getVersionString());
+        $this->assertStringStartsWith('dev-', $this->version->getVersionNumber());
+        $this->assertStringStartsWith('ImboClient-php-dev-', $this->version->getVersionString());
     }
 
     /**
