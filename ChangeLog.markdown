@@ -1,6 +1,12 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-0.8.0
+----------------
+__2013-01-12__
+
+* Fixed issue #74: Added method for fetching user information
+
 ImboClient-0.7.0
 ----------------
 __2012-11-26__
