@@ -37,7 +37,9 @@ use ImboClient\Driver\DriverInterface,
     ImboClient\Url\Images\Image,
     ImboClient\Url\Images\QueryInterface,
     ImboClient\Exception\InvalidArgumentException,
-    ImboClient\Exception\ServerException;
+    ImboClient\Exception\ServerException,
+    DateTime,
+    DateTimeZone;
 
 /**
  * Client that interacts with Imbo servers
@@ -429,6 +431,19 @@ class Client implements ClientInterface {
         }
 
         return json_decode($response->getBody(), true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUserInfo() {
+        $url = $this->getUserUrl()->getUrl();
+
+        $response = $this->driver->get($url);
+        $data = json_decode($response->getBody(), true);
+        $data['lastModified'] = new DateTime($data['lastModified'], new DateTimeZone('UTC'));
+
+        return $data;
     }
 
     /**
