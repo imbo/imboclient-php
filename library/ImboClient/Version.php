@@ -58,10 +58,13 @@ class Version {
         if (self::$version === null) {
             self::$version = self::VERSION;
 
-            if (is_dir(dirname(dirname(__DIR__)) . '/.git')) {
+            if (self::$version === 'dev' && is_dir(__DIR__ . '/../../.git')) {
                 // We have a git checkout. Add commit hash
+                $current = getcwd();
+                chdir(__DIR__ . '/../../.git');
                 $hash = exec('git rev-parse --short HEAD');
                 self::$version .= '-' . $hash;
+                chdir($current);
             }
         }
 
