@@ -77,7 +77,8 @@ class VersionTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * The version component must be able to report the correct version after the internal property has been changed. This is done by the PEAR installer when the package is installed.
+     * The version component must be able to report the correct version after the internal property
+     * has been changed.
      *
      * @covers ImboClient\Version::getVersionNumber
      * @covers ImboClient\Version::getVersionString
