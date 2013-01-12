@@ -290,11 +290,37 @@ STUB
   end
 end
 
-desc "Publish a PEAR package to pear.starzinger.net"
-task :publish_pear_package, :version do |t, args|
+desc "Publish API docs"
+task :publish_docs do
+  system "git checkout master"
+
+  # Geneate docs
+  Rake::Task["apidocs"].invoke
+
+  wd = Dir.getwd
+  Dir.chdir("/home/christer/dev/imboclient-php-ghpages")
+  system "git pull origin gh-pages"
+  system "cp -r #{wd}/build/docs/* ."
+  system "git add --all"
+  system "git commit -am \"Updated API docs [ci skip]\""
+  system "git push origin gh-pages"
+  Dir.chdir(wd)
+end
+
+desc "Release a new version"
+task :release, :version do |t, args|
   version = args[:version]
 
   if /^[\d]+\.[\d]+\.[\d]+$/ =~ version
+    system "git checkout master"
+
+    # Merge in changes from the develop branch
+    system "git merge -m \"Merge branch 'develop'\" develop"
+
+    # Set correct version
+    system "sed -i \"s/const VERSION = 'dev'/const VERSION = '#{version}'/\" library/ImboClient/Version.php"
+    system "git commit -m \"Bumped version\" library/ImboClient/Version.php"
+
     # Generate PEAR package
     Rake::Task["generate_pear_package"].invoke(version)
 
@@ -306,73 +332,25 @@ task :publish_pear_package, :version do |t, args|
       system "git pull origin master"
       system "pirum add . #{wd}/#{package}"
       system "git add --all"
-      system "git commit -am 'Added #{package[0..-5]}'"
+      system "git commit -am \"Added #{package[0..-5]}\""
       system "git push"
       Dir.chdir(wd)
+      File.unlink(package)
     else
-      puts "#{package} does not exist. Run the pear task first to create the package"
+      puts "PEAR package was not generated. Will not update the channel"
     end
-  else
-    puts "'#{version}' is not a valid version"
-    exit 1
-  end
-end
 
-desc "Tag current state of the master branch and push it to GitHub"
-task :tag_master_branch, :version do |t, args|
-  version = args[:version]
-
-  if /^[\d]+\.[\d]+\.[\d]+$/ =~ version
-    # Checkout the master branch
-    system "git checkout master"
-
-    # Merge in the current state of the develop branch
-    system "git merge develop"
-
-    # Update phar arhive
+    # Generate phar arhive
     Rake::Task["generate_phar_archive"].invoke(version)
-    system "git add imboclient.phar"
-    system "git commit -m 'Updated phar archive' imboclient.phar"
 
-    # Tag release and push
+    system "git add imboclient.phar"
+    system "git commit -m \"Updated phar archive\" imboclient.phar"
+
     system "git tag #{version}"
     system "git push"
     system "git push --tags"
     system "git checkout develop"
-  else
-    puts "'#{version}' is not a valid version"
-    exit 1
-  end
-end
 
-desc "Publish API docs"
-task :publish_docs do
-  system "git checkout master"
-
-  Rake::Task["apidocs"].invoke
-
-  wd = Dir.getwd
-  Dir.chdir("/home/christer/dev/imboclient-php-ghpages")
-  system "git pull origin gh-pages"
-  system "cp -r #{wd}/build/docs/* ."
-  system "git add --all"
-  system "git commit -am 'Updated API docs [ci skip]'"
-  system "git push origin gh-pages"
-  Dir.chdir(wd)
-end
-
-desc "Release a new version"
-task :release, :version do |t, args|
-  version = args[:version]
-
-  if /^[\d]+\.[\d]+\.[\d]+$/ =~ version
-    # Publish to the PEAR channel
-    Rake::Task["publish_pear_package"].invoke(version)
-
-    # Tag the current state of master and push to GitHub
-    Rake::Task["tag_master_branch"].invoke(version)
-
-    # Update the API docs and push to gh-pages
     Rake::Task["publish_docs"].invoke
   else
     puts "'#{version}' is not a valid version"
