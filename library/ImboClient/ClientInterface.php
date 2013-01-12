@@ -262,4 +262,11 @@ interface ClientInterface {
      * @return array Returns an array with the server status
      */
     function getServerStatus();
+
+    /**
+     * Get user information
+     *
+     * @return array Returns an array with the user information
+     */
+    function getUserInfo();
 }
