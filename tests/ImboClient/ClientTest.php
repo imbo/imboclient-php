@@ -1,32 +1,11 @@
 <?php
 /**
- * ImboClient
+ * This file is part of the ImboClient package
  *
- * Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
+ * (c) Christer Edvartsen <cogo@starzinger.net>
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * * The above copyright notice and this permission notice shall be included in
- *   all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @package ImboClient\TestSuite
- * @author Christer Edvartsen <cogo@starzinger.net>
- * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
- * @license http://www.opensource.org/licenses/mit-license MIT License
- * @link https://github.com/imbo/imboclient-php
+ * For the full copyright and license information, please view the LICENSE file that was
+ * distributed with this source code.
  */
 
 namespace ImboClient;
@@ -37,11 +16,8 @@ use ImboClient\Exception\ServerException,
     ReflectionProperty;
 
 /**
- * @package ImboClient\TestSuite
+ * @package Test suite
  * @author Christer Edvartsen <cogo@starzinger.net>
- * @copyright Copyright (c) 2011-2012, Christer Edvartsen <cogo@starzinger.net>
- * @license http://www.opensource.org/licenses/mit-license MIT License
- * @link https://github.com/imbo/imboclient-php
  */
 class ClientTest extends \PHPUnit_Framework_TestCase {
     /**
@@ -98,10 +74,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function setUp() {
         $this->driver = $this->getMock('ImboClient\Driver\DriverInterface');
-        $this->driver->expects($this->at(0))->method('setRequestHeaders')->with(array(
-            'Accept' => 'application/json,image/*',
-            'User-Agent' => 'ImboClient-php-dev',
-        ));
+        $this->driver->expects($this->at(0))->method('setRequestHeaders')->with($this->isType('array'));
         $this->client = new Client($this->serverUrl, $this->publicKey, $this->privateKey, $this->driver);
     }
 
@@ -1267,5 +1240,31 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
      */
     private function getResponseMock() {
         return $this->getMock('ImboClient\Http\Response\ResponseInterface');
+    }
+
+    /**
+     * The client must be able to fetch user information
+     *
+     * @covers ImboClient\Client::getUserInfo
+     * @covers ImboClient\Client::getUserUrl
+     */
+    public function testCanGetUserInfoWhenServerRespondsWithHttp200() {
+        $response = $this->getResponseMock();
+        $response->expects($this->once())
+                 ->method('getBody')
+                 ->will($this->returnValue('{"publicKey":"christer","numImages":11,"lastModified":"Wed, 09 Jan 2013 13:20:30 GMT"}'));
+
+        $this->driver->expects($this->once())
+                     ->method('get')
+                     ->with($this->isType('string'))
+                     ->will($this->returnValue($response));
+
+        $info = $this->client->getUserInfo();
+
+        $this->assertInternalType('array', $info);
+        $this->assertSame(11, $info['numImages']);
+        $this->assertSame('christer', $info['publicKey']);
+        $this->assertInstanceOf('DateTime', $info['lastModified']);
+        $this->assertSame('Wed, 09 Jan 2013 13:20:30 GMT', $info['lastModified']->format('D, d M Y H:i:s') . ' GMT');
     }
 }
