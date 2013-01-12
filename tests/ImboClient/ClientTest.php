@@ -1265,4 +1265,30 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     private function getResponseMock() {
         return $this->getMock('ImboClient\Http\Response\ResponseInterface');
     }
+
+    /**
+     * The client must be able to fetch user information
+     *
+     * @covers ImboClient\Client::getUserInfo
+     * @covers ImboClient\Client::getUserUrl
+     */
+    public function testCanGetUserInfoWhenServerRespondsWithHttp200() {
+        $response = $this->getResponseMock();
+        $response->expects($this->once())
+                 ->method('getBody')
+                 ->will($this->returnValue('{"publicKey":"christer","numImages":11,"lastModified":"Wed, 09 Jan 2013 13:20:30 GMT"}'));
+
+        $this->driver->expects($this->once())
+                     ->method('get')
+                     ->with($this->isType('string'))
+                     ->will($this->returnValue($response));
+
+        $info = $this->client->getUserInfo();
+
+        $this->assertInternalType('array', $info);
+        $this->assertSame(11, $info['numImages']);
+        $this->assertSame('christer', $info['publicKey']);
+        $this->assertInstanceOf('DateTime', $info['lastModified']);
+        $this->assertSame('Wed, 09 Jan 2013 13:20:30 GMT', $info['lastModified']->format('D, d M Y H:i:s') . ' GMT');
+    }
 }
