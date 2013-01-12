@@ -15,7 +15,7 @@ use DateTime;
 /**
  * Image implementation
  *
- * @package ImboClient\Urls
+ * @package Urls\Images
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  */

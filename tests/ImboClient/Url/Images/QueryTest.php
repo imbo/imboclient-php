@@ -11,7 +11,7 @@
 namespace ImboClient\Url\Images;
 
 /**
- * @package ImboClient\TestSuite
+ * @package Test suite
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class QueryTest extends \PHPUnit_Framework_TestCase {

@@ -13,7 +13,7 @@ namespace ImboClient\Url\Images;
 use DateTime;
 
 /**
- * @package ImboClient\TestSuite
+ * @package Test suite
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  */

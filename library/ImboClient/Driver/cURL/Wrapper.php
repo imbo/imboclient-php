@@ -13,12 +13,14 @@ namespace ImboClient\Driver\cURL;
 /**
  * Wrapper for some of the curl_* functions
  *
- * @package ImboClient\Drivers\cURL
+ * @package Drivers\cURL
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @codeCoverageIgnore
  */
 class Wrapper {
     /**
+     * cURL handle
+     *
      * @var resource
      */
     private $handle;

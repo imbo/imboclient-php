@@ -13,7 +13,7 @@ namespace ImboClient\Url;
 /**
  * User URL
  *
- * @package ImboClient\Urls
+ * @package Urls\User
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class User extends Url implements UrlInterface {

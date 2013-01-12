@@ -25,7 +25,7 @@ use ImboClient\Driver\DriverInterface,
  *
  * This client includes methods that can be used to easily interact with Imbo servers.
  *
- * @package ImboClient\Client
+ * @package Client
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class Client implements ClientInterface {

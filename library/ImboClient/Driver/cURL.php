@@ -22,7 +22,7 @@ use ImboClient\Http\Response\Response,
  *
  * This class is a driver for the client using the cURL functions.
  *
- * @package ImboClient\Drivers
+ * @package Drivers
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class cURL implements DriverInterface {

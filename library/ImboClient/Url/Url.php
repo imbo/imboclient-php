@@ -13,7 +13,7 @@ namespace ImboClient\Url;
 /**
  * Abstract imbo URL for other implementations to extend
  *
- * @package ImboClient\Urls
+ * @package Urls
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 abstract class Url implements UrlInterface {

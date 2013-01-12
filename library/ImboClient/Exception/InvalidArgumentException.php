@@ -16,7 +16,7 @@ use ImboClient\Exception,
 /**
  * Invalid argument exception
  *
- * @package ImboClient\Exceptions
+ * @package Exceptions
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class InvalidArgumentException extends BaseInvalidArgumentException implements Exception {}

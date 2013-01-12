@@ -11,7 +11,7 @@
 namespace ImboClient\Url;
 
 /**
- * @package ImboClient\TestSuite
+ * @package Test suite
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class UrlTest extends \PHPUnit_Framework_TestCase {
@@ -183,6 +183,8 @@ class UrlTest extends \PHPUnit_Framework_TestCase {
 
 /**
  * URL implementation used for this test case
+ *
+ * @package Test suite
  */
 class UrlImplementation extends Url {
     /**

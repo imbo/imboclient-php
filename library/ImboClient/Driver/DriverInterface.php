@@ -19,7 +19,7 @@ use ImboClient\Http\Response\ResponseInterface,
  *
  * This is an interface for different client drivers.
  *
- * @package ImboClient\Interfaces
+ * @package Drivers
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 interface DriverInterface {

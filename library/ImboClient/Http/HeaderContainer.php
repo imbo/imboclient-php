@@ -15,7 +15,7 @@ namespace ImboClient\Http;
  *
  * This container contains HTTP headers along with some methods for normalizing the header names.
  *
- * @package ImboClient\Http
+ * @package Http
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class HeaderContainer implements HeaderContainerInterface {

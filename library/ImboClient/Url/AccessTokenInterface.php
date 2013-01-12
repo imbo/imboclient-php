@@ -13,7 +13,7 @@ namespace ImboClient\Url;
 /**
  * Access token interface
  *
- * @package ImboClient\Interfaces
+ * @package Urls\Access token
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 interface AccessTokenInterface {

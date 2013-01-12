@@ -13,7 +13,7 @@ namespace ImboClient\Url;
 /**
  * Metadata URL
  *
- * @package ImboClient\Urls
+ * @package Urls\Metadata
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class Metadata extends Url implements UrlInterface {

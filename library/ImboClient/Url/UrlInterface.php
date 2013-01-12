@@ -13,7 +13,7 @@ namespace ImboClient\Url;
 /**
  * Base interface for imbo URL's
  *
- * @package ImboClient\Interfaces
+ * @package Urls
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 interface UrlInterface {
