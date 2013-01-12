@@ -13,7 +13,7 @@ namespace ImboClient\Url;
 /**
  * Images URL
  *
- * @package ImboClient\Urls
+ * @package Urls\Images
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class Images extends Url implements UrlInterface {

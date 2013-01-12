@@ -11,7 +11,7 @@
 namespace ImboClient\Http;
 
 /**
- * @package ImboClient\TestSuite
+ * @package Test suite
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class HeaderContainerTest extends \PHPUnit_Framework_TestCase {

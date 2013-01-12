@@ -13,7 +13,7 @@ namespace ImboClient\Url;
 /**
  * Status URL
  *
- * @package ImboClient\Urls
+ * @package Urls\Status
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class Status extends Url implements UrlInterface {

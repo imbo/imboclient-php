@@ -18,7 +18,7 @@ use ImboClient\Driver\DriverInterface,
 /**
  * Interface for the client
  *
- * @package ImboClient\Interfaces
+ * @package Client
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 interface ClientInterface {

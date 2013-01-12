@@ -11,7 +11,7 @@
 namespace ImboClient;
 
 /**
- * @package ImboClient\TestSuite
+ * @package Test suite
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 

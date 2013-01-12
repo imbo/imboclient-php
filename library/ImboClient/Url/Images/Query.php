@@ -13,7 +13,7 @@ namespace ImboClient\Url\Images;
 /**
  * Query object for the images resource
  *
- * @package ImboClient\Urls
+ * @package Urls\Images
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  */

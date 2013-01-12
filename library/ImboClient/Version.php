@@ -13,7 +13,7 @@ namespace ImboClient;
 /**
  * Version class
  *
- * @package ImboClient\Version
+ * @package Version
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class Version {
@@ -23,6 +23,12 @@ class Version {
      * @var string
      */
     const VERSION = 'dev';
+
+    /**
+     * Static version string
+     *
+     * @var string
+     */
     private static $version;
 
     /**

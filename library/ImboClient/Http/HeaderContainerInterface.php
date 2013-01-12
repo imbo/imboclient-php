@@ -13,7 +13,7 @@ namespace ImboClient\Http;
 /**
  * Parameter container interface
  *
- * @package ImboClient\Interfaces
+ * @package Http
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 interface HeaderContainerInterface {

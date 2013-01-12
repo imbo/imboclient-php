@@ -15,7 +15,7 @@ use ImboClient\Exception\ServerException,
     ReflectionProperty;
 
 /**
- * @package ImboClient\TestSuite
+ * @package Test suite
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class cURLTest extends \PHPUnit_Framework_TestCase {

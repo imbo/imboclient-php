@@ -17,7 +17,7 @@ use ImboClient\Exception,
 /**
  * Runtime exception
  *
- * @package ImboClient\Exceptions
+ * @package Exceptions
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class ServerException extends BaseRuntimeException implements Exception {

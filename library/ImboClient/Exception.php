@@ -13,7 +13,7 @@ namespace ImboClient;
 /**
  * Base exception interface
  *
- * @package ImboClient\Interfaces
+ * @package Exceptions
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 interface Exception {}

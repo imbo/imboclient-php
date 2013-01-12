@@ -15,7 +15,7 @@ use ImboClient\Http\HeaderContainerInterface;
 /**
  * Client response interface
  *
- * @package ImboClient\Interfaces
+ * @package Http
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 interface ResponseInterface {

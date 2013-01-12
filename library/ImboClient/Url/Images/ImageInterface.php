@@ -15,7 +15,7 @@ use DateTime;
 /**
  * Interface for an image found in a response to an images query
  *
- * @package ImboClient\Interfaces
+ * @package Urls\Images
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  * @author Christer Edvartsen <cogo@starzinger.net>
  */

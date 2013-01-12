@@ -16,7 +16,7 @@ use ImboClient\Exception\ServerException,
     ReflectionProperty;
 
 /**
- * @package ImboClient\TestSuite
+ * @package Test suite
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class ClientTest extends \PHPUnit_Framework_TestCase {

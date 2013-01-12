@@ -11,6 +11,9 @@
 /**
  * This script is a part of ImboClient' test suite. The client drivers use this script when doing
  * actual HTTP requests.
+ *
+ * @package Test suite
+ * @author Christer Edvartsen <cogo@starzinger.net>
  */
 
 if (isset($_GET['redirect'])) {
