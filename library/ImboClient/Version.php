@@ -22,7 +22,7 @@ class Version {
      *
      * @var string
      */
-    const VERSION = 'dev';
+    const VERSION = '0.8.0';
 
     /**
      * Static version string
