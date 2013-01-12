@@ -6,6 +6,7 @@ require 'nokogiri'
 basedir = "."
 build   = "#{basedir}/build"
 source  = "#{basedir}/library/ImboClient"
+tests   = "#{basedir}/tests"
 
 desc "Task used by Jenkins-CI"
 task :jenkins => [:prepare, :lint, :installdep, :test, :apidocs, :phploc, :phpcs_ci, :phpcb, :phpcpd, :pdepend, :phpmd, :phpmd_html]
@@ -81,7 +82,7 @@ end
 
 desc "Generate API documentation using phpdoc"
 task :apidocs do
-  system "phpdoc -d #{source} -t #{build}/docs"
+  system "phpdoc -d #{tests} -d #{source} -t #{build}/docs --title \"ImboClient API documentation\""
 end
 
 desc "Generate phploc logs"
