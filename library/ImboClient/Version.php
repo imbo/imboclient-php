@@ -15,6 +15,7 @@ namespace ImboClient;
  *
  * @package Version
  * @author Christer Edvartsen <cogo@starzinger.net>
+ * @codeCoverageIgnore
  */
 class Version {
     /**
