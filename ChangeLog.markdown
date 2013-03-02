@@ -1,6 +1,12 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-0.8.1
+----------------
+__N/A__
+
+* Fixed issue #78: Issue when response body is not JSON-serialized
+
 ImboClient-0.8.0
 ----------------
 __2013-01-12__
