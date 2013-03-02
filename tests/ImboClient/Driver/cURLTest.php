@@ -480,4 +480,29 @@ class cURLTest extends \PHPUnit_Framework_TestCase {
         $curl = new cURL(array(), array(), $this->wrapper);
         $curl->get($url);
     }
+
+    /**
+     * Make sure that the driver handles incorrectly serialized data in the response
+     *
+     * @expectedException ImboClient\Exception\ServerException
+     * @expectedExceptionMessage Invalid response body. Expected JSON serialized data
+     * @expectedExceptionCode 404
+     * @covers ImboClient\Driver\cURL::request
+     */
+    public function testGracefullyHandlesNonJsonResponseBodies() {
+        $response  = "HTTP/1.1 404 Not found\r\n";
+        $response .= "Content-Type: text/html; charset=UTF-8\r\n\r\n";
+        $response .= "<html><head></head><body>Not found</body></html>";
+
+        $wrapper = $this->getMock('ImboClient\Driver\cURL\Wrapper');
+        $wrapper->expects($this->once())->method('exec')->will($this->returnValue($response));
+        $wrapper->expects($this->any())->method('getInfo')->will($this->returnCallback(function($const, $handle) {
+            if ($const === CURLINFO_HTTP_CODE) {
+                return 404;
+            }
+        }));
+        $driver = new cURL(array(), array(), $wrapper);
+        $driver->get('http://example.com/');
+    }
 }
+
