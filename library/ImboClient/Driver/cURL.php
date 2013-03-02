@@ -300,7 +300,11 @@ class cURL implements DriverInterface {
         if ($response->isError()) {
             if (!empty($body)) {
                 $body = json_decode($body);
-                $errorMessage = $body->error->message;
+                if (is_object($body)) {
+                    $errorMessage = $body->error->message;
+                } else {
+                    $errorMessage = $body;
+                }
             } else {
                 $errorMessage = 'Empty body';
             }
