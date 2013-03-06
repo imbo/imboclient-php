@@ -159,4 +159,12 @@ interface ImageInterface extends UrlInterface {
      * @return ImageInterface
      */
     function desaturate();
+
+    /**
+     * Append a sepia transformation query parameter to the URL
+     *
+     * @param int $threshold Measure of the extent of sepia toning (ranges from 0 to QuantumRange)
+     * @return ImageInterface
+     */
+    function sepia($threshold = 80);
 }
