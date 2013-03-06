@@ -201,6 +201,13 @@ class Image extends Url implements ImageInterface {
     /**
      * {@inheritdoc}
      */
+    public function sepia($threshold = 80) {
+        return $this->addQueryParam('t[]', 'sepia:threshold=' . (int) $threshold);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function reset() {
         parent::reset();
 
