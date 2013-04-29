@@ -18,7 +18,8 @@
     }
   ],
   "require": {
-    "php": ">=5.3.2"
+    "php": ">=5.4",
+    "guzzle/guzzle": "3.4.*"
   },
   "require-dev": {
     "phpunit/phpunit": "3.7.*"
@@ -29,7 +30,8 @@
   },
   "autoload": {
     "psr-0": {
-      "ImboClient": "library"
+      "ImboClient\\": "src/"
+      "ImboClientTest\\": "tests/"
     }
   }
 }
