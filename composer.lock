@@ -3,13 +3,165 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
+<<<<<<< HEAD
     "hash": "c16c590b14dddd13bdd2a7174e7bd4ea",
+=======
+    "hash": "af80ed037e7f86de39a83ab40efa827d",
+>>>>>>> Updated dependencies
     "packages": [
-
+        {
+            "name": "guzzle/guzzle",
+            "version": "v3.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/guzzle/guzzle.git",
+                "reference": "v3.4.1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/v3.4.1",
+                "reference": "v3.4.1",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "php": ">=5.3.2",
+                "symfony/event-dispatcher": ">=2.1"
+            },
+            "replace": {
+                "guzzle/batch": "self.version",
+                "guzzle/cache": "self.version",
+                "guzzle/common": "self.version",
+                "guzzle/http": "self.version",
+                "guzzle/inflection": "self.version",
+                "guzzle/iterator": "self.version",
+                "guzzle/log": "self.version",
+                "guzzle/parser": "self.version",
+                "guzzle/plugin": "self.version",
+                "guzzle/plugin-async": "self.version",
+                "guzzle/plugin-backoff": "self.version",
+                "guzzle/plugin-cache": "self.version",
+                "guzzle/plugin-cookie": "self.version",
+                "guzzle/plugin-curlauth": "self.version",
+                "guzzle/plugin-error-response": "self.version",
+                "guzzle/plugin-history": "self.version",
+                "guzzle/plugin-log": "self.version",
+                "guzzle/plugin-md5": "self.version",
+                "guzzle/plugin-mock": "self.version",
+                "guzzle/plugin-oauth": "self.version",
+                "guzzle/service": "self.version",
+                "guzzle/stream": "self.version"
+            },
+            "require-dev": {
+                "doctrine/cache": "*",
+                "monolog/monolog": "1.*",
+                "phpunit/phpunit": "3.7.*",
+                "psr/log": "1.0.*",
+                "symfony/class-loader": "*",
+                "zend/zend-cache1": "1.12",
+                "zend/zend-log1": "1.12",
+                "zendframework/zend-cache": "2.0.*",
+                "zendframework/zend-log": "2.0.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Guzzle\\Tests": "tests/",
+                    "Guzzle": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Dowling",
+                    "email": "mtdowling@gmail.com",
+                    "homepage": "https://github.com/mtdowling"
+                },
+                {
+                    "name": "Guzzle Community",
+                    "homepage": "https://github.com/guzzle/guzzle/contributors"
+                }
+            ],
+            "description": "Guzzle is a PHP HTTP client library and framework for building RESTful web service clients",
+            "homepage": "http://guzzlephp.org/",
+            "keywords": [
+                "client",
+                "curl",
+                "framework",
+                "http",
+                "http client",
+                "rest",
+                "web service"
+            ],
+            "time": "2013-04-16 20:56:26"
+        },
+        {
+            "name": "symfony/event-dispatcher",
+            "version": "v2.2.1",
+            "target-dir": "Symfony/Component/EventDispatcher",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/EventDispatcher.git",
+                "reference": "v2.2.1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/v2.2.1",
+                "reference": "v2.2.1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "symfony/dependency-injection": ">=2.0,<3.0"
+            },
+            "suggest": {
+                "symfony/dependency-injection": "2.2.*",
+                "symfony/http-kernel": "2.2.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.2-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\EventDispatcher\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony EventDispatcher Component",
+            "homepage": "http://symfony.com",
+            "time": "2013-02-11 11:26:43"
+        }
     ],
     "packages-dev": [
         {
             "name": "phpunit/php-code-coverage",
+<<<<<<< HEAD
             "version": "1.2.11",
             "source": {
                 "type": "git",
@@ -20,6 +172,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/1.2.11",
                 "reference": "1.2.11",
+=======
+            "version": "1.2.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
+                "reference": "1.2.9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/1.2.9",
+                "reference": "1.2.9",
+>>>>>>> Updated dependencies
                 "shasum": ""
             },
             "require": {
@@ -27,9 +191,12 @@
                 "phpunit/php-file-iterator": ">=1.3.0@stable",
                 "phpunit/php-text-template": ">=1.1.1@stable",
                 "phpunit/php-token-stream": ">=1.1.3@stable"
+<<<<<<< HEAD
             },
             "require-dev": {
                 "phpunit/phpunit": "3.7.*"
+=======
+>>>>>>> Updated dependencies
             },
             "suggest": {
                 "ext-dom": "*",
@@ -62,7 +229,11 @@
                 "testing",
                 "xunit"
             ],
+<<<<<<< HEAD
             "time": "2013-05-23 18:23:24"
+=======
+            "time": "2013-02-26 18:55:56"
+>>>>>>> Updated dependencies
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -244,6 +415,7 @@
         },
         {
             "name": "phpunit/phpunit",
+<<<<<<< HEAD
             "version": "3.7.21",
             "source": {
                 "type": "git",
@@ -254,6 +426,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3.7.21",
                 "reference": "3.7.21",
+=======
+            "version": "3.7.19",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/phpunit.git",
+                "reference": "3.7.19"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3.7.19",
+                "reference": "3.7.19",
+>>>>>>> Updated dependencies
                 "shasum": ""
             },
             "require": {
@@ -267,7 +451,11 @@
                 "phpunit/php-text-template": ">=1.1.1",
                 "phpunit/php-timer": ">=1.0.2,<1.1.0",
                 "phpunit/phpunit-mock-objects": ">=1.2.0,<1.3.0",
+<<<<<<< HEAD
                 "symfony/yaml": ">=2.0,<3.0"
+=======
+                "symfony/yaml": ">=2.0.0,<2.3.0"
+>>>>>>> Updated dependencies
             },
             "require-dev": {
                 "pear-pear/pear": "1.9.4"
@@ -314,7 +502,11 @@
                 "testing",
                 "xunit"
             ],
+<<<<<<< HEAD
             "time": "2013-05-23 18:54:29"
+=======
+            "time": "2013-03-25 11:45:06"
+>>>>>>> Updated dependencies
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -367,17 +559,30 @@
         },
         {
             "name": "symfony/yaml",
+<<<<<<< HEAD
             "version": "v2.3.1",
+=======
+            "version": "v2.2.1",
+>>>>>>> Updated dependencies
             "target-dir": "Symfony/Component/Yaml",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
+<<<<<<< HEAD
                 "reference": "v2.3.1"
             },
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/symfony/Yaml/zipball/v2.3.1",
                 "reference": "v2.3.1",
+=======
+                "reference": "v2.2.1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/v2.2.1",
+                "reference": "v2.2.1",
+>>>>>>> Updated dependencies
                 "shasum": ""
             },
             "require": {
@@ -386,7 +591,11 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
+<<<<<<< HEAD
                     "dev-master": "2.3-dev"
+=======
+                    "dev-master": "2.2-dev"
+>>>>>>> Updated dependencies
                 }
             },
             "autoload": {
@@ -410,7 +619,11 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
+<<<<<<< HEAD
             "time": "2013-05-10 18:12:13"
+=======
+            "time": "2013-03-23 07:49:54"
+>>>>>>> Updated dependencies
         }
     ],
     "aliases": [
@@ -421,7 +634,11 @@
 
     ],
     "platform": {
+<<<<<<< HEAD
         "php": ">=5.3.2"
+=======
+        "php": ">=5.4"
+>>>>>>> Updated dependencies
     },
     "platform-dev": [
 
