@@ -11,8 +11,10 @@
 namespace ImboClient;
 
 use Guzzle\Common\Collection,
+    Guzzle\Common\Event,
     Guzzle\Service\Client,
-    Guzzle\Service\Description\ServiceDescription;
+    Guzzle\Service\Description\ServiceDescription,
+    Guzzle\Http\Message\Request;
 
 /**
  * Client that interacts with Imbo servers
@@ -24,20 +26,70 @@ use Guzzle\Common\Collection,
  */
 class ImboClient extends Client implements ImboClientInterface {
     /**
-     * Factory method for creating a new ImboClient instance
+     * Class constructor
      *
-     * Configuration parameters:
+     * Call parent constructor and attach an event listener that in turn will attach listeners to
+     * the request based on the command being called.
      *
-     * - (string) baseUrl: Base URL to the imbo server
-     * - (string) publicKey: The public key to use
-     * - (string) privateKey: The private key to use
-     *
-     * @param array|Collection $config Configuration for the client
-     * @return ImboClient
+     * @param string $baseUrl The base URL to Imbo
+     * @param array|Collection $config Client configuration
+     */
+    public function __construct($baseUrl, $config) {
+        parent::__construct($baseUrl, $config);
+
+        // Attach event listeners that handles the signing of write operations and the attachment of
+        // access tokens to read operations
+        $this->getEventDispatcher()->addListener('client.command.create', function($event) {
+            $commandName = $event['command']->getName();
+            $dispatcher = $event->getDispatcher();
+
+            switch ($commandName) {
+                case 'GetServerStatus':
+                case 'GetUserInfo':
+                case 'TransformImage':
+                case 'GetImages':
+                case 'GetMetadata':
+                    // Generate access token
+                    $dispatcher->addListener('request.before_send', function($event) {
+                        $this->addAccessToken($event['request']);
+                    }, -1000);
+                    break;
+                case 'AddImage':
+                case 'DeleteImage':
+                case 'ReplaceMetadata':
+                case 'EditMetadata':
+                case 'DeleteMetadata':
+                    // Sign the request
+                    $dispatcher->addListener('request.before_send', function($event) {
+                        $this->signRequest($event['request']);
+                    } -1000);
+                    break;
+            }
+        });
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getServerStatus() {
+        return $this->getCommand('GetServerStatus')->execute();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUserInfo() {
+        return $this->getCommand('GetUserInfo', array(
+            'publicKey' => $this->getConfig('publicKey'),
+        ))->execute();
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public static function factory($config = array()) {
         $default = array(
-            'baseUrl' => array(),
+            'baseUrl' => null,
             'publicKey' => null,
             'privateKey' => null,
         );
@@ -45,12 +97,43 @@ class ImboClient extends Client implements ImboClientInterface {
         $required = array('baseUrl', 'publicKey', 'privateKey');
         $config = Collection::fromConfig($config, $default, $required);
 
-        $description = ServiceDescription::factory(__DIR__ . '/service.php');
-
         // Create the client and attach the service description
+        $description = ServiceDescription::factory(__DIR__ . '/service.php');
         $client = new self($config->get('baseUrl'), $config);
         $client->setDescription($description);
 
         return $client;
+    }
+
+    /**
+     * Add an access token to the request
+     *
+     * @param Request $request The current request
+     */
+    private function addAccessToken(Request $request) {
+        $accessToken = hash_hmac('sha256', $request->getUrl(), $this->getConfig('privateKey'));
+        $request->getQuery()->set('accessToken', $accessToken);
+    }
+
+    /**
+     * Sign the current request for write operations
+     *
+     * @param Request $request The current request
+     */
+    private function signRequest(Request $request) {
+        $timestamp = gmdate('Y-m-d\TH:i:s\Z');
+        $data = $request->getMethod() . '|' .
+                $request->getUrl() . '|' .
+                $this->getConfig('publicKey') . '|' .
+                $timestamp;
+
+        // Generate signature
+        $signature = hash_hmac('sha256', $data, $this->getConfig('privateKey'));
+
+        // Add relevant request headers
+        $request->addHeaders(array(
+            'X-Imbo-Authenticate-Signature' => $signature,
+            'X-Imbo-Authenticate-Timestamp' => $timestamp,
+        ));
     }
 }

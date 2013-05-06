@@ -51,56 +51,19 @@ return array(
                     'location' => 'body',
                     'description' => 'The binary data of the image to add',
                 ),
-                'signature' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'X-Imbo-Authenticate-Signature',
-                    'description' => 'The signature needed to execute write operations',
-                ),
-                'timestamp' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'X-Imbo-Authenticate-Timestamp',
-                    'description' => 'The timestamp used when generating the signature',
-                ),
             ),
         ),
+
         'DeleteImage' => array(
             'httpMethod' => 'DELETE',
             'uri' => '/users/{publicKey}/images/{imageIdentifier}',
             'summary' => 'Delete an image',
-            'parameters' => array(
-                'signature' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'X-Imbo-Authenticate-Signature',
-                    'description' => 'The signature needed to execute write operations',
-                ),
-                'timestamp' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'X-Imbo-Authenticate-Timestamp',
-                    'description' => 'The timestamp used when generating the signature',
-                ),
-            ),
         ),
+
         'TransformImage' => array(
             'httpMethod' => 'GET',
             'uri' => '/users/{publicKey}/images/{imageIdentifier}',
             'summary' => 'Transform an existing image',
-            'parameters' => array(
-                'accessToken' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'query',
-                    'description' => 'Access token needed to fetch data',
-                    'pattern' => '/^[a-f0-9]{32}$/',
-                ),
-            ),
         ),
 
         // Images
@@ -108,15 +71,6 @@ return array(
             'httpMethod' => 'GET',
             'uri' => '/users/{publicKey}/images',
             'summary' => 'Query images',
-            'parameters' => array(
-                'accessToken' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'query',
-                    'description' => 'Access token needed to fetch data',
-                    'pattern' => '/^[a-f0-9]{32}$/',
-                ),
-            ),
         ),
 
         // Metadata
@@ -124,78 +78,24 @@ return array(
             'httpMethod' => 'GET',
             'uri' => '/users/{publicKey}/images/{imageIdentifier}/metadata',
             'summary' => 'Get metadata attached to an image',
-            'parameters' => array(
-                'accessToken' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'query',
-                    'description' => 'Access token needed to fetch data',
-                    'pattern' => '/^[a-f0-9]{32}$/',
-                ),
-            ),
         ),
+
         'ReplaceMetadata' => array(
             'httpMethod' => 'PUT',
             'uri' => '/users/{publicKey}/images/{imageIdentifier}/metadata',
             'summary' => 'Completely replace the metadata attached to an image with new metadata',
-            'parameters' => array(
-                'signature' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'X-Imbo-Authenticate-Signature',
-                    'description' => 'The signature needed to execute write operations',
-                ),
-                'timestamp' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'X-Imbo-Authenticate-Timestamp',
-                    'description' => 'The timestamp used when generating the signature',
-                ),
-            ),
         ),
+
         'EditMetadata' => array(
             'httpMethod' => 'POST',
             'uri' => '/users/{publicKey}/images/{imageIdentifier}/metadata',
             'summary' => 'Update metadata attached to an image. Supports partial updates',
-            'parameters' => array(
-                'signature' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'X-Imbo-Authenticate-Signature',
-                    'description' => 'The signature needed to execute write operations',
-                ),
-                'timestamp' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'X-Imbo-Authenticate-Timestamp',
-                    'description' => 'The timestamp used when generating the signature',
-                ),
-            ),
         ),
+
         'DeleteMetadata' => array(
             'httpMethod' => 'DELETE',
             'uri' => '/users/{publicKey}/images/{imageIdentifier}/metadata',
             'summary' => 'Delete metadata attached to an image',
-            'parameters' => array(
-                'signature' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'X-Imbo-Authenticate-Signature',
-                    'description' => 'The signature needed to execute write operations',
-                ),
-                'timestamp' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'X-Imbo-Authenticate-Timestamp',
-                    'description' => 'The timestamp used when generating the signature',
-                ),
-            ),
         ),
     ),
 
