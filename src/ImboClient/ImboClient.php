@@ -71,22 +71,6 @@ class ImboClient extends Client implements ImboClientInterface {
     /**
      * {@inheritdoc}
      */
-    public function getServerStatus() {
-        return $this->getCommand('GetServerStatus')->execute();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getUserInfo() {
-        return $this->getCommand('GetUserInfo', array(
-            'publicKey' => $this->getConfig('publicKey'),
-        ))->execute();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public static function factory($config = array()) {
         $default = array(
             'baseUrl' => null,
@@ -106,12 +90,78 @@ class ImboClient extends Client implements ImboClientInterface {
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getServerStatus() {
+        return $this->getCommand('GetServerStatus')->execute();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUserInfo() {
+        return $this->getCommand('GetUserInfo', array(
+            'publicKey' => $this->getConfig('publicKey'),
+        ))->execute();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addImage($path) {
+        $this->validateLocalFile($path);
+
+        return $this->addImageFromString(file_get_contents($path));
+
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addImageFromUrl($url) {
+        $image = (string) $this->get((string) $url)->send()->getBody();
+
+        return $this->addImageFromString($image);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addImageFromString($image) {
+        if (empty($image)) {
+            throw new InvalidArgumentException('Specified image is empty');
+        }
+
+        return $this->getCommand('AddImage', array(
+            'publicKey' => $this->getConfig('publicKey'),
+            'image' => $image,
+            'imageIdentifier' => md5($image),
+        ))->execute();
+    }
+
+    /**
+     * Helper method to make sure a local file exists, and that it is not empty
+     *
+     * @param string $path The path to a local file
+     * @throws InvalidArgumentException
+     */
+    private function validateLocalFile($path) {
+        if (!is_file($path)) {
+            throw new InvalidArgumentException('File does not exist: ' . $path);
+        }
+
+        if (!filesize($path)) {
+            throw new InvalidArgumentException('File is of zero length: ' . $path);
+        }
+    }
+
+    /**
      * Add an access token to the request
      *
      * @param Request $request The current request
      */
     private function addAccessToken(Request $request) {
-        $accessToken = hash_hmac('sha256', $request->getUrl(), $this->getConfig('privateKey'));
+        $accessToken = $this->hash($request->getUrl(), $this->getConfig('privateKey'));
         $request->getQuery()->set('accessToken', $accessToken);
     }
 
@@ -128,12 +178,23 @@ class ImboClient extends Client implements ImboClientInterface {
                 $timestamp;
 
         // Generate signature
-        $signature = hash_hmac('sha256', $data, $this->getConfig('privateKey'));
+        $signature = $this->hash($data, $this->getConfig('privateKey'));
 
         // Add relevant request headers
         $request->addHeaders(array(
             'X-Imbo-Authenticate-Signature' => $signature,
             'X-Imbo-Authenticate-Timestamp' => $timestamp,
         ));
+    }
+
+    /**
+     * Generate a keyed hash
+     *
+     * @param string $data The data to be hashed
+     * @param string $key Shared secret key
+     * @return string Returns the keyed hash
+     */
+    private function hash($data, $privateKey) {
+        return hash_hmac('sha256', $data, $privateKey);
     }
 }
