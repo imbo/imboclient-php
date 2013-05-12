@@ -3,7 +3,7 @@ Changelog for ImboClient
 
 ImboClient-0.8.1
 ----------------
-__N/A__
+__2013-05-12__
 
 * Fixed issue #78: Issue when response body is not JSON-serialized
 * Add support for sepia transformation (Espen Hovlandsdal)
