@@ -300,7 +300,12 @@ class cURL implements DriverInterface {
         if ($response->isError()) {
             if (!empty($body)) {
                 $body = json_decode($body);
-                $errorMessage = $body->error->message;
+
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    $errorMessage = 'Invalid response body. Expected JSON serialized data';
+                } else {
+                    $errorMessage = $body->error->message;
+                }
             } else {
                 $errorMessage = 'Empty body';
             }

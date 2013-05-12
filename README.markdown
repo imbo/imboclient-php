@@ -269,6 +269,12 @@ Rotate the image.
 * `(int) $angle` The number of degrees to rotate the image.
 * `(string) $bg` Background color in hexadecimal. Defaults to '000000' (also supports short values like 'f00' ('ff0000')).
 
+**sepia()**
+
+Apply a sepia color tone transformation to the image.
+
+* `(int) $threshold` Measure of the extent of the sepia toning (ranges from 0 to QuantumRange). Defaults to 80.
+
 **thumbnail()**
 
 Generate a thumbnail of the image.
