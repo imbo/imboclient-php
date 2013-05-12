@@ -320,7 +320,7 @@ task :release, :version do |t, args|
     system "git merge -m \"Merge branch 'develop'\" develop"
 
     # Set correct version
-    system "sed -i \"s/const VERSION = 'dev'/const VERSION = '#{version}'/\" library/ImboClient/Version.php"
+    system "sed -i \"s/const VERSION = '.*'/const VERSION = '#{version}'/\" library/ImboClient/Version.php"
     system "git commit -m \"Bumped version\" library/ImboClient/Version.php"
 
     # Generate PEAR package
