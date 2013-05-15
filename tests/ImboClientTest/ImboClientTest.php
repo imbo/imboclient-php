@@ -64,9 +64,10 @@ class ImboClientTest extends GuzzleTestCase {
      */
     public function testCanFetchServerStatusWhenEverythingIsOk() {
         $this->setMockResponse($this->client, 'status_ok');
-        $result = $this->client->getServerStatus();
-        $this->assertTrue($result['database']);
-        $this->assertTrue($result['storage']);
+        $status = $this->client->getServerStatus();
+        $this->assertInstanceOf('DateTime', $status->getDate());
+        $this->assertTrue($status->getDatabaseStatus());
+        $this->assertTrue($status->getStorageStatus());
     }
 
     /**
@@ -128,9 +129,9 @@ class ImboClientTest extends GuzzleTestCase {
      */
     public function testCanFetchUserInformation() {
         $this->setMockResponse($this->client, 'user_ok');
-        $result = $this->client->getUserInfo();
-        $this->assertSame('christer', $result['publicKey']);
-        $this->assertSame(11, $result['numImages']);
-        $this->assertSame('Tue, 09 Apr 2013 07:00:18 GMT', $result['lastModified']);
+        $user = $this->client->getUserInfo();
+        $this->assertSame('christer', $user->getPublicKey());
+        $this->assertSame(11, $user->getNumImages());
+        $this->assertSame('2013-04-09 07:00:18', $user->getLastModified()->format('Y-m-d H:i:s'));
     }
 }

@@ -20,13 +20,13 @@ return array(
             'httpMethod' => 'GET',
             'uri' => '/status.json',
             'summary' => 'Get status about the Imbo host',
-            'responseClass' => 'GetServerStatusOutput',
+            'responseClass' => 'ImboClient\Model\Status',
         ),
 
         // User
         'GetUserInfo' => array(
             'httpMethod' => 'GET',
-            'uri' => '/users/{publicKey}',
+            'uri' => '/users/{publicKey}.json',
             'summary' => 'Get information about a specific user',
             'parameters' => array(
                 'publicKey' => array(
@@ -36,7 +36,7 @@ return array(
                     'description' => 'The public key of the user we want information about',
                 ),
             ),
-            'responseClass' => 'UserInfoOutput',
+            'responseClass' => 'ImboClient\Model\User',
         ),
 
         // Image
@@ -96,44 +96,6 @@ return array(
             'httpMethod' => 'DELETE',
             'uri' => '/users/{publicKey}/images/{imageIdentifier}/metadata',
             'summary' => 'Delete metadata attached to an image',
-        ),
-    ),
-
-    // Models for the API response
-    'models' => array(
-        'GetServerStatusOutput' => array(
-            'type' => 'array',
-            'properties' => array(
-                'database' => array(
-                    'type' => 'boolean',
-                    'location' => 'json',
-                ),
-                'storage' => array(
-                    'type' => 'boolean',
-                    'location' => 'json',
-                ),
-                'date' => array(
-                    'type' => 'string',
-                    'location' => 'json',
-                ),
-            ),
-        ),
-        'UserInfoOutput' => array(
-            'type' => 'array',
-            'properties' => array(
-                'publicKey' => array(
-                    'type' => 'string',
-                    'location' => 'json',
-                ),
-                'numImages' => array(
-                    'type' => 'integer',
-                    'location' => 'json',
-                ),
-                'lastModified' => array(
-                    'type' => 'string',
-                    'location' => 'json',
-                ),
-            ),
         ),
     ),
 );
