@@ -68,7 +68,7 @@ try {
     $response = $e->getResponse();
     $imboErrorCode = $response->getImboErrorCode();
 
-    if ($imboErrorCode === ImboClient\Http\Response\ResponseInterface::IMAGE_ALDREADY_EXISTS) {
+    if ($imboErrorCode === ImboClient\Http\Response\ResponseInterface::IMAGE_ALREADY_EXISTS) {
         echo "The image already exists on the server" . PHP_EOL;
     }
 
