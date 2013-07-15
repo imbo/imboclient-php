@@ -70,17 +70,18 @@ return array(
             'responseClass' => 'ImboClient\Model\DeleteImage',
         ),
 
-        'TransformImage' => array(
-            'httpMethod' => 'GET',
-            'uri' => '/users/{publicKey}/images/{imageIdentifier}',
-            'summary' => 'Transform an existing image',
-        ),
-
         'GetShortUrl' => array(
             'httpMethod' => 'HEAD',
             'uri' => '/users/{publicKey}/images/{imageIdentifier}',
             'summary' => 'Get the short URL of an image',
             'responseClass' => 'ImboClient\Model\ShortUrl',
+        ),
+
+        'GetImageProperties' => array(
+            'httpMethod' => 'HEAD',
+            'uri' => '/users/{publicKey}/images/{imageIdentifier}',
+            'summary' => 'Get properties of an image',
+            'responseClass' => 'ImboClient\Model\ImageProperties',
         ),
 
         // Images
