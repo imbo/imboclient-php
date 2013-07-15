@@ -15,6 +15,14 @@ return array(
 
     // API operations
     'operations' => array(
+        // Stats
+        'GetServerStats' => array(
+            'httpMethod' => 'GET',
+            'uri' => '/stats.json',
+            'summary' => 'Get statistics',
+            'responseClass' => 'ImboClient\Model\Stats',
+        ),
+
         // Status
         'GetServerStatus' => array(
             'httpMethod' => 'GET',
@@ -52,12 +60,14 @@ return array(
                     'description' => 'The binary data of the image to add',
                 ),
             ),
+            'responseClass' => 'ImboClient\Model\AddImage',
         ),
 
         'DeleteImage' => array(
             'httpMethod' => 'DELETE',
             'uri' => '/users/{publicKey}/images/{imageIdentifier}',
             'summary' => 'Delete an image',
+            'responseClass' => 'ImboClient\Model\DeleteImage',
         ),
 
         'TransformImage' => array(
@@ -66,11 +76,19 @@ return array(
             'summary' => 'Transform an existing image',
         ),
 
+        'GetShortUrl' => array(
+            'httpMethod' => 'HEAD',
+            'uri' => '/users/{publicKey}/images/{imageIdentifier}',
+            'summary' => 'Get the short URL of an image',
+            'responseClass' => 'ImboClient\Model\ShortUrl',
+        ),
+
         // Images
         'GetImages' => array(
             'httpMethod' => 'GET',
             'uri' => '/users/{publicKey}/images',
             'summary' => 'Query images',
+            'responseClass' => 'ImboClient\Model\ImageCollection',
         ),
 
         // Metadata
@@ -78,24 +96,28 @@ return array(
             'httpMethod' => 'GET',
             'uri' => '/users/{publicKey}/images/{imageIdentifier}/metadata',
             'summary' => 'Get metadata attached to an image',
+            'responseClass' => 'ImboClient\Model\ImageMetadata',
         ),
 
         'ReplaceMetadata' => array(
             'httpMethod' => 'PUT',
             'uri' => '/users/{publicKey}/images/{imageIdentifier}/metadata',
             'summary' => 'Completely replace the metadata attached to an image with new metadata',
+            'responseClass' => 'ImboClient\Model\ReplaceMetadata',
         ),
 
         'EditMetadata' => array(
             'httpMethod' => 'POST',
             'uri' => '/users/{publicKey}/images/{imageIdentifier}/metadata',
             'summary' => 'Update metadata attached to an image. Supports partial updates',
+            'responseClass' => 'ImboClient\Model\EditMetadata',
         ),
 
         'DeleteMetadata' => array(
             'httpMethod' => 'DELETE',
             'uri' => '/users/{publicKey}/images/{imageIdentifier}/metadata',
             'summary' => 'Delete metadata attached to an image',
+            'responseClass' => 'ImboClient\Model\DeleteMetadata',
         ),
     ),
 );
