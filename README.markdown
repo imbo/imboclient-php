@@ -3,6 +3,11 @@ A PHP client for [Imbo](https://github.com/imbo/imbo).
 
 [![Current build Status](https://secure.travis-ci.org/imbo/imboclient-php.png)](http://travis-ci.org/imbo/imboclient-php)
 
+## License
+Copyright (c) 2011-2013, Christer Edvartsen <cogo@starzinger.net>
+
+Licensed under the MIT License
+
 ## Requirements
 ImboClient requires a [PSR-0](http://groups.google.com/group/php-standards) compatible autoloader and only works on [PHP-5.3](http://php.net/) or above.
 
