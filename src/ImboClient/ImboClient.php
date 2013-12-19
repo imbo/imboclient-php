@@ -10,11 +10,18 @@
 
 namespace ImboClient;
 
-use Guzzle\Common\Collection,
+use ImboClient\Model\AddImage as AddImageModel,
+    ImboClient\Model\DeleteImage as DeleteImageModel,
+    ImboClient\Model\ImageProperties as ImagePropertiesModel,
+    ImboClient\Model\User as UserModel,
+    Guzzle\Common\Collection,
     Guzzle\Common\Event,
     Guzzle\Service\Client,
     Guzzle\Service\Description\ServiceDescription,
-    Guzzle\Http\Message\Request;
+    Guzzle\Http\Message\Request,
+    Guzzle\Http\Url,
+    Guzzle\Common\Exception\GuzzleException,
+    InvalidArgumentException;
 
 /**
  * Client that interacts with Imbo servers
@@ -24,7 +31,23 @@ use Guzzle\Common\Collection,
  * @package Client
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
-class ImboClient extends Client implements ImboClientInterface {
+class ImboClient extends Client {
+    /**
+     * URLs to the Imbo server
+     *
+     * @var array
+     */
+    private $serverUrls = array();
+
+    /**
+     * The name of the current command
+     *
+     * This property is used with error handling
+     *
+     * @var string
+     */
+    private $currentCommand;
+
     /**
      * Class constructor
      *
@@ -37,95 +60,105 @@ class ImboClient extends Client implements ImboClientInterface {
     public function __construct($baseUrl, $config) {
         parent::__construct($baseUrl, $config);
 
-        // Attach event listeners that handles the signing of write operations and the attachment of
-        // access tokens to read operations
-        $this->getEventDispatcher()->addListener('client.command.create', function($event) {
-            $commandName = $event['command']->getName();
-            $dispatcher = $event->getDispatcher();
-
-            switch ($commandName) {
-                case 'GetServerStatus':
-                case 'GetUserInfo':
-                case 'TransformImage':
-                case 'GetImages':
-                case 'GetMetadata':
-                    // Generate access token
-                    $dispatcher->addListener('request.before_send', function($event) {
-                        $this->addAccessToken($event['request']);
-                    }, -1000);
-                    break;
-                case 'AddImage':
-                case 'DeleteImage':
-                case 'ReplaceMetadata':
-                case 'EditMetadata':
-                case 'DeleteMetadata':
-                    // Sign the request
-                    $dispatcher->addListener('request.before_send', function($event) {
-                        $this->signRequest($event['request']);
-                    } -1000);
-                    break;
+        // Attach event listeners that handles the signing of write operations and the appending of
+        // access tokens to requests that require this
+        $dispatcher = $this->getEventDispatcher();
+        $dispatcher->addSubscriber(new EventSubscriber\AccessToken());
+        $dispatcher->addSubscriber(new EventSubscriber\Authenticate());
+        $dispatcher->addListener('command.before_send', function($event) {
+            $this->currentCommand = $event['command']->getName();
+        });
+        $dispatcher->addListener('request.error', function($event) {
+            if ($this->currentCommand === 'GetServerStatus') {
+                // Stop propagation of the event when there is an error with the server status
+                $event->stopPropagation();
+                $this->currentCommand = null;
             }
         });
     }
 
     /**
-     * {@inheritdoc}
+     * Set the server URL's
+     *
+     * @param array $urls The URL's to the Imbo server
+     * @return self
+     */
+    public function setServerUrls(array $urls) {
+        $this->serverUrls = $this->parseUrls($urls);
+
+        return $this;
+    }
+
+    /**
+     * Client factory
+     *
+     * @param array $config Client configuration
+     * @return ImboClient
      */
     public static function factory($config = array()) {
         $default = array(
-            'baseUrl' => null,
+            'serverUrls' => null,
             'publicKey' => null,
             'privateKey' => null,
         );
 
-        $required = array('baseUrl', 'publicKey', 'privateKey');
+        $required = array('serverUrls', 'publicKey', 'privateKey');
         $config = Collection::fromConfig($config, $default, $required);
 
         // Create the client and attach the service description
         $description = ServiceDescription::factory(__DIR__ . '/service.php');
-        $client = new self($config->get('baseUrl'), $config);
+        $client = new self($config->get('serverUrls')[0], $config);
+        $client->setServerUrls($config->get('serverUrls'));
         $client->setDescription($description);
 
         return $client;
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function getServerStatus() {
-        return $this->getCommand('GetServerStatus')->execute();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getUserInfo() {
-        return $this->getCommand('GetUserInfo', array(
-            'publicKey' => $this->getConfig('publicKey'),
-        ))->execute();
-    }
-
-    /**
-     * {@inheritdoc}
+     * Add an image from a path
+     *
+     * @param string $path A path to an image
+     * @throws InvalidArgumentException
      */
     public function addImage($path) {
-        $this->validateLocalFile($path);
+        if (!is_file($path)) {
+            throw new InvalidArgumentException('File does not exist: ' . $path);
+        }
+
+        if (!filesize($path)) {
+            throw new InvalidArgumentException('File is of zero length: ' . $path);
+        }
 
         return $this->addImageFromString(file_get_contents($path));
-
     }
 
     /**
-     * {@inheritdoc}
+     * Add an image from a URL
+     *
+     * @param string $url A URL to an image
      */
     public function addImageFromUrl($url) {
-        $image = (string) $this->get((string) $url)->send()->getBody();
+        $urlInstance = Url::factory((string) $url);
+
+        if (!$urlInstance->getScheme()) {
+            throw new InvalidArgumentException('URL is missing scheme: ' . $url);
+        }
+
+        // Fetch the image we want to add
+        try {
+            $image = (string) $this->get($urlInstance)->send()->getBody();
+        } catch (GuzzleException $e) {
+            throw new InvalidArgumentException('Could not fetch image: ' . $url);
+        }
 
         return $this->addImageFromString($image);
     }
 
     /**
-     * {@inheritdoc}
+     * Add an image from memory
+     *
+     * @param string $image An image in memory
+     * @throws InvalidArgumentException
      */
     public function addImageFromString($image) {
         if (empty($image)) {
@@ -135,66 +168,148 @@ class ImboClient extends Client implements ImboClientInterface {
         return $this->getCommand('AddImage', array(
             'publicKey' => $this->getConfig('publicKey'),
             'image' => $image,
-            'imageIdentifier' => md5($image),
         ))->execute();
     }
 
     /**
-     * Helper method to make sure a local file exists, and that it is not empty
-     *
-     * @param string $path The path to a local file
-     * @throws InvalidArgumentException
+     * Fetch the user info of the current user
      */
-    private function validateLocalFile($path) {
-        if (!is_file($path)) {
-            throw new InvalidArgumentException('File does not exist: ' . $path);
+    public function getUserInfo() {
+        return $this->getCommand('GetUserInfo', array(
+            'publicKey' => $this->getConfig('publicKey'),
+        ))->execute();
+    }
+
+    /**
+     * Delete an image
+     *
+     * @param string $imageIdentifier The identifier of the image we want to delete
+     */
+    public function deleteImage($imageIdentifier) {
+        return $this->getCommand('DeleteImage', array(
+            'publicKey' => $this->getConfig('publicKey'),
+            'imageIdentifier' => $imageIdentifier,
+        ))->execute();
+    }
+
+    /**
+     * Get properties about an image stored in Imbo
+     *
+     * @param string $imageIdentifier The identifier of the image we want properties about
+     */
+    public function getImageProperties($imageIdentifier) {
+        return $this->getCommand('GetImageProperties', array(
+            'publicKey' => $this->getConfig('publicKey'),
+            'imageIdentifier' => $imageIdentifier,
+        ))->execute();
+    }
+
+    /**
+     * Edit metadata of an image
+     *
+     * @param string $imageIdentifier The identifier of the image
+     * @param array $metadata The metadata to set
+     */
+    public function editMetadata($imageIdentifier, array $metadata) {
+        return $this->getCommand('EditMetadata', array(
+            'publicKey' => $this->getConfig('publicKey'),
+            'imageIdentifier' => $imageIdentifier,
+            'metadata' => json_encode($metadata),
+        ))->execute();
+    }
+
+    /**
+     * Replace metadata of an image
+     *
+     * @param string $imageIdentifier The identifier of the image
+     * @param array $metadata The metadata to set
+     */
+    public function replaceMetadata($imageIdentifier, array $metadata) {
+        return $this->getCommand('ReplaceMetadata', array(
+            'publicKey' => $this->getConfig('publicKey'),
+            'imageIdentifier' => $imageIdentifier,
+            'metadata' => json_encode($metadata),
+        ))->execute();
+    }
+
+    /**
+     * Get metadata attached to an image
+     *
+     * @param string $imageIdentifier The identifier of the image
+     * @return array
+     */
+    public function getMetadata($imageIdentifier) {
+        return $this->getCommand('GetMetadata', array(
+            'publicKey' => $this->getConfig('publicKey'),
+            'imageIdentifier' => $imageIdentifier,
+        ))->execute();
+    }
+
+    /**
+     * Delete metadata from an image
+     *
+     * @param string $imageIdentifier The identifier of the image
+     * @return array
+     */
+    public function deleteMetadata($imageIdentifier) {
+        return $this->getCommand('DeleteMetadata', array(
+            'publicKey' => $this->getConfig('publicKey'),
+            'imageIdentifier' => $imageIdentifier,
+        ))->execute();
+    }
+
+    /**
+     * Parse server URLs and prepare them for usage
+     *
+     * @param array|string $urls One or more URLs to an Imbo server
+     * @return array Returns an array of URLs
+     */
+    private function parseUrls($urls) {
+        $urls = (array) $urls;
+        $result = array();
+        $counter = 0;
+
+        foreach ($urls as $serverUrl) {
+            if (!preg_match('|^https?://|', $serverUrl)) {
+                $serverUrl = 'http://' . $serverUrl;
+            }
+
+            $parts = parse_url($serverUrl);
+
+            // Remove the port from the server URL if it's equal to 80 when scheme is http, or if
+            // it's equal to 443 when the scheme is https
+            if (
+                isset($parts['port']) && (
+                    ($parts['scheme'] === 'http' && $parts['port'] == 80) ||
+                    ($parts['scheme'] === 'https' && $parts['port'] == 443)
+                )
+            ) {
+                if (empty($parts['path'])) {
+                    $parts['path'] = '';
+                }
+
+                $serverUrl = $parts['scheme'] . '://' . $parts['host'] . $parts['path'];
+            }
+
+            $serverUrl = rtrim($serverUrl, '/');
+
+            if (!isset($result[$serverUrl])) {
+                $result[$serverUrl] = $counter++;
+            }
         }
 
-        if (!filesize($path)) {
-            throw new InvalidArgumentException('File is of zero length: ' . $path);
-        }
+        return array_flip($result);
     }
 
     /**
-     * Add an access token to the request
+     * Get a predictable hostname for the given image identifier
      *
-     * @param Request $request The current request
+     * @param string $imageIdentifier The image identifier
+     * @return string
      */
-    private function addAccessToken(Request $request) {
-        $accessToken = $this->hash($request->getUrl(), $this->getConfig('privateKey'));
-        $request->getQuery()->set('accessToken', $accessToken);
-    }
+    private function getUrlForImageIdentifier($imageIdentifier) {
+        $dec = hexdec($imageIdentifier[0] . $imageIdentifier[1]);
 
-    /**
-     * Sign the current request for write operations
-     *
-     * @param Request $request The current request
-     */
-    private function signRequest(Request $request) {
-        $timestamp = gmdate('Y-m-d\TH:i:s\Z');
-        $data = $request->getMethod() . '|' .
-                $request->getUrl() . '|' .
-                $this->getConfig('publicKey') . '|' .
-                $timestamp;
-
-        // Generate signature
-        $signature = $this->hash($data, $this->getConfig('privateKey'));
-
-        // Add relevant request headers
-        $request->addHeaders(array(
-            'X-Imbo-Authenticate-Signature' => $signature,
-            'X-Imbo-Authenticate-Timestamp' => $timestamp,
-        ));
-    }
-
-    /**
-     * Generate a keyed hash
-     *
-     * @param string $data The data to be hashed
-     * @param string $key Shared secret key
-     * @return string Returns the keyed hash
-     */
-    private function hash($data, $privateKey) {
-        return hash_hmac('sha256', $data, $privateKey);
+        return $this->serverUrls[$dec % count($this->serverUrls)];
     }
 }
