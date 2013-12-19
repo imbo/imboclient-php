@@ -10,15 +10,10 @@
 
 namespace ImboClient;
 
-use ImboClient\Model\AddImage as AddImageModel,
-    ImboClient\Model\DeleteImage as DeleteImageModel,
-    ImboClient\Model\ImageProperties as ImagePropertiesModel,
-    ImboClient\Model\User as UserModel,
+use ImboClient\Url as ImboUrl,
     Guzzle\Common\Collection,
-    Guzzle\Common\Event,
     Guzzle\Service\Client,
     Guzzle\Service\Description\ServiceDescription,
-    Guzzle\Http\Message\Request,
     Guzzle\Http\Url,
     Guzzle\Common\Exception\GuzzleException,
     InvalidArgumentException;
@@ -308,6 +303,99 @@ class ImboClient extends Client {
      * @return string
      */
     private function getUrlForImageIdentifier($imageIdentifier) {
+        $dec = hexdec($imageIdentifier[0] . $imageIdentifier[1]);
+
+        return $this->serverUrls[$dec % count($this->serverUrls)];
+    }
+
+    /**
+     * Get all server URL's
+     *
+     * @return string[]
+     */
+    public function getServerUrls() {
+        return $this->serverUrls;
+    }
+
+    /**
+     * Get a URL for the status endpoint
+     *
+     * @return ImboUrl\Status
+     */
+    public function getStatusUrl() {
+        return new ImboUrl\Status($this->serverUrls[0]);
+    }
+
+    /**
+     * Get a URL for the stats endpoint
+     *
+     * @return ImboUrl\Stats
+     */
+    public function getStatsUrl() {
+        return new ImboUrl\Stats($this->serverUrls[0]);
+    }
+
+    /**
+     * Get a URL for the user endpoint
+     *
+     * @return ImboUrl\User
+     */
+    public function getUserUrl() {
+        return new ImboUrl\User(
+            $this->serverUrls[0],
+            $this->getConfig('publicKey'),
+            $this->getConfig('privateKey')
+        );
+    }
+
+    /**
+     * Get a URL for the images resource
+     *
+     * @return ImboUrl\Imags
+     */
+    public function getImagesUrl() {
+        return new ImboUrl\Images(
+            $this->serverUrls[0],
+            $this->getConfig('publicKey'),
+            $this->getConfig('privateKey')
+        );
+    }
+
+    /**
+     * Get a URL for the image resource
+     *
+     * @return ImboUrl\Image
+     */
+    public function getImageUrl($imageIdentifier) {
+        return new ImboUrl\Image(
+            $this->getHostForImageIdentifier($imageIdentifier),
+            $this->getConfig('publicKey'),
+            $this->getConfig('privateKey'),
+            $imageIdentifier
+        );
+    }
+
+    /**
+     * Get a URL for the metadata resource
+     *
+     * @return ImboUrl\Metadata
+     */
+    public function getMetadataUrl($imageIdentifier) {
+        return new ImboUrl\Metadata(
+            $this->getHostForImageIdentifier($imageIdentifier),
+            $this->getConfig('publicKey'),
+            $this->getConfig('privateKey'),
+            $imageIdentifier
+        );
+    }
+
+    /**
+     * Get a predictable hostname for the given image identifier
+     *
+     * @param string $imageIdentifier The image identifier
+     * @return string
+     */
+    private function getHostForImageIdentifier($imageIdentifier) {
         $dec = hexdec($imageIdentifier[0] . $imageIdentifier[1]);
 
         return $this->serverUrls[$dec % count($this->serverUrls)];
