@@ -10,11 +10,11 @@
 
 namespace ImboClient;
 
-use ImboClient\Url as ImboUrl,
+use ImboClient\Http,
     Guzzle\Common\Collection,
     Guzzle\Service\Client,
     Guzzle\Service\Description\ServiceDescription,
-    Guzzle\Http\Url,
+    Guzzle\Http\Url as GuzzleUrl,
     Guzzle\Common\Exception\GuzzleException,
     InvalidArgumentException;
 
@@ -130,10 +130,21 @@ class ImboClient extends Client {
     /**
      * Add an image from a URL
      *
-     * @param string $url A URL to an image
+     * @param GuzzleUrl|string $url A URL to an image
      */
     public function addImageFromUrl($url) {
-        $urlInstance = Url::factory((string) $url);
+        if (is_string($url)) {
+            // URL specified as a string. Create a URL instance
+            $urlInstance = Url::factory($url);
+        } else if (!($url instanceof GuzzleUrl)) {
+            // Invalid argument
+            throw new InvalidArgumentException(
+                'Parameter must be a string or an instance of Guzzle\Http\Url'
+            );
+        } else {
+            // Instance of a Guzzle URL
+            $urlInstance = $url;
+        }
 
         if (!$urlInstance->getScheme()) {
             throw new InvalidArgumentException('URL is missing scheme: ' . $url);
@@ -320,73 +331,77 @@ class ImboClient extends Client {
     /**
      * Get a URL for the status endpoint
      *
-     * @return ImboUrl\Status
+     * @return Http\StatusUrl
      */
     public function getStatusUrl() {
-        return new ImboUrl\Status($this->serverUrls[0]);
+        return Http\StatusUrl::factory($this->serverUrls[0] . '/status.json');
     }
 
     /**
      * Get a URL for the stats endpoint
      *
-     * @return ImboUrl\Stats
+     * @return Http\StatsUrl
      */
     public function getStatsUrl() {
-        return new ImboUrl\Stats($this->serverUrls[0]);
+        return Http\StatsUrl::factory($this->serverUrls[0] . '/stats.json');
     }
 
     /**
      * Get a URL for the user endpoint
      *
-     * @return ImboUrl\User
+     * @return Http\UserUrl
      */
     public function getUserUrl() {
-        return new ImboUrl\User(
-            $this->serverUrls[0],
-            $this->getConfig('publicKey'),
-            $this->getConfig('privateKey')
+        $url = sprintf(
+            $this->serverUrls[0] . '/users/%s.json',
+            $this->getConfig('publicKey')
         );
+
+        return Http\UserUrl::factory($url, $this->getConfig('privateKey'));
     }
 
     /**
      * Get a URL for the images resource
      *
-     * @return ImboUrl\Imags
+     * @return Http\ImagesUrl
      */
     public function getImagesUrl() {
-        return new ImboUrl\Images(
-            $this->serverUrls[0],
-            $this->getConfig('publicKey'),
-            $this->getConfig('privateKey')
+        $url = sprintf(
+            $this->serverUrls[0] . '/users/%s/images.json',
+            $this->getConfig('publicKey')
         );
+
+        return Http\ImagesUrl::factory($url, $this->getConfig('privateKey'));
     }
 
     /**
      * Get a URL for the image resource
      *
-     * @return ImboUrl\Image
+     * @return Http\ImageUrl
      */
     public function getImageUrl($imageIdentifier) {
-        return new ImboUrl\Image(
-            $this->getHostForImageIdentifier($imageIdentifier),
+        $url = sprintf(
+            $this->getHostForImageIdentifier($imageIdentifier) . '/users/%s/images/%s',
             $this->getConfig('publicKey'),
-            $this->getConfig('privateKey'),
             $imageIdentifier
         );
+
+        return Http\ImageUrl::factory($url, $this->getConfig('privateKey'));
     }
 
     /**
      * Get a URL for the metadata resource
      *
-     * @return ImboUrl\Metadata
+     * @return Http\MetadataUrl
      */
     public function getMetadataUrl($imageIdentifier) {
-        return new ImboUrl\Metadata(
-            $this->getHostForImageIdentifier($imageIdentifier),
+        $url = sprintf(
+            $this->getHostForImageIdentifier($imageIdentifier) . '/users/%s/images/%s/metadata.json',
             $this->getConfig('publicKey'),
-            $this->getConfig('privateKey'),
             $imageIdentifier
         );
+
+        return Http\MetadataUrl::factory($url, $this->getConfig('privateKey'));
     }
 
     /**
