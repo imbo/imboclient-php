@@ -265,61 +265,6 @@ class ImboClient extends Client {
     }
 
     /**
-     * Parse server URLs and prepare them for usage
-     *
-     * @param array|string $urls One or more URLs to an Imbo server
-     * @return array Returns an array of URLs
-     */
-    private function parseUrls($urls) {
-        $urls = (array) $urls;
-        $result = array();
-        $counter = 0;
-
-        foreach ($urls as $serverUrl) {
-            if (!preg_match('|^https?://|', $serverUrl)) {
-                $serverUrl = 'http://' . $serverUrl;
-            }
-
-            $parts = parse_url($serverUrl);
-
-            // Remove the port from the server URL if it's equal to 80 when scheme is http, or if
-            // it's equal to 443 when the scheme is https
-            if (
-                isset($parts['port']) && (
-                    ($parts['scheme'] === 'http' && $parts['port'] == 80) ||
-                    ($parts['scheme'] === 'https' && $parts['port'] == 443)
-                )
-            ) {
-                if (empty($parts['path'])) {
-                    $parts['path'] = '';
-                }
-
-                $serverUrl = $parts['scheme'] . '://' . $parts['host'] . $parts['path'];
-            }
-
-            $serverUrl = rtrim($serverUrl, '/');
-
-            if (!isset($result[$serverUrl])) {
-                $result[$serverUrl] = $counter++;
-            }
-        }
-
-        return array_flip($result);
-    }
-
-    /**
-     * Get a predictable hostname for the given image identifier
-     *
-     * @param string $imageIdentifier The image identifier
-     * @return string
-     */
-    private function getUrlForImageIdentifier($imageIdentifier) {
-        $dec = hexdec($imageIdentifier[0] . $imageIdentifier[1]);
-
-        return $this->serverUrls[$dec % count($this->serverUrls)];
-    }
-
-    /**
      * Get all server URL's
      *
      * @return string[]
@@ -405,6 +350,28 @@ class ImboClient extends Client {
     }
 
     /**
+     * Get the short URL of an image (with optional transformations)
+     *
+     * @param Http\ImageUrl $imageUrl An instance of an imageUrl
+     * @param boolean $asString Set to true to return the URL as a string
+     * @return GuzzleUrl|string
+     * @throws InvalidArgumentException
+     */
+    public function getShortUrl(Http\ImageUrl $imageUrl, $asString = false) {
+        try {
+            $shortUrl = (string) $this->head((string) $imageUrl)->send()->getHeader('x-imbo-shorturl');
+
+            if (!$asString) {
+                $shortUrl = GuzzleUrl::factory($shortUrl);
+            }
+        } catch (GuzzleException $e) {
+            throw new InvalidArgumentException('Could not fetch image properties');
+        }
+
+        return $shortUrl;
+    }
+
+    /**
      * Get a predictable hostname for the given image identifier
      *
      * @param string $imageIdentifier The image identifier
@@ -414,5 +381,60 @@ class ImboClient extends Client {
         $dec = hexdec($imageIdentifier[0] . $imageIdentifier[1]);
 
         return $this->serverUrls[$dec % count($this->serverUrls)];
+    }
+
+    /**
+     * Get a predictable hostname for the given image identifier
+     *
+     * @param string $imageIdentifier The image identifier
+     * @return string
+     */
+    private function getUrlForImageIdentifier($imageIdentifier) {
+        $dec = hexdec($imageIdentifier[0] . $imageIdentifier[1]);
+
+        return $this->serverUrls[$dec % count($this->serverUrls)];
+    }
+
+    /**
+     * Parse server URLs and prepare them for usage
+     *
+     * @param array|string $urls One or more URLs to an Imbo server
+     * @return array Returns an array of URLs
+     */
+    private function parseUrls($urls) {
+        $urls = (array) $urls;
+        $result = array();
+        $counter = 0;
+
+        foreach ($urls as $serverUrl) {
+            if (!preg_match('|^https?://|', $serverUrl)) {
+                $serverUrl = 'http://' . $serverUrl;
+            }
+
+            $parts = parse_url($serverUrl);
+
+            // Remove the port from the server URL if it's equal to 80 when scheme is http, or if
+            // it's equal to 443 when the scheme is https
+            if (
+                isset($parts['port']) && (
+                    ($parts['scheme'] === 'http' && $parts['port'] == 80) ||
+                    ($parts['scheme'] === 'https' && $parts['port'] == 443)
+                )
+            ) {
+                if (empty($parts['path'])) {
+                    $parts['path'] = '';
+                }
+
+                $serverUrl = $parts['scheme'] . '://' . $parts['host'] . $parts['path'];
+            }
+
+            $serverUrl = rtrim($serverUrl, '/');
+
+            if (!isset($result[$serverUrl])) {
+                $result[$serverUrl] = $counter++;
+            }
+        }
+
+        return array_flip($result);
     }
 }
