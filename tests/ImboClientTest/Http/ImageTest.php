@@ -8,7 +8,7 @@
  * distributed with this source code.
  */
 
-namespace ImboClient\Url;
+namespace ImboClient\Http;
 
 /**
  * @package Test suite
