@@ -189,6 +189,62 @@ return array(
             ),
             'responseClass' => 'DeleteMetadata',
         ),
+        'GetImages' => array(
+            'httpMethod' => 'GET',
+            'uri' => '/users/{publicKey}/images.json',
+            'summary' => 'Fetch information about images owned by a specific user',
+            'parameters' => array(
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The owner of the images',
+                ),
+                'page' => array(
+                    'type' => 'integer',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Which page to fetch from',
+                ),
+                'limit' => array(
+                    'type' => 'integer',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Limit the number of images returned',
+                ),
+                'metadata' => array(
+                    'type' => 'boolean',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Whether or not to include metadata in the response',
+                ),
+                'from' => array(
+                    'type' => 'integer',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Unix timestamp representing the oldest possible image in the set',
+                ),
+                'to' => array(
+                    'type' => 'integer',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Unix timestamp representing the newest possible image in the set',
+                ),
+                'fields' => array(
+                    'type' => 'string',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Comma separated list of fields to include in the result set',
+                ),
+                'sort' => array(
+                    'type' => 'string',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Comma separated list of fields to sort by',
+                ),
+            ),
+            'responseClass' => 'GetImages',
+        ),
     ),
     'models' => array(
         'GetServerStatus' => array(
@@ -318,6 +374,68 @@ return array(
                     'location' => 'header',
                     'type' => 'string',
                     'sentAs' => 'x-imbo-originalmimetype',
+                ),
+            ),
+        ),
+        'GetImages' => array(
+            'type' => 'array',
+            'properties' => array(
+                'search' => array(
+                    'location' => 'json',
+                    'type' => 'string',
+                ),
+                'images' => array(
+                    'location' => 'json',
+                    'type' => 'array',
+                    'items' => array(
+                        'type' => 'object',
+                        'properties' => array(
+                            'added' => array(
+                                'location' => 'json',
+                                'type' => 'datetime',
+                                'filters' => array(
+                                    'date_create',
+                                ),
+                            ),
+                            'updated' => array(
+                                'location' => 'json',
+                                'type' => 'datetime',
+                                'filters' => array(
+                                    'date_create',
+                                ),
+                            ),
+                            'checksum' => array(
+                                'location' => 'json',
+                            ),
+                            'extension' => array(
+                                'location' => 'json',
+                            ),
+                            'size' => array(
+                                'location' => 'json',
+                                'type' => 'integer',
+                            ),
+                            'width' => array(
+                                'location' => 'json',
+                                'type' => 'integer',
+                            ),
+                            'height' => array(
+                                'location' => 'json',
+                                'type' => 'integer',
+                            ),
+                            'mime' => array(
+                                'location' => 'json',
+                                'type' => 'string',
+                            ),
+                            'imageIdentifier' => array(
+                                'location' => 'json',
+                                'type' => 'string',
+                            ),
+                            'publicKey' => array(
+                                'location' => 'json',
+                                'type' => 'string',
+                            ),
+                        ),
+                    ),
                 ),
             ),
         ),

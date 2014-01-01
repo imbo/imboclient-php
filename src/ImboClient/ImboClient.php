@@ -252,6 +252,42 @@ class ImboClient extends Client {
     }
 
     /**
+     * Get images owned by a user
+     *
+     * @param ImagesQuery $query A query object
+     * @return array
+     */
+    public function getImages(ImagesQuery $query) {
+        $params = array(
+            'publicKey' => $this->getConfig('publicKey'),
+            'page' => $query->page(),
+            'limit' => $query->limit(),
+        );
+
+        if ($query->metadata()) {
+            $params['metadata'] = true;
+        }
+
+        if ($from = $query->from()) {
+            $params['from'] = $from;
+        }
+
+        if ($to = $query->to()) {
+            $params['to'] = $to;
+        }
+
+        if ($fields = $query->fields()) {
+            $params['fields'] = implode(',', $fields);
+        }
+
+        if ($sort = $query->sort()) {
+            $params['sort'] = implode(',', $sort);
+        }
+
+        return $this->getCommand('GetImages', $params)->execute();
+    }
+
+    /**
      * Delete metadata from an image
      *
      * @param string $imageIdentifier The identifier of the image
@@ -365,7 +401,7 @@ class ImboClient extends Client {
                 $shortUrl = GuzzleUrl::factory($shortUrl);
             }
         } catch (GuzzleException $e) {
-            throw new InvalidArgumentException('Could not fetch image properties');
+            throw new InvalidArgumentException('Could not fetch image properties for image: ' . $imageUrl);
         }
 
         return $shortUrl;
