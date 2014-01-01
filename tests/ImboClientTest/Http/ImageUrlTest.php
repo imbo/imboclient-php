@@ -127,65 +127,10 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
         $this->url->rotate(0);
     }
 
-    /**
-     * The image URL must be able to chain all available transformations
-     *
-     * @covers ImboClient\Url\Image::border
-     * @covers ImboClient\Url\Image::compress
-     * @covers ImboClient\Url\Image::convert
-     * @covers ImboClient\Url\Image::crop
-     * @covers ImboClient\Url\Image::flipHorizontally
-     * @covers ImboClient\Url\Image::flipVertically
-     * @covers ImboClient\Url\Image::resize
-     * @covers ImboClient\Url\Image::maxSize
-     * @covers ImboClient\Url\Image::rotate
-     * @covers ImboClient\Url\Image::thumbnail
-     * @covers ImboClient\Url\Image::canvas
-     * @covers ImboClient\Url\Image::transpose
-     * @covers ImboClient\Url\Image::transverse
-     * @covers ImboClient\Url\Image::desaturate
-     * @covers ImboClient\Url\Image::sepia
-     */
-    public function ttestCanChainAllTransformations() {
-        $url = $this->url->border()
-                         ->compress()
-                         ->convert('png')
-                         ->crop(1, 1, 40, 40)
-                         ->flipHorizontally()
-                         ->flipVertically()
-                         ->resize(200)
-                         ->maxSize(100)
-                         ->rotate(90)
-                         ->thumbnail()
-                         ->canvas(300, 300)
-                         ->transpose()
-                         ->transverse()
-                         ->desaturate()
-                         ->sepia(33)
-                         ->getUrl();
-
-        $this->assertStringStartsWith(
-            sprintf(
-                '%s/users/%s/images/%s.png?t[]=%s&t[]=%s&t[]=%s&t[]=%s&t[]=%s&t[]=%s&t[]=%s&' .
-                't[]=%s&t[]=%s&t[]=%s&t[]=%s&t[]=%s&t[]=%s&t[]=%s&accessToken=',
-
-                $this->baseUrl, $this->publicKey, $this->imageIdentifier,
-                urlencode('border:color=000000,width=1,height=1'),
-                urlencode('compress:quality=75'),
-                urlencode('crop:x=1,y=1,width=40,height=40'),
-                urlencode('flipHorizontally'),
-                urlencode('flipVertically'),
-                urlencode('resize:width=200'),
-                urlencode('maxSize:width=100'),
-                urlencode('rotate:angle=90,bg=000000'),
-                urlencode('thumbnail:width=50,height=50,fit=outbound'),
-                urlencode('canvas:width=300,height=300'),
-                urlencode('transpose'),
-                urlencode('transverse'),
-                urlencode('desaturate'),
-                urlencode('sepia:threshold=33')
-            ),
-            $url
+    public function testCanAddMultipleTransformations() {
+        $this->assertSame(
+            'http://imbo/users/christer/images/image.jpg?t%5B0%5D=border%3Acolor%3D000000%2Cwidth%3D1%2Cheight%3D1%2Cmode%3Doutbound&t%5B1%5D=desaturate',
+            (string) $this->url->border()->jpg()->desaturate()
         );
     }
 }
