@@ -11,6 +11,7 @@
 namespace ImboClientTest;
 
 use ImboClient\ImboClient,
+    Guzzle\Http\Url,
     Guzzle\Tests\GuzzleTestCase,
     Guzzle\Http\Exception\ServerErrorResponseException;
 
@@ -112,5 +113,61 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame(11, $user['numImages']);
         $this->assertInstanceOf('DateTime', $user['lastModified']);
         $this->assertSame('2013-04-09 07:00:18', $user['lastModified']->format('Y-m-d H:i:s'));
+    }
+
+    public function getUrlMethods() {
+        return array(
+            'status' => array('getStatusUrl', 'ImboClient\Http\StatusUrl'),
+            'stats' => array('getStatsUrl', 'ImboClient\Http\StatsUrl'),
+            'user' => array('getUserUrl', 'ImboClient\Http\UserUrl'),
+            'images' => array('getImagesUrl', 'ImboClient\Http\ImagesUrl'),
+        );
+    }
+
+    /**
+     * @dataProvider getUrlMethods
+     */
+    public function testCanCreateImboUrls($method, $class) {
+        $this->assertInstanceOf($class, $this->client->$method());
+    }
+
+    public function testCanCreateImageUrls() {
+        $this->assertInstanceOf('ImboClient\Http\ImageUrl', $this->client->getImageUrl('identifier'));
+    }
+
+    public function testCanCreateMetadataUrls() {
+        $this->assertInstanceOf('ImboClient\Http\MetadataUrl', $this->client->getMetadataUrl('identifier'));
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage File does not exist: /foo/bar/image.png
+     */
+    public function testThrowsExceptionWhenTryingToAddANonExistingLocalImage() {
+        $this->client->addImage('/foo/bar/image.png');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage File is of zero length:
+     */
+    public function testThrowsExceptionWhenTryingToAddAnEmptyLocalImage() {
+        $this->client->addImage(__DIR__ . '/_files/emptyImage.png');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Specified image is empty
+     */
+    public function testThrowsExceptionWhenTryingToAddImageFromStringAndStringIsEmpty() {
+        $this->client->addImageFromsTring('');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage URL is missing scheme: /some/path
+     */
+    public function testThrowsExceptionWhenAddingImageFromUrlAndUrlIsInvalid() {
+        $this->client->addImageFromUrl(Url::factory('/some/path'));
     }
 }
