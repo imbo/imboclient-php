@@ -10,6 +10,8 @@
 
 namespace ImboClient\Http;
 
+use InvalidArgumentException;
+
 /**
  * Image URL
  *
@@ -77,8 +79,13 @@ class ImageUrl extends Url {
      * @param int $y Y coordinate of the placement of the upper left corner of the existing image
      * @param string $bg Background color of the canvas
      * @return self
+     * @throws InvalidArgumentException
      */
     public function canvas($width, $height, $mode = null, $x = null, $y = null, $bg = null) {
+        if (!$width || !$height) {
+            throw new InvalidArgumentException('width and height must be specified');
+        }
+
         $params = array(
             'width=' . (int) $width,
             'height=' . (int) $height,
@@ -173,6 +180,7 @@ class ImageUrl extends Url {
      * @param int $maxWidth Max width of the resized image
      * @param int $maxHeight Max height of the resized image
      * @return self
+     * @throws InvalidArgumentException
      */
     public function maxSize($maxWidth = null, $maxHeight = null) {
         $params = array();
@@ -183,6 +191,10 @@ class ImageUrl extends Url {
 
         if ($maxHeight) {
             $params[] = 'height=' . (int) $maxHeight;
+        }
+
+        if (!$params) {
+            throw new InvalidArgumentException('width and/or height must be specified');
         }
 
         return $this->addTransformation(sprintf('maxSize:%s', implode(',', $params)));
@@ -203,6 +215,7 @@ class ImageUrl extends Url {
      * @param int $width Width of the resized image
      * @param int $height Height of the resized image
      * @return self
+     * @throws InvalidArgumentException
      */
     public function resize($width = null, $height = null) {
         $params = array();
@@ -215,6 +228,10 @@ class ImageUrl extends Url {
             $params[] = 'height=' . (int) $height;
         }
 
+        if (!$params) {
+            throw new InvalidArgumentException('width and/or height must be specified');
+        }
+
         return $this->addTransformation(sprintf('resize:%s', implode(',', $params)));
     }
 
@@ -224,8 +241,13 @@ class ImageUrl extends Url {
      * @param float $angle The angle to rotate
      * @param string $bg Background color of the rotated image
      * @return self
+     * @throws InvalidArgumentException
      */
     public function rotate($angle, $bg = '000000') {
+        if (!$angle) {
+            throw new InvalidArgumentException('angle must be specified');
+        }
+
         return $this->addTransformation(sprintf('rotate:angle=%d,bg=%s', (int) $angle, $bg));
     }
 
@@ -349,18 +371,15 @@ class ImageUrl extends Url {
      * @return string
      */
     public function __toString() {
-        $this->query->add('t', $this->transformations);
-
-        $originalPath = $this->path;
-
-        $asString = parent::__toString();
-
         // Update the path
         if ($this->extension) {
-            $asString = preg_replace('#(\.(gif|jpg|png))?\?#', '.' . $this->extension . '?', $asString);
+            $this->path = preg_replace('#(\.(gif|jpg|png))?$#', '.' . $this->extension, $this->path);
         }
 
-        return $asString;
+        // Append transformations
+        $this->query->add('t', $this->transformations);
+
+        return parent::__toString();
     }
 
     /**
