@@ -17,6 +17,7 @@ use ImboClient\ImboClient,
 /**
  * @package Test suite
  * @author Christer Edvartsen <cogo@starzinger.net>
+ * @covers ImboClient\ImboClient
  */
 class ImboClientTest extends GuzzleTestCase {
     /**
@@ -44,7 +45,7 @@ class ImboClientTest extends GuzzleTestCase {
      */
     public function setUp() {
         $config = array(
-            'baseUrl' => $this->baseUrl,
+            'serverUrls' => array($this->baseUrl),
             'publicKey' => $this->publicKey,
             'privateKey' => $this->privateKey,
         );
@@ -59,79 +60,57 @@ class ImboClientTest extends GuzzleTestCase {
         $this->client = null;
     }
 
-    /**
-     * @covers ImboClient\ImboClient::getServerStatus
-     */
     public function testCanFetchServerStatusWhenEverythingIsOk() {
         $this->setMockResponse($this->client, 'status_ok');
+
         $status = $this->client->getServerStatus();
-        $this->assertInstanceOf('DateTime', $status->getDate());
-        $this->assertTrue($status->getDatabaseStatus());
-        $this->assertTrue($status->getStorageStatus());
+        $this->assertInstanceOf('DateTime', $status['date']);
+        $this->assertSame('2013-04-30 06:01:19', $status['date']->format('Y-m-d H:i:s'));
+        $this->assertTrue($status['database']);
+        $this->assertTrue($status['storage']);
     }
 
-    /**
-     * @covers ImboClient\ImboClient::getServerStatus
-     */
     public function testCanFetchServerStatusWhenDatabaseIsDown() {
         $this->setMockResponse($this->client, 'status_database_down');
 
-        try {
-            $this->client->getServerStatus();
-            $this->fail('Client did not throw any exception');
-        } catch (ServerErrorResponseException $e) {
-            $result = $e->getResponse()->json();
+        $status = $this->client->getServerStatus();
 
-            $this->assertSame('Database error', $e->getResponse()->getReasonPhrase());
-            $this->assertFalse($result['database']);
-            $this->assertTrue($result['storage']);
-        }
+        $this->assertFalse($status['database']);
+        $this->assertTrue($status['storage']);
+        $this->assertSame(500, $status['status']);
+        $this->assertSame('Database error', $status['message']);
     }
 
-    /**
-     * @covers ImboClient\ImboClient::getServerStatus
-     */
     public function testCanFetchServerStatusWhenStorageIsDown() {
         $this->setMockResponse($this->client, 'status_storage_down');
 
-        try {
-            $this->client->getServerStatus();
-            $this->fail('Client did not throw any exception');
-        } catch (ServerErrorResponseException $e) {
-            $result = $e->getResponse()->json();
+        $status = $this->client->getServerStatus();
 
-            $this->assertSame('Storage error', $e->getResponse()->getReasonPhrase());
-            $this->assertTrue($result['database']);
-            $this->assertFalse($result['storage']);
-        }
+        $this->assertTrue($status['database']);
+        $this->assertFalse($status['storage']);
+        $this->assertSame(500, $status['status']);
+        $this->assertSame('Storage error', $status['message']);
     }
 
-    /**
-     * @covers ImboClient\ImboClient::getServerStatus
-     */
     public function testCanFetchServerStatusWhenDatabaseAndStorageIsDown() {
         $this->setMockResponse($this->client, 'status_database_and_storage_down');
 
-        try {
-            $this->client->getServerStatus();
-            $this->fail('Client did not throw any exception');
-        } catch (ServerErrorResponseException $e) {
-            $result = $e->getResponse()->json();
+        $status = $this->client->getServerStatus();
 
-            $this->assertSame('Database and storage error', $e->getResponse()->getReasonPhrase());
-            $this->assertFalse($result['database']);
-            $this->assertFalse($result['storage']);
-        }
+        $this->assertFalse($status['database']);
+        $this->assertFalse($status['storage']);
+        $this->assertSame(500, $status['status']);
+        $this->assertSame('Database and storage error', $status['message']);
     }
 
-    /**
-     * @covers ImboClient\ImboClient::getUserInfo
-     */
     public function testCanFetchUserInformation() {
         $this->setMockResponse($this->client, 'user_ok');
+
         $user = $this->client->getUserInfo();
-        $this->assertSame('christer', $user->getPublicKey());
-        $this->assertSame(11, $user->getNumImages());
-        $this->assertSame('2013-04-09 07:00:18', $user->getLastModified()->format('Y-m-d H:i:s'));
+
+        $this->assertSame('christer', $user['publicKey']);
+        $this->assertSame(11, $user['numImages']);
+        $this->assertInstanceOf('DateTime', $user['lastModified']);
+        $this->assertSame('2013-04-09 07:00:18', $user['lastModified']->format('Y-m-d H:i:s'));
     }
 }
