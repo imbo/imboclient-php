@@ -44,7 +44,6 @@ class AccessToken implements EventSubscriberInterface {
         switch ($command->getName()) {
             case 'GetUserInfo':
             case 'GetImages':
-            case 'GetShortUrl':
             case 'GetImageProperties':
             case 'GetMetadata':
                 $request = $command->getRequest();
