@@ -4,3 +4,4 @@ ImboClient-*.tgz
 composer.phar
 vendor
 test.php
+.lintcache
