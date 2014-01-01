@@ -70,6 +70,9 @@ class ImboClient extends Client {
                 $this->currentCommand = null;
             }
         });
+
+        // Update User-Agent
+        $this->setUserAgent('ImboClient/' . Version::VERSION, true);
     }
 
     /**
