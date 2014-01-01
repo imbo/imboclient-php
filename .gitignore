@@ -1,6 +1,5 @@
 build
 tests/phpunit.xml
-ImboClient-*.tgz
 composer.phar
 vendor
 test.php

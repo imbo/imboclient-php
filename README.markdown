@@ -7,21 +7,12 @@ A PHP client for [Imbo](https://github.com/imbo/imbo).
 ImboClient requires a [PSR-0](http://groups.google.com/group/php-standards) compatible autoloader and only works on [PHP-5.3](http://php.net/) or above.
 
 ## Installation
-ImboClient can be installed using [PEAR](http://pear.php.net/):
-
-```
-sudo pear config-set auto_discover 1
-sudo pear install --alldeps pear.starzinger.net/ImboClient
-```
-
-or with [Composer](http://getcomposer.org/) by specifying `imbo/imboclient` in your dependencies, or by running the following commands:
+ImboClient can be installed using [Composer](http://getcomposer.org/) by specifying `imbo/imboclient` in your dependencies, or by running the following commands:
 
 ```
 curl -s https://getcomposer.org/installer | php
 php composer.phar create-project imbo/imboclient [<dir>] [<version>]
 ```
-
-You can also download [imboclient.phar](https://github.com/imbo/imboclient-php/raw/master/imboclient.phar) and simply include that file where you want to use ImboClient.
 
 ## Usage
 ### Exceptions
