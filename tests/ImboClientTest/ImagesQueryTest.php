@@ -8,15 +8,16 @@
  * distributed with this source code.
  */
 
-namespace ImboClient\Url\Images;
+namespace ImboClient;
 
 /**
  * @package Test suite
  * @author Christer Edvartsen <cogo@starzinger.net>
+ * @covers ImboClient\ImagesQuery
  */
-class QueryTest extends \PHPUnit_Framework_TestCase {
+class ImagesQueryTest extends \PHPUnit_Framework_TestCase {
     /**
-     * @var ImboClient\Url\Images\Query
+     * @var ImagesQuery
      */
     private $query;
 
@@ -24,7 +25,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
      * Set up the query instance
      */
     public function setUp() {
-        $this->query = new Query();
+        $this->query = new ImagesQuery();
     }
 
     /**
@@ -34,104 +35,47 @@ class QueryTest extends \PHPUnit_Framework_TestCase {
         $this->query = null;
     }
 
-    /**
-     * The default page value is 1
-     *
-     * @covers ImboClient\Url\Images\Query::page
-     */
-    public function testSetsADefaultPageValueOf1() {
+    public function testCanSetAndGetThePage() {
         $this->assertSame(1, $this->query->page());
+        $this->assertSame($this->query, $this->query->page(10));
+        $this->assertSame(10, $this->query->page());
     }
 
-    /**
-     * The default limit is 20
-     *
-     * @covers ImboClient\Url\Images\Query::limit
-     */
-    public function testSetsADefaultLimitValueOf20() {
+    public function testCanSetAndGetTheLimit() {
         $this->assertSame(20, $this->query->limit());
+        $this->assertSame($this->query, $this->query->limit(10));
+        $this->assertSame(10, $this->query->limit());
     }
 
-    /**
-     * @covers ImboClient\Url\Images\Query::returnMetadata
-     */
-    public function testSetsADefaultReturnmetadataValueOfFalse() {
-        $this->assertFalse($this->query->returnMetadata());
+    public function testCanSetAndGetTheMetadataFlag() {
+        $this->assertFalse($this->query->metadata());
+        $this->assertSame($this->query, $this->query->metadata(true));
+        $this->assertTrue($this->query->metadata());
     }
 
-    /**
-     * @covers ImboClient\Url\Images\Query::metadataQuery
-     */
-    public function testSetsAnEmptyDefaultMetadataQuery() {
-        $this->assertSame(array(), $this->query->metadataQuery());
-    }
-
-    /**
-     * @covers ImboClient\Url\Images\Query::from
-     */
-    public function testSetsADefaultFromValueOfNull() {
+    public function testCanSetAndGetFrom() {
+        $now = time();
         $this->assertNull($this->query->from());
+        $this->assertSame($this->query, $this->query->from($now));
+        $this->assertSame($now, $this->query->from());
     }
 
-    /**
-     * @covers ImboClient\Url\Images\Query::to
-     */
-    public function testSetsADefaultToValueOfNull() {
+    public function testCanSetAndGetTo() {
+        $now = time();
         $this->assertNull($this->query->to());
+        $this->assertSame($this->query, $this->query->to($now));
+        $this->assertSame($now, $this->query->to());
     }
 
-    /**
-     * The query instance must be able to set and get the page value
-     *
-     * @covers ImboClient\Url\Images\Query::page
-     */
-    public function testCanSetAndGetThePageValue() {
-        $this->assertSame($this->query, $this->query->page(2));
-        $this->assertSame(2, $this->query->page());
+    public function testCanSetAndGetFields() {
+        $this->assertSame(array(), $this->query->fields());
+        $this->assertSame($this->query, $this->query->fields(array('size', 'width')));
+        $this->assertSame(array('size', 'width'), $this->query->fields());
     }
 
-    /**
-     * The query instance must be able to set and get the limit value
-     *
-     * @covers ImboClient\Url\Images\Query::limit
-     */
-    public function testCanSetAndGetTheLimitValue() {
-        $this->assertSame($this->query, $this->query->limit(30));
-        $this->assertSame(30, $this->query->limit());
-    }
-
-    /**
-     * @covers ImboClient\Url\Images\Query::returnMetadata
-     */
-    public function testCanSetAndGetTheReturnmetadataValue() {
-        $this->assertSame($this->query, $this->query->returnMetadata(true));
-        $this->assertTrue($this->query->returnMetadata());
-    }
-
-    /**
-     * @covers ImboClient\Url\Images\Query::metadataQuery
-     */
-    public function testCanSetAndGetAMetadataQuery() {
-        $value = array('category' => 'some category');
-        $this->assertSame($this->query, $this->query->metadataQuery($value));
-        $this->assertSame($value, $this->query->metadataQuery());
-    }
-
-    /**
-     * @covers ImboClient\Url\Images\Query::from
-     */
-    public function testCanSetAndGetTheFromValue() {
-        $value = 123123123;
-        $this->assertSame($this->query, $this->query->from($value));
-        $this->assertSame($value, $this->query->from());
-    }
-
-    /**
-     * @covers ImboClient\Url\Images\Query::to
-     */
-    public function testCanSetAndGetTheToValue() {
-        $value = 123123123;
-        $this->assertSame($this->query, $this->query->to($value));
-        $this->assertSame($value, $this->query->to());
+    public function testCanSetAndGetSort() {
+        $this->assertSame(array(), $this->query->sort());
+        $this->assertSame($this->query, $this->query->sort(array('size', 'width')));
+        $this->assertSame(array('size', 'width'), $this->query->sort());
     }
 }
