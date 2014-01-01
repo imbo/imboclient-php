@@ -55,6 +55,14 @@ class ImboClient extends Client {
     public function __construct($baseUrl, $config) {
         parent::__construct($baseUrl, $config);
 
+        if (empty($config['serverUrls'])) {
+            $config['serverUrls'] = array($baseUrl);
+        }
+
+        $this->setServerUrls($config['serverUrls']);
+        $this->setDescription(ServiceDescription::factory(__DIR__ . '/service.php'));
+        $this->setUserAgent('ImboClient/' . Version::VERSION, true);
+
         // Attach event listeners that handles the signing of write operations and the appending of
         // access tokens to requests that require this
         $dispatcher = $this->getEventDispatcher();
@@ -70,9 +78,6 @@ class ImboClient extends Client {
                 $this->currentCommand = null;
             }
         });
-
-        // Update User-Agent
-        $this->setUserAgent('ImboClient/' . Version::VERSION, true);
     }
 
     /**
@@ -92,6 +97,7 @@ class ImboClient extends Client {
      *
      * @param array $config Client configuration
      * @return ImboClient
+     * @throws InvalidArgumentException
      */
     public static function factory($config = array()) {
         $default = array(
@@ -103,13 +109,12 @@ class ImboClient extends Client {
         $required = array('serverUrls', 'publicKey', 'privateKey');
         $config = Collection::fromConfig($config, $default, $required);
 
-        // Create the client and attach the service description
-        $description = ServiceDescription::factory(__DIR__ . '/service.php');
-        $client = new self($config->get('serverUrls')[0], $config);
-        $client->setServerUrls($config->get('serverUrls'));
-        $client->setDescription($description);
+        if (!is_array($serverUrls = $config->get('serverUrls')) || empty($serverUrls)) {
+            throw new InvalidArgumentException('serverUrls must be an array');
+        }
 
-        return $client;
+        // Create the client and attach the service description
+        return new self($serverUrls[0], $config);
     }
 
     /**
@@ -318,7 +323,7 @@ class ImboClient extends Client {
      * @return Http\StatusUrl
      */
     public function getStatusUrl() {
-        return Http\StatusUrl::factory($this->serverUrls[0] . '/status.json');
+        return Http\StatusUrl::factory($this->getBaseUrl() . '/status.json');
     }
 
     /**
@@ -327,7 +332,7 @@ class ImboClient extends Client {
      * @return Http\StatsUrl
      */
     public function getStatsUrl() {
-        return Http\StatsUrl::factory($this->serverUrls[0] . '/stats.json');
+        return Http\StatsUrl::factory($this->getBaseUrl() . '/stats.json');
     }
 
     /**
@@ -337,7 +342,7 @@ class ImboClient extends Client {
      */
     public function getUserUrl() {
         $url = sprintf(
-            $this->serverUrls[0] . '/users/%s.json',
+            $this->getBaseUrl() . '/users/%s.json',
             $this->getConfig('publicKey')
         );
 
@@ -351,7 +356,7 @@ class ImboClient extends Client {
      */
     public function getImagesUrl() {
         $url = sprintf(
-            $this->serverUrls[0] . '/users/%s/images.json',
+            $this->getBaseUrl() . '/users/%s/images.json',
             $this->getConfig('publicKey')
         );
 
