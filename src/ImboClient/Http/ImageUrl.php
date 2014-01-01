@@ -11,6 +11,8 @@
 namespace ImboClient\Http;
 
 /**
+ * Image URL
+ *
  * @package Client\Urls
  * @author Christer Edvartsen <cogo@starzinger.net>
  */

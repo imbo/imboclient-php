@@ -13,6 +13,8 @@ namespace ImboClient\Http;
 use Guzzle\Http\Url as GuzzleUrl;
 
 /**
+ * Base URL class
+ *
  * @package Client\Urls
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
