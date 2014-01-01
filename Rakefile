@@ -6,7 +6,7 @@ require 'json'
 
 basedir = "."
 build   = "#{basedir}/build"
-source  = "#{basedir}/library/ImboClient"
+source  = "#{basedir}/src/ImboClient"
 tests   = "#{basedir}/tests"
 
 desc "Task used by Jenkins-CI"
@@ -100,7 +100,7 @@ end
 
 desc "Generate API documentation using phpdoc"
 task :apidocs do
-  system "phpdoc -d #{tests} -d #{source} -t #{build}/docs --title \"ImboClient API documentation\""
+  system "phpdoc -d #{source} -t #{build}/docs --title \"ImboClient API documentation\""
 end
 
 desc "Generate phploc logs"
@@ -148,7 +148,7 @@ task :generate_pear_package, :version do |t, args|
   version = args[:version]
 
   if /^[\d]+\.[\d]+\.[\d]+$/ =~ version
-    Dir.chdir("library")
+    Dir.chdir("src")
 
     now = DateTime.now
     hash = Digest::MD5.new
@@ -247,32 +247,13 @@ task :generate_phar_archive, :version do |t, args|
       f.write(<<-STUB)
 <?php
 /**
- * ImboClient
+ * This file is part of the ImboClient package
  *
- * Copyright (c) 2011-2013, Christer Edvartsen <cogo@starzinger.net>
+ * (c) Christer Edvartsen <cogo@starzinger.net>
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * * The above copyright notice and this permission notice shall be included in
- *   all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
- * @copyright Copyright (c) 2011-2013, Christer Edvartsen <cogo@starzinger.net>
- * @license http://www.opensource.org/licenses/mit-license MIT License
- * @link https://github.com/imbo/imboclient-php
+ * For the full copyright and license information, please view the LICENSE file that was
+ * distributed with this source code.
+
  * @version #{version}
  */
 
@@ -300,7 +281,7 @@ STUB
     end
 
     # Generate the phar archive
-    system "phar-build -s #{basedir}/library -S #{stub} --phar #{basedir}/imboclient.phar --ns --strip-files '.php$'"
+    system "phar-build -s #{basedir}/src -S #{stub} --phar #{basedir}/imboclient.phar --ns --strip-files '.php$'"
 
     # Remove the stub
     File.unlink("stub.php")
@@ -338,8 +319,8 @@ task :release, :version do |t, args|
     system "git merge -m \"Merge branch 'develop'\" develop"
 
     # Set correct version
-    system "sed -i \"s/const VERSION = '.*'/const VERSION = '#{version}'/\" library/ImboClient/Version.php"
-    system "git commit -m \"Bumped version\" library/ImboClient/Version.php"
+    system "sed -i \"s/const VERSION = '.*'/const VERSION = '#{version}'/\" src/ImboClient/Version.php"
+    system "git commit -m \"Bumped version\" src/ImboClient/Version.php"
 
     # Generate PEAR package
     Rake::Task["generate_pear_package"].invoke(version)
