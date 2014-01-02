@@ -306,6 +306,10 @@ return array(
                     'location' => 'json',
                     'type' => 'string',
                 ),
+                'status' => array(
+                    'location' => 'statusCode',
+                    'type' => 'integer',
+                ),
             ),
         ),
         'DeleteImage' => array(
