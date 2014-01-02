@@ -261,10 +261,14 @@ class ImboClient extends Client {
     /**
      * Get images owned by a user
      *
-     * @param ImagesQuery $query A query object
+     * @param ImagesQuery $query An optional images query object
      * @return array
      */
-    public function getImages(ImagesQuery $query) {
+    public function getImages(ImagesQuery $query = null) {
+        if (!$query) {
+            $query = new ImagesQuery();
+        }
+
         $params = array(
             'publicKey' => $this->getConfig('publicKey'),
             'page' => $query->page(),
@@ -421,18 +425,6 @@ class ImboClient extends Client {
      * @return string
      */
     private function getHostForImageIdentifier($imageIdentifier) {
-        $dec = hexdec($imageIdentifier[0] . $imageIdentifier[1]);
-
-        return $this->serverUrls[$dec % count($this->serverUrls)];
-    }
-
-    /**
-     * Get a predictable hostname for the given image identifier
-     *
-     * @param string $imageIdentifier The image identifier
-     * @return string
-     */
-    private function getUrlForImageIdentifier($imageIdentifier) {
         $dec = hexdec($imageIdentifier[0] . $imageIdentifier[1]);
 
         return $this->serverUrls[$dec % count($this->serverUrls)];
