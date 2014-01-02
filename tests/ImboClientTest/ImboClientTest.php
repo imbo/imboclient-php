@@ -391,4 +391,9 @@ class ImboClientTest extends GuzzleTestCase {
         $url = $this->client->getImageUrl($imageIdentifier);
         $this->assertSame($expectedHost, $url->getHost());
     }
+
+    public function testCanGetTheNumberOfImagesOfTheCurrentUser() {
+        $this->setMockResponse($this->client, 'user_ok');
+        $this->assertSame(11, $this->client->getNumImages());
+    }
 }

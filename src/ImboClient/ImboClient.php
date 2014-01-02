@@ -419,6 +419,15 @@ class ImboClient extends Client {
     }
 
     /**
+     * Fetch the number of images the current user has
+     *
+     * @return int
+     */
+    public function getNumImages() {
+        return $this->getUserInfo()['numImages'];
+    }
+
+    /**
      * Get a predictable hostname for the given image identifier
      *
      * @param string $imageIdentifier The image identifier
