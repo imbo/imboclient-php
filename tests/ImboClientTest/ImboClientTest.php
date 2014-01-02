@@ -12,6 +12,7 @@ namespace ImboClientTest;
 
 use ImboClient\ImboClient,
     Guzzle\Http\Url,
+    Guzzle\Http\Message\Response,
     Guzzle\Tests\GuzzleTestCase,
     Guzzle\Http\Exception\ServerErrorResponseException;
 
@@ -169,5 +170,137 @@ class ImboClientTest extends GuzzleTestCase {
      */
     public function testThrowsExceptionWhenAddingImageFromUrlAndUrlIsInvalid() {
         $this->client->addImageFromUrl(Url::factory('/some/path'));
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage serverUrls must be an array
+     */
+    public function testFactoryThrowsAnExceptionWhenServerUrlsIsInvalid() {
+        ImboClient::factory(array('serverUrls' => 'http://imbo'));
+    }
+
+    public function testCanCreateAnInstanceOfTheClientWithNoServerUrlsDefined() {
+        $client = new ImboClient('http://imbo', array('publicKey' => 'public', 'privateKey' => 'private'));
+        $this->assertSame(array('http://imbo'), $client->getServerUrls());
+    }
+
+    /**
+     * Server URLs data provider
+     *
+     * @return array
+     */
+    public function getServerUrls() {
+        return array(
+            array('imbo', 'http://imbo'),
+
+            array('http://imbo', 'http://imbo'),
+            array('http://imbo/prefix', 'http://imbo/prefix'),
+            array('http://imbo:81', 'http://imbo:81'),
+            array('http://imbo:81/prefix', 'http://imbo:81/prefix'),
+            array('http://imbo:80', 'http://imbo'),
+            array('http://imbo:80/prefix', 'http://imbo/prefix'),
+
+            array('https://imbo', 'https://imbo'),
+            array('https://imbo/prefix', 'https://imbo/prefix'),
+            array('https://imbo:444', 'https://imbo:444'),
+            array('https://imbo:444/prefix', 'https://imbo:444/prefix'),
+            array('https://imbo:443', 'https://imbo'),
+            array('https://imbo:443/prefix', 'https://imbo/prefix'),
+        );
+    }
+
+    /**
+     * @dataProvider getServerUrls
+     */
+    public function testAcceptsDifferentTypesOfHostUrlsInTheConstructor($url, $expected) {
+        $client = new ImboClient($url, array('publicKey' => 'public', 'privateKey' => 'private'));
+        $urls = $client->getServerUrls();
+
+        $this->assertInternalType('array', $urls);
+        $this->assertCount(1, $urls);
+        $this->assertSame($expected, $urls[0]);
+    }
+
+    public function testCanAddAnImageFromALocalPath() {
+        $this->setMockResponse($this->client, 'image_created');
+
+        $response = $this->client->addImage(__DIR__ . '/_files/image.png');
+        $this->assertSame('929db9c5fc3099f7576f5655207eba47', $response['imageIdentifier']);
+        $this->assertSame(665, $response['width']);
+        $this->assertSame(463, $response['height']);
+        $this->assertSame('png', $response['extension']);
+        $this->assertSame(201, $response['status']);
+    }
+
+    public function testCanAddAnImageFromAUrl() {
+        $this->setMockResponse($this->client, array(
+            new Response(200, array(), file_get_contents(__DIR__ . '/_files/image.png')),
+            'image_created',
+        ));
+
+        $response = $this->client->addImageFromUrl('http://url/to/image.png');
+        $this->assertSame('929db9c5fc3099f7576f5655207eba47', $response['imageIdentifier']);
+        $this->assertSame(665, $response['width']);
+        $this->assertSame(463, $response['height']);
+        $this->assertSame('png', $response['extension']);
+        $this->assertSame(201, $response['status']);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Could not fetch image: http://url/to/image.png
+     */
+    public function testThrowsAnExceptionWhenTryingToAddAnImageFromAUrlThatResultsInAnError() {
+        $this->setMockResponse($this->client, array(new Response(404)));
+        $this->client->addImageFromUrl('http://url/to/image.png');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Parameter must be a string or an instance of Guzzle\Http\Url
+     */
+    public function testThrowsAnExceptionWhenTryingToAddAnImageFromAUrlAndTheUrlParameterIsInvalid() {
+        $this->client->addImageFromUrl(new \stdClass());
+    }
+
+    public function testCanDeleteImages() {
+        $this->setMockResponse($this->client, 'image_deleted');
+        $response = $this->client->deleteImage('identifier');
+        $this->assertSame('929db9c5fc3099f7576f5655207eba47', $response['imageIdentifier']);
+    }
+
+    public function testCanFetchImageProperties() {
+        $this->setMockResponse($this->client, 'image_properties');
+        $response = $this->client->getImageProperties('identifier');
+        $this->assertSame(200, $response['width']);
+        $this->assertSame(300, $response['height']);
+        $this->assertSame(400, $response['filesize']);
+        $this->assertSame('png', $response['extension']);
+        $this->assertSame('image/png', $response['mimetype']);
+    }
+
+    public function testCanEditMetadata() {
+        $this->setMockResponse($this->client, 'metadata_edit');
+        $response = $this->client->editMetadata('identifier', array('some' => 'metadata'));
+        $this->assertSame('929db9c5fc3099f7576f5655207eba47', $response['imageIdentifier']);
+    }
+
+    public function testCanReplaceMetadata() {
+        $this->setMockResponse($this->client, 'metadata_edit');
+        $response = $this->client->replaceMetadata('identifier', array('some' => 'metadata'));
+        $this->assertSame('929db9c5fc3099f7576f5655207eba47', $response['imageIdentifier']);
+    }
+
+    public function testCanFetchMetadata() {
+        $this->setMockResponse($this->client, 'metadata_get');
+        $response = $this->client->getMetadata('identifier');
+        $this->assertSame(array('some' => 'metadata'), $response);
+    }
+
+    public function testCanDeleteMetadata() {
+        $this->setMockResponse($this->client, 'metadata_delete');
+        $response = $this->client->deleteMetadata('identifier');
+        $this->assertSame('929db9c5fc3099f7576f5655207eba47', $response['imageIdentifier']);
     }
 }
