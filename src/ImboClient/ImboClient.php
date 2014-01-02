@@ -143,24 +143,23 @@ class ImboClient extends Client {
     public function addImageFromUrl($url) {
         if (is_string($url)) {
             // URL specified as a string. Create a URL instance
-            $urlInstance = Url::factory($url);
-        } else if (!($url instanceof GuzzleUrl)) {
+            $url = GuzzleUrl::factory($url);
+        }
+
+        if (!($url instanceof GuzzleUrl)) {
             // Invalid argument
             throw new InvalidArgumentException(
                 'Parameter must be a string or an instance of Guzzle\Http\Url'
             );
-        } else {
-            // Instance of a Guzzle URL
-            $urlInstance = $url;
         }
 
-        if (!$urlInstance->getScheme()) {
-            throw new InvalidArgumentException('URL is missing scheme: ' . $url);
+        if (!$url->getScheme()) {
+            throw new InvalidArgumentException('URL is missing scheme: ' . (string) $url);
         }
 
         // Fetch the image we want to add
         try {
-            $image = (string) $this->get($urlInstance)->send()->getBody();
+            $image = (string) $this->get($url)->send()->getBody();
         } catch (GuzzleException $e) {
             throw new InvalidArgumentException('Could not fetch image: ' . $url);
         }
