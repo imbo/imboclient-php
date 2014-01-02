@@ -11,6 +11,7 @@
 namespace ImboClientTest;
 
 use ImboClient\ImboClient,
+    ImboClient\ImagesQuery,
     Guzzle\Http\Url,
     Guzzle\Http\Message\Response,
     Guzzle\Tests\GuzzleTestCase,
@@ -302,5 +303,92 @@ class ImboClientTest extends GuzzleTestCase {
         $this->setMockResponse($this->client, 'metadata_delete');
         $response = $this->client->deleteMetadata('identifier');
         $this->assertSame('929db9c5fc3099f7576f5655207eba47', $response['imageIdentifier']);
+    }
+
+    public function testCanGetImages() {
+        $this->setMockResponse($this->client, 'images_get');
+        $response = $this->client->getImages();
+
+        $this->assertSame(2, $response['search']['total']);
+        $this->assertSame(1, $response['search']['page']);
+        $this->assertSame(20, $response['search']['limit']);
+        $this->assertSame(2, $response['search']['count']);
+
+        $this->assertCount(2, $response['images']);
+        $this->assertSame('d6c335a9e0ba3aa485942925ca5ec9cd', $response['images'][0]['imageIdentifier']);
+        $this->assertSame('29f7a5488303927ca345416e22f8836e', $response['images'][1]['imageIdentifier']);
+    }
+
+    public function testCanGetImagesUsingAQueryObject() {
+        $this->setMockResponse($this->client, 'images_get');
+
+        $query = new ImagesQuery();
+        $query->page(2)
+              ->limit(5)
+              ->metadata(true)
+              ->from(123)
+              ->to(456)
+              ->fields(array('width'))
+              ->sort(array('size'));
+        $response = $this->client->getImages($query);
+
+        $request = $this->getMockedRequests()[0];
+        $this->assertSame('http://imbo/users/christer/images.json?page=2&limit=5&metadata=1&from=123&to=456&fields=width&sort=size&accessToken=6aa8ca47790f3fcdf29122f408b62d068807c331d13bfd62da0f118af2a9dabc', $request->getUrl());
+    }
+
+    public function testCanGetTheShortUrlOfAnImage() {
+        $this->setMockResponse($this->client, 'image_properties');
+        $url = $this->client->getShortUrl($this->getMockBuilder('ImboClient\Http\ImageUrl')->disableOriginalConstructor()->getMock());
+
+        $this->assertInstanceOf('Guzzle\Http\Url', $url);
+        $this->assertSame('http://imbo/s/c1cc6El', (string) $url);
+    }
+
+    public function testCanGetTheShortUrlOfAnImageAsANativeString() {
+        $this->setMockResponse($this->client, 'image_properties');
+        $url = $this->client->getShortUrl($this->getMockBuilder('ImboClient\Http\ImageUrl')->disableOriginalConstructor()->getMock(), true);
+
+        $this->assertInternalType('string', $url);
+        $this->assertSame('http://imbo/s/c1cc6El', $url);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Could not fetch image properties for image:
+     */
+    public function testThrowsAnExceptionWhenTryingToFetchTheShortUrlOfAnImageThatResultsInAnError() {
+        $this->setMockResponse($this->client, array(new Response(404)));
+        $this->client->getShortUrl($this->getMockBuilder('ImboClient\Http\ImageUrl')->disableOriginalConstructor()->getMock());
+    }
+
+    /**
+     * Data provider
+     *
+     * @return array[]
+     */
+    public function getImageIdentifiers() {
+        return array(
+            array('fe0fff895d8d7ca654a1ecb0aff67c67', 'imbo5'),
+            array('a76ff2e210cb559a94798c1ed0e335d3', 'imbo3'),
+            array('8d2d7a2550907b85d88e4cbdf666c20e', 'imbo2'),
+            array('acfb53930bd4a7489f5e761479e5e2f4', 'imbo3'),
+            array('aef2bf39109708ef36de531ff1a0fc38', 'imbo5'),
+            array('82f82adc4ce56e78ad88e32acd0acc4c', 'imbo1'),
+        );
+    }
+
+    /**
+     * @dataProvider getImageIdentifiers
+     */
+    public function testFetchesTheCorrectUrlForAnImageIdentifier($imageIdentifier, $expectedHost) {
+        $this->client->setServerUrls(array(
+            'http://imbo1',
+            'http://imbo2',
+            'http://imbo3',
+            'http://imbo4',
+            'http://imbo5',
+        ));
+        $url = $this->client->getImageUrl($imageIdentifier);
+        $this->assertSame($expectedHost, $url->getHost());
     }
 }
