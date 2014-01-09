@@ -49,7 +49,7 @@ class AccessToken implements EventSubscriberInterface {
                 $request = $command->getRequest();
 
                 // Generate an access token
-                $accessToken = $this->getAccessToken($request->getUrl(), $request->getClient()->getConfig('privateKey'));
+                $accessToken = $this->getAccessToken(urldecode($request->getUrl()), $request->getClient()->getConfig('privateKey'));
 
                 // Add as query parameter
                 $request->getQuery()->set('accessToken', $accessToken);
@@ -60,7 +60,7 @@ class AccessToken implements EventSubscriberInterface {
     /**
      * Get an access token for a given URL
      *
-     * @param string $url The URL
+     * @param string $url The URL, un-encoded
      * @param string $privateKey The private key used to generate the hash
      * @return string
      */

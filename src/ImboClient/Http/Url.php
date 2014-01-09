@@ -52,7 +52,7 @@ class Url extends GuzzleUrl {
         $asString = parent::__toString();
 
         if ($this->privateKey) {
-            $accessToken = hash_hmac('sha256', $asString, $this->privateKey);
+            $accessToken = hash_hmac('sha256', urldecode($asString), $this->privateKey);
 
             $url = GuzzleUrl::factory($asString);
             $url->getQuery()->set('accessToken', $accessToken);
