@@ -450,6 +450,21 @@ class ImboClient extends Client {
     }
 
     /**
+     * Checks if a given image exists on the server already by specifying an image identifier
+     *
+     * @param string $imageIdentifier The image identifier
+     * @return boolean
+     */
+    public function imageIdentifierExists($imageIdentifier) {
+        $query = new ImagesQuery();
+        $query->ids(array($imageIdentifier));
+
+        $response = $this->getImages($query);
+
+        return (boolean) $response['search']['hits'];
+    }
+
+    /**
      * Get a predictable hostname for the given image identifier
      *
      * @param string $imageIdentifier The image identifier

@@ -409,4 +409,14 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertTrue($this->client->imageExists(__DIR__ . '/_files/image.png'));
         $this->assertFalse($this->client->imageExists(__DIR__ . '/_files/image.jpg'));
     }
+
+    public function testCanCheckIfALocalImageExistsOnTheServerBySpecifyingAnImageIdentifier() {
+        $this->setMockResponse($this->client, array(
+            'image_exists',
+            'image_does_not_exist',
+        ));
+
+        $this->assertTrue($this->client->imageIdentifierExists('id1'));
+        $this->assertFalse($this->client->imageIdentifierExists('id2'));
+    }
 }
