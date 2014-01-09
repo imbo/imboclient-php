@@ -67,6 +67,20 @@ class ImagesQuery {
     private $sort = array();
 
     /**
+     * Filter on these ID's
+     *
+     * @var string[]
+     */
+    private $ids = array();
+
+    /**
+     * Filter on these checksums
+     *
+     * @var string[]
+     */
+    private $checksums = array();
+
+    /**
      * Set or get the page property
      *
      * @param int $page Give this a value to set the page property
@@ -174,6 +188,38 @@ class ImagesQuery {
         }
 
         $this->sort = $sort;
+
+        return $this;
+    }
+
+    /**
+     * Set or get the ids attribute
+     *
+     * @param string[] $ids Give this a value to set the ids property
+     * @return string[]|self
+     */
+    public function ids(array $ids = null) {
+        if ($ids === null) {
+            return $this->ids;
+        }
+
+        $this->ids = $ids;
+
+        return $this;
+    }
+
+    /**
+     * Set or get the checksums attribute
+     *
+     * @param string[] $checksums Give this a value to set the checksums property
+     * @return string[]|self
+     */
+    public function checksums(array $checksums = null) {
+        if ($checksums === null) {
+            return $this->checksums;
+        }
+
+        $this->checksums = $checksums;
 
         return $this;
     }

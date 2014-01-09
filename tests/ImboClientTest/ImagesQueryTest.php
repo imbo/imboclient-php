@@ -78,4 +78,16 @@ class ImagesQueryTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($this->query, $this->query->sort(array('size', 'width')));
         $this->assertSame(array('size', 'width'), $this->query->sort());
     }
+
+    public function testCanSetAndGetIds() {
+        $this->assertSame(array(), $this->query->ids());
+        $this->assertSame($this->query, $this->query->ids(array('id1', 'id2')));
+        $this->assertSame(array('id1', 'id2'), $this->query->ids());
+    }
+
+    public function testCanSetAndGetChecksums() {
+        $this->assertSame(array(), $this->query->checksums());
+        $this->assertSame($this->query, $this->query->checksums(array('checksum1', 'checksum2')));
+        $this->assertSame(array('checksum1', 'checksum2'), $this->query->checksums());
+    }
 }
