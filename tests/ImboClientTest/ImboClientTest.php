@@ -419,4 +419,22 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertTrue($this->client->imageIdentifierExists('id1'));
         $this->assertFalse($this->client->imageIdentifierExists('id2'));
     }
+
+    public function testCanGetImageDataBasedOnAnImageIdentifier() {
+        $blob = file_get_contents(__DIR__ . '/_files/image.png');
+        $this->setMockResponse($this->client, array(
+            new Response(200, array(), $blob),
+        ));
+
+        $this->assertSame($blob, $this->client->getImageData('id'));
+    }
+
+    public function testCanGetImageDataBasedOnAnImageUrl() {
+        $blob = file_get_contents(__DIR__ . '/_files/image.png');
+        $this->setMockResponse($this->client, array(
+            new Response(200, array(), $blob),
+        ));
+
+        $this->assertSame($blob, $this->client->getImageDataFromUrl($this->client->getImageUrl('id')));
+    }
 }

@@ -465,6 +465,26 @@ class ImboClient extends Client {
     }
 
     /**
+     * Get the binary data of an image stored on the server
+     *
+     * @param string $imageIdentifier The image identifier
+     * @return string
+     */
+    public function getImageData($imageIdentifier) {
+        return $this->getImageDataFromUrl($this->getImageUrl($imageIdentifier));
+    }
+
+    /**
+     * Get the binary data of an image stored on the server
+     *
+     * @param Url\ImageInterface $url URL instance for the image you want to retrieve
+     * @return string
+     */
+    public function getImageDataFromUrl(Http\ImageUrl $imageUrl) {
+        return (string) $this->get((string) $imageUrl)->send()->getBody();
+    }
+
+    /**
      * Get a predictable hostname for the given image identifier
      *
      * @param string $imageIdentifier The image identifier
