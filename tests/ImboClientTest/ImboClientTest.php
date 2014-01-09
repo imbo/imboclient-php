@@ -333,7 +333,7 @@ class ImboClientTest extends GuzzleTestCase {
         $response = $this->client->getImages($query);
 
         $request = $this->getMockedRequests()[0];
-        $this->assertSame('http://imbo/users/christer/images.json?page=2&limit=5&metadata=1&from=123&to=456&fields=width&sort=size&accessToken=6aa8ca47790f3fcdf29122f408b62d068807c331d13bfd62da0f118af2a9dabc', $request->getUrl());
+        $this->assertSame('http://imbo/users/christer/images.json?page=2&limit=5&metadata=1&from=123&to=456&fields[0]=width&sort[0]=size&accessToken=194daa8283d53cc192f5363b182cdb8d51fcd3a84386a2add96d29efc60a619a', urldecode($request->getUrl()));
     }
 
     public function testCanGetTheShortUrlOfAnImage() {
