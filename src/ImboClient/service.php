@@ -15,18 +15,18 @@ return array(
     'operations' => array(
         'GetServerStats' => array(
             'httpMethod' => 'GET',
-            'uri' => '/stats.json',
+            'uri' => 'stats.json',
             'summary' => 'Get statistics',
         ),
         'GetServerStatus' => array(
             'httpMethod' => 'GET',
-            'uri' => '/status.json',
+            'uri' => 'status.json',
             'summary' => 'Get status about the Imbo host',
             'responseClass' => 'GetServerStatus',
         ),
         'GetUserInfo' => array(
             'httpMethod' => 'GET',
-            'uri' => '/users/{publicKey}.json',
+            'uri' => 'users/{publicKey}.json',
             'summary' => 'Get information about a specific user',
             'parameters' => array(
                 'publicKey' => array(
@@ -40,7 +40,7 @@ return array(
         ),
         'AddImage' => array(
             'httpMethod' => 'POST',
-            'uri' => '/users/{publicKey}/images',
+            'uri' => 'users/{publicKey}/images',
             'summary' => 'Add an image',
             'parameters' => array(
                 'publicKey' => array(
@@ -60,7 +60,7 @@ return array(
         ),
         'DeleteImage' => array(
             'httpMethod' => 'DELETE',
-            'uri' => '/users/{publicKey}/images/{imageIdentifier}',
+            'uri' => 'users/{publicKey}/images/{imageIdentifier}',
             'summary' => 'Delete an image',
             'parameters' => array(
                 'publicKey' => array(
@@ -80,7 +80,7 @@ return array(
         ),
         'GetImageProperties' => array(
             'httpMethod' => 'HEAD',
-            'uri' => '/users/{publicKey}/images/{imageIdentifier}',
+            'uri' => 'users/{publicKey}/images/{imageIdentifier}',
             'summary' => 'Get properties of an image',
             'parameters' => array(
                 'publicKey' => array(
@@ -100,7 +100,7 @@ return array(
         ),
         'EditMetadata' => array(
             'httpMethod' => 'POST',
-            'uri' => '/users/{publicKey}/images/{imageIdentifier}/metadata',
+            'uri' => 'users/{publicKey}/images/{imageIdentifier}/metadata',
             'summary' => 'Update metadata attached to an image. Supports partial updates',
             'parameters' => array(
                 'publicKey' => array(
@@ -126,7 +126,7 @@ return array(
         ),
         'GetMetadata' => array(
             'httpMethod' => 'GET',
-            'uri' => '/users/{publicKey}/images/{imageIdentifier}/metadata.json',
+            'uri' => 'users/{publicKey}/images/{imageIdentifier}/metadata.json',
             'summary' => 'Get metadata attached to an image',
             'parameters' => array(
                 'publicKey' => array(
@@ -145,7 +145,7 @@ return array(
         ),
         'ReplaceMetadata' => array(
             'httpMethod' => 'PUT',
-            'uri' => '/users/{publicKey}/images/{imageIdentifier}/metadata',
+            'uri' => 'users/{publicKey}/images/{imageIdentifier}/metadata',
             'summary' => 'Completely replace the metadata attached to an image with new metadata',
             'parameters' => array(
                 'publicKey' => array(
@@ -171,7 +171,7 @@ return array(
         ),
         'DeleteMetadata' => array(
             'httpMethod' => 'DELETE',
-            'uri' => '/users/{publicKey}/images/{imageIdentifier}/metadata',
+            'uri' => 'users/{publicKey}/images/{imageIdentifier}/metadata',
             'summary' => 'Delete metadata attached to an image',
             'parameters' => array(
                 'publicKey' => array(
@@ -191,7 +191,7 @@ return array(
         ),
         'GetImages' => array(
             'httpMethod' => 'GET',
-            'uri' => '/users/{publicKey}/images.json',
+            'uri' => 'users/{publicKey}/images.json',
             'summary' => 'Fetch information about images owned by a specific user',
             'parameters' => array(
                 'publicKey' => array(
