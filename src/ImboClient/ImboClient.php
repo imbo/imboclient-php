@@ -124,13 +124,7 @@ class ImboClient extends Client {
      * @throws InvalidArgumentException
      */
     public function addImage($path) {
-        if (!is_file($path)) {
-            throw new InvalidArgumentException('File does not exist: ' . $path);
-        }
-
-        if (!filesize($path)) {
-            throw new InvalidArgumentException('File is of zero length: ' . $path);
-        }
+        $this->validateLocalFile($path);
 
         return $this->addImageFromString(file_get_contents($path));
     }
@@ -288,11 +282,19 @@ class ImboClient extends Client {
         }
 
         if ($fields = $query->fields()) {
-            $params['fields'] = implode(',', $fields);
+            $params['fields'] = $fields;
         }
 
         if ($sort = $query->sort()) {
-            $params['sort'] = implode(',', $sort);
+            $params['sort'] = $sort;
+        }
+
+        if ($ids = $query->ids()) {
+            $params['ids'] = $ids;
+        }
+
+        if ($checksums = $query->checksums()) {
+            $params['checksums'] = $checksums;
         }
 
         return $this->getCommand('GetImages', $params)->execute();
@@ -480,5 +482,21 @@ class ImboClient extends Client {
         }
 
         return array_flip($result);
+     }
+
+    /**
+     * Helper method to make sure a local file exists, and that it is not empty
+     *
+     * @param string $path The path to a local file
+     * @throws InvalidArgumentException
+     */
+    private function validateLocalFile($path) {
+        if (!is_file($path)) {
+            throw new InvalidArgumentException('File does not exist: ' . $path);
+        }
+
+        if (!filesize($path)) {
+            throw new InvalidArgumentException('File is of zero length: ' . $path);
+        }
     }
 }
