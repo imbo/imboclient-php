@@ -6,7 +6,7 @@ Content-Type: application/json
 {
   "search":
   {
-    "total":2,
+    "hits":2,
     "page":1,
     "limit":20,
     "count":2

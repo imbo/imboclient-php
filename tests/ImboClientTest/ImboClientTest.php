@@ -309,7 +309,7 @@ class ImboClientTest extends GuzzleTestCase {
         $this->setMockResponse($this->client, 'images_get');
         $response = $this->client->getImages();
 
-        $this->assertSame(2, $response['search']['total']);
+        $this->assertSame(2, $response['search']['hits']);
         $this->assertSame(1, $response['search']['page']);
         $this->assertSame(20, $response['search']['limit']);
         $this->assertSame(2, $response['search']['count']);
@@ -398,5 +398,15 @@ class ImboClientTest extends GuzzleTestCase {
     public function testCanGetTheNumberOfImagesOfTheCurrentUser() {
         $this->setMockResponse($this->client, 'user_ok');
         $this->assertSame(11, $this->client->getNumImages());
+    }
+
+    public function testCanCheckIfALocalImageExistsOnTheServer() {
+        $this->setMockResponse($this->client, array(
+            'image_exists',
+            'image_does_not_exist',
+        ));
+
+        $this->assertTrue($this->client->imageExists(__DIR__ . '/_files/image.png'));
+        $this->assertFalse($this->client->imageExists(__DIR__ . '/_files/image.jpg'));
     }
 }

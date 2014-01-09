@@ -430,6 +430,26 @@ class ImboClient extends Client {
     }
 
     /**
+     * Checks if a given image exists on the server already by specifying a local path
+     *
+     * @param string $path Path to the local image
+     * @throws InvalidArgumentException Throws an exception if the specified file does not exist or
+     *                                  is of zero length
+     * @return boolean
+     */
+    public function imageExists($path) {
+        $this->validateLocalFile($path);
+        $checksum = md5_file($path);
+        $query = new ImagesQuery();
+        $query->checksums(array($checksum))
+              ->limit(1);
+
+        $response = $this->getImages($query);
+
+        return (boolean) $response['search']['hits'];
+    }
+
+    /**
      * Get a predictable hostname for the given image identifier
      *
      * @param string $imageIdentifier The image identifier
