@@ -1,15 +1,5 @@
-HTTP/1.1 200 OK
-Date: Thu, 02 Jan 2014 09:33:30 GMT
-Connection: close
-Content-Type: application/json
-
-{
-  "search":
-  {
-    "hits":0,
-    "page":1,
-    "limit":1,
-    "count":0
-  },
-  "images":[]
-}
+HTTP/1.1 404 Not Found
+Date: Fri, 10 Jan 2014 09:14:59 GMT
+X-Imbo-Error-Date: Fri, 10 Jan 2014 09:14:59 GMT
+X-Imbo-Error-InternalCode: 0
+X-Imbo-Error-Message: Not Found

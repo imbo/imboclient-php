@@ -456,12 +456,17 @@ class ImboClient extends Client {
      * @return boolean
      */
     public function imageIdentifierExists($imageIdentifier) {
-        $query = new ImagesQuery();
-        $query->ids(array($imageIdentifier));
+        try {
+            $response = $this->head((string) $this->getImageUrl($imageIdentifier))->send();
 
-        $response = $this->getImages($query);
+            return $response->getStatusCode() === 200;
+        } catch (GuzzleException $e) {
+            if ($e->getResponse()->getStatusCode() === 404) {
+                return false;
+            }
 
-        return (boolean) $response['search']['hits'];
+            throw $e;
+        }
     }
 
     /**

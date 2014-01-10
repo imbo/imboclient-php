@@ -403,21 +403,30 @@ class ImboClientTest extends GuzzleTestCase {
     public function testCanCheckIfALocalImageExistsOnTheServer() {
         $this->setMockResponse($this->client, array(
             'image_exists',
-            'image_does_not_exist',
+            'images_empty_collection',
         ));
 
         $this->assertTrue($this->client->imageExists(__DIR__ . '/_files/image.png'));
         $this->assertFalse($this->client->imageExists(__DIR__ . '/_files/image.jpg'));
     }
 
-    public function testCanCheckIfALocalImageExistsOnTheServerBySpecifyingAnImageIdentifier() {
+    public function testCanCheckIfAnImageExistsOnTheServerBySpecifyingAnImageIdentifier() {
         $this->setMockResponse($this->client, array(
-            'image_exists',
+            'image_properties',
             'image_does_not_exist',
         ));
 
         $this->assertTrue($this->client->imageIdentifierExists('id1'));
         $this->assertFalse($this->client->imageIdentifierExists('id2'));
+    }
+
+    /**
+     * @expectedException Guzzle\Http\Exception\ServerErrorResponseException
+     * @expectedExceptionMessage Server error response
+     */
+    public function testWillRethrowExceptionWhenCheckingIfAnImageIdentifierExistsAndTheServerResponseWithAServerError() {
+        $this->setMockResponse($this->client, 'server_error');
+        $this->client->imageIdentifierExists('id1');
     }
 
     public function testCanGetImageDataBasedOnAnImageIdentifier() {
