@@ -2,10 +2,11 @@ require 'date'
 require 'digest/md5'
 require 'fileutils'
 require 'nokogiri'
+require 'json'
 
 basedir = "."
 build   = "#{basedir}/build"
-source  = "#{basedir}/library/ImboClient"
+source  = "#{basedir}/src/ImboClient"
 tests   = "#{basedir}/tests"
 
 desc "Task used by Jenkins-CI"
@@ -54,26 +55,43 @@ end
 
 desc "Check syntax on all php files in the project"
 task :lint do
+  lintCache = "#{basedir}/.lintcache"
+
+  begin
+    sums = JSON.parse(IO.read(lintCache))
+  rescue Exception => foo
+    sums = {}
+  end
+
   `git ls-files "*.php"`.split("\n").each do |f|
+    f = File.absolute_path(f)
+    md5 = Digest::MD5.hexdigest(File.read(f))
+
+    next if sums[f] == md5
+
+    sums[f] = md5
+
     begin
       sh %{php -l #{f}}
     rescue Exception
       exit 1
     end
   end
+
+  IO.write(lintCache, JSON.dump(sums))
 end
 
 desc "Run unit tests"
 task :test do
   if ENV["TRAVIS"] == "true"
     begin
-      sh %{vendor/bin/phpunit --verbose -c phpunit.xml.travis}
+      sh %{./vendor/bin/phpunit --verbose -c tests}
     rescue Exception
       exit 1
     end
   else
     begin
-      sh %{vendor/bin/phpunit --verbose}
+      sh %{./vendor/bin/phpunit --verbose -c tests --coverage-html build/coverage --coverage-clover build/logs/clover.xml --log-junit build/logs/junit.xml}
     rescue Exception
       exit 1
     end
@@ -82,7 +100,7 @@ end
 
 desc "Generate API documentation using phpdoc"
 task :apidocs do
-  system "phpdoc -d #{tests} -d #{source} -t #{build}/docs --title \"ImboClient API documentation\""
+  system "phpdoc -d #{source} -t #{build}/docs --title \"ImboClient API documentation\""
 end
 
 desc "Generate phploc logs"
@@ -125,173 +143,6 @@ task :phpmd_html do
   system "phpmd #{source} html #{basedir}/phpmd.xml --reportfile #{build}/logs/pmd.html"
 end
 
-desc "Create a PEAR package"
-task :generate_pear_package, :version do |t, args|
-  version = args[:version]
-
-  if /^[\d]+\.[\d]+\.[\d]+$/ =~ version
-    Dir.chdir("library")
-
-    now = DateTime.now
-    hash = Digest::MD5.new
-    xml = Nokogiri::XML::Builder.new { |xml|
-      xml.package(:version => "2.0", :xmlns => "http://pear.php.net/dtd/package-2.0", "xmlns:tasks" => "http://pear.php.net/dtd/tasks-1.0", "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation" => ["http://pear.php.net/dtd/tasks-1.0", "http://pear.php.net/dtd/tasks-1.0.xsd", "http://pear.php.net/dtd/package-2.0", "http://pear.php.net/dtd/package-2.0.xsd"].join(" ")) {
-        xml.name "ImboClient"
-        xml.channel "pear.starzinger.net"
-        xml.summary "Client for Imbo written in PHP"
-        xml.description "This is a client to Imbo servers written in PHP. The client supports all operations possible on the server."
-        xml.lead {
-          xml.name "Christer Edvartsen"
-          xml.user "christeredvartsen"
-          xml.email "cogo@starzinger.net"
-          xml.active "yes"
-        }
-        xml.developer {
-          xml.name "Espen Hovlandsdal"
-          xml.user "rexxars"
-          xml.email "espen@hovlandsdal.com"
-          xml.active "yes"
-        }
-        xml.date now.strftime('%Y-%m-%d')
-        xml.time now.strftime('%H:%M:%S')
-        xml.version {
-          xml.release version
-          xml.api version
-        }
-        xml.stability {
-          xml.release "beta"
-          xml.api "beta"
-        }
-        xml.license "MIT", :uri => "http://www.opensource.org/licenses/mit-license.php"
-        xml.notes "http://github.com/imbo/imboclient-php/blob/#{version}/README.markdown"
-        xml.contents {
-          xml.dir(:name => "/") {
-            `git ls-files`.split("\n").each { |f|
-              xml.file(:md5sum => hash.hexdigest(File.read(f)), :role => "php", :name => f)
-            }
-
-            # Copy some files from the root directory
-            ["README.markdown", "LICENSE", "ChangeLog.markdown"].each { |f|
-              system "cp ../#{f} ."
-              xml.file(:md5sum => hash.hexdigest(File.read(f)), :role => "doc", :name => f)
-            }
-          }
-        }
-        xml.dependencies {
-          xml.required {
-            xml.php {
-              xml.min "5.3.2"
-            }
-            xml.pearinstaller {
-              xml.min "1.9.0"
-            }
-            xml.extension {
-              xml.name "spl"
-            }
-          }
-        }
-        xml.phprelease
-      }
-    }
-
-    # Write XML to package.xml
-    File.open("package.xml", "w") { |f|
-      f.write(xml.to_xml)
-    }
-
-    # Generate pear package
-    system "pear package"
-
-    # Remove tmp files
-    ["package.xml", "LICENSE", "README.markdown", "ChangeLog.markdown"].each { |f|
-      File.unlink(f)
-    }
-
-    system "mv ImboClient-* .."
-
-    Dir.chdir("..")
-  else
-    puts "'#{version}' is not a valid version"
-    exit 1
-  end
-end
-
-desc "Generate phar archive"
-task :generate_phar_archive, :version do |t, args|
-  version = args[:version]
-
-  if /^[\d]+\.[\d]+\.[\d]+$/ =~ version
-    # Path to stub
-    stub = "#{basedir}/stub.php"
-
-    # Generate stub
-    File.open(stub, "w") do |f|
-      f.write(<<-STUB)
-<?php
-/**
- * ImboClient
- *
- * Copyright (c) 2011-2013, Christer Edvartsen <cogo@starzinger.net>
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * * The above copyright notice and this permission notice shall be included in
- *   all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
- * @copyright Copyright (c) 2011-2013, Christer Edvartsen <cogo@starzinger.net>
- * @license http://www.opensource.org/licenses/mit-license MIT License
- * @link https://github.com/imbo/imboclient-php
- * @version #{version}
- */
-
-Phar::mapPhar();
-
-$basePath = 'phar://' . __FILE__;
-
-spl_autoload_register(function($class) use ($basePath) {
-    if (strpos($class, 'ImboClient\\\\') !== 0) {
-        return false;
-    }
-
-    $file = $basePath . DIRECTORY_SEPARATOR . str_replace('\\\\', DIRECTORY_SEPARATOR, $class) . '.php';
-
-    if (file_exists($file)) {
-        require $file;
-        return true;
-    }
-
-    return false;
-});
-
-__HALT_COMPILER();
-STUB
-    end
-
-    # Generate the phar archive
-    system "phar-build -s #{basedir}/library -S #{stub} --phar #{basedir}/imboclient.phar --ns --strip-files '.php$'"
-
-    # Remove the stub
-    File.unlink("stub.php")
-  else
-    puts "'#{version}' is not a valid version"
-    exit 1
-  end
-end
-
 desc "Publish API docs"
 task :publish_docs do
   system "git checkout master"
@@ -320,33 +171,8 @@ task :release, :version do |t, args|
     system "git merge -m \"Merge branch 'develop'\" develop"
 
     # Set correct version
-    system "sed -i \"s/const VERSION = '.*'/const VERSION = '#{version}'/\" library/ImboClient/Version.php"
-    system "git commit -m \"Bumped version\" library/ImboClient/Version.php"
-
-    # Generate PEAR package
-    Rake::Task["generate_pear_package"].invoke(version)
-
-    package = "ImboClient-#{version}.tgz"
-
-    if File.exists?(package)
-      wd = Dir.getwd
-      Dir.chdir("/home/christer/dev/christeredvartsen.github.com")
-      system "git pull origin master"
-      system "pirum add . #{wd}/#{package}"
-      system "git add --all"
-      system "git commit -am \"Added #{package[0..-5]}\""
-      system "git push"
-      Dir.chdir(wd)
-      File.unlink(package)
-    else
-      puts "PEAR package was not generated. Will not update the channel"
-    end
-
-    # Generate phar arhive
-    Rake::Task["generate_phar_archive"].invoke(version)
-
-    system "git add imboclient.phar"
-    system "git commit -m \"Updated phar archive\" imboclient.phar"
+    system "sed -i \"s/const VERSION = '.*'/const VERSION = '#{version}'/\" src/ImboClient/Version.php"
+    system "git commit -m \"Bumped version\" src/ImboClient/Version.php"
 
     system "git tag #{version}"
     system "git push"

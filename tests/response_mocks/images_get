@@ -1,0 +1,41 @@
+HTTP/1.1 200 OK
+Date: Thu, 02 Jan 2014 09:33:30 GMT
+Connection: close
+Content-Type: application/json
+
+{
+  "search":
+  {
+    "hits":2,
+    "page":1,
+    "limit":20,
+    "count":2
+  },
+  "images":
+  [
+    {
+      "added":"Thu, 19 Dec 2013 15:42:48 GMT",
+      "updated":"Thu, 19 Dec 2013 16:07:09 GMT",
+      "checksum":"d6c335a9e0ba3aa485942925ca5ec9cd",
+      "extension":"jpg",
+      "size":2273694,
+      "width":3000,
+      "height":2000,
+      "mime":"image\/jpeg",
+      "imageIdentifier":"d6c335a9e0ba3aa485942925ca5ec9cd",
+      "publicKey":"christer"
+    },
+    {
+      "added":"Sun, 08 Dec 2013 22:28:52 GMT",
+      "updated":"Sun, 08 Dec 2013 22:28:52 GMT",
+      "checksum":"29f7a5488303927ca345416e22f8836e",
+      "extension":"jpg",
+      "size":2540,
+      "width":50,
+      "height":50,
+      "mime":"image\/jpeg",
+      "imageIdentifier":"29f7a5488303927ca345416e22f8836e",
+      "publicKey":"christer"
+    }
+  ]
+}
