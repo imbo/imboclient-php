@@ -63,6 +63,10 @@ class ImboClientTest extends GuzzleTestCase {
         $this->client = null;
     }
 
+    public function testCanFetchThePublicKeyOfTheCurrentUser() {
+        $this->assertSame($this->publicKey, $this->client->getPublicKey());
+    }
+
     public function testCanFetchServerStatusWhenEverythingIsOk() {
         $this->setMockResponse($this->client, 'status_ok');
 

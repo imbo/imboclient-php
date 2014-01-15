@@ -118,6 +118,15 @@ class ImboClient extends Client {
     }
 
     /**
+     * Get the current public key
+     *
+     * @return string
+     */
+    public function getPublicKey() {
+        return $this->getConfig('publicKey');
+    }
+
+    /**
      * Add an image from a path
      *
      * @param string $path A path to an image
