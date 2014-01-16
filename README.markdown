@@ -8,6 +8,9 @@ Copyright (c) 2011-2013, Christer Edvartsen <cogo@starzinger.net>
 
 Licensed under the MIT License
 
+## Documentation
+Documentation is available at http://imboclient-php.readthedocs.org/.
+
 ## Requirements
 ImboClient requires PHP-5.4 or above.
 
@@ -18,3 +21,5 @@ ImboClient can be installed using [Composer](http://getcomposer.org/) by specify
 curl -s https://getcomposer.org/installer | php
 php composer.phar create-project imbo/imboclient [<dir>] [<version>]
 ```
+
+

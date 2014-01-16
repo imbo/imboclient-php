@@ -4,3 +4,4 @@ composer.phar
 vendor
 test.php
 .lintcache
+docs/_build

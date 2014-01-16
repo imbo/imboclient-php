@@ -16,7 +16,22 @@ desc "Task used by Travis-CI"
 task :travis => [:installdep, :test]
 
 desc "Default task"
-task :default => [:lint, :installdep, :test, :phpcs, :apidocs]
+task :default => [:lint, :installdep, :test, :phpcs, :apidocs, :readthedocs]
+
+desc "Spell check and generate end user docs"
+task :readthedocs do
+  wd = Dir.getwd
+  Dir.chdir("docs")
+  begin
+    sh %{make spelling}
+  rescue Exception
+    puts "Spelling error in the docs, aborting"
+    exit 1
+  end
+  puts "No spelling errors. Generate docs"
+  sh %{make html}
+  Dir.chdir(wd)
+end
 
 desc "Clean up and create artifact directories"
 task :prepare do
