@@ -450,4 +450,13 @@ class ImboClientTest extends GuzzleTestCase {
 
         $this->assertSame($blob, $this->client->getImageDataFromUrl($this->client->getImageUrl('id')));
     }
+
+    public function testCanGetServerStatistics() {
+        $this->setMockResponse($this->client, 'stats_get');
+        $response = $this->client->getServerStats();
+        $this->assertInternalType('array', $response);
+        $this->assertArrayHasKey('users', $response);
+        $this->assertArrayHasKey('total', $response);
+        $this->assertArrayHasKey('custom', $response);
+    }
 }

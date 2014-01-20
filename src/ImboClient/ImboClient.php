@@ -14,6 +14,7 @@ use ImboClient\Http,
     Guzzle\Common\Collection,
     Guzzle\Service\Client,
     Guzzle\Service\Description\ServiceDescription,
+    Guzzle\Service\Resource\Model,
     Guzzle\Http\Url as GuzzleUrl,
     Guzzle\Common\Exception\GuzzleException,
     InvalidArgumentException;
@@ -130,6 +131,7 @@ class ImboClient extends Client {
      * Add an image from a path
      *
      * @param string $path A path to an image
+     * @return Model
      * @throws InvalidArgumentException
      */
     public function addImage($path) {
@@ -142,6 +144,7 @@ class ImboClient extends Client {
      * Add an image from a URL
      *
      * @param GuzzleUrl|string $url A URL to an image
+     * @return Model
      */
     public function addImageFromUrl($url) {
         if (is_string($url)) {
@@ -174,6 +177,7 @@ class ImboClient extends Client {
      * Add an image from memory
      *
      * @param string $image An image in memory
+     * @return Model
      * @throws InvalidArgumentException
      */
     public function addImageFromString($image) {
@@ -188,7 +192,27 @@ class ImboClient extends Client {
     }
 
     /**
+     * Get the server stats
+     *
+     * @return array
+     */
+    public function getServerStats() {
+        return $this->getCommand('GetServerStats')->execute();
+    }
+
+    /**
+     * Get the server status
+     *
+     * @return Model
+     */
+    public function getServerStatus() {
+        return $this->getCommand('GetServerStatus')->execute();
+    }
+
+    /**
      * Fetch the user info of the current user
+     *
+     * @return Model
      */
     public function getUserInfo() {
         return $this->getCommand('GetUserInfo', array(
@@ -200,6 +224,7 @@ class ImboClient extends Client {
      * Delete an image
      *
      * @param string $imageIdentifier The identifier of the image we want to delete
+     * @return Model
      */
     public function deleteImage($imageIdentifier) {
         return $this->getCommand('DeleteImage', array(
@@ -212,6 +237,7 @@ class ImboClient extends Client {
      * Get properties about an image stored in Imbo
      *
      * @param string $imageIdentifier The identifier of the image we want properties about
+     * @return Model
      */
     public function getImageProperties($imageIdentifier) {
         return $this->getCommand('GetImageProperties', array(
@@ -225,6 +251,7 @@ class ImboClient extends Client {
      *
      * @param string $imageIdentifier The identifier of the image
      * @param array $metadata The metadata to set
+     * @return Model
      */
     public function editMetadata($imageIdentifier, array $metadata) {
         return $this->getCommand('EditMetadata', array(
@@ -239,6 +266,7 @@ class ImboClient extends Client {
      *
      * @param string $imageIdentifier The identifier of the image
      * @param array $metadata The metadata to set
+     * @return Model
      */
     public function replaceMetadata($imageIdentifier, array $metadata) {
         return $this->getCommand('ReplaceMetadata', array(
@@ -265,7 +293,7 @@ class ImboClient extends Client {
      * Get images owned by a user
      *
      * @param ImagesQuery $query An optional images query object
-     * @return array
+     * @return Model
      */
     public function getImages(ImagesQuery $query = null) {
         if (!$query) {
@@ -313,7 +341,7 @@ class ImboClient extends Client {
      * Delete metadata from an image
      *
      * @param string $imageIdentifier The identifier of the image
-     * @return array
+     * @return Model
      */
     public function deleteMetadata($imageIdentifier) {
         return $this->getCommand('DeleteMetadata', array(
