@@ -433,16 +433,16 @@ Imbo URL's
 
 Imbo uses access tokens in the URL's to prevent `DoS attacks <http://en.wikipedia.org/wiki/DoS>`_, and the client includes functionality that does this automatically:
 
-``getStatusUrl``
+``getStatusUrl()``
     Fetch a URL to the status endpoint.
 
-``getStatsUrl``
+``getStatsUrl()``
     Fetch a URL to the stats endpoint.
 
-``getUserUrl``
+``getUserUrl()``
     Fetch a URL to the user information of the current user (specified by setting the correct public key when instantiating the client)``.
 
-``getImagesUrl``
+``getImagesUrl()``
     Fetch a URL to the images endpoint.
 
 ``getImageUrl($imageIdentifier)``
