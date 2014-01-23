@@ -468,7 +468,7 @@ The available transformation methods are:
 * ``autoRotate()``
 * ``border($color = '000000', $width = 1, $height = 1, $mode = 'outbound')``
 * ``canvas($width, $height, $mode = null, $x = null, $y = null, $bg = null)``
-* ``compress($quality = 75)``
+* ``compress($level = 75)``
 * ``crop($x, $y, $width, $height)``
 * ``desaturate()``
 * ``flipHorizontally()``

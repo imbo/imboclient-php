@@ -53,7 +53,7 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
             'border' => array('border', null, $this->baseUrl . '?t%5B0%5D=border%3Acolor%3D000000%2Cwidth%3D1%2Cheight%3D1%2Cmode%3Doutbound'),
             'canvas' => array('canvas', array(100, 200), $this->baseUrl . '?t%5B0%5D=canvas%3Awidth%3D100%2Cheight%3D200'),
             'canvas with all params' => array('canvas', array(100, 200, 'center', 10, 20, 'fff'), $this->baseUrl . '?t%5B0%5D=canvas%3Awidth%3D100%2Cheight%3D200%2Cmode%3Dcenter%2Cx%3D10%2Cy%3D20%2Cbg%3Dfff'),
-            'compress' => array('compress', null, $this->baseUrl . '?t%5B0%5D=compress%3Aquality%3D75'),
+            'compress' => array('compress', null, $this->baseUrl . '?t%5B0%5D=compress%3Alevel%3D75'),
             'convert' => array('convert', array('png'), $this->baseUrl . '.png'),
             'gif conversion' => array('gif', null, $this->baseUrl . '.gif'),
             'jpg conversion' => array('jpg', null, $this->baseUrl . '.jpg'),

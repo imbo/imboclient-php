@@ -113,11 +113,11 @@ class ImageUrl extends Url {
     /**
      * Add a compress transformation
      *
-     * @param int $quality A value between 0 and 100 where 100 is the best
+     * @param int $level A value between 0 and 100 where 100 is the best
      * @return self
      */
-    public function compress($quality = 75) {
-        return $this->addTransformation(sprintf('compress:quality=%d', (int) $quality));
+    public function compress($level = 75) {
+        return $this->addTransformation(sprintf('compress:level=%d', (int) $level));
     }
 
     /**
