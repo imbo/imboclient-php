@@ -13,5 +13,6 @@ branches:
     - master
 before_script:
   - composer self-update
-  - composer --dev install --prefer-source
-script: phpunit -c tests
+  - composer -n --no-ansi install --dev --prefer-source
+script:
+  - ./vendor/bin/phpunit --verbose -c tests/phpunit.xml.travis

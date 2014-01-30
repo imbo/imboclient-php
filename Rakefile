@@ -1,7 +1,6 @@
 require 'date'
 require 'digest/md5'
 require 'fileutils'
-require 'nokogiri'
 require 'json'
 
 basedir = "."
@@ -11,9 +10,6 @@ tests   = "#{basedir}/tests"
 
 desc "Task used by Jenkins-CI"
 task :jenkins => [:prepare, :lint, :installdep, :test, :apidocs, :phploc, :phpcs_ci, :phpcb, :phpcpd, :pdepend, :phpmd, :phpmd_html]
-
-desc "Task used by Travis-CI"
-task :travis => [:installdep, :test]
 
 desc "Default task"
 task :default => [:lint, :installdep, :test, :phpcs, :apidocs, :readthedocs]
@@ -45,12 +41,8 @@ end
 
 desc "Install dependencies"
 task :installdep do
-  if ENV["TRAVIS"] == "true"
-    system "composer --no-ansi install --dev"
-  else
-    Rake::Task["install_composer"].invoke
-    system "php -d \"apc.enable_cli=0\" composer.phar install --dev"
-  end
+  Rake::Task["install_composer"].invoke
+  system "php -d \"apc.enable_cli=0\" composer.phar install --dev"
 end
 
 desc "Update dependencies"
@@ -98,18 +90,10 @@ end
 
 desc "Run unit tests"
 task :test do
-  if ENV["TRAVIS"] == "true"
-    begin
-      sh %{./vendor/bin/phpunit --verbose -c tests}
-    rescue Exception
-      exit 1
-    end
-  else
-    begin
-      sh %{./vendor/bin/phpunit --verbose -c tests --coverage-html build/coverage --coverage-clover build/logs/clover.xml --log-junit build/logs/junit.xml}
-    rescue Exception
-      exit 1
-    end
+  begin
+    sh %{./vendor/bin/phpunit --verbose -c tests --coverage-html build/coverage --coverage-clover build/logs/clover.xml --log-junit build/logs/junit.xml}
+  rescue Exception
+    exit 1
   end
 end
 
