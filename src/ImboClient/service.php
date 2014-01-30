@@ -10,7 +10,7 @@
 
 return array(
     'name' => 'Imbo',
-    'apiVersion' => '~1.0',
+    'apiVersion' => '1.0',
     'description' => 'Imbo\'s API allows clients to add/delete images and add/update/delete metadata attached to these images',
     'operations' => array(
         'GetServerStats' => array(
