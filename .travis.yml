@@ -1,7 +1,7 @@
 language: php
 php:
-  - 5.3
   - 5.4
+  - 5.5
 notifications:
   irc:
     use_notice: true
@@ -12,5 +12,7 @@ branches:
     - develop
     - master
 before_script:
-  - "gem install nokogiri"
-script: rake travis
+  - composer self-update
+  - composer -n --no-ansi install --dev --prefer-source
+script:
+  - ./vendor/bin/phpunit --verbose -c tests

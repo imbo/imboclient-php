@@ -1,0 +1,30 @@
+HTTP/1.1 200 OK
+Date: Tue, 30 Apr 2013 06:01:19 GMT
+Connection: close
+Content-Type: application/json
+
+{
+    "users":
+    {
+        "user":
+        {
+            "numImages": 12,
+            "numBytes": 123456
+        },
+        "otheruser":
+        {
+            "numImages": 2,
+            "numBytes": 234567
+        }
+    },
+    "total":
+    {
+        "numImages": 14,
+        "numUsers": 2,
+        "numBytes": 358023
+    },
+    "custom":
+    {
+        "key": "value"
+    }
+}

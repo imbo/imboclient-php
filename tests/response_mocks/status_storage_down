@@ -1,0 +1,10 @@
+HTTP/1.1 500 Storage error
+Date: Tue, 30 Apr 2013 06:01:19 GMT
+Connection: close
+Content-Type: application/json
+
+{
+  "date": "Tue, 30 Apr 2013 06:01:19 GMT",
+  "database": true,
+  "storage": false
+}

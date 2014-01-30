@@ -8,12 +8,16 @@
  * distributed with this source code.
  */
 
-namespace ImboClient;
+namespace ImboClientTest;
 
-/**
- * @package Test suite
- * @author Christer Edvartsen <cogo@starzinger.net>
- */
+use Guzzle\Tests\GuzzleTestCase,
+    Guzzle\Service\Builder\ServiceBuilder;
 
-$autoloader = require __DIR__ . '/../vendor/autoload.php';
-$autoloader->add(__NAMESPACE__, __DIR__);
+require __DIR__ . '/../vendor/autoload.php';
+
+// Set a default service builder for the tests
+$serviceDescription = require __DIR__ . '/../src/ImboClient/service.php';
+GuzzleTestCase::setServiceBuilder(ServiceBuilder::factory($serviceDescription['operations']));
+
+// Set the base path for respones mocks
+GuzzleTestCase::setMockBasePath(__DIR__ . '/response_mocks');
