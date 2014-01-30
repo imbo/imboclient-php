@@ -3,7 +3,7 @@ Changelog for ImboClient
 
 ImboClient-1.0.0
 ----------------
-__N/A__
+__2014-01-30__
 
 * Rewrote the client to use Guzzle. Some BC issues, see docs for more information
 
