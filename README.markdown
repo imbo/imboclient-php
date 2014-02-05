@@ -12,7 +12,7 @@ Licensed under the MIT License
 Documentation is available at http://imboclient-php.readthedocs.org/.
 
 ## Requirements
-ImboClient requires PHP-5.4 or above.
+ImboClient requires PHP-5.3 or above.
 
 ## Installation
 ImboClient can be installed using [Composer](https://getcomposer.org/) by specifying `imbo/imboclient` in your dependencies, or by running the following commands:
