@@ -463,7 +463,9 @@ class ImboClient extends Client {
      * @return int
      */
     public function getNumImages() {
-        return $this->getUserInfo()['numImages'];
+        $info = $this->getUserInfo();
+
+        return $info['numImages'];
     }
 
     /**
