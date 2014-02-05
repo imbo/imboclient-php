@@ -42,7 +42,7 @@ class ImboClient extends Client {
      *
      * @var string
      */
-    private $currentCommand;
+    public $currentCommand;
 
     /**
      * Class constructor
@@ -69,14 +69,16 @@ class ImboClient extends Client {
         $dispatcher = $this->getEventDispatcher();
         $dispatcher->addSubscriber(new EventSubscriber\AccessToken());
         $dispatcher->addSubscriber(new EventSubscriber\Authenticate());
-        $dispatcher->addListener('command.before_send', function($event) {
-            $this->currentCommand = $event['command']->getName();
+
+        $client = $this;
+        $dispatcher->addListener('command.before_send', function($event) use ($client) {
+            $client->currentCommand = $event['command']->getName();
         });
-        $dispatcher->addListener('request.error', function($event) {
-            if ($this->currentCommand === 'GetServerStatus') {
+        $dispatcher->addListener('request.error', function($event) use ($client) {
+            if ($client->currentCommand === 'GetServerStatus') {
                 // Stop propagation of the event when there is an error with the server status
                 $event->stopPropagation();
-                $this->currentCommand = null;
+                $client->currentCommand = null;
             }
         });
     }
