@@ -1,6 +1,12 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-1.0.1
+----------------
+__N/A__
+
+* Lowered the requirement of PHP from 5.4 to 5.3.3.
+
 ImboClient-1.0.0
 ----------------
 __2014-01-30__
