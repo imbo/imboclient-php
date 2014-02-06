@@ -6,7 +6,7 @@ This is the official PHP-based client for `Imbo <https://github.com/imbo/imbo>`_
 Requirements
 ------------
 
-The client requires `PHP >= 5.4 <http://php.net/>`_.
+The client requires `PHP >= 5.3.3 <http://php.net/>`_.
 
 Installation
 ------------
@@ -35,13 +35,20 @@ This can be achieved in two different ways:
 
 .. code-block:: php
 
-    $client = ImboClient\ImboClient::factory(array('http://imbo.example.com'), 'user', 'private key');
+    $client = ImboClient\ImboClient::factory(array(
+        'serverUrls' => array('http://imbo.example.com'),
+        'publicKey' => 'user',
+        'privateKey' => 'private key',
+    ));
 
 2) Use the constructor:
 
 .. code-block:: php
 
-    $client = new ImboClient\ImboClient('http://imbo.example.com', 'user', 'private key');
+    $client = new ImboClient\ImboClient('http://imbo.example.com', array(
+        'publicKey' => 'user',
+        'privateKey' => 'private key',
+    ));
 
 The main difference is that the first argument to the factory method requires you to specify the host name(s) of the Imbo server(s) as an array, while the constructor requires you to pass a string. If you want to use the example number 2 above, and still want to use multiple host names you can use the ``setServerUrls`` method:
 
