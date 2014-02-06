@@ -533,16 +533,25 @@ ImboClient's API changed somewhat with the release of version 1.0.0. This sectio
 Instantiating the client
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-From version 1.0.0 ImboClient comes with a factory that should be used to instantiate the client. Examples on how to instantiate the client are available in the :ref:`instantiating-the-client` section.
+From version 1.0.0 ImboClient comes with a factory that should be used to instantiate the client:
+
+.. code-block:: php
+
+    $client = ImboClient\ImboClient::factory(array(
+        'serverUrls' => array('http://imbo.example.com'),
+        'publicKey' => 'user',
+        'privateKey' => 'private key',
+    ));
+
+More examples on how to instantiate the client are available in the :ref:`instantiating-the-client` section.
 
 Response objects
 ^^^^^^^^^^^^^^^^
 
-All methods now return objects that can be used as array, whereas the old client returned models with access methods for the image identifier and such. Below is an example that shows the difference:
+All methods now return response objects that can be used as arrays, whereas the old client returned objects with accessor methods for the image identifier and more. Below is an example that shows the difference:
 
 .. code-block:: php
 
-    <?php
     // New client
     $response = $client->addImage('/path/to/image.jpg');
     echo "Image identifier: " . $response['imageIdentifier'];
@@ -558,7 +567,6 @@ If you for some reason have stored complete Imbo URLs (including access tokens),
 
 .. code-block:: php
 
-    <?php
     // Create an instance of an image URL, using the old URL with the faulty access token and the
     // current private key of the user as input
     $url = ImboClient\Http\ImageUrl::factory(
