@@ -47,7 +47,7 @@ This can be achieved in two different ways:
 
     $client = new ImboClient\ImboClient('http://imbo.example.com', array(
         'publicKey' => 'user',
-        'privateKey' => 'private key'm,
+        'privateKey' => 'private key',
     ));
 
 The main difference is that the first argument to the factory method requires you to specify the host name(s) of the Imbo server(s) as an array, while the constructor requires you to pass a string. If you want to use the example number 2 above, and still want to use multiple host names you can use the ``setServerUrls`` method:
