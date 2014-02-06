@@ -26,6 +26,8 @@ Below you will find documentation covering most features of the client.
 .. contents::
     :local:
 
+.. _instantiating-the-client:
+
 Instantiating the client
 ++++++++++++++++++++++++
 
@@ -522,3 +524,57 @@ There are also some other methods available:
     Removes all transformations added to the URL instance.
 
 The methods related to the image type (``convert`` and the proxy methods) can be added anywhere in the chain. Otherwise all transformations will be applied to the image in the same order as they appear in the chain.
+
+Migrating from ImboClient < 1.0.0
++++++++++++++++++++++++++++++++++
+
+ImboClient's API changed somewhat with the release of version 1.0.0. This section should help you migrate from an older version of the client.
+
+Instantiating the client
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+From version 1.0.0 ImboClient comes with a factory that should be used to instantiate the client. Examples on how to instantiate the client are available in the :ref:`instantiating-the-client` section.
+
+Response objects
+^^^^^^^^^^^^^^^^
+
+All methods now return objects that can be used as array, whereas the old client returned models with access methods for the image identifier and such. Below is an example that shows the difference:
+
+.. code-block:: php
+
+    <?php
+    // New client
+    $response = $client->addImage('/path/to/image.jpg');
+    echo "Image identifier: " . $response['imageIdentifier'];
+
+    // Old client
+    $response = $client->addImage('/path/to/image.jpg');
+    echo "Image identifier: " . $response->getImageIdentifier();
+
+Translating old URL's
+^^^^^^^^^^^^^^^^^^^^^
+
+If you for some reason have stored complete Imbo URL's (including access tokens), **which you should really try to avoid**, you might want to re-generate these if you get some "incorrect access token" errors from the server. This can be done in the following fashion:
+
+.. code-block:: php
+
+    <?php
+    // Create an instance of an image URL, using the old URL with the faulty access token and the
+    // current private key of the user as input
+    $url = ImboClient\Http\ImageUrl::factory(
+        'http://imbo/users/user/images/image?t[]=resize:width=100&accessToken=<incorrect token>',
+        'your private key'
+    );
+
+    // Remove the incorrect access token from the query parameters
+    $url->getQuery()->remove('accessToken');
+
+    // Convert the URL to a string to get the new URL, including the correct access token
+    echo "New URL: " . $url;
+
+Exceptions
+^^^^^^^^^^
+
+All exceptions thrown by the client related to response errors from the server implement the ``Guzzle\Common\Exception\GuzzleException`` interface. Earlier versions of the threw ``ImboClient\Exception\ServerException`` exceptions. This exception no longer exists.
+
+The client can also throw ``InvalidArgumentException`` on some occasions if you provide invalid arguments to some methods, whereas the old client threw either ``ImboClient\Exception\InvalidArgumentException`` or ``ImboClient\Exception\RuntimeException``. None of these two exceptions exist anymore.
