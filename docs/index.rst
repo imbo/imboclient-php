@@ -6,7 +6,7 @@ This is the official PHP-based client for `Imbo <https://github.com/imbo/imbo>`_
 Requirements
 ------------
 
-The client requires `PHP >= 5.4 <http://php.net/>`_.
+The client requires `PHP >= 5.3.3 <http://php.net/>`_.
 
 Installation
 ------------

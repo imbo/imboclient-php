@@ -339,7 +339,8 @@ class ImboClientTest extends GuzzleTestCase {
 
         $response = $this->client->getImages($query);
 
-        $request = $this->getMockedRequests()[0];
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
         $this->assertSame('http://imbo/users/christer/images.json?page=2&limit=5&metadata=1&from=123&to=456&fields[0]=width&sort[0]=size&ids[0]=id1&ids[1]=id2&checksums[0]=checksum1&checksums[1]=checksum2&accessToken=a4d5c9b94f9ff4169dc59e42a8eb6052eb49f1199d0ac7a8379688186559c96e', urldecode($request->getUrl()));
     }
 
