@@ -3,9 +3,10 @@ Changelog for ImboClient
 
 ImboClient-1.0.1
 ----------------
-__N/A__
+__2014-02-06__
 
 * Lowered the requirement of PHP from 5.4 to 5.3.3.
+* Fixed some issues in the documentation regarding how to create an instance of the client
 
 ImboClient-1.0.0
 ----------------
