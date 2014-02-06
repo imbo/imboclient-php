@@ -62,7 +62,7 @@ The main difference is that the first argument to the factory method requires yo
         'http//imbo3.example.com',
     ));
 
-If you use multiple URL's when instantiating the client it will choose different image URL's based on the image identifier and the number of available host names. If you have a site which includes a lot of ``<img>`` tags against an Imbo server, using multiple hosts might speed up the loading time for your users. If you don't change the amount of server URL's the client will always pick the same host name given the same image identifier.
+If you use multiple URLs when instantiating the client it will choose different image URLs based on the image identifier and the number of available host names. If you have a site which includes a lot of ``<img>`` tags against an Imbo server, using multiple hosts might speed up the loading time for your users. If you don't change the amount of server URLs the client will always pick the same host name given the same image identifier.
 
 Error handling
 ++++++++++++++
@@ -168,7 +168,7 @@ The ``$response`` returned from these methods holds the resulting image identifi
 
     echo 'Image added, identifier: ' . $response['imageIdentifier'];
 
-This is the identifier you will use when generating URL's to the image later on. The response also has some other information that you might find useful:
+This is the identifier you will use when generating URLs to the image later on. The response also has some other information that you might find useful:
 
 ``(string) imageIdentifier``
     As mentioned above, the ID of the added image.
@@ -260,7 +260,7 @@ If you want to fetch the binary data of an image as a string you can use ``getIm
 
     $imageData = $client->getImagedataFromUrl($client->getImageUrl($imageIdentifier)->thumbnail()->border());
 
-You can read more about the image URL's in the :ref:`imbo-urls` section.
+You can read more about the image URLs in the :ref:`imbo-urls` section.
 
 Search for images
 +++++++++++++++++
@@ -437,10 +437,10 @@ If you want to remove all metadata attached to an image you can use the ``delete
 
 .. _imbo-urls:
 
-Imbo URL's
-++++++++++
+Imbo URLs
++++++++++
 
-Imbo uses access tokens in the URL's to prevent `DoS attacks <http://en.wikipedia.org/wiki/DoS>`_, and the client includes functionality that does this automatically:
+Imbo uses access tokens in the URLs to prevent `DoS attacks <http://en.wikipedia.org/wiki/DoS>`_, and the client includes functionality that does this automatically:
 
 ``getStatusUrl()``
     Fetch a URL to the status endpoint.
@@ -551,10 +551,10 @@ All methods now return objects that can be used as array, whereas the old client
     $response = $client->addImage('/path/to/image.jpg');
     echo "Image identifier: " . $response->getImageIdentifier();
 
-Translating old URL's
-^^^^^^^^^^^^^^^^^^^^^
+Translating old URLs
+^^^^^^^^^^^^^^^^^^^^
 
-If you for some reason have stored complete Imbo URL's (including access tokens), **which you should really try to avoid**, you might want to re-generate these if you get some "incorrect access token" errors from the server. This can be done in the following fashion:
+If you for some reason have stored complete Imbo URLs (including access tokens), **which you should really try to avoid**, you might want to re-generate these if you get some "incorrect access token" errors from the server. This can be done in the following fashion:
 
 .. code-block:: php
 
