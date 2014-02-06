@@ -1,6 +1,12 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-1.1.0
+----------------
+__N/A__
+
+* The addImageFromUrl() method will no longer throw an InvalidArgumentException if the client fails to fetch the image. Instead Guzzle will throw a fitting exception.
+
 ImboClient-1.0.1
 ----------------
 __2014-02-06__
