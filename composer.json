@@ -19,10 +19,10 @@
   ],
   "require": {
     "php": ">=5.3.3",
-    "guzzle/guzzle": "~3.0"
+    "guzzle/guzzle": "~3.8"
   },
   "require-dev": {
-    "phpunit/phpunit": "~3.0"
+    "phpunit/phpunit": "~3.7"
   },
   "support": {
     "issues": "https://github.com/imbo/imboclient-php/issues",

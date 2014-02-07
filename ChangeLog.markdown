@@ -5,6 +5,7 @@ ImboClient-1.1.0
 ----------------
 __N/A__
 
+* Depend on guzzle/guzzle ~3.8 instead of ~3.0, and phpunit/phpunit ~3.7 instead of ~3.0
 * The addImageFromUrl() method will no longer throw an InvalidArgumentException if the client fails to fetch the image. Instead Guzzle will throw a fitting exception.
 
 ImboClient-1.0.1
