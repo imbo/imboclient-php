@@ -139,12 +139,45 @@ class ImageUrl extends Url {
      * @param int $y Y coordinate of the top left corner of the crop
      * @param int $width Width of the crop
      * @param int $height Height of the crop
+     * @param string $mode The crop mode. Available in Imbo >= 1.1.0.
      * @return self
+     * @throws InvalidArgumentException
      */
-    public function crop($x, $y, $width, $height) {
-        return $this->addTransformation(
-            sprintf('crop:x=%d,y=%d,width=%d,height=%d', (int) $x, (int) $y, (int) $width, (int) $height)
+    public function crop($x = null, $y = null, $width = null, $height = null, $mode = null) {
+        if ($mode === null && ($x === null || $y === null)) {
+            throw new InvalidArgumentException('x and y needs to be specified without a crop mode');
+        }
+
+        if ($mode === 'center-x' && $y === null) {
+            throw new InvalidArgumentException('y needs to be specified when mode is center-x');
+        }
+
+        if ($mode === 'center-y' && $x === null) {
+            throw new InvalidArgumentException('x needs to be specified when mode is center-y');
+        }
+
+        if ($width === null || $height === null) {
+            throw new InvalidArgumentException('width and height needs to be specified');
+        }
+
+        $params = array(
+            'width=' . (int) $width,
+            'height=' . (int) $height,
         );
+
+        if ($x) {
+            $params[] = 'x=' . (int) $x;
+        }
+
+        if ($y) {
+            $params[] = 'y=' . (int) $y;
+        }
+
+        if ($mode) {
+            $params[] = 'mode=' . $mode;
+        }
+
+        return $this->addTransformation('crop:' . implode(',', $params));
     }
 
     /**

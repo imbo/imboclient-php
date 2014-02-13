@@ -26,6 +26,8 @@ Below you will find documentation covering most features of the client.
 .. contents::
     :local:
 
+.. _instantiating-the-client:
+
 Instantiating the client
 ++++++++++++++++++++++++
 
@@ -60,7 +62,7 @@ The main difference is that the first argument to the factory method requires yo
         'http//imbo3.example.com',
     ));
 
-If you use multiple URL's when instantiating the client it will choose different image URL's based on the image identifier and the number of available host names. If you have a site which includes a lot of ``<img>`` tags against an Imbo server, using multiple hosts might speed up the loading time for your users. If you don't change the amount of server URL's the client will always pick the same host name given the same image identifier.
+If you use multiple URLs when instantiating the client it will choose different image URLs based on the image identifier and the number of available host names. If you have a site which includes a lot of ``<img>`` tags against an Imbo server, using multiple hosts might speed up the loading time for your users. If you don't change the amount of server URLs the client will always pick the same host name given the same image identifier.
 
 Error handling
 ++++++++++++++
@@ -166,7 +168,7 @@ The ``$response`` returned from these methods holds the resulting image identifi
 
     echo 'Image added, identifier: ' . $response['imageIdentifier'];
 
-This is the identifier you will use when generating URL's to the image later on. The response also has some other information that you might find useful:
+This is the identifier you will use when generating URLs to the image later on. The response also has some other information that you might find useful:
 
 ``(string) imageIdentifier``
     As mentioned above, the ID of the added image.
@@ -258,7 +260,7 @@ If you want to fetch the binary data of an image as a string you can use ``getIm
 
     $imageData = $client->getImagedataFromUrl($client->getImageUrl($imageIdentifier)->thumbnail()->border());
 
-You can read more about the image URL's in the :ref:`imbo-urls` section.
+You can read more about the image URLs in the :ref:`imbo-urls` section.
 
 Search for images
 +++++++++++++++++
@@ -435,10 +437,10 @@ If you want to remove all metadata attached to an image you can use the ``delete
 
 .. _imbo-urls:
 
-Imbo URL's
-++++++++++
+Imbo URLs
++++++++++
 
-Imbo uses access tokens in the URL's to prevent `DoS attacks <http://en.wikipedia.org/wiki/DoS>`_, and the client includes functionality that does this automatically:
+Imbo uses access tokens in the URLs to prevent `DoS attacks <http://en.wikipedia.org/wiki/DoS>`_, and the client includes functionality that does this automatically:
 
 ``getStatusUrl()``
     Fetch a URL to the status endpoint.
@@ -476,7 +478,7 @@ The available transformation methods are:
 * ``border($color = '000000', $width = 1, $height = 1, $mode = 'outbound')``
 * ``canvas($width, $height, $mode = null, $x = null, $y = null, $bg = null)``
 * ``compress($level = 75)``
-* ``crop($x, $y, $width, $height)``
+* ``crop($x, $y, $width, $height, $mode)``
 * ``desaturate()``
 * ``flipHorizontally()``
 * ``flipVertically()``
@@ -522,3 +524,65 @@ There are also some other methods available:
     Removes all transformations added to the URL instance.
 
 The methods related to the image type (``convert`` and the proxy methods) can be added anywhere in the chain. Otherwise all transformations will be applied to the image in the same order as they appear in the chain.
+
+Migrating from ImboClient < 1.0.0
++++++++++++++++++++++++++++++++++
+
+ImboClient's API changed somewhat with the release of version 1.0.0. This section should help you migrate from an older version of the client.
+
+Instantiating the client
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+From version 1.0.0 ImboClient comes with a factory that should be used to instantiate the client:
+
+.. code-block:: php
+
+    $client = ImboClient\ImboClient::factory(array(
+        'serverUrls' => array('http://imbo.example.com'),
+        'publicKey' => 'user',
+        'privateKey' => 'private key',
+    ));
+
+More examples on how to instantiate the client are available in the :ref:`instantiating-the-client` section.
+
+Response objects
+^^^^^^^^^^^^^^^^
+
+All methods now return response objects that can be used as arrays, whereas the old client returned objects with accessor methods for the image identifier and more. Below is an example that shows the difference:
+
+.. code-block:: php
+
+    // New client
+    $response = $client->addImage('/path/to/image.jpg');
+    echo "Image identifier: " . $response['imageIdentifier'];
+
+    // Old client
+    $response = $client->addImage('/path/to/image.jpg');
+    echo "Image identifier: " . $response->getImageIdentifier();
+
+Translating old URLs
+^^^^^^^^^^^^^^^^^^^^
+
+If you for some reason have stored complete Imbo URLs (including access tokens), **which you should really try to avoid**, you might want to re-generate these if you get some "incorrect access token" errors from the server. This can be done in the following fashion:
+
+.. code-block:: php
+
+    // Create an instance of an image URL, using the old URL with the faulty access token and the
+    // current private key of the user as input
+    $url = ImboClient\Http\ImageUrl::factory(
+        'http://imbo/users/user/images/image?t[]=resize:width=100&accessToken=<incorrect token>',
+        'your private key'
+    );
+
+    // Remove the incorrect access token from the query parameters
+    $url->getQuery()->remove('accessToken');
+
+    // Convert the URL to a string to get the new URL, including the correct access token
+    echo "New URL: " . $url;
+
+Exceptions
+^^^^^^^^^^
+
+All exceptions thrown by the client related to response errors from the server implement the ``Guzzle\Common\Exception\GuzzleException`` interface. Earlier versions of the threw ``ImboClient\Exception\ServerException`` exceptions. This exception no longer exists.
+
+The client can also throw ``InvalidArgumentException`` on some occasions if you provide invalid arguments to some methods, whereas the old client threw either ``ImboClient\Exception\InvalidArgumentException`` or ``ImboClient\Exception\RuntimeException``. None of these two exceptions exist anymore.

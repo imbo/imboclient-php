@@ -253,8 +253,8 @@ class ImboClientTest extends GuzzleTestCase {
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Could not fetch image: http://url/to/image.png
+     * @expectedException Guzzle\Http\Exception\ClientErrorResponseException
+     * @expectedExceptionMessage Not Found
      */
     public function testThrowsAnExceptionWhenTryingToAddAnImageFromAUrlThatResultsInAnError() {
         $this->setMockResponse($this->client, array(new Response(404)));

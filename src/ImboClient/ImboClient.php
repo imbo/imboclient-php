@@ -147,6 +147,7 @@ class ImboClient extends Client {
      *
      * @param GuzzleUrl|string $url A URL to an image
      * @return Model
+     * @throws InvalidArgumentException
      */
     public function addImageFromUrl($url) {
         if (is_string($url)) {
@@ -166,11 +167,7 @@ class ImboClient extends Client {
         }
 
         // Fetch the image we want to add
-        try {
-            $image = (string) $this->get($url)->send()->getBody();
-        } catch (GuzzleException $e) {
-            throw new InvalidArgumentException('Could not fetch image: ' . $url);
-        }
+        $image = (string) $this->get($url)->send()->getBody();
 
         return $this->addImageFromString($image);
     }
