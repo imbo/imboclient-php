@@ -8,7 +8,9 @@
  * distributed with this source code.
  */
 
-namespace ImboClient;
+namespace ImboClientTest;
+
+use ImboClient\ImagesQuery;
 
 /**
  * @package Test suite
