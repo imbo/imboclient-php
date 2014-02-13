@@ -3,7 +3,7 @@ Changelog for ImboClient
 
 ImboClient-1.1.0
 ----------------
-__N/A__
+__2014-02-13__
 
 * #89: Added support for crop modes (available in Imbo >= 1.1.0)
 * Depend on guzzle/guzzle ~3.8 instead of ~3.0, and phpunit/phpunit ~3.7 instead of ~3.0
