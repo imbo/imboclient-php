@@ -1,6 +1,14 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-1.1.1
+----------------
+__N/A__
+
+Bug fixes:
+
+* #90: Imbo\Http\ImageUrl instances does not support being converted to strings more than once
+
 ImboClient-1.1.0
 ----------------
 __2014-02-13__

@@ -328,4 +328,15 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
             $this->assertSame($exceptionMessage, $e->getMessage());
         }
     }
+
+    /**
+     * @see https://github.com/imbo/imboclient-php/issues/90
+     */
+    public function testUrlsCanGetConvertedToStringsMoreThanOnce() {
+        $this->url->setPrivateKey('key');
+        $this->url->maxSize(123, 123);
+
+        $this->assertSame('http://imbo/users/christer/images/image?t%5B0%5D=maxSize%3Awidth%3D123%2Cheight%3D123&accessToken=ae738aa84615093e78c635fbbdbef4debb177346a956eb4cefe50bc83592da70', (string) $this->url);
+        $this->assertSame((string) $this->url, (string) $this->url);
+    }
 }
