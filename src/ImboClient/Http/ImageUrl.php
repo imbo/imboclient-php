@@ -409,8 +409,9 @@ class ImageUrl extends Url {
             $this->path = preg_replace('#(\.(gif|jpg|png))?$#', '.' . $this->extension, $this->path);
         }
 
-        // Append transformations
-        $this->query->add('t', $this->transformations);
+        // Set the t query param, overriding it if it already exists, which it might do if the
+        // string has already been converted to a string
+        $this->query->set('t', $this->transformations);
 
         return parent::__toString();
     }
