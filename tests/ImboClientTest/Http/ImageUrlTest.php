@@ -339,4 +339,23 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame('http://imbo/users/christer/images/image?t%5B0%5D=maxSize%3Awidth%3D123%2Cheight%3D123&accessToken=ae738aa84615093e78c635fbbdbef4debb177346a956eb4cefe50bc83592da70', (string) $this->url);
         $this->assertSame((string) $this->url, (string) $this->url);
     }
+
+    /**
+     * @see https://github.com/imbo/imboclient-php/issues/91
+     */
+    public function testUrlsCanBePartiallyConvertedAndUpdated() {
+        $expectedUrl = 'http://imbo/users/christer/images/image.png';
+
+        $this->url->png();
+
+        $this->assertSame($expectedUrl, (string) $this->url);
+        $this->assertSame($expectedUrl, (string) $this->url);
+
+        $this->url->desaturate();
+
+        $expectedUrl .= '?t%5B0%5D=desaturate';
+
+        $this->assertSame($expectedUrl, (string) $this->url);
+        $this->assertSame($expectedUrl, (string) $this->url);
+    }
 }
