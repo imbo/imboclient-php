@@ -7,6 +7,7 @@ __N/A__
 
 Bug fixes:
 
+* #91: Image extension is replicated when a URL is converted to a string more than once
 * #90: Imbo\Http\ImageUrl instances does not support being converted to strings more than once
 
 ImboClient-1.1.0

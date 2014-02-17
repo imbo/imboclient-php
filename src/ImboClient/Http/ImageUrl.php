@@ -406,7 +406,8 @@ class ImageUrl extends Url {
     public function __toString() {
         // Update the path
         if ($this->extension) {
-            $this->path = preg_replace('#(\.(gif|jpg|png))?$#', '.' . $this->extension, $this->path);
+            // Remove a possible extension in the path, and append the new one
+            $this->path = preg_replace('#(\.(gif|jpg|png))$#', '', $this->path) . '.' . $this->extension;
         }
 
         // Set the t query param, overriding it if it already exists, which it might do if the
