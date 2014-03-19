@@ -331,6 +331,10 @@ return array(
                     'location' => 'json',
                     'type' => 'string',
                 ),
+                'status' => array(
+                    'location' => 'statusCode',
+                    'type' => 'integer',
+                ),
             ),
         ),
         'EditMetadata' => array(
@@ -339,6 +343,10 @@ return array(
                 'imageIdentifier' => array(
                     'location' => 'json',
                     'type' => 'string',
+                ),
+                'status' => array(
+                    'location' => 'statusCode',
+                    'type' => 'integer',
                 ),
             ),
         ),
@@ -349,6 +357,10 @@ return array(
                     'location' => 'json',
                     'type' => 'string',
                 ),
+                'status' => array(
+                    'location' => 'statusCode',
+                    'type' => 'integer',
+                ),
             ),
         ),
         'DeleteMetadata' => array(
@@ -357,6 +369,10 @@ return array(
                 'imageIdentifier' => array(
                     'location' => 'json',
                     'type' => 'string',
+                ),
+                'status' => array(
+                    'location' => 'statusCode',
+                    'type' => 'integer',
                 ),
             ),
         ),
