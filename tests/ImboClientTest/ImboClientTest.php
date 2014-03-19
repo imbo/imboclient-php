@@ -344,31 +344,6 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame('http://imbo/users/christer/images.json?page=2&limit=5&metadata=1&from=123&to=456&fields[0]=width&sort[0]=size&ids[0]=id1&ids[1]=id2&checksums[0]=checksum1&checksums[1]=checksum2&accessToken=a4d5c9b94f9ff4169dc59e42a8eb6052eb49f1199d0ac7a8379688186559c96e', urldecode($request->getUrl()));
     }
 
-    public function testCanGetTheShortUrlOfAnImage() {
-        $this->setMockResponse($this->client, 'image_properties');
-        $url = $this->client->getShortUrl($this->getMockBuilder('ImboClient\Http\ImageUrl')->disableOriginalConstructor()->getMock());
-
-        $this->assertInstanceOf('Guzzle\Http\Url', $url);
-        $this->assertSame('http://imbo/s/c1cc6El', (string) $url);
-    }
-
-    public function testCanGetTheShortUrlOfAnImageAsANativeString() {
-        $this->setMockResponse($this->client, 'image_properties');
-        $url = $this->client->getShortUrl($this->getMockBuilder('ImboClient\Http\ImageUrl')->disableOriginalConstructor()->getMock(), true);
-
-        $this->assertInternalType('string', $url);
-        $this->assertSame('http://imbo/s/c1cc6El', $url);
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Could not fetch image properties for image:
-     */
-    public function testThrowsAnExceptionWhenTryingToFetchTheShortUrlOfAnImageThatResultsInAnError() {
-        $this->setMockResponse($this->client, array(new Response(404)));
-        $this->client->getShortUrl($this->getMockBuilder('ImboClient\Http\ImageUrl')->disableOriginalConstructor()->getMock());
-    }
-
     /**
      * Data provider
      *
