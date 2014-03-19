@@ -18,7 +18,7 @@ use InvalidArgumentException;
  * @package Client\Urls
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
-class ImageUrl extends Url {
+class ImageUrl extends ImagesUrl {
     /**
      * Transformations
      *
@@ -438,5 +438,18 @@ class ImageUrl extends Url {
         }
 
         return $this;
+    }
+
+    /**
+     * Fetch the image identifier in the URL
+     *
+     * @return string|null
+     */
+    public function getImageIdentifier() {
+        if (preg_match('#/users/[^/]+/images/(?<imageIdentifier>[^./]+)#', $this->getPath(), $match)) {
+            return $match['imageIdentifier'];
+        }
+
+        return null;
     }
 }
