@@ -12,7 +12,7 @@ namespace ImboClient;
 
 use ImboClient\Http,
     Guzzle\Common\Collection,
-    Guzzle\Service\Client,
+    Guzzle\Service\Client as GuzzleClient,
     Guzzle\Service\Description\ServiceDescription,
     Guzzle\Service\Resource\Model,
     Guzzle\Http\Url as GuzzleUrl,
@@ -27,7 +27,7 @@ use ImboClient\Http,
  * @package Client
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
-class ImboClient extends Client {
+class ImboClient extends GuzzleClient {
     /**
      * URLs to the Imbo server
      *
