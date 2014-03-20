@@ -5,7 +5,7 @@ ImboClient-1.2.0
 ----------------
 __N/A__
 
-* #93: Renamed the `getShortUrl` method to `generateShortUrl` and made it work with the latest version of Imbo.
+* #93: Updated how the client adds short image URLs with regards to changes made to the Imbo server
 
 Bug fixes:
 

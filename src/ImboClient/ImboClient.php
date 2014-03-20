@@ -353,8 +353,7 @@ class ImboClient extends GuzzleClient {
      * Generate a short URL
      *
      * @param Http\ImageUrl $imageUrl An instance of an imageUrl
-     * @return
-     * @throws
+     * @return Model
      */
     public function generateShortUrl(Http\ImageUrl $imageUrl) {
         $transformations = $imageUrl->getTransformations();
@@ -462,6 +461,34 @@ class ImboClient extends GuzzleClient {
         );
 
         return Http\MetadataUrl::factory($url, $this->getConfig('privateKey'));
+    }
+
+    /**
+     * Get the short URL of an image (with optional transformations)
+     *
+     * @param Http\ImageUrl $imageUrl An instance of an imageUrl
+     * @param boolean $asString Set to true to return the URL as a string
+     * @return GuzzleUrl|string
+     * @throws InvalidArgumentException
+     */
+    public function getShortUrl(Http\ImageUrl $imageUrl, $asString = false) {
+        try {
+            // Generate the short URL to fetch the ID
+            $response = $this->generateShortUrl($imageUrl);
+
+            $shortUrl = sprintf(
+                $this->getBaseUrl() . '/s/%s',
+                $response['id']
+            );
+
+            if (!$asString) {
+                $shortUrl = GuzzleUrl::factory($shortUrl);
+            }
+        } catch (GuzzleException $e) {
+            throw new InvalidArgumentException('Could not generate short URL', 0, $e);
+        }
+
+        return $shortUrl;
     }
 
     /**

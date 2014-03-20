@@ -462,4 +462,28 @@ class ImboClientTest extends GuzzleTestCase {
             'Invalid JSON-encoded data in the request body'
         );
     }
+
+    public function testCanGetAShortUrl() {
+        $this->setMockResponse($this->client, 'shorturl_created');
+        $url = $this->client->getShortUrl($this->client->getImageUrl('image'));
+
+        $this->assertInstanceOf('Guzzle\Http\Url', $url);
+        $this->assertSame('http://imbo/s/aaaaaaa', (string) $url);
+    }
+
+    public function testCanGetAShortUrlAsAString() {
+        $this->setMockResponse($this->client, 'shorturl_created');
+        $url = $this->client->getShortUrl($this->client->getImageUrl('image'), true);
+
+        $this->assertSame('http://imbo/s/aaaaaaa', $url);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Could not generate short URL
+     */
+    public function testThrowsExceptionWhenTryingToGetShortUrlAndGenerateShortUrlFails() {
+        $this->setMockResponse($this->client, new Response(400));
+        $url = $this->client->getShortUrl($this->client->getImageUrl('image'));
+    }
 }
