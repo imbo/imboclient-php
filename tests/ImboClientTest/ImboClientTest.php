@@ -443,9 +443,11 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame('aaaaaaa', $response['id']);
         $this->assertSame(201, $response['status']);
 
+        $requests = $this->getMockedRequests();
+
         $this->assertSame(
             '{"publicKey":"christer","imageIdentifier":"image","extension":"jpg","query":"?t[]=thumbnail:width=50,height=50,fit=outbound&t[]=desaturate"}',
-            (string) $this->getMockedRequests()[0]->getBody(),
+            (string) $requests[0]->getBody(),
             'Invalid JSON-encoded data in the request body'
         );
     }
@@ -456,9 +458,11 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame('aaaaaaa', $response['id']);
         $this->assertSame(201, $response['status']);
 
+        $requests = $this->getMockedRequests();
+
         $this->assertSame(
             '{"publicKey":"christer","imageIdentifier":"image","extension":null,"query":null}',
-            (string) $this->getMockedRequests()[0]->getBody(),
+            (string) $requests[0]->getBody(),
             'Invalid JSON-encoded data in the request body'
         );
     }
