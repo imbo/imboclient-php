@@ -257,6 +257,32 @@ return array(
             ),
             'responseClass' => 'GetImages',
         ),
+        'GenerateShortUrl' => array(
+            'httpMethod' => 'POST',
+            'uri' => 'users/{publicKey}/images/{imageIdentifier}/shorturls',
+            'summary' => 'Create a short URL to an image with a set of image transformations applied to it',
+            'parameters' => array(
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The owner of the image',
+                ),
+                'imageIdentifier' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The image identifier',
+                ),
+                'params' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'body',
+                    'description' => 'Parameters for the short URL represented as a JSON-encoded object',
+                ),
+            ),
+            'responseClass' => 'GenerateShortUrl',
+        ),
     ),
     'models' => array(
         'GetServerStatus' => array(
@@ -468,6 +494,19 @@ return array(
                             ),
                         ),
                     ),
+                ),
+            ),
+        ),
+        'GenerateShortUrl' => array(
+            'type' => 'array',
+            'properties' => array(
+                'id' => array(
+                    'location' => 'json',
+                    'type' => 'string',
+                ),
+                'status' => array(
+                    'location' => 'statusCode',
+                    'type' => 'integer',
                 ),
             ),
         ),

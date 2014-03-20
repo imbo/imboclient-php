@@ -1,9 +1,11 @@
 Changelog for ImboClient
 ========================
 
-ImboClient-1.1.1
+ImboClient-1.2.0
 ----------------
 __N/A__
+
+* #93: Updated how the client adds short image URLs with regards to changes made to the Imbo server
 
 Bug fixes:
 

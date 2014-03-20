@@ -350,6 +350,35 @@ class ImboClient extends GuzzleClient {
     }
 
     /**
+     * Generate a short URL
+     *
+     * @param Http\ImageUrl $imageUrl An instance of an imageUrl
+     * @return Model
+     */
+    public function generateShortUrl(Http\ImageUrl $imageUrl) {
+        $transformations = $imageUrl->getTransformations();
+
+        if ($transformations) {
+            $transformations = '?t[]=' . implode('&t[]=', $transformations);
+        } else {
+            $transformations = null;
+        }
+
+        $params = array(
+            'publicKey' => $this->getConfig('publicKey'),
+            'imageIdentifier' => $imageUrl->getImageIdentifier(),
+            'extension' => $imageUrl->getExtension(),
+            'query' => $transformations,
+        );
+
+        return $this->getCommand('GenerateShortUrl', array(
+            'publicKey' => $this->getConfig('publicKey'),
+            'imageIdentifier' => $imageUrl->getImageIdentifier(),
+            'params' => json_encode($params),
+        ))->execute();
+    }
+
+    /**
      * Get all server URL's
      *
      * @return string[]
@@ -444,13 +473,19 @@ class ImboClient extends GuzzleClient {
      */
     public function getShortUrl(Http\ImageUrl $imageUrl, $asString = false) {
         try {
-            $shortUrl = (string) $this->head((string) $imageUrl)->send()->getHeader('x-imbo-shorturl');
+            // Generate the short URL to fetch the ID
+            $response = $this->generateShortUrl($imageUrl);
+
+            $shortUrl = sprintf(
+                $this->getBaseUrl() . '/s/%s',
+                $response['id']
+            );
 
             if (!$asString) {
                 $shortUrl = GuzzleUrl::factory($shortUrl);
             }
         } catch (GuzzleException $e) {
-            throw new InvalidArgumentException('Could not fetch image properties for image: ' . $imageUrl);
+            throw new InvalidArgumentException('Could not generate short URL', 0, $e);
         }
 
         return $shortUrl;

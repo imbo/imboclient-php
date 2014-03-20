@@ -344,31 +344,6 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame('http://imbo/users/christer/images.json?page=2&limit=5&metadata=1&from=123&to=456&fields[0]=width&sort[0]=size&ids[0]=id1&ids[1]=id2&checksums[0]=checksum1&checksums[1]=checksum2&accessToken=a4d5c9b94f9ff4169dc59e42a8eb6052eb49f1199d0ac7a8379688186559c96e', urldecode($request->getUrl()));
     }
 
-    public function testCanGetTheShortUrlOfAnImage() {
-        $this->setMockResponse($this->client, 'image_properties');
-        $url = $this->client->getShortUrl($this->getMockBuilder('ImboClient\Http\ImageUrl')->disableOriginalConstructor()->getMock());
-
-        $this->assertInstanceOf('Guzzle\Http\Url', $url);
-        $this->assertSame('http://imbo/s/c1cc6El', (string) $url);
-    }
-
-    public function testCanGetTheShortUrlOfAnImageAsANativeString() {
-        $this->setMockResponse($this->client, 'image_properties');
-        $url = $this->client->getShortUrl($this->getMockBuilder('ImboClient\Http\ImageUrl')->disableOriginalConstructor()->getMock(), true);
-
-        $this->assertInternalType('string', $url);
-        $this->assertSame('http://imbo/s/c1cc6El', $url);
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Could not fetch image properties for image:
-     */
-    public function testThrowsAnExceptionWhenTryingToFetchTheShortUrlOfAnImageThatResultsInAnError() {
-        $this->setMockResponse($this->client, array(new Response(404)));
-        $this->client->getShortUrl($this->getMockBuilder('ImboClient\Http\ImageUrl')->disableOriginalConstructor()->getMock());
-    }
-
     /**
      * Data provider
      *
@@ -459,5 +434,60 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertArrayHasKey('users', $response);
         $this->assertArrayHasKey('total', $response);
         $this->assertArrayHasKey('custom', $response);
+    }
+
+    public function testCanGenerateAShortUrl() {
+        $this->setMockResponse($this->client, 'shorturl_created');
+        $imageUrl = $this->client->getImageUrl('image')->thumbnail()->desaturate()->jpg();
+        $response = $this->client->generateShortUrl($imageUrl);
+        $this->assertSame('aaaaaaa', $response['id']);
+        $this->assertSame(201, $response['status']);
+
+        $requests = $this->getMockedRequests();
+
+        $this->assertSame(
+            '{"publicKey":"christer","imageIdentifier":"image","extension":"jpg","query":"?t[]=thumbnail:width=50,height=50,fit=outbound&t[]=desaturate"}',
+            (string) $requests[0]->getBody(),
+            'Invalid JSON-encoded data in the request body'
+        );
+    }
+
+    public function testCanGenerateAShortUrlWithNoExtensionOrTransformationsAdded() {
+        $this->setMockResponse($this->client, 'shorturl_created');
+        $response = $this->client->generateShortUrl($this->client->getImageUrl('image'));
+        $this->assertSame('aaaaaaa', $response['id']);
+        $this->assertSame(201, $response['status']);
+
+        $requests = $this->getMockedRequests();
+
+        $this->assertSame(
+            '{"publicKey":"christer","imageIdentifier":"image","extension":null,"query":null}',
+            (string) $requests[0]->getBody(),
+            'Invalid JSON-encoded data in the request body'
+        );
+    }
+
+    public function testCanGetAShortUrl() {
+        $this->setMockResponse($this->client, 'shorturl_created');
+        $url = $this->client->getShortUrl($this->client->getImageUrl('image'));
+
+        $this->assertInstanceOf('Guzzle\Http\Url', $url);
+        $this->assertSame('http://imbo/s/aaaaaaa', (string) $url);
+    }
+
+    public function testCanGetAShortUrlAsAString() {
+        $this->setMockResponse($this->client, 'shorturl_created');
+        $url = $this->client->getShortUrl($this->client->getImageUrl('image'), true);
+
+        $this->assertSame('http://imbo/s/aaaaaaa', $url);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Could not generate short URL
+     */
+    public function testThrowsExceptionWhenTryingToGetShortUrlAndGenerateShortUrlFails() {
+        $this->setMockResponse($this->client, new Response(400));
+        $url = $this->client->getShortUrl($this->client->getImageUrl('image'));
     }
 }

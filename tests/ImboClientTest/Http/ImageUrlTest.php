@@ -18,7 +18,7 @@ use ImboClient\Http\ImageUrl,
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @covers ImboClient\Http\ImageUrl
  */
-class ImageTest extends \PHPUnit_Framework_TestCase {
+class ImageUrlTest extends \PHPUnit_Framework_TestCase {
     /**
      * @var ImageUrl
      */
@@ -357,5 +357,56 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertSame($expectedUrl, (string) $this->url);
         $this->assertSame($expectedUrl, (string) $this->url);
+    }
+
+    /**
+     * Data provider
+     *
+     * @return array[]
+     */
+    public function getImageUrls() {
+        return array(
+            'no extension' => array('http://imbo/users/christer/images/image', 'christer', 'image'),
+            'extension (jpg)' => array('http://imbo/users/christer/images/image.jpg', 'christer', 'image'),
+            'extension (gif)' => array('http://imbo/users/christer/images/image.gif', 'christer', 'image'),
+            'extension (png)' => array('http://imbo/users/christer/images/image.png', 'christer', 'image'),
+            'URL with path prefix' => array('http://imbo/some_prefix/users/christer/images/image', 'christer', 'image'),
+            'missing image identifier' => array('http://imbo/users/christer/images.json', 'christer', null),
+            'URL with query params' => array('http://imbo/users/christer/images/image?t[]=thumbnail', 'christer', 'image'),
+        );
+    }
+
+    /**
+     * @dataProvider getImageUrls
+     */
+    public function testCanFetchThePublicKeyAndTheImageIdentifierInTheUrl($url, $publicKey, $imageIdentifier) {
+        $imageUrl = ImageUrl::factory($url);
+        $this->assertSame($publicKey, $imageUrl->getPublicKey(), 'Could not correctly identify the public key in the URL');
+        $this->assertSame($imageIdentifier, $imageUrl->getImageIdentifier(), 'Could not correctly identify the image identifier in the URL');
+    }
+
+    public function testCanGetTheImageExtension() {
+        $this->assertNull($this->url->getExtension(), 'extension should initialy be null');
+
+        $this->url->jpg();
+        $this->assertSame('jpg', $this->url->getExtension(), 'Could not fetch extension after setting it to jpg');
+
+        $this->url->png();
+        $this->assertSame('png', $this->url->getExtension(), 'Could not fetch extension after setting it to png');
+
+        $this->url->gif();
+        $this->assertSame('gif', $this->url->getExtension(), 'Could not fetch extension after setting it to gif');
+    }
+
+    public function testCanReturnAddedTransformations() {
+        $this->assertSame(array(), $this->url->getTransformations(), 'Transformations sould initially be an empty array');
+        $this->url->thumbnail()->desaturate()->png();
+        $this->assertSame(array(
+            'thumbnail:width=50,height=50,fit=outbound',
+            'desaturate',
+        ), $this->url->getTransformations(), 'Could not fetch transformations after adding');
+
+        $this->url->reset();
+        $this->assertSame(array(), $this->url->getTransformations(), 'Resetting the URL did not clear the added transformations');
     }
 }
