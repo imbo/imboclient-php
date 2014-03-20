@@ -133,6 +133,24 @@ class ImageUrl extends ImagesUrl {
     }
 
     /**
+     * Get the extension of the image
+     *
+     * @return string|null
+     */
+    public function getExtension() {
+        return $this->extension;
+    }
+
+    /**
+     * Get the added transformations
+     *
+     * @return array
+     */
+    public function getTransformations() {
+        return $this->transformations;
+    }
+
+    /**
      * Add a crop transformation
      *
      * @param int $x X coordinate of the top left corner of the crop

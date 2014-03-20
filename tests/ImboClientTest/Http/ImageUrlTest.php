@@ -384,4 +384,29 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($publicKey, $imageUrl->getPublicKey(), 'Could not correctly identify the public key in the URL');
         $this->assertSame($imageIdentifier, $imageUrl->getImageIdentifier(), 'Could not correctly identify the image identifier in the URL');
     }
+
+    public function testCanGetTheImageExtension() {
+        $this->assertNull($this->url->getExtension(), 'extension should initialy be null');
+
+        $this->url->jpg();
+        $this->assertSame('jpg', $this->url->getExtension(), 'Could not fetch extension after setting it to jpg');
+
+        $this->url->png();
+        $this->assertSame('png', $this->url->getExtension(), 'Could not fetch extension after setting it to png');
+
+        $this->url->gif();
+        $this->assertSame('gif', $this->url->getExtension(), 'Could not fetch extension after setting it to gif');
+    }
+
+    public function testCanReturnAddedTransformations() {
+        $this->assertSame(array(), $this->url->getTransformations(), 'Transformations sould initially be an empty array');
+        $this->url->thumbnail()->desaturate()->png();
+        $this->assertSame(array(
+            'thumbnail:width=50,height=50,fit=outbound',
+            'desaturate',
+        ), $this->url->getTransformations(), 'Could not fetch transformations after adding');
+
+        $this->url->reset();
+        $this->assertSame(array(), $this->url->getTransformations(), 'Resetting the URL did not clear the added transformations');
+    }
 }

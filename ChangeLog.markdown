@@ -1,9 +1,11 @@
 Changelog for ImboClient
 ========================
 
-ImboClient-1.1.1
+ImboClient-1.2.0
 ----------------
 __N/A__
+
+* #93: Renamed the `getShortUrl` method to `generateShortUrl` and made it work with the latest version of Imbo.
 
 Bug fixes:
 

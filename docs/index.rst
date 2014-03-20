@@ -435,6 +435,23 @@ If you want to remove all metadata attached to an image you can use the ``delete
 
     $response = $client->deleteMetadata('image identifier');
 
+Generate short image URL
+++++++++++++++++++++++++
+
+To be able to generate short image URLs you can use the ``generateShortUrl`` method, and simply specify an instance of the image URL you want to shorten:
+
+.. code-block:: php
+
+   // Create an image URL with some optional transformations
+   $imageUrl = $client->getImageUrl('image identifier')->thumbnail()->desaturate()->jpg();
+
+   // Pass the image URL instance to the generateShortUrl method
+   $response = $client->generateShortUrl($imageUrl);
+
+   echo 'Short URL ID: ' . $response['id'];
+
+The generated ID can be used with the global short URL resource in Imbo.
+
 .. _imbo-urls:
 
 Imbo URLs
@@ -459,9 +476,6 @@ Imbo uses access tokens in the URLs to prevent `DoS attacks <http://en.wikipedia
 
 ``getMetadataUrl($imageIdentifier)``
     Fetch a URL to the metadata of a specific image.
-
-``getShortUrl(ImboClient\Http\ImageUrl $imageUrl, $asString = false)``
-    Fetch the short URL to an image (with optional image transformations added).
 
 All these methods return instances of different classes, and all can be used in string context to get the URL with the access token added. The instance returned from the ``getImageUrl`` is somewhat special since it will let you chain a set of transformations before generating the URL as a string:
 

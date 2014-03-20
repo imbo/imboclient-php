@@ -435,4 +435,31 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertArrayHasKey('total', $response);
         $this->assertArrayHasKey('custom', $response);
     }
+
+    public function testCanGenerateAShortUrl() {
+        $this->setMockResponse($this->client, 'shorturl_created');
+        $imageUrl = $this->client->getImageUrl('image')->thumbnail()->desaturate()->jpg();
+        $response = $this->client->generateShortUrl($imageUrl);
+        $this->assertSame('aaaaaaa', $response['id']);
+        $this->assertSame(201, $response['status']);
+
+        $this->assertSame(
+            '{"publicKey":"christer","imageIdentifier":"image","extension":"jpg","query":"?t[]=thumbnail:width=50,height=50,fit=outbound&t[]=desaturate"}',
+            (string) $this->getMockedRequests()[0]->getBody(),
+            'Invalid JSON-encoded data in the request body'
+        );
+    }
+
+    public function testCanGenerateAShortUrlWithNoExtensionOrTransformationsAdded() {
+        $this->setMockResponse($this->client, 'shorturl_created');
+        $response = $this->client->generateShortUrl($this->client->getImageUrl('image'));
+        $this->assertSame('aaaaaaa', $response['id']);
+        $this->assertSame(201, $response['status']);
+
+        $this->assertSame(
+            '{"publicKey":"christer","imageIdentifier":"image","extension":null,"query":null}',
+            (string) $this->getMockedRequests()[0]->getBody(),
+            'Invalid JSON-encoded data in the request body'
+        );
+    }
 }

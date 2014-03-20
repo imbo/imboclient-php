@@ -257,7 +257,7 @@ return array(
             ),
             'responseClass' => 'GetImages',
         ),
-        'AddShortUrl' => array(
+        'GenerateShortUrl' => array(
             'httpMethod' => 'POST',
             'uri' => 'users/{publicKey}/images/{imageIdentifier}/shorturls',
             'summary' => 'Create a short URL to an image with a set of image transformations applied to it',
@@ -281,7 +281,7 @@ return array(
                     'description' => 'Parameters for the short URL represented as a JSON-encoded object',
                 ),
             ),
-            'responseClass' => 'AddShortUrl',
+            'responseClass' => 'GenerateShortUrl',
         ),
     ),
     'models' => array(
@@ -497,7 +497,7 @@ return array(
                 ),
             ),
         ),
-        'AddShortUrl' => array(
+        'GenerateShortUrl' => array(
             'type' => 'array',
             'properties' => array(
                 'id' => array(
