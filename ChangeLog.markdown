@@ -6,6 +6,7 @@ ImboClient-1.2.0
 __N/A__
 
 * #93: Updated how the client adds short image URLs with regards to changes made to the Imbo server
+* #92: Added support for filtering images on the originalChecksum
 
 Bug fixes:
 

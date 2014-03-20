@@ -299,6 +299,7 @@ and the ``images`` element is a traversable where each element represents an ima
 * ``added``
 * ``updated``
 * ``checksum``
+* ``originalChecksum``
 * ``extension``
 * ``size``
 * ``width``
@@ -340,6 +341,9 @@ The ``getImages`` method can also take a parameter which specifies a query to ex
 
 ``checksums(array $checksums = null)``
     Only include these MD5 checksums in the collection. Defaults to ``null``.
+
+``originalChecksums(array $checksums = null)``
+    Only include these original MD5 checksums in the collection. Defaults to ``null``.
 
 Here are some examples of how to use the query object:
 

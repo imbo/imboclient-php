@@ -335,13 +335,14 @@ class ImboClientTest extends GuzzleTestCase {
               ->fields(array('width'))
               ->sort(array('size'))
               ->ids(array('id1', 'id2'))
-              ->checksums(array('checksum1', 'checksum2'));
+              ->checksums(array('checksum1', 'checksum2'))
+              ->originalChecksums(array('checksum3', 'checksum4'));
 
         $response = $this->client->getImages($query);
 
         $requests = $this->getMockedRequests();
         $request = $requests[0];
-        $this->assertSame('http://imbo/users/christer/images.json?page=2&limit=5&metadata=1&from=123&to=456&fields[0]=width&sort[0]=size&ids[0]=id1&ids[1]=id2&checksums[0]=checksum1&checksums[1]=checksum2&accessToken=a4d5c9b94f9ff4169dc59e42a8eb6052eb49f1199d0ac7a8379688186559c96e', urldecode($request->getUrl()));
+        $this->assertSame('http://imbo/users/christer/images.json?page=2&limit=5&metadata=1&from=123&to=456&fields[0]=width&sort[0]=size&ids[0]=id1&ids[1]=id2&checksums[0]=checksum1&checksums[1]=checksum2&originalChecksums[0]=checksum3&originalChecksums[1]=checksum4&accessToken=8543972a575f42c1a6d380fd6fef033bec5e9af52042bb19ced45e87f4a7046f', urldecode($request->getUrl()));
     }
 
     /**
@@ -388,6 +389,17 @@ class ImboClientTest extends GuzzleTestCase {
 
         $this->assertTrue($this->client->imageExists(__DIR__ . '/_files/image.png'));
         $this->assertFalse($this->client->imageExists(__DIR__ . '/_files/image.jpg'));
+
+        $requests = $this->getMockedRequests();
+        $query = $requests[0]->getQuery()->toArray();
+        $this->assertSame(1, $query['page']);
+        $this->assertSame(1, $query['limit']);
+        $this->assertSame(array(md5_file(__DIR__ . '/_files/image.png')), $query['originalChecksums']);
+
+        $query = $requests[1]->getQuery()->toArray();
+        $this->assertSame(1, $query['page']);
+        $this->assertSame(1, $query['limit']);
+        $this->assertSame(array(md5_file(__DIR__ . '/_files/image.jpg')), $query['originalChecksums']);
     }
 
     public function testCanCheckIfAnImageExistsOnTheServerBySpecifyingAnImageIdentifier() {
