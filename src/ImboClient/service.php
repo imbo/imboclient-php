@@ -254,6 +254,12 @@ return array(
                     'location' => 'query',
                     'description' => 'Array of image checksums to filter by',
                 ),
+                'originalChecksums' => array(
+                    'type' => 'array',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Array of original image checksums to filter by',
+                ),
             ),
             'responseClass' => 'GetImages',
         ),
@@ -463,6 +469,9 @@ return array(
                                 ),
                             ),
                             'checksum' => array(
+                                'location' => 'json',
+                            ),
+                            'originalChecksum' => array(
                                 'location' => 'json',
                             ),
                             'extension' => array(

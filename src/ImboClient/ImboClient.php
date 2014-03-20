@@ -333,6 +333,10 @@ class ImboClient extends GuzzleClient {
             $params['checksums'] = $checksums;
         }
 
+        if ($originalChecksums = $query->originalChecksums()) {
+            $params['originalChecksums'] = $originalChecksums;
+        }
+
         return $this->getCommand('GetImages', $params)->execute();
     }
 
@@ -514,7 +518,7 @@ class ImboClient extends GuzzleClient {
         $this->validateLocalFile($path);
         $checksum = md5_file($path);
         $query = new ImagesQuery();
-        $query->checksums(array($checksum))
+        $query->originalChecksums(array($checksum))
               ->limit(1);
 
         $response = $this->getImages($query);

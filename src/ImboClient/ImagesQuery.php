@@ -81,6 +81,13 @@ class ImagesQuery {
     private $checksums = array();
 
     /**
+     * Filter on these original checksums
+     *
+     * @var string[]
+     */
+    private $originalChecksums = array();
+
+    /**
      * Set or get the page property
      *
      * @param int $page Give this a value to set the page property
@@ -220,6 +227,22 @@ class ImagesQuery {
         }
 
         $this->checksums = $checksums;
+
+        return $this;
+    }
+
+    /**
+     * Set or get the originalChecksums attribute
+     *
+     * @param string[] $checksums Give this a value to set the originalChecksums property
+     * @return string[]|self
+     */
+    public function originalChecksums(array $checksums = null) {
+        if ($checksums === null) {
+            return $this->originalChecksums;
+        }
+
+        $this->originalChecksums = $checksums;
 
         return $this;
     }
