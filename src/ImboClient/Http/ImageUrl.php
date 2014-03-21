@@ -252,6 +252,37 @@ class ImageUrl extends ImagesUrl {
     }
 
     /**
+     * Add a modulate transformation
+     *
+     * @param int $brightness Brightness of the image in percent
+     * @param int $saturation Saturation of the image in percent
+     * @param int $hue Hue percentage
+     * @return self
+     * @throws InvalidArgumentException
+     */
+    public function modulate($brightness = null, $saturation = null, $hue = null) {
+        $params = array();
+
+        if ($brightness) {
+            $params[] = 'b=' . (int) $brightness;
+        }
+
+        if ($saturation) {
+            $params[] = 's=' . (int) $saturation;
+        }
+
+        if ($hue) {
+            $params[] = 'h=' . (int) $hue;
+        }
+
+        if (!$params) {
+            throw new InvalidArgumentException('brightness, saturation and/or hue must be specified');
+        }
+
+        return $this->addTransformation(sprintf('modulate:%s', implode(',', $params)));
+    }
+
+    /**
      * Add a progressive transformation
      *
      * @return self
