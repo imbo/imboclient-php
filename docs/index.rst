@@ -503,7 +503,7 @@ The available transformation methods are:
 * ``flipHorizontally()``
 * ``flipVertically()``
 * ``maxSize($maxWidth = null, $maxHeight = null)``
-* ``modulate($b = null, $s = null, $h = null)``
+* ``modulate($brightness = null, $saturation = null, $hue = null)``
 * ``progressive()``
 * ``resize($width = null, $height = null)``
 * ``rotate($angle, $bg = '000000')``
