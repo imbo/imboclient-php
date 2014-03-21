@@ -4,5 +4,5 @@ Connection: close
 Content-Type: application/json
 
 {
-  "imageIdentifier": "929db9c5fc3099f7576f5655207eba47"
+  "key": "value"
 }

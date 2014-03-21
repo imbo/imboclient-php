@@ -287,14 +287,14 @@ class ImboClientTest extends GuzzleTestCase {
 
     public function testCanEditMetadata() {
         $this->setMockResponse($this->client, 'metadata_edit');
-        $response = $this->client->editMetadata('identifier', array('some' => 'metadata'));
-        $this->assertSame('929db9c5fc3099f7576f5655207eba47', $response['imageIdentifier']);
+        $response = $this->client->editMetadata('identifier', array('key' => 'value'));
+        $this->assertSame(array('key' => 'value'), $response);
     }
 
     public function testCanReplaceMetadata() {
-        $this->setMockResponse($this->client, 'metadata_edit');
-        $response = $this->client->replaceMetadata('identifier', array('some' => 'metadata'));
-        $this->assertSame('929db9c5fc3099f7576f5655207eba47', $response['imageIdentifier']);
+        $this->setMockResponse($this->client, 'metadata_replace');
+        $response = $this->client->replaceMetadata('identifier', array('key' => 'othervalue'));
+        $this->assertSame(array('key' => 'othervalue'), $response);
     }
 
     public function testCanFetchMetadata() {
@@ -306,7 +306,7 @@ class ImboClientTest extends GuzzleTestCase {
     public function testCanDeleteMetadata() {
         $this->setMockResponse($this->client, 'metadata_delete');
         $response = $this->client->deleteMetadata('identifier');
-        $this->assertSame('929db9c5fc3099f7576f5655207eba47', $response['imageIdentifier']);
+        $this->assertSame(array(), $response);
     }
 
     public function testCanGetImages() {

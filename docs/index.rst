@@ -409,12 +409,12 @@ If you have added an image and want to edit its metadata you can use the ``editM
 
 .. code-block:: php
 
-    $response = $client->editMetadata('image identifier', array(
+    $metadata = $client->editMetadata('image identifier', array(
         'key' => 'value',
         'other key' => 'other value',
     ));
 
-This method will partially update existing metadata.
+This method will partially update existing metadata, and the response contains all metadata attached to the image.
 
 Replace metadata
 ++++++++++++++++
@@ -423,12 +423,12 @@ If you want to replace all existing metadata with something else you can use the
 
 .. code-block:: php
 
-    $response = $client->replaceMetadata('image identifier', array(
+    $metadata = $client->replaceMetadata('image identifier', array(
         'key' => 'value',
         'other key' => 'other value',
     ));
 
-This will first remove existing (if any) metadata, and add the metadata specified as the second parameter.
+This will first remove existing (if any) metadata, and add the metadata specified as the second parameter. The response contains the metadata of the image, in this case the same as the data being sent to the server.
 
 Delete metadata
 +++++++++++++++
@@ -437,7 +437,9 @@ If you want to remove all metadata attached to an image you can use the ``delete
 
 .. code-block:: php
 
-    $response = $client->deleteMetadata('image identifier');
+    $metadata = $client->deleteMetadata('image identifier');
+
+The response is the existing metadata, which in this case is an empty object.
 
 Generate short image URL
 ++++++++++++++++++++++++
