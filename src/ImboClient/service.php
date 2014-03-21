@@ -122,7 +122,6 @@ return array(
                     'description' => 'Metadata presented as JSON',
                 ),
             ),
-            'responseClass' => 'EditMetadata',
         ),
         'GetMetadata' => array(
             'httpMethod' => 'GET',
@@ -167,7 +166,6 @@ return array(
                     'description' => 'Metadata presented as JSON',
                 ),
             ),
-            'responseClass' => 'ReplaceMetadata',
         ),
         'DeleteMetadata' => array(
             'httpMethod' => 'DELETE',
@@ -187,7 +185,6 @@ return array(
                     'description' => 'The image identifier',
                 ),
             ),
-            'responseClass' => 'DeleteMetadata',
         ),
         'GetImages' => array(
             'httpMethod' => 'GET',
@@ -357,45 +354,6 @@ return array(
             ),
         ),
         'DeleteImage' => array(
-            'type' => 'array',
-            'properties' => array(
-                'imageIdentifier' => array(
-                    'location' => 'json',
-                    'type' => 'string',
-                ),
-                'status' => array(
-                    'location' => 'statusCode',
-                    'type' => 'integer',
-                ),
-            ),
-        ),
-        'EditMetadata' => array(
-            'type' => 'array',
-            'properties' => array(
-                'imageIdentifier' => array(
-                    'location' => 'json',
-                    'type' => 'string',
-                ),
-                'status' => array(
-                    'location' => 'statusCode',
-                    'type' => 'integer',
-                ),
-            ),
-        ),
-        'ReplaceMetadata' => array(
-            'type' => 'array',
-            'properties' => array(
-                'imageIdentifier' => array(
-                    'location' => 'json',
-                    'type' => 'string',
-                ),
-                'status' => array(
-                    'location' => 'statusCode',
-                    'type' => 'integer',
-                ),
-            ),
-        ),
-        'DeleteMetadata' => array(
             'type' => 'array',
             'properties' => array(
                 'imageIdentifier' => array(
