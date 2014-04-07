@@ -502,6 +502,7 @@ The available transformation methods are:
 * ``desaturate()``
 * ``flipHorizontally()``
 * ``flipVertically()``
+* ``histogram($scale = null, $ratio = null, $red = null, $green = null, $blue = null)``
 * ``maxSize($maxWidth = null, $maxHeight = null)``
 * ``modulate($brightness = null, $saturation = null, $hue = null)``
 * ``progressive()``

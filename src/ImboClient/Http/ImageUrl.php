@@ -226,6 +226,42 @@ class ImageUrl extends ImagesUrl {
     }
 
     /**
+     * Add a histogram transformation
+     *
+     * @param int $scale The amount to scale the histogram
+     * @param float $ratio The ratio to use when calculating the height of the image
+     * @param string $red The color to use when drawing the graph for the red channel
+     * @param string $green The color to use when drawing the graph for the green channel
+     * @param string $blue The color to use when drawing the graph for the blue channel
+     * @return self
+     */
+    public function histogram($scale = null, $ratio = null, $red = null, $green = null, $blue = null) {
+        $params = array();
+
+        if ($scale) {
+            $params[] = 'scale=' . (int) $scale;
+        }
+
+        if ($ratio) {
+            $params[] = 'ratio=' . (float) $ratio;
+        }
+
+        if ($red) {
+            $params[] = 'red=' . $red;
+        }
+
+        if ($green) {
+            $params[] = 'green=' . $green;
+        }
+
+        if ($blue) {
+            $params[] = 'blue=' . $blue;
+        }
+
+        return $this->addTransformation('histogram' . ($params ? ':' . implode(',', $params) : ''));
+    }
+
+    /**
      * Add a maxSize transformation
      *
      * @param int $maxWidth Max width of the resized image
