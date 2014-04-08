@@ -440,6 +440,7 @@ class ImboClient extends GuzzleClient {
     /**
      * Get a URL for the image resource
      *
+     * @param string $imageIdentifier An image identifier
      * @return Http\ImageUrl
      */
     public function getImageUrl($imageIdentifier) {
@@ -455,6 +456,7 @@ class ImboClient extends GuzzleClient {
     /**
      * Get a URL for the metadata resource
      *
+     * @param string $imageIdentifier An image identifier
      * @return Http\MetadataUrl
      */
     public function getMetadataUrl($imageIdentifier) {
