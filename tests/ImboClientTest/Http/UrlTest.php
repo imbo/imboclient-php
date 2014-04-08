@@ -49,4 +49,14 @@ class UrlTest extends \PHPUnit_Framework_TestCase {
         $urlInstance = Url::factory($url, $privateKey);
         $this->assertSame($urlWithToken, (string) $urlInstance);
     }
+
+    /**
+     * @see https://github.com/imbo/imboclient-php/issues/90
+     */
+    public function testUrlsCanGetConvertedToStringsMoreThanOnce() {
+        $urlInstance = Url::factory('http://imbo/users/christer.json', 'key');
+
+        $this->assertSame('http://imbo/users/christer.json?accessToken=b85f9a8c2ffd2eb6a550b259e417686cf63b567b2b6972630b8e8519f6bb06b9', (string) $urlInstance);
+        $this->assertSame((string) $urlInstance, (string) $urlInstance);
+    }
 }

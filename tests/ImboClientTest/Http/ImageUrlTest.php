@@ -18,7 +18,7 @@ use ImboClient\Http\ImageUrl,
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @covers ImboClient\Http\ImageUrl
  */
-class ImageTest extends \PHPUnit_Framework_TestCase {
+class ImageUrlTest extends \PHPUnit_Framework_TestCase {
     /**
      * @var ImageUrl
      */
@@ -112,6 +112,16 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
                 null,
                 'flipVertically',
             ),
+            'histogram' => array(
+                'histogram',
+                null,
+                'histogram',
+            ),
+            'histogram with all params' => array(
+                'histogram',
+                array(2, 3.14, '#f00', '#0f0', '#00f'),
+                'histogram:scale=2,ratio=3.14,red=#f00,green=#0f0,blue=#00f',
+            ),
             'maxSize with width' => array(
                 'maxSize',
                 array(100),
@@ -126,6 +136,26 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
                 'maxSize',
                 array(200, 100),
                 'maxSize:width=200,height=100',
+            ),
+            'modulate with brightness' => array(
+                'modulate',
+                array(100),
+                'modulate:b=100',
+            ),
+            'modulate with saturation' => array(
+                'modulate',
+                array(null, 100),
+                'modulate:s=100',
+            ),
+            'modulate with hue' => array(
+                'modulate',
+                array(null, null, 100),
+                'modulate:h=100',
+            ),
+            'modulate with all params' => array(
+                'modulate',
+                array(1, 2, 3),
+                'modulate:b=1,s=2,h=3',
             ),
             'progressive' => array(
                 'progressive',
@@ -271,6 +301,14 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage brightness, saturation and/or hue must be specified
+     */
+    public function testModulateMethodThrowExceptionOnMissingParameters() {
+        $this->url->modulate();
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
      * @expectedExceptionMessage width and/or height must be specified
      */
     public function testResizeMethodThrowExceptionOnMissingParameters() {
@@ -327,5 +365,86 @@ class ImageTest extends \PHPUnit_Framework_TestCase {
         } catch (InvalidArgumentException $e) {
             $this->assertSame($exceptionMessage, $e->getMessage());
         }
+    }
+
+    /**
+     * @see https://github.com/imbo/imboclient-php/issues/90
+     */
+    public function testUrlsCanGetConvertedToStringsMoreThanOnce() {
+        $this->url->setPrivateKey('key');
+        $this->url->maxSize(123, 123);
+
+        $this->assertSame('http://imbo/users/christer/images/image?t%5B0%5D=maxSize%3Awidth%3D123%2Cheight%3D123&accessToken=ae738aa84615093e78c635fbbdbef4debb177346a956eb4cefe50bc83592da70', (string) $this->url);
+        $this->assertSame((string) $this->url, (string) $this->url);
+    }
+
+    /**
+     * @see https://github.com/imbo/imboclient-php/issues/91
+     */
+    public function testUrlsCanBePartiallyConvertedAndUpdated() {
+        $expectedUrl = 'http://imbo/users/christer/images/image.png';
+
+        $this->url->png();
+
+        $this->assertSame($expectedUrl, (string) $this->url);
+        $this->assertSame($expectedUrl, (string) $this->url);
+
+        $this->url->desaturate();
+
+        $expectedUrl .= '?t%5B0%5D=desaturate';
+
+        $this->assertSame($expectedUrl, (string) $this->url);
+        $this->assertSame($expectedUrl, (string) $this->url);
+    }
+
+    /**
+     * Data provider
+     *
+     * @return array[]
+     */
+    public function getImageUrls() {
+        return array(
+            'no extension' => array('http://imbo/users/christer/images/image', 'christer', 'image'),
+            'extension (jpg)' => array('http://imbo/users/christer/images/image.jpg', 'christer', 'image'),
+            'extension (gif)' => array('http://imbo/users/christer/images/image.gif', 'christer', 'image'),
+            'extension (png)' => array('http://imbo/users/christer/images/image.png', 'christer', 'image'),
+            'URL with path prefix' => array('http://imbo/some_prefix/users/christer/images/image', 'christer', 'image'),
+            'missing image identifier' => array('http://imbo/users/christer/images.json', 'christer', null),
+            'URL with query params' => array('http://imbo/users/christer/images/image?t[]=thumbnail', 'christer', 'image'),
+        );
+    }
+
+    /**
+     * @dataProvider getImageUrls
+     */
+    public function testCanFetchThePublicKeyAndTheImageIdentifierInTheUrl($url, $publicKey, $imageIdentifier) {
+        $imageUrl = ImageUrl::factory($url);
+        $this->assertSame($publicKey, $imageUrl->getPublicKey(), 'Could not correctly identify the public key in the URL');
+        $this->assertSame($imageIdentifier, $imageUrl->getImageIdentifier(), 'Could not correctly identify the image identifier in the URL');
+    }
+
+    public function testCanGetTheImageExtension() {
+        $this->assertNull($this->url->getExtension(), 'extension should initialy be null');
+
+        $this->url->jpg();
+        $this->assertSame('jpg', $this->url->getExtension(), 'Could not fetch extension after setting it to jpg');
+
+        $this->url->png();
+        $this->assertSame('png', $this->url->getExtension(), 'Could not fetch extension after setting it to png');
+
+        $this->url->gif();
+        $this->assertSame('gif', $this->url->getExtension(), 'Could not fetch extension after setting it to gif');
+    }
+
+    public function testCanReturnAddedTransformations() {
+        $this->assertSame(array(), $this->url->getTransformations(), 'Transformations sould initially be an empty array');
+        $this->url->thumbnail()->desaturate()->png();
+        $this->assertSame(array(
+            'thumbnail:width=50,height=50,fit=outbound',
+            'desaturate',
+        ), $this->url->getTransformations(), 'Could not fetch transformations after adding');
+
+        $this->url->reset();
+        $this->assertSame(array(), $this->url->getTransformations(), 'Resetting the URL did not clear the added transformations');
     }
 }

@@ -122,7 +122,6 @@ return array(
                     'description' => 'Metadata presented as JSON',
                 ),
             ),
-            'responseClass' => 'EditMetadata',
         ),
         'GetMetadata' => array(
             'httpMethod' => 'GET',
@@ -167,7 +166,6 @@ return array(
                     'description' => 'Metadata presented as JSON',
                 ),
             ),
-            'responseClass' => 'ReplaceMetadata',
         ),
         'DeleteMetadata' => array(
             'httpMethod' => 'DELETE',
@@ -187,7 +185,6 @@ return array(
                     'description' => 'The image identifier',
                 ),
             ),
-            'responseClass' => 'DeleteMetadata',
         ),
         'GetImages' => array(
             'httpMethod' => 'GET',
@@ -254,8 +251,40 @@ return array(
                     'location' => 'query',
                     'description' => 'Array of image checksums to filter by',
                 ),
+                'originalChecksums' => array(
+                    'type' => 'array',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Array of original image checksums to filter by',
+                ),
             ),
             'responseClass' => 'GetImages',
+        ),
+        'GenerateShortUrl' => array(
+            'httpMethod' => 'POST',
+            'uri' => 'users/{publicKey}/images/{imageIdentifier}/shorturls',
+            'summary' => 'Create a short URL to an image with a set of image transformations applied to it',
+            'parameters' => array(
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The owner of the image',
+                ),
+                'imageIdentifier' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The image identifier',
+                ),
+                'params' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'body',
+                    'description' => 'Parameters for the short URL represented as a JSON-encoded object',
+                ),
+            ),
+            'responseClass' => 'GenerateShortUrl',
         ),
     ),
     'models' => array(
@@ -331,32 +360,9 @@ return array(
                     'location' => 'json',
                     'type' => 'string',
                 ),
-            ),
-        ),
-        'EditMetadata' => array(
-            'type' => 'array',
-            'properties' => array(
-                'imageIdentifier' => array(
-                    'location' => 'json',
-                    'type' => 'string',
-                ),
-            ),
-        ),
-        'ReplaceMetadata' => array(
-            'type' => 'array',
-            'properties' => array(
-                'imageIdentifier' => array(
-                    'location' => 'json',
-                    'type' => 'string',
-                ),
-            ),
-        ),
-        'DeleteMetadata' => array(
-            'type' => 'array',
-            'properties' => array(
-                'imageIdentifier' => array(
-                    'location' => 'json',
-                    'type' => 'string',
+                'status' => array(
+                    'location' => 'statusCode',
+                    'type' => 'integer',
                 ),
             ),
         ),
@@ -423,6 +429,9 @@ return array(
                             'checksum' => array(
                                 'location' => 'json',
                             ),
+                            'originalChecksum' => array(
+                                'location' => 'json',
+                            ),
                             'extension' => array(
                                 'location' => 'json',
                             ),
@@ -452,6 +461,19 @@ return array(
                             ),
                         ),
                     ),
+                ),
+            ),
+        ),
+        'GenerateShortUrl' => array(
+            'type' => 'array',
+            'properties' => array(
+                'id' => array(
+                    'location' => 'json',
+                    'type' => 'string',
+                ),
+                'status' => array(
+                    'location' => 'statusCode',
+                    'type' => 'integer',
                 ),
             ),
         ),

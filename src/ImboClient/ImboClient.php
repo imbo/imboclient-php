@@ -12,7 +12,7 @@ namespace ImboClient;
 
 use ImboClient\Http,
     Guzzle\Common\Collection,
-    Guzzle\Service\Client,
+    Guzzle\Service\Client as GuzzleClient,
     Guzzle\Service\Description\ServiceDescription,
     Guzzle\Service\Resource\Model,
     Guzzle\Http\Url as GuzzleUrl,
@@ -27,7 +27,7 @@ use ImboClient\Http,
  * @package Client
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
-class ImboClient extends Client {
+class ImboClient extends GuzzleClient {
     /**
      * URLs to the Imbo server
      *
@@ -333,6 +333,10 @@ class ImboClient extends Client {
             $params['checksums'] = $checksums;
         }
 
+        if ($originalChecksums = $query->originalChecksums()) {
+            $params['originalChecksums'] = $originalChecksums;
+        }
+
         return $this->getCommand('GetImages', $params)->execute();
     }
 
@@ -346,6 +350,35 @@ class ImboClient extends Client {
         return $this->getCommand('DeleteMetadata', array(
             'publicKey' => $this->getConfig('publicKey'),
             'imageIdentifier' => $imageIdentifier,
+        ))->execute();
+    }
+
+    /**
+     * Generate a short URL
+     *
+     * @param Http\ImageUrl $imageUrl An instance of an imageUrl
+     * @return Model
+     */
+    public function generateShortUrl(Http\ImageUrl $imageUrl) {
+        $transformations = $imageUrl->getTransformations();
+
+        if ($transformations) {
+            $transformations = '?t[]=' . implode('&t[]=', $transformations);
+        } else {
+            $transformations = null;
+        }
+
+        $params = array(
+            'publicKey' => $this->getConfig('publicKey'),
+            'imageIdentifier' => $imageUrl->getImageIdentifier(),
+            'extension' => $imageUrl->getExtension(),
+            'query' => $transformations,
+        );
+
+        return $this->getCommand('GenerateShortUrl', array(
+            'publicKey' => $this->getConfig('publicKey'),
+            'imageIdentifier' => $imageUrl->getImageIdentifier(),
+            'params' => json_encode($params),
         ))->execute();
     }
 
@@ -444,13 +477,19 @@ class ImboClient extends Client {
      */
     public function getShortUrl(Http\ImageUrl $imageUrl, $asString = false) {
         try {
-            $shortUrl = (string) $this->head((string) $imageUrl)->send()->getHeader('x-imbo-shorturl');
+            // Generate the short URL to fetch the ID
+            $response = $this->generateShortUrl($imageUrl);
+
+            $shortUrl = sprintf(
+                $this->getBaseUrl() . '/s/%s',
+                $response['id']
+            );
 
             if (!$asString) {
                 $shortUrl = GuzzleUrl::factory($shortUrl);
             }
         } catch (GuzzleException $e) {
-            throw new InvalidArgumentException('Could not fetch image properties for image: ' . $imageUrl);
+            throw new InvalidArgumentException('Could not generate short URL', 0, $e);
         }
 
         return $shortUrl;
@@ -479,7 +518,7 @@ class ImboClient extends Client {
         $this->validateLocalFile($path);
         $checksum = md5_file($path);
         $query = new ImagesQuery();
-        $query->checksums(array($checksum))
+        $query->originalChecksums(array($checksum))
               ->limit(1);
 
         $response = $this->getImages($query);

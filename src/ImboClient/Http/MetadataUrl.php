@@ -16,4 +16,4 @@ namespace ImboClient\Http;
  * @package Client\Urls
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
-class MetadataUrl extends Url {}
+class MetadataUrl extends ImageUrl {}

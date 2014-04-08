@@ -299,6 +299,7 @@ and the ``images`` element is a traversable where each element represents an ima
 * ``added``
 * ``updated``
 * ``checksum``
+* ``originalChecksum``
 * ``extension``
 * ``size``
 * ``width``
@@ -340,6 +341,9 @@ The ``getImages`` method can also take a parameter which specifies a query to ex
 
 ``checksums(array $checksums = null)``
     Only include these MD5 checksums in the collection. Defaults to ``null``.
+
+``originalChecksums(array $checksums = null)``
+    Only include these original MD5 checksums in the collection. Defaults to ``null``.
 
 Here are some examples of how to use the query object:
 
@@ -405,12 +409,12 @@ If you have added an image and want to edit its metadata you can use the ``editM
 
 .. code-block:: php
 
-    $response = $client->editMetadata('image identifier', array(
+    $metadata = $client->editMetadata('image identifier', array(
         'key' => 'value',
         'other key' => 'other value',
     ));
 
-This method will partially update existing metadata.
+This method will partially update existing metadata, and the response contains all metadata attached to the image.
 
 Replace metadata
 ++++++++++++++++
@@ -419,12 +423,12 @@ If you want to replace all existing metadata with something else you can use the
 
 .. code-block:: php
 
-    $response = $client->replaceMetadata('image identifier', array(
+    $metadata = $client->replaceMetadata('image identifier', array(
         'key' => 'value',
         'other key' => 'other value',
     ));
 
-This will first remove existing (if any) metadata, and add the metadata specified as the second parameter.
+This will first remove existing (if any) metadata, and add the metadata specified as the second parameter. The response contains the metadata of the image, in this case the same as the data being sent to the server.
 
 Delete metadata
 +++++++++++++++
@@ -433,7 +437,26 @@ If you want to remove all metadata attached to an image you can use the ``delete
 
 .. code-block:: php
 
-    $response = $client->deleteMetadata('image identifier');
+    $metadata = $client->deleteMetadata('image identifier');
+
+The response is the existing metadata, which in this case is an empty object.
+
+Generate short image URL
+++++++++++++++++++++++++
+
+To be able to generate short image URLs you can use the ``generateShortUrl`` method, and simply specify an instance of the image URL you want to shorten:
+
+.. code-block:: php
+
+   // Create an image URL with some optional transformations
+   $imageUrl = $client->getImageUrl('image identifier')->thumbnail()->desaturate()->jpg();
+
+   // Pass the image URL instance to the generateShortUrl method
+   $response = $client->generateShortUrl($imageUrl);
+
+   echo 'Short URL ID: ' . $response['id'];
+
+The generated ID can be used with the global short URL resource in Imbo.
 
 .. _imbo-urls:
 
@@ -460,9 +483,6 @@ Imbo uses access tokens in the URLs to prevent `DoS attacks <http://en.wikipedia
 ``getMetadataUrl($imageIdentifier)``
     Fetch a URL to the metadata of a specific image.
 
-``getShortUrl(ImboClient\Http\ImageUrl $imageUrl, $asString = false)``
-    Fetch the short URL to an image (with optional image transformations added).
-
 All these methods return instances of different classes, and all can be used in string context to get the URL with the access token added. The instance returned from the ``getImageUrl`` is somewhat special since it will let you chain a set of transformations before generating the URL as a string:
 
 .. code-block:: php
@@ -482,7 +502,9 @@ The available transformation methods are:
 * ``desaturate()``
 * ``flipHorizontally()``
 * ``flipVertically()``
+* ``histogram($scale = null, $ratio = null, $red = null, $green = null, $blue = null)``
 * ``maxSize($maxWidth = null, $maxHeight = null)``
+* ``modulate($brightness = null, $saturation = null, $hue = null)``
 * ``progressive()``
 * ``resize($width = null, $height = null)``
 * ``rotate($angle, $bg = '000000')``

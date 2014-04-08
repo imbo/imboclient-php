@@ -17,6 +17,7 @@ Content-Type: application/json
       "added":"Thu, 19 Dec 2013 15:42:48 GMT",
       "updated":"Thu, 19 Dec 2013 16:07:09 GMT",
       "checksum":"929db9c5fc3099f7576f5655207eba47",
+      "originalChecksum":"929db9c5fc3099f7576f5655207eba47",
       "extension":"png",
       "size":2273694,
       "width":3000,

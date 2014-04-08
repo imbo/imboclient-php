@@ -1,6 +1,20 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-1.2.0
+----------------
+__2014-04-08__
+
+* #100: Added support for the histogram transformation added to Imbo-1.2.0
+* #99: Updated responses from the server when writing to the metadata resource (edit, update and delete)
+* #93: Updated how the client adds short image URLs with regards to changes made to the Imbo server
+* #92: Added support for filtering images on the originalChecksum
+
+Bug fixes:
+
+* #91: Image extension is replicated when a URL is converted to a string more than once
+* #90: Imbo\Http\ImageUrl instances does not support being converted to strings more than once
+
 ImboClient-1.1.0
 ----------------
 __2014-02-13__

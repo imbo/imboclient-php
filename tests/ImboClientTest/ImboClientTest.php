@@ -287,14 +287,14 @@ class ImboClientTest extends GuzzleTestCase {
 
     public function testCanEditMetadata() {
         $this->setMockResponse($this->client, 'metadata_edit');
-        $response = $this->client->editMetadata('identifier', array('some' => 'metadata'));
-        $this->assertSame('929db9c5fc3099f7576f5655207eba47', $response['imageIdentifier']);
+        $response = $this->client->editMetadata('identifier', array('key' => 'value'));
+        $this->assertSame(array('key' => 'value'), $response);
     }
 
     public function testCanReplaceMetadata() {
-        $this->setMockResponse($this->client, 'metadata_edit');
-        $response = $this->client->replaceMetadata('identifier', array('some' => 'metadata'));
-        $this->assertSame('929db9c5fc3099f7576f5655207eba47', $response['imageIdentifier']);
+        $this->setMockResponse($this->client, 'metadata_replace');
+        $response = $this->client->replaceMetadata('identifier', array('key' => 'othervalue'));
+        $this->assertSame(array('key' => 'othervalue'), $response);
     }
 
     public function testCanFetchMetadata() {
@@ -306,7 +306,7 @@ class ImboClientTest extends GuzzleTestCase {
     public function testCanDeleteMetadata() {
         $this->setMockResponse($this->client, 'metadata_delete');
         $response = $this->client->deleteMetadata('identifier');
-        $this->assertSame('929db9c5fc3099f7576f5655207eba47', $response['imageIdentifier']);
+        $this->assertSame(array(), $response);
     }
 
     public function testCanGetImages() {
@@ -335,38 +335,14 @@ class ImboClientTest extends GuzzleTestCase {
               ->fields(array('width'))
               ->sort(array('size'))
               ->ids(array('id1', 'id2'))
-              ->checksums(array('checksum1', 'checksum2'));
+              ->checksums(array('checksum1', 'checksum2'))
+              ->originalChecksums(array('checksum3', 'checksum4'));
 
         $response = $this->client->getImages($query);
 
         $requests = $this->getMockedRequests();
         $request = $requests[0];
-        $this->assertSame('http://imbo/users/christer/images.json?page=2&limit=5&metadata=1&from=123&to=456&fields[0]=width&sort[0]=size&ids[0]=id1&ids[1]=id2&checksums[0]=checksum1&checksums[1]=checksum2&accessToken=a4d5c9b94f9ff4169dc59e42a8eb6052eb49f1199d0ac7a8379688186559c96e', urldecode($request->getUrl()));
-    }
-
-    public function testCanGetTheShortUrlOfAnImage() {
-        $this->setMockResponse($this->client, 'image_properties');
-        $url = $this->client->getShortUrl($this->getMockBuilder('ImboClient\Http\ImageUrl')->disableOriginalConstructor()->getMock());
-
-        $this->assertInstanceOf('Guzzle\Http\Url', $url);
-        $this->assertSame('http://imbo/s/c1cc6El', (string) $url);
-    }
-
-    public function testCanGetTheShortUrlOfAnImageAsANativeString() {
-        $this->setMockResponse($this->client, 'image_properties');
-        $url = $this->client->getShortUrl($this->getMockBuilder('ImboClient\Http\ImageUrl')->disableOriginalConstructor()->getMock(), true);
-
-        $this->assertInternalType('string', $url);
-        $this->assertSame('http://imbo/s/c1cc6El', $url);
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Could not fetch image properties for image:
-     */
-    public function testThrowsAnExceptionWhenTryingToFetchTheShortUrlOfAnImageThatResultsInAnError() {
-        $this->setMockResponse($this->client, array(new Response(404)));
-        $this->client->getShortUrl($this->getMockBuilder('ImboClient\Http\ImageUrl')->disableOriginalConstructor()->getMock());
+        $this->assertSame('http://imbo/users/christer/images.json?page=2&limit=5&metadata=1&from=123&to=456&fields[0]=width&sort[0]=size&ids[0]=id1&ids[1]=id2&checksums[0]=checksum1&checksums[1]=checksum2&originalChecksums[0]=checksum3&originalChecksums[1]=checksum4&accessToken=8543972a575f42c1a6d380fd6fef033bec5e9af52042bb19ced45e87f4a7046f', urldecode($request->getUrl()));
     }
 
     /**
@@ -413,6 +389,17 @@ class ImboClientTest extends GuzzleTestCase {
 
         $this->assertTrue($this->client->imageExists(__DIR__ . '/_files/image.png'));
         $this->assertFalse($this->client->imageExists(__DIR__ . '/_files/image.jpg'));
+
+        $requests = $this->getMockedRequests();
+        $query = $requests[0]->getQuery()->toArray();
+        $this->assertSame(1, $query['page']);
+        $this->assertSame(1, $query['limit']);
+        $this->assertSame(array(md5_file(__DIR__ . '/_files/image.png')), $query['originalChecksums']);
+
+        $query = $requests[1]->getQuery()->toArray();
+        $this->assertSame(1, $query['page']);
+        $this->assertSame(1, $query['limit']);
+        $this->assertSame(array(md5_file(__DIR__ . '/_files/image.jpg')), $query['originalChecksums']);
     }
 
     public function testCanCheckIfAnImageExistsOnTheServerBySpecifyingAnImageIdentifier() {
@@ -459,5 +446,60 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertArrayHasKey('users', $response);
         $this->assertArrayHasKey('total', $response);
         $this->assertArrayHasKey('custom', $response);
+    }
+
+    public function testCanGenerateAShortUrl() {
+        $this->setMockResponse($this->client, 'shorturl_created');
+        $imageUrl = $this->client->getImageUrl('image')->thumbnail()->desaturate()->jpg();
+        $response = $this->client->generateShortUrl($imageUrl);
+        $this->assertSame('aaaaaaa', $response['id']);
+        $this->assertSame(201, $response['status']);
+
+        $requests = $this->getMockedRequests();
+
+        $this->assertSame(
+            '{"publicKey":"christer","imageIdentifier":"image","extension":"jpg","query":"?t[]=thumbnail:width=50,height=50,fit=outbound&t[]=desaturate"}',
+            (string) $requests[0]->getBody(),
+            'Invalid JSON-encoded data in the request body'
+        );
+    }
+
+    public function testCanGenerateAShortUrlWithNoExtensionOrTransformationsAdded() {
+        $this->setMockResponse($this->client, 'shorturl_created');
+        $response = $this->client->generateShortUrl($this->client->getImageUrl('image'));
+        $this->assertSame('aaaaaaa', $response['id']);
+        $this->assertSame(201, $response['status']);
+
+        $requests = $this->getMockedRequests();
+
+        $this->assertSame(
+            '{"publicKey":"christer","imageIdentifier":"image","extension":null,"query":null}',
+            (string) $requests[0]->getBody(),
+            'Invalid JSON-encoded data in the request body'
+        );
+    }
+
+    public function testCanGetAShortUrl() {
+        $this->setMockResponse($this->client, 'shorturl_created');
+        $url = $this->client->getShortUrl($this->client->getImageUrl('image'));
+
+        $this->assertInstanceOf('Guzzle\Http\Url', $url);
+        $this->assertSame('http://imbo/s/aaaaaaa', (string) $url);
+    }
+
+    public function testCanGetAShortUrlAsAString() {
+        $this->setMockResponse($this->client, 'shorturl_created');
+        $url = $this->client->getShortUrl($this->client->getImageUrl('image'), true);
+
+        $this->assertSame('http://imbo/s/aaaaaaa', $url);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Could not generate short URL
+     */
+    public function testThrowsExceptionWhenTryingToGetShortUrlAndGenerateShortUrlFails() {
+        $this->setMockResponse($this->client, new Response(400));
+        $url = $this->client->getShortUrl($this->client->getImageUrl('image'));
     }
 }

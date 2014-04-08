@@ -92,4 +92,10 @@ class ImagesQueryTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($this->query, $this->query->checksums(array('checksum1', 'checksum2')));
         $this->assertSame(array('checksum1', 'checksum2'), $this->query->checksums());
     }
+
+    public function testCanSetAndGetOriginalChecksums() {
+        $this->assertSame(array(), $this->query->originalChecksums());
+        $this->assertSame($this->query, $this->query->originalChecksums(array('checksum1', 'checksum2')));
+        $this->assertSame(array('checksum1', 'checksum2'), $this->query->originalChecksums());
+    }
 }

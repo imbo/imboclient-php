@@ -18,7 +18,7 @@ use InvalidArgumentException;
  * @package Client\Urls
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
-class ImageUrl extends Url {
+class ImageUrl extends ImagesUrl {
     /**
      * Transformations
      *
@@ -133,6 +133,24 @@ class ImageUrl extends Url {
     }
 
     /**
+     * Get the extension of the image
+     *
+     * @return string|null
+     */
+    public function getExtension() {
+        return $this->extension;
+    }
+
+    /**
+     * Get the added transformations
+     *
+     * @return array
+     */
+    public function getTransformations() {
+        return $this->transformations;
+    }
+
+    /**
      * Add a crop transformation
      *
      * @param int $x X coordinate of the top left corner of the crop
@@ -208,6 +226,42 @@ class ImageUrl extends Url {
     }
 
     /**
+     * Add a histogram transformation
+     *
+     * @param int $scale The amount to scale the histogram
+     * @param float $ratio The ratio to use when calculating the height of the image
+     * @param string $red The color to use when drawing the graph for the red channel
+     * @param string $green The color to use when drawing the graph for the green channel
+     * @param string $blue The color to use when drawing the graph for the blue channel
+     * @return self
+     */
+    public function histogram($scale = null, $ratio = null, $red = null, $green = null, $blue = null) {
+        $params = array();
+
+        if ($scale) {
+            $params[] = 'scale=' . (int) $scale;
+        }
+
+        if ($ratio) {
+            $params[] = 'ratio=' . (float) $ratio;
+        }
+
+        if ($red) {
+            $params[] = 'red=' . $red;
+        }
+
+        if ($green) {
+            $params[] = 'green=' . $green;
+        }
+
+        if ($blue) {
+            $params[] = 'blue=' . $blue;
+        }
+
+        return $this->addTransformation('histogram' . ($params ? ':' . implode(',', $params) : ''));
+    }
+
+    /**
      * Add a maxSize transformation
      *
      * @param int $maxWidth Max width of the resized image
@@ -231,6 +285,37 @@ class ImageUrl extends Url {
         }
 
         return $this->addTransformation(sprintf('maxSize:%s', implode(',', $params)));
+    }
+
+    /**
+     * Add a modulate transformation
+     *
+     * @param int $brightness Brightness of the image in percent
+     * @param int $saturation Saturation of the image in percent
+     * @param int $hue Hue percentage
+     * @return self
+     * @throws InvalidArgumentException
+     */
+    public function modulate($brightness = null, $saturation = null, $hue = null) {
+        $params = array();
+
+        if ($brightness) {
+            $params[] = 'b=' . (int) $brightness;
+        }
+
+        if ($saturation) {
+            $params[] = 's=' . (int) $saturation;
+        }
+
+        if ($hue) {
+            $params[] = 'h=' . (int) $hue;
+        }
+
+        if (!$params) {
+            throw new InvalidArgumentException('brightness, saturation and/or hue must be specified');
+        }
+
+        return $this->addTransformation(sprintf('modulate:%s', implode(',', $params)));
     }
 
     /**
@@ -406,11 +491,13 @@ class ImageUrl extends Url {
     public function __toString() {
         // Update the path
         if ($this->extension) {
-            $this->path = preg_replace('#(\.(gif|jpg|png))?$#', '.' . $this->extension, $this->path);
+            // Remove a possible extension in the path, and append the new one
+            $this->path = preg_replace('#(\.(gif|jpg|png))$#', '', $this->path) . '.' . $this->extension;
         }
 
-        // Append transformations
-        $this->query->add('t', $this->transformations);
+        // Set the t query param, overriding it if it already exists, which it might do if the
+        // string has already been converted to a string
+        $this->query->set('t', $this->transformations);
 
         return parent::__toString();
     }
@@ -436,5 +523,18 @@ class ImageUrl extends Url {
         }
 
         return $this;
+    }
+
+    /**
+     * Fetch the image identifier in the URL
+     *
+     * @return string|null
+     */
+    public function getImageIdentifier() {
+        if (preg_match('#/users/[^/]+/images/(?<imageIdentifier>[^./]+)#', $this->getPath(), $match)) {
+            return $match['imageIdentifier'];
+        }
+
+        return null;
     }
 }
