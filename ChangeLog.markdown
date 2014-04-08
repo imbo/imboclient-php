@@ -3,7 +3,7 @@ Changelog for ImboClient
 
 ImboClient-1.2.0
 ----------------
-__N/A__
+__2014-04-08__
 
 * #100: Added support for the histogram transformation added to Imbo-1.2.0
 * #99: Updated responses from the server when writing to the metadata resource (edit, update and delete)
