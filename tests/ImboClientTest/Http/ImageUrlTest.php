@@ -112,6 +112,16 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
                 null,
                 'flipVertically',
             ),
+            'histogram' => array(
+                'histogram',
+                null,
+                'histogram',
+            ),
+            'histogram with all params' => array(
+                'histogram',
+                array(2, 3.14, '#f00', '#0f0', '#00f'),
+                'histogram:scale=2,ratio=3.14,red=#f00,green=#0f0,blue=#00f',
+            ),
             'maxSize with width' => array(
                 'maxSize',
                 array(100),

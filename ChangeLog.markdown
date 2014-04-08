@@ -5,6 +5,7 @@ ImboClient-1.2.0
 ----------------
 __N/A__
 
+* #100: Added support for the histogram transformation added to Imbo-1.2.0
 * #99: Updated responses from the server when writing to the metadata resource (edit, update and delete)
 * #93: Updated how the client adds short image URLs with regards to changes made to the Imbo server
 * #92: Added support for filtering images on the originalChecksum
