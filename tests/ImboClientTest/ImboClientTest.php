@@ -237,7 +237,8 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame('png', $response['extension']);
         $this->assertSame(201, $response['status']);
 
-        $request = $this->getMockedRequests()[0];
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
 
         $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
         $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Timestamp'));
@@ -256,7 +257,8 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame('png', $response['extension']);
         $this->assertSame(201, $response['status']);
 
-        $request = $this->getMockedRequests()[1];
+        $requests = $this->getMockedRequests();
+        $request = $requests[1];
 
         $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
         $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Timestamp'));
@@ -465,7 +467,8 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame('aaaaaaa', $response['id']);
         $this->assertSame(201, $response['status']);
 
-        $request = $this->getMockedRequests()[0];
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
 
         $this->assertSame(
             '{"publicKey":"christer","imageIdentifier":"image","extension":"jpg","query":"?t[]=thumbnail:width=50,height=50,fit=outbound&t[]=desaturate"}',
