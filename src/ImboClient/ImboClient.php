@@ -147,6 +147,18 @@ class ImboClient extends GuzzleClient {
     }
 
     /**
+     * Set the current user
+     *
+     * @param string $user
+     * @return self
+     */
+    public function setUser($user) {
+        $this->getConfig()->set('user', $user);
+
+        return $this;
+    }
+
+    /**
      * Add an image from a path
      *
      * @param string $path A path to an image

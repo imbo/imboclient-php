@@ -86,6 +86,17 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame($this->user, $this->client->getUser());
     }
 
+    public function testCanSetDifferentUserAfterInstantiation() {
+        $this->assertSame($this->user, $this->client->getUser());
+        $this->assertSame($this->client, $this->client->setUser('foobar'));
+        $this->assertSame('foobar', $this->client->getUser());
+
+        $this->assertContains('/users/foobar', (string) $this->client->getUserUrl());
+        $this->assertContains('/users/foobar', (string) $this->client->getImagesUrl());
+        $this->assertContains('/users/foobar', (string) $this->client->getImageUrl('z'));
+        $this->assertContains('/users/foobar', (string) $this->client->getMetadataUrl('z'));
+    }
+
     public function testCanFetchServerStatusWhenEverythingIsOk() {
         $this->setMockResponse($this->client, 'status_ok');
 
