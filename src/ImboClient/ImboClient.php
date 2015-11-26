@@ -600,7 +600,13 @@ class ImboClient extends GuzzleClient {
      * @return string
      */
     private function getHostForImageIdentifier($imageIdentifier) {
-        $dec = hexdec($imageIdentifier[0] . $imageIdentifier[1]);
+        $dec = ord(substr($imageIdentifier, -1));
+
+        // If this is an old image identifier (32 character hex string),
+        // maintain backwards compatibility
+        if (preg_match('#^[a-f0-9]{32}$#', $imageIdentifier)) {
+            $dec = hexdec($imageIdentifier[0] . $imageIdentifier[1]);
+        }
 
         return $this->serverUrls[$dec % count($this->serverUrls)];
     }
