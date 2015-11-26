@@ -11,6 +11,7 @@
 namespace ImboClient;
 
 use ImboClient\Http,
+    ImboClient\Helper\PublicKeyFallback,
     Guzzle\Common\Collection,
     Guzzle\Service\Client as GuzzleClient,
     Guzzle\Service\Description\ServiceDescription,
@@ -69,6 +70,7 @@ class ImboClient extends GuzzleClient {
         $dispatcher = $this->getEventDispatcher();
         $dispatcher->addSubscriber(new EventSubscriber\AccessToken());
         $dispatcher->addSubscriber(new EventSubscriber\Authenticate());
+        $dispatcher->addSubscriber(new EventSubscriber\PublicKey());
 
         $client = $this;
         $dispatcher->addListener('command.before_send', function($event) use ($client) {
@@ -105,11 +107,17 @@ class ImboClient extends GuzzleClient {
     public static function factory($config = array()) {
         $default = array(
             'serverUrls' => null,
+            'user' => null,
             'publicKey' => null,
             'privateKey' => null,
         );
 
-        $required = array('serverUrls', 'publicKey', 'privateKey');
+        // Backwards-compatibility with old client where user === publicKey
+        if (!isset($config['user']) && isset($config['publicKey'])) {
+            $config['user'] = $config['publicKey'];
+        }
+
+        $required = array('serverUrls', 'publicKey', 'privateKey', 'user');
         $config = Collection::fromConfig($config, $default, $required);
 
         if (!is_array($serverUrls = $config->get('serverUrls')) || empty($serverUrls)) {
@@ -127,6 +135,15 @@ class ImboClient extends GuzzleClient {
      */
     public function getPublicKey() {
         return $this->getConfig('publicKey');
+    }
+
+    /**
+     * Get the current user
+     *
+     * @return string
+     */
+    public function getUser() {
+        return $this->getConfig('user');
     }
 
     /**
@@ -185,7 +202,7 @@ class ImboClient extends GuzzleClient {
         }
 
         return $this->getCommand('AddImage', array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'image' => $image,
         ))->execute();
     }
@@ -214,9 +231,11 @@ class ImboClient extends GuzzleClient {
      * @return Model
      */
     public function getUserInfo() {
-        return $this->getCommand('GetUserInfo', array(
-            'publicKey' => $this->getConfig('publicKey'),
+        $userInfo = $this->getCommand('GetUserInfo', array(
+            'user' => $this->getUser(),
         ))->execute();
+
+        return PublicKeyFallback::fallback($userInfo);
     }
 
     /**
@@ -227,7 +246,7 @@ class ImboClient extends GuzzleClient {
      */
     public function deleteImage($imageIdentifier) {
         return $this->getCommand('DeleteImage', array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
         ))->execute();
     }
@@ -240,7 +259,7 @@ class ImboClient extends GuzzleClient {
      */
     public function getImageProperties($imageIdentifier) {
         return $this->getCommand('GetImageProperties', array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
         ))->execute();
     }
@@ -254,7 +273,7 @@ class ImboClient extends GuzzleClient {
      */
     public function editMetadata($imageIdentifier, array $metadata) {
         return $this->getCommand('EditMetadata', array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
             'metadata' => json_encode($metadata),
         ))->execute();
@@ -269,7 +288,7 @@ class ImboClient extends GuzzleClient {
      */
     public function replaceMetadata($imageIdentifier, array $metadata) {
         return $this->getCommand('ReplaceMetadata', array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
             'metadata' => json_encode($metadata),
         ))->execute();
@@ -283,7 +302,7 @@ class ImboClient extends GuzzleClient {
      */
     public function getMetadata($imageIdentifier) {
         return $this->getCommand('GetMetadata', array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
         ))->execute();
     }
@@ -300,7 +319,7 @@ class ImboClient extends GuzzleClient {
         }
 
         $params = array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'page' => $query->page(),
             'limit' => $query->limit(),
         );
@@ -337,7 +356,13 @@ class ImboClient extends GuzzleClient {
             $params['originalChecksums'] = $originalChecksums;
         }
 
-        return $this->getCommand('GetImages', $params)->execute();
+        $response = $this->getCommand('GetImages', $params)->execute();
+        $response['images'] = array_map(
+            array('ImboClient\Helper\PublicKeyFallback', 'fallback'),
+            $response['images']
+        );
+
+        return $response;
     }
 
     /**
@@ -348,7 +373,7 @@ class ImboClient extends GuzzleClient {
      */
     public function deleteMetadata($imageIdentifier) {
         return $this->getCommand('DeleteMetadata', array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
         ))->execute();
     }
@@ -369,14 +394,14 @@ class ImboClient extends GuzzleClient {
         }
 
         $params = array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'imageIdentifier' => $imageUrl->getImageIdentifier(),
             'extension' => $imageUrl->getExtension(),
             'query' => $transformations,
         );
 
         return $this->getCommand('GenerateShortUrl', array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'imageIdentifier' => $imageUrl->getImageIdentifier(),
             'params' => json_encode($params),
         ))->execute();
@@ -417,7 +442,7 @@ class ImboClient extends GuzzleClient {
     public function getUserUrl() {
         $url = sprintf(
             $this->getBaseUrl() . '/users/%s.json',
-            $this->getConfig('publicKey')
+            $this->getUser()
         );
 
         return Http\UserUrl::factory($url, $this->getConfig('privateKey'));
@@ -431,7 +456,7 @@ class ImboClient extends GuzzleClient {
     public function getImagesUrl() {
         $url = sprintf(
             $this->getBaseUrl() . '/users/%s/images.json',
-            $this->getConfig('publicKey')
+            $this->getUser()
         );
 
         return Http\ImagesUrl::factory($url, $this->getConfig('privateKey'));
@@ -446,7 +471,7 @@ class ImboClient extends GuzzleClient {
     public function getImageUrl($imageIdentifier) {
         $url = sprintf(
             $this->getHostForImageIdentifier($imageIdentifier) . '/users/%s/images/%s',
-            $this->getConfig('publicKey'),
+            $this->getUser(),
             $imageIdentifier
         );
 
@@ -462,7 +487,7 @@ class ImboClient extends GuzzleClient {
     public function getMetadataUrl($imageIdentifier) {
         $url = sprintf(
             $this->getHostForImageIdentifier($imageIdentifier) . '/users/%s/images/%s/metadata.json',
-            $this->getConfig('publicKey'),
+            $this->getUser(),
             $imageIdentifier
         );
 

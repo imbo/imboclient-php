@@ -39,8 +39,9 @@ This can be achieved in two different ways:
 
     $client = ImboClient\ImboClient::factory(array(
         'serverUrls' => array('http://imbo.example.com'),
-        'publicKey' => 'user',
+        'publicKey' => 'public key',
         'privateKey' => 'private key',
+        'user' => 'username',
     ));
 
 2) Use the constructor:
@@ -48,8 +49,9 @@ This can be achieved in two different ways:
 .. code-block:: php
 
     $client = new ImboClient\ImboClient('http://imbo.example.com', array(
-        'publicKey' => 'user',
+        'publicKey' => 'public key',
         'privateKey' => 'private key',
+        'user' => 'username',
     ));
 
 The main difference is that the first argument to the factory method requires you to specify the host name(s) of the Imbo server(s) as an array, while the constructor requires you to pass a string. If you want to use the example number 2 above, and still want to use multiple host names you can use the ``setServerUrls`` method:
@@ -104,7 +106,7 @@ If you have access to the server statistics and want to fetch these, you can use
 The return value from this method can be used as an associative array, and includes the following elements:
 
 ``(array) users``
-    An array of users where the keys are user names (public keys) and values are arrays with the following elements:
+    An array of users where the keys are user names and values are arrays with the following elements:
 
     * ``(int) numImages``: Number of images owned by this user
     * ``(int) numBytes``: Number of bytes stored by this user
@@ -130,8 +132,8 @@ Get some information about the user configured with the client:
 
 The value returned from the ``getUserInfo`` method includes the following elements:
 
-``(string) publicKey``
-    The public key of the user (the same as the one used when instantiating the client).
+``(string) user``
+    The user (the same as the one used when instantiating the client).
 
 ``(int) numImages``
     The number of images owned by the user.
@@ -245,7 +247,7 @@ If you want to fetch the number of images owned by the current user you can use 
 
 .. code-block:: php
 
-    echo 'The user "' . $client->getPublicKey() . '" has ' . $client->getNumImages() . ' images.';
+    echo 'The user "' . $client->getUser() . '" has ' . $client->getNumImages() . ' images.';
 
 Get the binary image data
 +++++++++++++++++++++++++
@@ -306,7 +308,7 @@ and the ``images`` element is a traversable where each element represents an ima
 * ``height``
 * ``mime``
 * ``imageIdentifier``
-* ``publicKey``
+* ``user``
 * ``metadata`` (only if the query explicitly enabled metadata in the response, which is off by default).
 
 Some of these elements might not be available if the query excludes some fields (more on that below).
@@ -472,7 +474,7 @@ Imbo uses access tokens in the URLs to prevent `DoS attacks <http://en.wikipedia
     Fetch a URL to the stats endpoint.
 
 ``getUserUrl()``
-    Fetch a URL to the user information of the current user (specified by setting the correct public key when instantiating the client)``.
+    Fetch a URL to the user information of the current user (specified by setting the correct user when instantiating the client)``.
 
 ``getImagesUrl()``
     Fetch a URL to the images endpoint.
@@ -561,8 +563,9 @@ From version 1.0.0 ImboClient comes with a factory that should be used to instan
 
     $client = ImboClient\ImboClient::factory(array(
         'serverUrls' => array('http://imbo.example.com'),
-        'publicKey' => 'user',
+        'publicKey' => 'public key',
         'privateKey' => 'private key',
+        'user' => 'username',
     ));
 
 More examples on how to instantiate the client are available in the :ref:`instantiating-the-client` section.

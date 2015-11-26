@@ -26,24 +26,24 @@ return array(
         ),
         'GetUserInfo' => array(
             'httpMethod' => 'GET',
-            'uri' => 'users/{publicKey}.json',
+            'uri' => 'users/{user}.json',
             'summary' => 'Get information about a specific user',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
-                    'description' => 'The public key of the user we want information about',
+                    'description' => 'The user we want information about',
                 ),
             ),
             'responseClass' => 'GetUserInfo',
         ),
         'AddImage' => array(
             'httpMethod' => 'POST',
-            'uri' => 'users/{publicKey}/images',
+            'uri' => 'users/{user}/images',
             'summary' => 'Add an image',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -60,10 +60,10 @@ return array(
         ),
         'DeleteImage' => array(
             'httpMethod' => 'DELETE',
-            'uri' => 'users/{publicKey}/images/{imageIdentifier}',
+            'uri' => 'users/{user}/images/{imageIdentifier}',
             'summary' => 'Delete an image',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -80,10 +80,10 @@ return array(
         ),
         'GetImageProperties' => array(
             'httpMethod' => 'HEAD',
-            'uri' => 'users/{publicKey}/images/{imageIdentifier}',
+            'uri' => 'users/{user}/images/{imageIdentifier}',
             'summary' => 'Get properties of an image',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -100,10 +100,10 @@ return array(
         ),
         'EditMetadata' => array(
             'httpMethod' => 'POST',
-            'uri' => 'users/{publicKey}/images/{imageIdentifier}/metadata',
+            'uri' => 'users/{user}/images/{imageIdentifier}/metadata',
             'summary' => 'Update metadata attached to an image. Supports partial updates',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -125,10 +125,10 @@ return array(
         ),
         'GetMetadata' => array(
             'httpMethod' => 'GET',
-            'uri' => 'users/{publicKey}/images/{imageIdentifier}/metadata.json',
+            'uri' => 'users/{user}/images/{imageIdentifier}/metadata.json',
             'summary' => 'Get metadata attached to an image',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -144,10 +144,10 @@ return array(
         ),
         'ReplaceMetadata' => array(
             'httpMethod' => 'PUT',
-            'uri' => 'users/{publicKey}/images/{imageIdentifier}/metadata',
+            'uri' => 'users/{user}/images/{imageIdentifier}/metadata',
             'summary' => 'Completely replace the metadata attached to an image with new metadata',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -169,10 +169,10 @@ return array(
         ),
         'DeleteMetadata' => array(
             'httpMethod' => 'DELETE',
-            'uri' => 'users/{publicKey}/images/{imageIdentifier}/metadata',
+            'uri' => 'users/{user}/images/{imageIdentifier}/metadata',
             'summary' => 'Delete metadata attached to an image',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -188,10 +188,10 @@ return array(
         ),
         'GetImages' => array(
             'httpMethod' => 'GET',
-            'uri' => 'users/{publicKey}/images.json',
+            'uri' => 'users/{user}/images.json',
             'summary' => 'Fetch information about images owned by a specific user',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -262,10 +262,10 @@ return array(
         ),
         'GenerateShortUrl' => array(
             'httpMethod' => 'POST',
-            'uri' => 'users/{publicKey}/images/{imageIdentifier}/shorturls',
+            'uri' => 'users/{user}/images/{imageIdentifier}/shorturls',
             'summary' => 'Create a short URL to an image with a set of image transformations applied to it',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -312,6 +312,10 @@ return array(
             'type' => 'array',
             'properties' => array(
                 'publicKey' => array(
+                    'location' => 'json',
+                    'type' => 'string',
+                ),
+                'user' => array(
                     'location' => 'json',
                     'type' => 'string',
                 ),
@@ -456,6 +460,10 @@ return array(
                                 'type' => 'string',
                             ),
                             'publicKey' => array(
+                                'location' => 'json',
+                                'type' => 'string',
+                            ),
+                            'user' => array(
                                 'location' => 'json',
                                 'type' => 'string',
                             ),

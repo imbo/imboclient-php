@@ -44,6 +44,11 @@ class ImboClientTest extends GuzzleTestCase {
     private $privateKey = 'test';
 
     /**
+     * @var string
+     */
+    private $user = 'testuser';
+
+    /**
      * Set up the client
      */
     public function setUp() {
@@ -51,6 +56,7 @@ class ImboClientTest extends GuzzleTestCase {
             'serverUrls' => array($this->baseUrl),
             'publicKey' => $this->publicKey,
             'privateKey' => $this->privateKey,
+            'user' => $this->user,
         );
 
         $this->client = ImboClient::factory($config);
@@ -63,8 +69,21 @@ class ImboClientTest extends GuzzleTestCase {
         $this->client = null;
     }
 
-    public function testCanFetchThePublicKeyOfTheCurrentUser() {
+    public function testFallsBackToPublicKeyIfUserNotSpecified() {
+        $this->client = ImboClient::factory(array(
+            'serverUrls' => array($this->baseUrl),
+            'publicKey' => $this->publicKey,
+            'privateKey' => $this->privateKey,
+        ));
+        $this->assertSame($this->publicKey, $this->client->getUser());
+    }
+
+    public function testCanFetchThePublicKeyOfTheClient() {
         $this->assertSame($this->publicKey, $this->client->getPublicKey());
+    }
+
+    public function testCanFetchTheCurrentUser() {
+        $this->assertSame($this->user, $this->client->getUser());
     }
 
     public function testCanFetchServerStatusWhenEverythingIsOk() {
@@ -116,6 +135,19 @@ class ImboClientTest extends GuzzleTestCase {
         $user = $this->client->getUserInfo();
 
         $this->assertSame('christer', $user['publicKey']);
+        $this->assertSame('christer', $user['user']);
+        $this->assertSame(11, $user['numImages']);
+        $this->assertInstanceOf('DateTime', $user['lastModified']);
+        $this->assertSame('2013-04-09 07:00:18', $user['lastModified']->format('Y-m-d H:i:s'));
+    }
+
+    public function testCanFetchUserInformationInImbo1Format() {
+        $this->setMockResponse($this->client, 'user_ok_old');
+
+        $user = $this->client->getUserInfo();
+
+        $this->assertSame('christer', $user['publicKey']);
+        $this->assertSame('christer', $user['user']);
         $this->assertSame(11, $user['numImages']);
         $this->assertInstanceOf('DateTime', $user['lastModified']);
         $this->assertSame('2013-04-09 07:00:18', $user['lastModified']->format('Y-m-d H:i:s'));
@@ -335,6 +367,17 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame('29f7a5488303927ca345416e22f8836e', $response['images'][1]['imageIdentifier']);
     }
 
+    public function testProvidesBackwardsCompatibilityForGetImages() {
+        $this->setMockResponse($this->client, 'images_get');
+        $response = $this->client->getImages();
+
+        $this->assertCount(2, $response['images']);
+        $this->assertSame('christer', $response['images'][0]['user']);
+        $this->assertSame('christer', $response['images'][0]['publicKey']);
+        $this->assertSame('espen', $response['images'][1]['user']);
+        $this->assertSame('espen', $response['images'][1]['publicKey']);
+    }
+
     public function testCanGetImagesUsingAQueryObject() {
         $this->setMockResponse($this->client, 'images_get');
 
@@ -354,7 +397,7 @@ class ImboClientTest extends GuzzleTestCase {
 
         $requests = $this->getMockedRequests();
         $request = $requests[0];
-        $this->assertSame('http://imbo/users/christer/images.json?page=2&limit=5&metadata=1&from=123&to=456&fields[0]=width&sort[0]=size&ids[0]=id1&ids[1]=id2&checksums[0]=checksum1&checksums[1]=checksum2&originalChecksums[0]=checksum3&originalChecksums[1]=checksum4&accessToken=8543972a575f42c1a6d380fd6fef033bec5e9af52042bb19ced45e87f4a7046f', urldecode($request->getUrl()));
+        $this->assertSame('http://imbo/users/testuser/images.json?page=2&limit=5&metadata=1&from=123&to=456&fields[0]=width&sort[0]=size&ids[0]=id1&ids[1]=id2&checksums[0]=checksum1&checksums[1]=checksum2&originalChecksums[0]=checksum3&originalChecksums[1]=checksum4&publicKey=christer&accessToken=962bc7a372839a4a0defc206f551ae666b1a2e0fd1dc2a2509794f83b2f6572c', urldecode($request->getUrl()));
     }
 
     /**
@@ -471,7 +514,7 @@ class ImboClientTest extends GuzzleTestCase {
         $request = $requests[0];
 
         $this->assertSame(
-            '{"publicKey":"christer","imageIdentifier":"image","extension":"jpg","query":"?t[]=thumbnail:width=50,height=50,fit=outbound&t[]=desaturate"}',
+            '{"user":"testuser","imageIdentifier":"image","extension":"jpg","query":"?t[]=thumbnail:width=50,height=50,fit=outbound&t[]=desaturate"}',
             (string) $request->getBody(),
             'Invalid JSON-encoded data in the request body'
         );
@@ -489,7 +532,7 @@ class ImboClientTest extends GuzzleTestCase {
         $requests = $this->getMockedRequests();
 
         $this->assertSame(
-            '{"publicKey":"christer","imageIdentifier":"image","extension":null,"query":null}',
+            '{"user":"testuser","imageIdentifier":"image","extension":null,"query":null}',
             (string) $requests[0]->getBody(),
             'Invalid JSON-encoded data in the request body'
         );
