@@ -16,17 +16,4 @@ namespace ImboClient\Http;
  * @package Client\Urls
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
-class UserUrl extends Url {
-    /**
-     * Get the public key part of a URL
-     *
-     * @return string|null
-     */
-    public function getPublicKey() {
-        if (preg_match('#/users/(?<publicKey>[^./]+)#', $this->getPath(), $match)) {
-            return $match['publicKey'];
-        }
-
-        return null;
-    }
-}
+class UserUrl extends Url {}

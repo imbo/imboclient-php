@@ -64,6 +64,28 @@ class Url extends GuzzleUrl {
     }
 
     /**
+     * Get the public key part of a URL
+     *
+     * @return string|null
+     */
+    public function getPublicKey() {
+        return $this->getQuery()->get('publicKey') ?: $this->getUser();
+    }
+
+    /**
+     * Get the user part of a URL
+     *
+     * @return string|null
+     */
+    public function getUser() {
+        if (preg_match('#/users/(?<user>[^./]+)#', $this->getPath(), $match)) {
+            return $match['user'];
+        }
+
+        return null;
+    }
+
+    /**
      * Set the private key
      *
      * @param string $privateKey The private key to use when appending access tokens to the URL's
