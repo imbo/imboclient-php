@@ -521,6 +521,29 @@ class ImboClient extends GuzzleClient {
     }
 
     /**
+     * Create a new public/private key pair
+     *
+     * @param string $publicKey Public key to create
+     * @param string $privateKey Private key for the new public key
+     * @return Model
+     */
+    public function addPublicKey($publicKey, $privateKey) {
+        $this->validatePublicKeyName($publicKey);
+
+        if ($this->publicKeyExists($publicKey)) {
+            throw new InvalidArgumentException(
+                'Public key with name "' . $publicKey . '" already exists'
+            );
+        }
+
+        return $this->getCommand('EditPublicKey', array(
+            'signaturePublicKey' => $this->getPublicKey(),
+            'properties' => json_encode(array('privateKey' => $privateKey)),
+            'publicKey' => $publicKey,
+        ))->execute();
+    }
+
+    /**
      * Edit a public/private key pair
      *
      * @param string $publicKey Public key to alter private key for
