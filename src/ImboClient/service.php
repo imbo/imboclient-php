@@ -470,7 +470,7 @@ return array(
         ),
         'GetAccessControlRules' => array(
             'httpMethod' => 'GET',
-            'uri' => '/keys/{publicKey}/access.json',
+            'uri' => 'keys/{publicKey}/access.json',
             'summary' => 'Fetch access control rules for the given public key',
             'parameters' => array(
                 'publicKey' => array(
@@ -491,7 +491,7 @@ return array(
         ),
         'GetAccessControlRule' => array(
             'httpMethod' => 'GET',
-            'uri' => '/keys/{publicKey}/access/{id}.json',
+            'uri' => 'keys/{publicKey}/access/{id}.json',
             'summary' => 'Fetch a given access control rule for the given public key',
             'parameters' => array(
                 'publicKey' => array(
@@ -518,7 +518,7 @@ return array(
         ),
         'AddAccessControlRules' => array(
             'httpMethod' => 'POST',
-            'uri' => '/keys/{publicKey}/access',
+            'uri' => 'keys/{publicKey}/access',
             'summary' => 'Add access control rules to the given public key',
             'parameters' => array(
                 'publicKey' => array(
@@ -541,7 +541,33 @@ return array(
                     'description' => 'The public key used to access the resource',
                 ),
             ),
-            'responseClass' => 'AddAccessControlRules',
+        ),
+
+        'DeleteAccessControlRule' => array(
+            'httpMethod' => 'DELETE',
+            'uri' => 'keys/{publicKey}/access/{id}',
+            'summary' => 'Delete an access control rule',
+            'parameters' => array(
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the public key to delete',
+                ),
+                'signaturePublicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'header',
+                    'sentAs' => 'x-imbo-publickey',
+                    'description' => 'The public key used to access the resource',
+                ),
+                'id' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'ID of the rule to delete',
+                )
+            ),
         ),
     ),
     'models' => array(

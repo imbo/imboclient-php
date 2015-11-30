@@ -834,4 +834,17 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
         $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
     }
+
+    public function testCanDeleteAccessControlRule() {
+        $this->setMockResponse($this->client, 'acl_rule_deleted');
+        $response = $this->client->deleteAccessControlRule('some-public-key', 'bf1942');
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+
+        $this->assertSame('DELETE', $request->getMethod());
+        $this->assertSame('http://imbo/keys/some-public-key/access/bf1942', urldecode($request->getUrl()));
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
+    }
 }

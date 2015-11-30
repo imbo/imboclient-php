@@ -567,7 +567,6 @@ class ImboClient extends GuzzleClient {
      *
      * @param  string $publicKey Name of the public key to delete
      * @return Model
-     * @throws InvalidArgumentException Thrown when the public key name is invalid
      * @throws InvalidArgumentException If the public key name is invalid
      */
     public function deletePublicKey($publicKey) {
@@ -653,6 +652,24 @@ class ImboClient extends GuzzleClient {
             'signaturePublicKey' => $this->getPublicKey(),
             'publicKey' => $publicKey,
             'rules' => json_encode($rules),
+        ))->execute();
+    }
+
+    /**
+     * Delete an access control rule
+     *
+     * @param string $publicKey Name of the public key which owns the rule
+     * @param string $ruleId ID of the rule to delete
+     * @return Model
+     * @throws InvalidArgumentException Thrown if the public key name is invalid
+     */
+    public function deleteAccessControlRule($publicKey, $ruleId) {
+        $this->validatePublicKeyName($publicKey);
+
+        return $this->getCommand('DeleteAccessControlRule', array(
+            'signaturePublicKey' => $this->getPublicKey(),
+            'publicKey' => $publicKey,
+            'id' => $ruleId,
         ))->execute();
     }
 
