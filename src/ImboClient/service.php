@@ -498,7 +498,7 @@ return array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
-                    'description' => 'The name of the public key to delete',
+                    'description' => 'The name of the public key to retrieve the rule from',
                 ),
                 'id' => array(
                     'type' => 'string',
@@ -515,6 +515,33 @@ return array(
                 ),
             ),
             'responseClass' => 'GetAccessControlRule',
+        ),
+        'AddAccessControlRules' => array(
+            'httpMethod' => 'POST',
+            'uri' => '/keys/{publicKey}/access',
+            'summary' => 'Add access control rules to the given public key',
+            'parameters' => array(
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the public key to add rules to',
+                ),
+                'rules' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'body',
+                    'description' => 'Access control rules represented as JSON',
+                ),
+                'signaturePublicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'header',
+                    'sentAs' => 'x-imbo-publickey',
+                    'description' => 'The public key used to access the resource',
+                ),
+            ),
+            'responseClass' => 'AddAccessControlRules',
         ),
     ),
     'models' => array(
@@ -782,5 +809,9 @@ return array(
                 )
             )
         ),
+        'AddAccessControlRules' => array(
+            'type' => 'object',
+            'properties' => array(),
+        )
     ),
 );

@@ -442,7 +442,7 @@ class ImboClient extends GuzzleClient {
      *
      * @param string $groupName Name of group to get
      * @return Model
-     * @throws InvalidArgumentException If the group name is not valid
+     * @throws InvalidArgumentException If the group name is invalid
      */
     public function getGroup($groupName) {
         $this->validateGroupName($groupName);
@@ -526,6 +526,7 @@ class ImboClient extends GuzzleClient {
      * @param string $publicKey Public key to create
      * @param string $privateKey Private key for the new public key
      * @return Model
+     * @throws InvalidArgumentException If the public key name is invalid
      */
     public function addPublicKey($publicKey, $privateKey) {
         $this->validatePublicKeyName($publicKey);
@@ -549,6 +550,7 @@ class ImboClient extends GuzzleClient {
      * @param string $publicKey Public key to alter private key for
      * @param string $privateKey New private key to use for the given public key
      * @return Model
+     * @throws InvalidArgumentException If the public key name is invalid
      */
     public function editPublicKey($publicKey, $privateKey) {
         $this->validatePublicKeyName($publicKey);
@@ -566,6 +568,7 @@ class ImboClient extends GuzzleClient {
      * @param  string $publicKey Name of the public key to delete
      * @return Model
      * @throws InvalidArgumentException Thrown when the public key name is invalid
+     * @throws InvalidArgumentException If the public key name is invalid
      */
     public function deletePublicKey($publicKey) {
         $this->validatePublicKeyName($publicKey);
@@ -581,6 +584,7 @@ class ImboClient extends GuzzleClient {
      *
      * @param string $publicKey Public key
      * @return boolean
+     * @throws InvalidArgumentException If the public key name is invalid
      */
     public function publicKeyExists($publicKey) {
         $this->validatePublicKeyName($publicKey);
@@ -593,6 +597,7 @@ class ImboClient extends GuzzleClient {
      *
      * @param string $publicKey Public key
      * @return Model
+     * @throws InvalidArgumentException If the public key name is invalid
      */
     public function getAccessControlRules($publicKey) {
         $this->validatePublicKeyName($publicKey);
@@ -609,6 +614,7 @@ class ImboClient extends GuzzleClient {
      * @param string $publicKey Public key
      * @param string $ruleId ID of the rule to retrieve
      * @return Model
+     * @throws InvalidArgumentException If the public key name is invalid
      */
     public function getAccessControlRule($publicKey, $ruleId) {
         $this->validatePublicKeyName($publicKey);
@@ -617,6 +623,36 @@ class ImboClient extends GuzzleClient {
             'signaturePublicKey' => $this->getPublicKey(),
             'publicKey' => $publicKey,
             'id' => $ruleId,
+        ))->execute();
+    }
+
+    /**
+     * Add access control rule to the given public key
+     *
+     * @param string $publicKey Public key to add rule to
+     * @param array $rule Rule to add
+     * @return Model
+     * @throws InvalidArgumentException If the public key name is invalid
+     */
+    public function addAccessControlRule($publicKey, $rule) {
+        return $this->addAccessControlRules($publicKey, array($rule));
+    }
+
+    /**
+     * Add access control rules to the given public key
+     *
+     * @param string $publicKey Public key to add rules to
+     * @param array $rules Rules to add
+     * @return Model
+     * @throws InvalidArgumentException If the public key name is invalid
+     */
+    public function addAccessControlRules($publicKey, $rules) {
+        $this->validatePublicKeyName($publicKey);
+
+        return $this->getCommand('AddAccessControlRules', array(
+            'signaturePublicKey' => $this->getPublicKey(),
+            'publicKey' => $publicKey,
+            'rules' => json_encode($rules),
         ))->execute();
     }
 

@@ -789,4 +789,49 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame('user', $rule['users'][0]);
         $this->assertSame('user2', $rule['users'][1]);
     }
+
+    public function testCanAddAccessControlRules() {
+        $this->setMockResponse($this->client, 'acl_rules_created');
+
+        $rules = array(
+            array(
+                'group' => 'foo',
+                'users' => array('user1', 'user2')
+            ), array(
+                'resources' => array('res1', 'res2'),
+                'users' => '*'
+            )
+        );
+
+        // Add multiple rules
+        $response = $this->client->addAccessControlRules('some-pubkey', $rules);
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame('http://imbo/keys/some-pubkey/access', urldecode($request->getUrl()));
+        $this->assertSame(json_encode($rules), (string) $request->getBody());
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
+    }
+
+    public function testCanAddAccessControlRule() {
+        $this->setMockResponse($this->client, 'acl_rules_created');
+
+        $rule = array(
+            'group' => 'foo',
+            'users' => array('user1', 'user2')
+        );
+
+        // Add single rule
+        $this->client->addAccessControlRule('some-pubkey', $rule);
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame('http://imbo/keys/some-pubkey/access', urldecode($request->getUrl()));
+        $this->assertSame(json_encode([$rule]), (string) $request->getBody());
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
+    }
 }
