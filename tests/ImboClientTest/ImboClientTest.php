@@ -625,4 +625,30 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertTrue($this->client->groupExists('group1'));
         $this->assertFalse($this->client->groupExists('group2'));
     }
+
+    public function testCanAddGroup() {
+        $this->setMockResponse($this->client, array(
+            'group_does_not_exist',
+            'group_created'
+        ));
+        $response = $this->client->addGroup('some-group', array('foo', 'bar'));
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[1];
+
+        $this->assertSame('PUT', $request->getMethod());
+        $this->assertSame('http://imbo/groups/some-group.json', urldecode($request->getUrl()));
+        $this->assertSame('["foo","bar"]', (string) $request->getBody());
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Group with name "some-group" already exists
+     */
+    public function testAddGroupThrowsIfAlreadyExists() {
+        $this->setMockResponse($this->client, 'group_exists');
+        $response = $this->client->addGroup('some-group', array('foo', 'bar'));
+    }
 }

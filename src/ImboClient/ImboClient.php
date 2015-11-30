@@ -454,6 +454,30 @@ class ImboClient extends GuzzleClient {
     }
 
     /**
+     * Add a new resource group
+     *
+     * @param string $groupName Name of the group to create
+     * @param array $resources Array of resource names the group should contain
+     * @return Model
+     * @throws InvalidArgumentException Throw when group name is invalid or group already exists
+     */
+    public function addGroup($groupName, array $resources) {
+        $this->validateGroupName($groupName);
+
+        if ($this->groupExists($groupName)) {
+            throw new InvalidArgumentException(
+                'Group with name "' . $groupName . '" already exists'
+            );
+        }
+
+        return $this->getCommand('EditGroup', array(
+            'publicKey' => $this->getPublicKey(),
+            'groupName' => $groupName,
+            'resources' => json_encode($resources),
+        ))->execute();
+    }
+
+    /**
      * Checks if a given group exists on the server already
      *
      * @param string $groupName Name of the group

@@ -356,6 +356,52 @@ return array(
             ),
             'responseClass' => 'GetGroup',
         ),
+        'GroupExists' => array(
+            'httpMethod' => 'GET',
+            'uri' => 'groups/{groupName}.json',
+            'summary' => 'Fetch a specific resource group',
+            'parameters' => array(
+                'groupName' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the resource group',
+                ),
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'query',
+                    'description' => 'The public key used to access the resource',
+                ),
+            ),
+            'responseClass' => 'GetGroup',
+        ),
+        'EditGroup' => array(
+            'httpMethod' => 'PUT',
+            'uri' => 'groups/{groupName}.json',
+            'summary' => 'Edit or add a resource group',
+            'parameters' => array(
+                'groupName' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the group to edit/create',
+                ),
+                'resources' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'body',
+                    'description' => 'The resources the group should have access to',
+                ),
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'header',
+                    'sentAs' => 'x-imbo-publickey',
+                    'description' => 'The public key used to access the resource',
+                ),
+            ),
+        ),
     ),
     'models' => array(
         'GetServerStatus' => array(
