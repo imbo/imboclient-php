@@ -479,7 +479,7 @@ class ImboClient extends GuzzleClient {
      * @param string $groupName Name of the group to edit
      * @param array $resources Array of resource names the group should contain
      * @return Model
-     * @throws InvalidArgumentException Throw when group name is invalid or group already exists
+     * @throws InvalidArgumentException Thrown when group name is invalid or group already exists
      */
     public function editGroup($groupName, array $resources) {
         $this->validateGroupName($groupName);
@@ -488,6 +488,22 @@ class ImboClient extends GuzzleClient {
             'publicKey' => $this->getPublicKey(),
             'groupName' => $groupName,
             'resources' => json_encode($resources),
+        ))->execute();
+    }
+
+    /**
+     * Delete a resource group
+     *
+     * @param  string $groupName Name of the group to delete
+     * @return Model
+     * @throws InvalidArgumentException Thrown when the group name is invalid or does not exist
+     */
+    public function deleteGroup($groupName) {
+        $this->validateGroupName($groupName);
+
+        return $this->getCommand('DeleteGroup', array(
+            'publicKey' => $this->getPublicKey(),
+            'groupName' => $groupName,
         ))->execute();
     }
 

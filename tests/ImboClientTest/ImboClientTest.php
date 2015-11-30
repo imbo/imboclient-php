@@ -665,4 +665,17 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
         $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
     }
+
+    public function testCanDeleteGroup() {
+        $this->setMockResponse($this->client, 'group_deleted');
+        $response = $this->client->deleteGroup('some-group', array('foo', 'bar'));
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+
+        $this->assertSame('DELETE', $request->getMethod());
+        $this->assertSame('http://imbo/groups/some-group.json', urldecode($request->getUrl()));
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
+    }
 }

@@ -50,6 +50,7 @@ class Authenticate implements EventSubscriberInterface {
             case 'DeleteMetadata':
             case 'GenerateShortUrl':
             case 'EditGroup':
+            case 'DeleteGroup':
                 // Add the auth headers
                 $this->addAuthenticationHeaders($command->getRequest());
                 break;

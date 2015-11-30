@@ -402,6 +402,26 @@ return array(
                 ),
             ),
         ),
+        'DeleteGroup' => array(
+            'httpMethod' => 'DELETE',
+            'uri' => 'groups/{groupName}.json',
+            'summary' => 'Delete a resource group',
+            'parameters' => array(
+                'groupName' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the group to delete',
+                ),
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'header',
+                    'sentAs' => 'x-imbo-publickey',
+                    'description' => 'The public key used to access the resource',
+                ),
+            ),
+        ),
     ),
     'models' => array(
         'GetServerStatus' => array(
