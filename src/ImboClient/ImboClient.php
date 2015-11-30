@@ -470,6 +470,20 @@ class ImboClient extends GuzzleClient {
             );
         }
 
+        return $this->editGroup($groupName, $resources);
+    }
+
+    /**
+     * Edit a resource group
+     *
+     * @param string $groupName Name of the group to edit
+     * @param array $resources Array of resource names the group should contain
+     * @return Model
+     * @throws InvalidArgumentException Throw when group name is invalid or group already exists
+     */
+    public function editGroup($groupName, array $resources) {
+        $this->validateGroupName($groupName);
+
         return $this->getCommand('EditGroup', array(
             'publicKey' => $this->getPublicKey(),
             'groupName' => $groupName,
