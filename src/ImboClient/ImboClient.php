@@ -442,8 +442,11 @@ class ImboClient extends GuzzleClient {
      *
      * @param string $groupName Name of group to get
      * @return Model
+     * @throws InvalidArgumentException If the group name is not valid
      */
     public function getGroup($groupName) {
+        $this->validateGroupName($groupName);
+
         return $this->getCommand('GetGroup', array(
             'publicKey' => $this->getPublicKey(),
             'groupName' => $groupName,
@@ -719,6 +722,20 @@ class ImboClient extends GuzzleClient {
 
         if (!filesize($path)) {
             throw new InvalidArgumentException('File is of zero length: ' . $path);
+        }
+    }
+
+    /**
+     * Helper method to make sure a grou name is valid
+     *
+     * @param string $name The name of the group
+     * @throws InvalidArgumentException
+     */
+    private function validateGroupName($name) {
+        if (!preg_match('/^[a-z0-9_-]{1,}$/', $name)) {
+            throw new InvalidArgumentException(
+                'Group name can only consist of: a-z, 0-9 and the characters _ and -'
+            );
         }
     }
 }
