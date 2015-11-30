@@ -171,6 +171,8 @@ class ImboClientTest extends GuzzleTestCase {
             'stats' => array('getStatsUrl', 'ImboClient\Http\StatsUrl'),
             'user' => array('getUserUrl', 'ImboClient\Http\UserUrl'),
             'images' => array('getImagesUrl', 'ImboClient\Http\ImagesUrl'),
+            'groups' => array('getGroupsUrl', 'ImboClient\Http\GroupsUrl'),
+            'keys' => array('getKeysUrl', 'ImboClient\Http\KeysUrl'),
         );
     }
 
@@ -187,6 +189,14 @@ class ImboClientTest extends GuzzleTestCase {
 
     public function testCanCreateMetadataUrls() {
         $this->assertInstanceOf('ImboClient\Http\MetadataUrl', $this->client->getMetadataUrl('identifier'));
+    }
+
+    public function testCanCreateGroupUrls() {
+        $this->assertInstanceOf('ImboClient\Http\GroupUrl', $this->client->getGroupUrl('group'));
+    }
+
+    public function testCanCreateKeyUrls() {
+        $this->assertInstanceOf('ImboClient\Http\KeyUrl', $this->client->getKeyUrl('somekey'));
     }
 
     /**
