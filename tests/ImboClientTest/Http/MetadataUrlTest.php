@@ -29,7 +29,7 @@ class MetadataUrlTest extends \PHPUnit_Framework_TestCase {
             'extension (json)' => array('http://imbo/users/christer/images/image/metadata.json', 'christer', 'image'),
             'extension (xml)' => array('http://imbo/users/christer/images/image/metadata.xml', 'christer', 'image'),
             'URL with path prefix' => array('http://imbo/some_prefix/users/christer/images/image/metadata', 'christer', 'image'),
-            'missing public key' => array('http://imbo/stats.json', null, null),
+            'missing user' => array('http://imbo/stats.json', null, null),
             'missing image identifier' => array('http://imbo/users/christer/images.json', 'christer', null),
         );
     }
@@ -37,9 +37,9 @@ class MetadataUrlTest extends \PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getMetadataUrls
      */
-    public function testCanFetchThePublicKeyAndTheImageIdentifierInTheUrl($url, $publicKey, $imageIdentifier) {
+    public function testCanFetchTheUserAndTheImageIdentifierInTheUrl($url, $user, $imageIdentifier) {
         $imageUrl = MetadataUrl::factory($url);
-        $this->assertSame($publicKey, $imageUrl->getPublicKey(), 'Could not correctly identify the public key in the URL');
+        $this->assertSame($user, $imageUrl->getUser(), 'Could not correctly identify the user in the URL');
         $this->assertSame($imageIdentifier, $imageUrl->getImageIdentifier(), 'Could not correctly identify the image identifier in the URL');
     }
 }

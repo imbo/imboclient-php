@@ -417,9 +417,9 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getImageUrls
      */
-    public function testCanFetchThePublicKeyAndTheImageIdentifierInTheUrl($url, $publicKey, $imageIdentifier) {
+    public function testCanFetchTheUserAndTheImageIdentifierInTheUrl($url, $user, $imageIdentifier) {
         $imageUrl = ImageUrl::factory($url);
-        $this->assertSame($publicKey, $imageUrl->getPublicKey(), 'Could not correctly identify the public key in the URL');
+        $this->assertSame($user, $imageUrl->getUser(), 'Could not correctly identify the user in the URL');
         $this->assertSame($imageIdentifier, $imageUrl->getImageIdentifier(), 'Could not correctly identify the image identifier in the URL');
     }
 
