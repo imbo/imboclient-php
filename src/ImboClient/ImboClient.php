@@ -561,6 +561,22 @@ class ImboClient extends GuzzleClient {
     }
 
     /**
+     * Delete a public key
+     *
+     * @param  string $publicKey Name of the public key to delete
+     * @return Model
+     * @throws InvalidArgumentException Thrown when the public key name is invalid
+     */
+    public function deletePublicKey($publicKey) {
+        $this->validatePublicKeyName($publicKey);
+
+        return $this->getCommand('DeletePublicKey', array(
+            'signaturePublicKey' => $this->getPublicKey(),
+            'publicKey' => $publicKey,
+        ))->execute();
+    }
+
+    /**
      * Checks if a given public key exists on the server already
      *
      * @param string $publicKey Public key

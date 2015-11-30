@@ -637,7 +637,7 @@ class ImboClientTest extends GuzzleTestCase {
         $request = $requests[1];
 
         $this->assertSame('PUT', $request->getMethod());
-        $this->assertSame('http://imbo/groups/some-group.json', urldecode($request->getUrl()));
+        $this->assertSame('http://imbo/groups/some-group', urldecode($request->getUrl()));
         $this->assertSame('["foo","bar"]', (string) $request->getBody());
         $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
         $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
@@ -660,7 +660,7 @@ class ImboClientTest extends GuzzleTestCase {
         $request = $requests[0];
 
         $this->assertSame('PUT', $request->getMethod());
-        $this->assertSame('http://imbo/groups/some-group.json', urldecode($request->getUrl()));
+        $this->assertSame('http://imbo/groups/some-group', urldecode($request->getUrl()));
         $this->assertSame('["foo","bar"]', (string) $request->getBody());
         $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
         $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
@@ -674,7 +674,7 @@ class ImboClientTest extends GuzzleTestCase {
         $request = $requests[0];
 
         $this->assertSame('DELETE', $request->getMethod());
-        $this->assertSame('http://imbo/groups/some-group.json', urldecode($request->getUrl()));
+        $this->assertSame('http://imbo/groups/some-group', urldecode($request->getUrl()));
         $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
         $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
     }
@@ -697,7 +697,7 @@ class ImboClientTest extends GuzzleTestCase {
         $request = $requests[0];
 
         $this->assertSame('PUT', $request->getMethod());
-        $this->assertSame('http://imbo/keys/pubkey.json', urldecode($request->getUrl()));
+        $this->assertSame('http://imbo/keys/pubkey', urldecode($request->getUrl()));
         $this->assertSame('{"privateKey":"newprivkey"}', (string) $request->getBody());
         $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
         $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
@@ -722,7 +722,7 @@ class ImboClientTest extends GuzzleTestCase {
         $request = $requests[1];
 
         $this->assertSame('PUT', $request->getMethod());
-        $this->assertSame('http://imbo/keys/pubkey.json', urldecode($request->getUrl()));
+        $this->assertSame('http://imbo/keys/pubkey', urldecode($request->getUrl()));
         $this->assertSame('{"privateKey":"newprivkey"}', (string) $request->getBody());
         $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
         $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
@@ -735,5 +735,18 @@ class ImboClientTest extends GuzzleTestCase {
     public function testAddPublicKeyThrowsIfAlreadyExists() {
         $this->setMockResponse($this->client, 'public_key_exists');
         $this->client->addPublicKey('pubkey', 'newprivkey');
+    }
+
+    public function testCanDeletePublicKey() {
+        $this->setMockResponse($this->client, 'public_key_deleted');
+        $response = $this->client->deletePublicKey('some-public-key');
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+
+        $this->assertSame('DELETE', $request->getMethod());
+        $this->assertSame('http://imbo/keys/some-public-key', urldecode($request->getUrl()));
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
     }
 }

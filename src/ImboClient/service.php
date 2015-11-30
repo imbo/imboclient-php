@@ -378,7 +378,7 @@ return array(
         ),
         'EditGroup' => array(
             'httpMethod' => 'PUT',
-            'uri' => 'groups/{groupName}.json',
+            'uri' => 'groups/{groupName}',
             'summary' => 'Edit or add a resource group',
             'parameters' => array(
                 'groupName' => array(
@@ -404,7 +404,7 @@ return array(
         ),
         'DeleteGroup' => array(
             'httpMethod' => 'DELETE',
-            'uri' => 'groups/{groupName}.json',
+            'uri' => 'groups/{groupName}',
             'summary' => 'Delete a resource group',
             'parameters' => array(
                 'groupName' => array(
@@ -424,7 +424,7 @@ return array(
         ),
         'EditPublicKey' => array(
             'httpMethod' => 'PUT',
-            'uri' => 'keys/{publicKey}.json',
+            'uri' => 'keys/{publicKey}',
             'summary' => 'Edit or add a public/private key pair',
             'parameters' => array(
                 'publicKey' => array(
@@ -438,6 +438,26 @@ return array(
                     'required' => true,
                     'location' => 'body',
                     'description' => 'The properties for this public key',
+                ),
+                'signaturePublicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'header',
+                    'sentAs' => 'x-imbo-publickey',
+                    'description' => 'The public key used to access the resource',
+                ),
+            ),
+        ),
+        'DeletePublicKey' => array(
+            'httpMethod' => 'DELETE',
+            'uri' => 'keys/{publicKey}',
+            'summary' => 'Delete a resource group',
+            'parameters' => array(
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the public key to delete',
                 ),
                 'signaturePublicKey' => array(
                     'type' => 'string',
