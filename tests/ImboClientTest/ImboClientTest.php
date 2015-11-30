@@ -615,4 +615,14 @@ class ImboClientTest extends GuzzleTestCase {
         $request = $requests[0];
         $this->assertSame('http://imbo/groups/images-read.json?publicKey=christer&accessToken=9d1e3884939c0f9d471bb35af69f2e10d6fb2f9cd79cf30e85d3b7ec7bbf3d1a', urldecode($request->getUrl()));
     }
+
+    public function testCanCheckIfAGroupExistsOnTheServer() {
+        $this->setMockResponse($this->client, array(
+            'group_exists',
+            'group_does_not_exist',
+        ));
+
+        $this->assertTrue($this->client->groupExists('group1'));
+        $this->assertFalse($this->client->groupExists('group2'));
+    }
 }

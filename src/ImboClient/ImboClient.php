@@ -454,6 +454,29 @@ class ImboClient extends GuzzleClient {
     }
 
     /**
+     * Checks if a given group exists on the server already
+     *
+     * @param string $groupName Name of the group
+     * @throws InvalidArgumentException Throws an exception if group name is invalid
+     * @return boolean
+     */
+    public function groupExists($groupName) {
+        $this->validateGroupName($groupName);
+
+        try {
+            $response = $this->head((string) $this->getGroupUrl($groupName))->send();
+
+            return $response->getStatusCode() === 200;
+        } catch (GuzzleException $e) {
+            if ($e->getResponse()->getStatusCode() === 404) {
+                return false;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
      * Get all server URL's
      *
      * @return string[]
@@ -487,6 +510,21 @@ class ImboClient extends GuzzleClient {
      */
     public function getGroupsUrl() {
         return Http\GroupsUrl::factory($this->getBaseUrl() . '/groups.json');
+    }
+
+    /**
+     * Get a URL for the group endpoint
+     *
+     * @param string $groupName Name of group
+     * @return Http\GroupUrl
+     */
+    public function getGroupUrl($groupName) {
+        $url = sprintf(
+            $this->getBaseUrl() . '/groups/%s.json',
+            $groupName
+        );
+
+        return Http\GroupUrl::factory($url, $this->getConfig('privateKey'));
     }
 
     /**
