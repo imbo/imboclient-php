@@ -29,7 +29,7 @@ class GroupUrlTest extends \PHPUnit_Framework_TestCase {
             'extension (json)' => array('http://imbo/groups/foobar.json', 'foobar'),
             'extension (xml)' => array('http://imbo/groups/foobar.xml', 'foobar'),
             'URL with path prefix' => array('http://imbo/some_prefix/groups/foobar.xml', 'foobar'),
-            'missing public key' => array('http://imbo/', null),
+            'missing group name' => array('http://imbo/', null),
         );
     }
 
