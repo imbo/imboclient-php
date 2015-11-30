@@ -754,6 +754,10 @@ class ImboClientTest extends GuzzleTestCase {
         $this->setMockResponse($this->client, 'acl_rules_get');
         $response = $this->client->getAccessControlRules('some-pubkey');
 
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+        $this->assertSame('http://imbo/keys/some-pubkey/access.json', urldecode($request->getUrl()));
+
         $this->assertCount(3, $response);
 
         $this->assertSame('images-read', $response[0]['group']);
@@ -770,5 +774,19 @@ class ImboClientTest extends GuzzleTestCase {
 
         $this->assertSame('group.delete', $response[2]['resources'][0]);
         $this->assertSame('group.put', $response[2]['resources'][1]);
+    }
+
+    public function testCanGetAccessControlRule() {
+        $this->setMockResponse($this->client, 'acl_rule_get');
+        $rule = $this->client->getAccessControlRule('some-pubkey', 15);
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+        $this->assertSame('http://imbo/keys/some-pubkey/access/15.json', urldecode($request->getUrl()));
+
+        $this->assertSame('images-read', $rule['group']);
+        $this->assertSame(1, $rule['id']);
+        $this->assertSame('user', $rule['users'][0]);
+        $this->assertSame('user2', $rule['users'][1]);
     }
 }

@@ -32,20 +32,6 @@ $search = array(
     )
 );
 
-$accessControlRule = array(
-    'id' => array('location' => 'json'),
-    'resources' => array(
-        'type' => 'array',
-        'location' => 'json',
-        'items' => array('type' => 'string')
-    ),
-    'users' => array(
-        'type' => array('string', 'array'),
-        'location' => 'json',
-        'items' => array('type' => 'string')
-    )
-);
-
 return array(
     'name' => 'Imbo',
     'apiVersion' => '1.0',
@@ -503,6 +489,33 @@ return array(
             ),
             'responseClass' => 'GetAccessControlRules',
         ),
+        'GetAccessControlRule' => array(
+            'httpMethod' => 'GET',
+            'uri' => '/keys/{publicKey}/access/{id}.json',
+            'summary' => 'Fetch a given access control rule for the given public key',
+            'parameters' => array(
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the public key to delete',
+                ),
+                'id' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The id of the rule to retrieve',
+                ),
+                'signaturePublicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'header',
+                    'sentAs' => 'x-imbo-publickey',
+                    'description' => 'The public key used to access the resource',
+                ),
+            ),
+            'responseClass' => 'GetAccessControlRule',
+        ),
     ),
     'models' => array(
         'GetServerStatus' => array(
@@ -741,6 +754,33 @@ return array(
             'additionalProperties' => array(
                 'location' => 'json'
             ),
+        ),
+        'GetAccessControlRule' => array(
+            'type' => 'object',
+            'properties' => array(
+                'id' => array(
+                    'location' => 'json',
+                    'required' => true,
+                    'type' => 'string',
+                ),
+                'resources' => array(
+                    'type' => 'array',
+                    'location' => 'json',
+                    'items' => array(
+                        'type' => 'string'
+                    )
+                ),
+                'group' => array(
+                    'type' => 'string',
+                    'require' => false,
+                    'location' => 'json',
+                ),
+                'users' => array(
+                    'type' => array('string', 'array'),
+                    'location' => 'json',
+                    'items' => array('type' => 'string')
+                )
+            )
         ),
     ),
 );
