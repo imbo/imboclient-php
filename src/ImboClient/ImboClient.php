@@ -440,6 +440,21 @@ class ImboClient extends GuzzleClient {
     }
 
     /**
+     * Get the details of a specific resource group
+     *
+     * @param string $groupName Name of group to get
+     * @return Model
+     */
+    public function getGroup($groupName) {
+        $response = $this->getCommand('GetGroup', array(
+            'publicKey' => $this->getPublicKey(),
+            'groupName' => $groupName,
+        ))->execute();
+
+        return $response;
+    }
+
+    /**
      * Get all server URL's
      *
      * @return string[]

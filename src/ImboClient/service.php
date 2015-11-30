@@ -336,6 +336,26 @@ return array(
             ),
             'responseClass' => 'GetGroups',
         ),
+        'GetGroup' => array(
+            'httpMethod' => 'GET',
+            'uri' => 'groups/{groupName}.json',
+            'summary' => 'Fetch a specific resource group',
+            'parameters' => array(
+                'groupName' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the resource group',
+                ),
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'query',
+                    'description' => 'The public key used to access the resource',
+                ),
+            ),
+            'responseClass' => 'GetGroup',
+        ),
     ),
     'models' => array(
         'GetServerStatus' => array(
@@ -553,6 +573,18 @@ return array(
                                 ),
                             ),
                         ),
+                    ),
+                ),
+            ),
+        ),
+        'GetGroup' => array(
+            'type' => 'object',
+            'properties' => array(
+                'resources' => array(
+                    'location' => 'json',
+                    'type' => 'array',
+                    'items' => array(
+                        'type' => 'string'
                     ),
                 ),
             ),

@@ -602,4 +602,17 @@ class ImboClientTest extends GuzzleTestCase {
         $request = $requests[0];
         $this->assertSame('http://imbo/groups.json?page=2&limit=5&publicKey=christer&accessToken=9f9d18597c57a5fd5687aebd989b750577be90e0651ec8c8813f2e3a4378ac61', urldecode($request->getUrl()));
     }
+
+    public function testCanGetGroup() {
+        $this->setMockResponse($this->client, 'group_get');
+        $response = $this->client->getGroup('images-read');
+
+        $this->assertCount(2, $response['resources']);
+        $this->assertSame('images.get', $response['resources'][0]);
+        $this->assertSame('images.head', $response['resources'][1]);
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+        $this->assertSame('http://imbo/groups/images-read.json?publicKey=christer&accessToken=9d1e3884939c0f9d471bb35af69f2e10d6fb2f9cd79cf30e85d3b7ec7bbf3d1a', urldecode($request->getUrl()));
+    }
 }
