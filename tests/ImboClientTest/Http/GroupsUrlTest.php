@@ -10,12 +10,12 @@
 
 namespace ImboClientTest\Http;
 
-use ImboClient\Http\GroupUrl;
+use ImboClient\Http\GroupsUrl;
 
 /**
  * @package Test suite
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
- * @covers ImboClient\Http\GroupUrl
+ * @covers ImboClient\Http\GroupsUrl
  */
 class GroupsUrlTest extends \PHPUnit_Framework_TestCase {
     /**
@@ -36,7 +36,7 @@ class GroupsUrlTest extends \PHPUnit_Framework_TestCase {
      * @dataProvider getGroupsUrls
      */
     public function testCanCreateTheUrl($url) {
-        $groupUrl = GroupUrl::factory($url);
+        $groupUrl = GroupsUrl::factory($url);
         $this->assertSame($url, (string) $groupUrl);
     }
 }
