@@ -430,13 +430,11 @@ class ImboClient extends GuzzleClient {
             $query = new Query();
         }
 
-        $response = $this->getCommand('GetGroups', array(
+        return $this->getCommand('GetGroups', array(
             'publicKey' => $this->getPublicKey(),
             'page' => $query->page(),
             'limit' => $query->limit(),
         ))->execute();
-
-        return $response;
     }
 
     /**
@@ -446,12 +444,10 @@ class ImboClient extends GuzzleClient {
      * @return Model
      */
     public function getGroup($groupName) {
-        $response = $this->getCommand('GetGroup', array(
+        return $this->getCommand('GetGroup', array(
             'publicKey' => $this->getPublicKey(),
             'groupName' => $groupName,
         ))->execute();
-
-        return $response;
     }
 
     /**
