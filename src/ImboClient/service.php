@@ -422,6 +422,32 @@ return array(
                 ),
             ),
         ),
+        'EditPublicKey' => array(
+            'httpMethod' => 'PUT',
+            'uri' => 'keys/{publicKey}.json',
+            'summary' => 'Edit or add a public/private key pair',
+            'parameters' => array(
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the public key to edit/create',
+                ),
+                'properties' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'body',
+                    'description' => 'The properties for this public key',
+                ),
+                'signaturePublicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'header',
+                    'sentAs' => 'x-imbo-publickey',
+                    'description' => 'The public key used to access the resource',
+                ),
+            ),
+        ),
     ),
     'models' => array(
         'GetServerStatus' => array(

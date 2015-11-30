@@ -688,4 +688,26 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertTrue($this->client->publicKeyExists('key1'));
         $this->assertFalse($this->client->publicKeyExists('key2'));
     }
+
+    public function testCanEditPublicKey() {
+        $this->setMockResponse($this->client, 'public_key_created');
+        $response = $this->client->editPublicKey('pubkey', 'newprivkey');
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+
+        $this->assertSame('PUT', $request->getMethod());
+        $this->assertSame('http://imbo/keys/pubkey.json', urldecode($request->getUrl()));
+        $this->assertSame('{"privateKey":"newprivkey"}', (string) $request->getBody());
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Public key can only consist of:
+     */
+    public function testThrowsExceptionWhenEditingPublicKeyWithInvalidCharacters() {
+        $this->client->editPublicKey('foo.bar', 'wat');
+    }
 }

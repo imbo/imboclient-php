@@ -521,12 +521,31 @@ class ImboClient extends GuzzleClient {
     }
 
     /**
+     * Edit a public/private key pair
+     *
+     * @param string $publicKey Public key to alter private key for
+     * @param string $privateKey New private key to use for the given public key
+     * @return Model
+     */
+    public function editPublicKey($publicKey, $privateKey) {
+        $this->validatePublicKeyName($publicKey);
+
+        return $this->getCommand('EditPublicKey', array(
+            'signaturePublicKey' => $this->getPublicKey(),
+            'properties' => json_encode(array('privateKey' => $privateKey)),
+            'publicKey' => $publicKey,
+        ))->execute();
+    }
+
+    /**
      * Checks if a given public key exists on the server already
      *
      * @param string $publicKey Public key
      * @return boolean
      */
     public function publicKeyExists($publicKey) {
+        $this->validatePublicKeyName($publicKey);
+
         return $this->resourceExists($this->getKeyUrl($publicKey));
     }
 
@@ -838,15 +857,26 @@ class ImboClient extends GuzzleClient {
     }
 
     /**
-     * Helper method to make sure a grou name is valid
+     * Helper method to make sure a public key is valid
      *
-     * @param string $name The name of the group
+     * @param string $name Public key name
      * @throws InvalidArgumentException
      */
-    private function validateGroupName($name) {
+    private function validatePublicKeyName($name) {
+        return $this->validateGroupName($name, 'Public key');
+    }
+
+    /**
+     * Helper method to make sure a group name is valid
+     *
+     * @param string $name The name of the group
+     * @param string $entity Entity we're validating
+     * @throws InvalidArgumentException
+     */
+    private function validateGroupName($name, $entity = 'Group name') {
         if (!preg_match('/^[a-z0-9_-]{1,}$/', $name)) {
             throw new InvalidArgumentException(
-                'Group name can only consist of: a-z, 0-9 and the characters _ and -'
+                $entity . ' can only consist of: a-z, 0-9 and the characters _ and -'
             );
         }
     }
