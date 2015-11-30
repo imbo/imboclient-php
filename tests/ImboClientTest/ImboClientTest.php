@@ -749,4 +749,26 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
         $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
     }
+
+    public function testCanGetAccessControlRules() {
+        $this->setMockResponse($this->client, 'acl_rules_get');
+        $response = $this->client->getAccessControlRules('some-pubkey');
+
+        $this->assertCount(3, $response);
+
+        $this->assertSame('images-read', $response[0]['group']);
+        $this->assertSame('groups-read', $response[1]['group']);
+
+        $this->assertSame(1, $response[0]['id']);
+        $this->assertSame(2, $response[1]['id']);
+        $this->assertSame(3, $response[2]['id']);
+
+        $this->assertSame('user', $response[0]['users'][0]);
+        $this->assertSame('user2', $response[0]['users'][1]);
+        $this->assertSame('*', $response[1]['users']);
+        $this->assertSame('*', $response[2]['users']);
+
+        $this->assertSame('group.delete', $response[2]['resources'][0]);
+        $this->assertSame('group.put', $response[2]['resources'][1]);
+    }
 }

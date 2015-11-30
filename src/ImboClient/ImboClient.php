@@ -589,6 +589,21 @@ class ImboClient extends GuzzleClient {
     }
 
     /**
+     * Get access control rules for the given public key
+     *
+     * @param string $publicKey Public key
+     * @return Model
+     */
+    public function getAccessControlRules($publicKey) {
+        $this->validatePublicKeyName($publicKey);
+
+        return $this->getCommand('GetAccessControlRules', array(
+            'signaturePublicKey' => $this->getPublicKey(),
+            'publicKey' => $publicKey,
+        ))->execute();
+    }
+
+    /**
      * Get all server URL's
      *
      * @return string[]

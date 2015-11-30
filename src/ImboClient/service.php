@@ -32,6 +32,20 @@ $search = array(
     )
 );
 
+$accessControlRule = array(
+    'id' => array('location' => 'json'),
+    'resources' => array(
+        'type' => 'array',
+        'location' => 'json',
+        'items' => array('type' => 'string')
+    ),
+    'users' => array(
+        'type' => array('string', 'array'),
+        'location' => 'json',
+        'items' => array('type' => 'string')
+    )
+);
+
 return array(
     'name' => 'Imbo',
     'apiVersion' => '1.0',
@@ -468,10 +482,31 @@ return array(
                 ),
             ),
         ),
+        'GetAccessControlRules' => array(
+            'httpMethod' => 'GET',
+            'uri' => '/keys/{publicKey}/access.json',
+            'summary' => 'Fetch access control rules for the given public key',
+            'parameters' => array(
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the public key to delete',
+                ),
+                'signaturePublicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'header',
+                    'sentAs' => 'x-imbo-publickey',
+                    'description' => 'The public key used to access the resource',
+                ),
+            ),
+            'responseClass' => 'GetAccessControlRules',
+        ),
     ),
     'models' => array(
         'GetServerStatus' => array(
-            'type' => 'array',
+            'type' => 'object',
             'properties' => array(
                 'status' => array(
                     'location' => 'statusCode',
@@ -491,7 +526,7 @@ return array(
             ),
         ),
         'GetUserInfo' => array(
-            'type' => 'array',
+            'type' => 'object',
             'properties' => array(
                 'publicKey' => array(
                     'location' => 'json',
@@ -515,7 +550,7 @@ return array(
             ),
         ),
         'AddImage' => array(
-            'type' => 'array',
+            'type' => 'object',
             'properties' => array(
                 'imageIdentifier' => array(
                     'location' => 'json',
@@ -540,7 +575,7 @@ return array(
             ),
         ),
         'DeleteImage' => array(
-            'type' => 'array',
+            'type' => 'object',
             'properties' => array(
                 'imageIdentifier' => array(
                     'location' => 'json',
@@ -553,7 +588,7 @@ return array(
             ),
         ),
         'GetImageProperties' => array(
-            'type' => 'array',
+            'type' => 'object',
             'properties' => array(
                 'width' => array(
                     'location' => 'header',
@@ -586,7 +621,7 @@ return array(
             ),
         ),
         'GetImages' => array(
-            'type' => 'array',
+            'type' => 'object',
             'properties' => array(
                 'search' => $search,
                 'images' => array(
@@ -652,7 +687,7 @@ return array(
             ),
         ),
         'GenerateShortUrl' => array(
-            'type' => 'array',
+            'type' => 'object',
             'properties' => array(
                 'id' => array(
                     'location' => 'json',
@@ -665,7 +700,7 @@ return array(
             ),
         ),
         'GetGroups' => array(
-            'type' => 'array',
+            'type' => 'object',
             'properties' => array(
                 'search' => $search,
                 'groups' => array(
@@ -699,6 +734,12 @@ return array(
                         'type' => 'string'
                     ),
                 ),
+            ),
+        ),
+        'GetAccessControlRules' => array(
+            'type' => 'array',
+            'additionalProperties' => array(
+                'location' => 'json'
             ),
         ),
     ),
