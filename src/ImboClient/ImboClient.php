@@ -517,17 +517,17 @@ class ImboClient extends GuzzleClient {
     public function groupExists($groupName) {
         $this->validateGroupName($groupName);
 
-        try {
-            $response = $this->head((string) $this->getGroupUrl($groupName))->send();
+        return $this->resourceExists($this->getGroupUrl($groupName));
+    }
 
-            return $response->getStatusCode() === 200;
-        } catch (GuzzleException $e) {
-            if ($e->getResponse()->getStatusCode() === 404) {
-                return false;
-            }
-
-            throw $e;
-        }
+    /**
+     * Checks if a given public key exists on the server already
+     *
+     * @param string $publicKey Public key
+     * @return boolean
+     */
+    public function publicKeyExists($publicKey) {
+        return $this->resourceExists($this->getKeyUrl($publicKey));
     }
 
     /**
@@ -563,7 +563,10 @@ class ImboClient extends GuzzleClient {
      * @return Http\GroupsUrl
      */
     public function getGroupsUrl() {
-        return Http\GroupsUrl::factory($this->getBaseUrl() . '/groups.json');
+        return Http\GroupsUrl::factory(
+            $this->getBaseUrl() . '/groups.json',
+            $this->getConfig('privateKey')
+        );
     }
 
     /**
@@ -579,6 +582,33 @@ class ImboClient extends GuzzleClient {
         );
 
         return Http\GroupUrl::factory($url, $this->getConfig('privateKey'));
+    }
+
+    /**
+     * Get a URL for the keys endpoint
+     *
+     * @return Http\KeysUrl
+     */
+    public function getKeysUrl() {
+        return Http\KeysUrl::factory(
+            $this->getBaseUrl() . '/keys.json',
+            $this->getConfig('privateKey')
+        );
+    }
+
+    /**
+     * Get a URL for the key endpoint
+     *
+     * @param string $publicKey Public key
+     * @return Http\KeyUrl
+     */
+    public function getKeyUrl($publicKey) {
+        $url = sprintf(
+            $this->getBaseUrl() . '/keys/%s.json',
+            $publicKey
+        );
+
+        return Http\KeyUrl::factory($url, $this->getConfig('privateKey'));
     }
 
     /**
@@ -707,17 +737,7 @@ class ImboClient extends GuzzleClient {
      * @return boolean
      */
     public function imageIdentifierExists($imageIdentifier) {
-        try {
-            $response = $this->head((string) $this->getImageUrl($imageIdentifier))->send();
-
-            return $response->getStatusCode() === 200;
-        } catch (GuzzleException $e) {
-            if ($e->getResponse()->getStatusCode() === 404) {
-                return false;
-            }
-
-            throw $e;
-        }
+        return $this->resourceExists($this->getImageUrl($imageIdentifier));
     }
 
     /**
@@ -828,6 +848,26 @@ class ImboClient extends GuzzleClient {
             throw new InvalidArgumentException(
                 'Group name can only consist of: a-z, 0-9 and the characters _ and -'
             );
+        }
+    }
+
+    /**
+     * Check if a given resource URL exists (returns a 200 in response to a HEAD-request)
+     *
+     * @param string $url URL of the resource to check
+     * @return boolean
+     */
+    private function resourceExists($url) {
+        try {
+            $response = $this->head((string) $url)->send();
+
+            return $response->getStatusCode() === 200;
+        } catch (GuzzleException $e) {
+            if ($e->getResponse()->getStatusCode() === 404) {
+                return false;
+            }
+
+            throw $e;
         }
     }
 }

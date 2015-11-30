@@ -678,4 +678,14 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
         $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
     }
+
+    public function testCanCheckIfAPublicKeyExistsOnTheServer() {
+        $this->setMockResponse($this->client, array(
+            'public_key_exists',
+            'public_key_does_not_exist',
+        ));
+
+        $this->assertTrue($this->client->publicKeyExists('key1'));
+        $this->assertFalse($this->client->publicKeyExists('key2'));
+    }
 }
