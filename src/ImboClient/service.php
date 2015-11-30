@@ -8,6 +8,30 @@
  * distributed with this source code.
  */
 
+// Reused in various list resources
+$search = array(
+    'location' => 'json',
+    'type' => 'object',
+    'properties' => array(
+        'limit' => array(
+            'location' => 'json',
+            'type' => 'integer',
+        ),
+        'page' => array(
+            'location' => 'json',
+            'type' => 'integer',
+        ),
+        'hits' => array(
+            'location' => 'json',
+            'type' => 'integer',
+        ),
+        'count' => array(
+            'location' => 'json',
+            'type' => 'integer',
+        )
+    )
+);
+
 return array(
     'name' => 'Imbo',
     'apiVersion' => '1.0',
@@ -286,6 +310,32 @@ return array(
             ),
             'responseClass' => 'GenerateShortUrl',
         ),
+        'GetGroups' => array(
+            'httpMethod' => 'GET',
+            'uri' => 'groups.json',
+            'summary' => 'Fetch available resource groups',
+            'parameters' => array(
+                'page' => array(
+                    'type' => 'integer',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Which page to fetch from',
+                ),
+                'limit' => array(
+                    'type' => 'integer',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Limit the number of groups returned',
+                ),
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'query',
+                    'description' => 'The public key used to access the resource',
+                ),
+            ),
+            'responseClass' => 'GetGroups',
+        ),
     ),
     'models' => array(
         'GetServerStatus' => array(
@@ -406,10 +456,7 @@ return array(
         'GetImages' => array(
             'type' => 'array',
             'properties' => array(
-                'search' => array(
-                    'location' => 'json',
-                    'type' => 'string',
-                ),
+                'search' => $search,
                 'images' => array(
                     'location' => 'json',
                     'type' => 'array',
@@ -482,6 +529,31 @@ return array(
                 'status' => array(
                     'location' => 'statusCode',
                     'type' => 'integer',
+                ),
+            ),
+        ),
+        'GetGroups' => array(
+            'type' => 'array',
+            'properties' => array(
+                'search' => $search,
+                'groups' => array(
+                    'location' => 'json',
+                    'type' => 'array',
+                    'items' => array(
+                        'type' => 'object',
+                        'properties' => array(
+                            'name' => array(
+                                'location' => 'json',
+                            ),
+                            'resources' => array(
+                                'location' => 'json',
+                                'type' => 'array',
+                                'items' => array(
+                                    'type' => 'string'
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
             ),
         ),

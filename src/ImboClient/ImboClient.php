@@ -420,6 +420,26 @@ class ImboClient extends GuzzleClient {
     }
 
     /**
+     * Get the available resource groups
+     *
+     * @param Query $query An optional query object
+     * @return Model
+     */
+    public function getGroups(Query $query = null) {
+        if (!$query) {
+            $query = new Query();
+        }
+
+        $response = $this->getCommand('GetGroups', array(
+            'publicKey' => $this->getPublicKey(),
+            'page' => $query->page(),
+            'limit' => $query->limit(),
+        ))->execute();
+
+        return $response;
+    }
+
+    /**
      * Get all server URL's
      *
      * @return string[]
@@ -444,6 +464,15 @@ class ImboClient extends GuzzleClient {
      */
     public function getStatsUrl() {
         return Http\StatsUrl::factory($this->getBaseUrl() . '/stats.json');
+    }
+
+    /**
+     * Get a URL for the groups endpoint
+     *
+     * @return Http\GroupsUrl
+     */
+    public function getGroupsUrl() {
+        return Http\GroupsUrl::factory($this->getBaseUrl() . '/groups.json');
     }
 
     /**

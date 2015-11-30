@@ -12,6 +12,7 @@ namespace ImboClientTest;
 
 use ImboClient\ImboClient,
     ImboClient\ImagesQuery,
+    ImboClient\Query,
     Guzzle\Http\Url,
     Guzzle\Http\Message\Response,
     Guzzle\Tests\GuzzleTestCase,
@@ -571,5 +572,34 @@ class ImboClientTest extends GuzzleTestCase {
     public function testThrowsExceptionWhenTryingToGetShortUrlAndGenerateShortUrlFails() {
         $this->setMockResponse($this->client, new Response(400));
         $url = $this->client->getShortUrl($this->client->getImageUrl('image'));
+    }
+
+    public function testCanGetGroups() {
+        $this->setMockResponse($this->client, 'groups_get');
+        $response = $this->client->getGroups();
+
+        $this->assertSame(2, $response['search']['hits']);
+        $this->assertSame(1, $response['search']['page']);
+        $this->assertSame(20, $response['search']['limit']);
+        $this->assertSame(2, $response['search']['count']);
+
+        $this->assertCount(2, $response['groups']);
+        $this->assertSame('images-read', $response['groups'][0]['name']);
+        $this->assertSame('groups-read', $response['groups'][1]['name']);
+        $this->assertCount(2, $response['groups'][0]['resources']);
+        $this->assertCount(4, $response['groups'][1]['resources']);
+    }
+
+    public function testCanGetGroupsUsingAQueryObject() {
+        $this->setMockResponse($this->client, 'groups_get');
+
+        $query = new Query();
+        $query->page(2)->limit(5);
+
+        $response = $this->client->getGroups($query);
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+        $this->assertSame('http://imbo/groups.json?page=2&limit=5&publicKey=christer&accessToken=9f9d18597c57a5fd5687aebd989b750577be90e0651ec8c8813f2e3a4378ac61', urldecode($request->getUrl()));
     }
 }
