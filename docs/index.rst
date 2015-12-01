@@ -37,32 +37,32 @@ This can be achieved in two different ways:
 
 .. code-block:: php
 
-    $client = ImboClient\ImboClient::factory(array(
-        'serverUrls' => array('http://imbo.example.com'),
+    $client = ImboClient\ImboClient::factory([
+        'serverUrls' => ['http://imbo.example.com'],
         'publicKey' => 'public key',
         'privateKey' => 'private key',
         'user' => 'username',
-    ));
+    ]);
 
 2) Use the constructor:
 
 .. code-block:: php
 
-    $client = new ImboClient\ImboClient('http://imbo.example.com', array(
+    $client = new ImboClient\ImboClient('http://imbo.example.com', [
         'publicKey' => 'public key',
         'privateKey' => 'private key',
         'user' => 'username',
-    ));
+    ]);
 
 The main difference is that the first argument to the factory method requires you to specify the host name(s) of the Imbo server(s) as an array, while the constructor requires you to pass a string. If you want to use the example number 2 above, and still want to use multiple host names you can use the ``setServerUrls`` method:
 
 .. code-block:: php
 
-    $client->setServerUrls(array(
+    $client->setServerUrls([
         'http//imbo1.example.com',
         'http//imbo2.example.com',
         'http//imbo3.example.com',
-    ));
+    ]);
 
 If you use multiple URLs when instantiating the client it will choose different image URLs based on the image identifier and the number of available host names. If you have a site which includes a lot of ``<img>`` tags against an Imbo server, using multiple hosts might speed up the loading time for your users. If you don't change the amount of server URLs the client will always pick the same host name given the same image identifier.
 
@@ -355,7 +355,7 @@ Here are some examples of how to use the query object:
 
     $current = time();
     $query = new ImboClient\ImagesQuery();
-    $query->limit(10)->from($current - 3600 * 24)->sort(array('size', 'width:desc'));
+    $query->limit(10)->from($current - 3600 * 24)->sort(['size', 'width:desc']);
 
     $collection = $client->getImages($query);
 
@@ -373,7 +373,7 @@ Here are some examples of how to use the query object:
 .. code-block:: php
 
     $query = new ImboClient\ImagesQuery();
-    $query->ids(array('id1', 'id2', 'id3'))->fields(array('width', 'height'));
+    $query->ids(['id1', 'id2', 'id3'])->fields(['width', 'height']);
 
     $collection = $client->getImages($query);
 
@@ -381,8 +381,8 @@ If you want to return metadata, and happen to specify custom fields you will nee
 
 .. code-block:: php
 
-    $query->metadata(true)->fields(array('size')); // Does include the metadata field
-    $query->metadata(true)->fields(array('size', 'metadata')); // Includes the size and metadata fields
+    $query->metadata(true)->fields(['size']); // Does include the metadata field
+    $query->metadata(true)->fields(['size', 'metadata']); // Includes the size and metadata fields
     $query->metadata(true); // Includes all fields, including metadata
     $query->metadata(false); // Exclude the metadata field (default behaviour)
 
@@ -411,10 +411,10 @@ If you have added an image and want to edit its metadata you can use the ``editM
 
 .. code-block:: php
 
-    $metadata = $client->editMetadata('image identifier', array(
+    $metadata = $client->editMetadata('image identifier', [
         'key' => 'value',
         'other key' => 'other value',
-    ));
+    ]);
 
 This method will partially update existing metadata, and the response contains all metadata attached to the image.
 
@@ -425,10 +425,10 @@ If you want to replace all existing metadata with something else you can use the
 
 .. code-block:: php
 
-    $metadata = $client->replaceMetadata('image identifier', array(
+    $metadata = $client->replaceMetadata('image identifier', [
         'key' => 'value',
         'other key' => 'other value',
-    ));
+    ]);
 
 This will first remove existing (if any) metadata, and add the metadata specified as the second parameter. The response contains the metadata of the image, in this case the same as the data being sent to the server.
 
@@ -561,12 +561,12 @@ From version 1.0.0 ImboClient comes with a factory that should be used to instan
 
 .. code-block:: php
 
-    $client = ImboClient\ImboClient::factory(array(
-        'serverUrls' => array('http://imbo.example.com'),
+    $client = ImboClient\ImboClient::factory([
+        'serverUrls' => ['http://imbo.example.com'],
         'publicKey' => 'public key',
         'privateKey' => 'private key',
         'user' => 'username',
-    ));
+    ]);
 
 More examples on how to instantiate the client are available in the :ref:`instantiating-the-client` section.
 
