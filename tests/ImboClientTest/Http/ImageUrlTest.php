@@ -57,6 +57,11 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
                 null,
                 'autoRotate',
             ),
+            'blur' => array(
+                'blur',
+                array(array('mode' => 'adaptive', 'radius' => 3, 'sigma' => 1.4)),
+                'blur:mode=adaptive,radius=3,sigma=1.4'
+            ),
             'border' => array(
                 'border',
                 null,
@@ -97,10 +102,30 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
                 array(2, null, 10, 20, 'center-y'),
                 'crop:width=10,height=20,x=2,mode=center-y'
             ),
+            'contrast' => array(
+                'contrast',
+                null,
+                'contrast'
+            ),
+            'contrast with parameters' => array(
+                'contrast',
+                array(4, 0.7),
+                'contrast:alpha=4,beta=0.7'
+            ),
             'desaturate' => array(
                 'desaturate',
                 null,
                 'desaturate',
+            ),
+            'drawPois' => array(
+                'drawPois',
+                null,
+                'drawPois'
+            ),
+            'drawPois with params' => array(
+                'drawPois',
+                array('bf1942', 3, 40),
+                'drawPois:color=bf1942,borderSize=3,pointSize=40'
             ),
             'flipHorizontally' => array(
                 'flipHorizontally',
@@ -121,6 +146,11 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
                 'histogram',
                 array(2, 3.14, '#f00', '#0f0', '#00f'),
                 'histogram:scale=2,ratio=3.14,red=#f00,green=#0f0,blue=#00f',
+            ),
+            'level' => array(
+                'level',
+                array(3, 'cm'),
+                'level:amount=3,channel=cm',
             ),
             'maxSize with width' => array(
                 'maxSize',
@@ -187,6 +217,31 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
                 null,
                 'sepia:threshold=80',
             ),
+            'sharpen' => array(
+                'sharpen',
+                null,
+                'sharpen'
+            ),
+            'sharpen with params' => array(
+                'sharpen',
+                array(array('preset' => 'strong', 'gain' => 5, 'sigma' => 3)),
+                'sharpen:preset=strong,sigma=3,gain=5'
+            ),
+            'smartSize' => array(
+                'smartSize',
+                array(320, 240),
+                'smartSize:width=320,height=240'
+            ),
+            'smartSize with explicit poi' => array(
+                'smartSize',
+                array(320, 230, null, '55,120'),
+                'smartSize:width=320,height=230,poi=55,120'
+            ),
+            'smartSize with crop closeness' => array(
+                'smartSize',
+                array(320, 230, 'wide'),
+                'smartSize:width=320,height=230,crop=wide'
+            ),
             'strip' => array(
                 'strip',
                 null,
@@ -206,6 +261,16 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
                 'transverse',
                 null,
                 'transverse',
+            ),
+            'vignette' => array(
+                'vignette',
+                null,
+                'vignette'
+            ),
+            'vignette with params' => array(
+                'vignette',
+                array(1.7, 'bf1942', 'f00baa'),
+                'vignette:scale=1.7,outer=bf1942,inner=f00baa'
             ),
             'watermark' => array(
                 'watermark',
