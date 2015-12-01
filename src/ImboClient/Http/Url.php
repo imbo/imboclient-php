@@ -38,11 +38,23 @@ class Url extends GuzzleUrl {
         $url = parent::factory($url);
         $user = self::getUserFromUrl($url->getPath());
 
+        $query = $url->getQuery();
+        $currentPublicKey = $query->get('publicKey') ?: false;
+        $pubKeysDiffer = $currentPublicKey && $currentPublicKey !== $publicKey;
+
         if ($privateKey) {
             $url->setPrivateKey($privateKey);
+
+            // If the user and the current public key are the same, remove the public key
+            // as it is implied from the user. We can't do this unless we can generate a
+            // new accessToken, however, so don't do this unless we have a private key
+            if ($user && $user === $currentPublicKey) {
+                $url->getQuery()->remove('publicKey');
+            }
         }
 
-        if ($publicKey && $user !== $publicKey) {
+        // Override the public key if needed, replacing any old public key
+        if ($publicKey && ($user !== $publicKey || $pubKeysDiffer)) {
             $url->getQuery()->set('publicKey', $publicKey);
         }
 

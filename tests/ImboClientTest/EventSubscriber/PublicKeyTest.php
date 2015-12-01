@@ -72,8 +72,15 @@ class PublicKeyTest extends \PHPUnit_Framework_TestCase {
         $client->expects($this->once())->method('getUser')->will($this->returnValue($user));
         $client->expects($this->once())->method('getPublicKey')->will($this->returnValue($publicKey));
 
+        $query = $this->getMock('Guzzle\Http\QueryString');
+        $query->expects($this->once())->method('hasKey')->with('publicKey')->will($this->returnValue(false));
+
+        $url = $this->getMockBuilder('Guzzle\Http\Url')->disableOriginalConstructor()->getMock();
+        $url->expects($this->any())->method('getQuery')->will($this->returnValue($query));
+
         $request = $this->getMockBuilder('Guzzle\Http\Message\Request')->disableOriginalConstructor()->getMock();
         $request->expects($this->once())->method('getClient')->will($this->returnValue($client));
+        $request->expects($this->once())->method('getUrl')->will($this->returnValue($url));
 
         $command = $this->getMock('Guzzle\Service\Command\CommandInterface');
         $command->expects($this->any())->method('getRequest')->will($this->returnValue($request));
@@ -83,6 +90,27 @@ class PublicKeyTest extends \PHPUnit_Framework_TestCase {
         } else {
             $request->expects($this->once())->method('setHeader')->with('X-Imbo-PublicKey', $publicKey);
         }
+
+        $event = new Event();
+        $event['command'] = $command;
+
+        $this->subscriber->addPublicKey($event);
+    }
+
+    public function testFallsBackIfPublicKeyInQueryString() {
+        $query = $this->getMock('Guzzle\Http\QueryString');
+        $query->expects($this->once())->method('hasKey')->with('publicKey')->will($this->returnValue(true));
+
+        $url = $this->getMockBuilder('Guzzle\Http\Url')->disableOriginalConstructor()->getMock();
+        $url->expects($this->any())->method('getQuery')->will($this->returnValue($query));
+
+        $request = $this->getMockBuilder('Guzzle\Http\Message\Request')->disableOriginalConstructor()->getMock();
+        $request->expects($this->once())->method('getUrl')->will($this->returnValue($url));
+
+        $command = $this->getMock('Guzzle\Service\Command\CommandInterface');
+        $command->expects($this->any())->method('getRequest')->will($this->returnValue($request));
+
+        $request->expects($this->never())->method('setHeader');
 
         $event = new Event();
         $event['command'] = $command;

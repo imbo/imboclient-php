@@ -81,4 +81,36 @@ class UrlTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($user, $urlInstance->getUser());
         $this->assertSame($publicKey, $urlInstance->getPublicKey());
     }
+
+    public function testAddsPublicKeyIfNoUserSpecified() {
+        $urlInstance = Url::factory('http://imbo/groups.json', 'privkey', 'pubkey-of-win');
+        $this->assertContains('publicKey=pubkey-of-win', (string) $urlInstance);
+        $this->assertContains('accessToken=c357e8616ac57574e1dd670f8', (string) $urlInstance);
+    }
+
+    public function testAddsPublicKeyIfUserAndPublicKeyDiffers() {
+        $urlInstance = Url::factory('http://imbo/users/foo/images', 'privkey', 'pubkey-of-win');
+        $this->assertContains('publicKey=pubkey-of-win', (string) $urlInstance);
+    }
+
+    public function testDoesNotAddPublicKeyIfUserAndPublicKeyIsSame() {
+        $urlInstance = Url::factory('http://imbo/users/foo/images', 'privkey', 'foo');
+        $this->assertNotContains('publicKey=foo', (string) $urlInstance);
+    }
+
+    public function testOverridesPublicKeyIfDifferentPublicKeyPassed() {
+        $urlInstance = Url::factory('http://imbo/users/wat/images?publicKey=omg&accessToken=wtf', 'privkey', 'foo');
+        $this->assertContains('publicKey=foo', (string) $urlInstance);
+        $this->assertContains('accessToken=1a60d466525d55e41fc1e2283b579fe23b846851ef7c2bb', (string) $urlInstance);
+    }
+
+    public function testRemovesPublicKeyIfUserMatchesAndPrivateKeyIsProvided() {
+        $urlInstance = Url::factory('http://imbo/users/wat/images?publicKey=wat&accessToken=wtf', 'oo');
+        $this->assertNotContains('publicKey=', (string) $urlInstance);
+    }
+
+    public function testDoesNotRemovePublicKeyIfNoPrivateKeyIsProvided() {
+        $urlInstance = Url::factory('http://imbo/users/wat/images?publicKey=wat&accessToken=wtf');
+        $this->assertContains('publicKey=wat', (string) $urlInstance);
+    }
 }

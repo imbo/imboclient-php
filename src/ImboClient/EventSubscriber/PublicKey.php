@@ -42,7 +42,6 @@ class PublicKey implements EventSubscriberInterface {
     public function addPublicKey(Event $event) {
         $command = $event['command'];
         $request = $command->getRequest();
-        $client = $request->getClient();
         $url = $request->getUrl(true);
 
         // Don't add public key if query string already contains public key
@@ -50,6 +49,7 @@ class PublicKey implements EventSubscriberInterface {
             return;
         }
 
+        $client = $request->getClient();
         $publicKey = $client->getPublicKey();
         $user = $client->getUser();
 
