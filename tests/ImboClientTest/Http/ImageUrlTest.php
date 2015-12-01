@@ -62,6 +62,16 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
                 array(array('mode' => 'adaptive', 'radius' => 3, 'sigma' => 1.4)),
                 'blur:mode=adaptive,radius=3,sigma=1.4'
             ),
+            'blur (motion)' => array(
+                'blur',
+                array(array('mode' => 'motion', 'radius' => 3, 'sigma' => 1.4, 'angle' => 13.3)),
+                'blur:mode=motion,radius=3,sigma=1.4,angle=13.3'
+            ),
+            'blur (radial)' => array(
+                'blur',
+                array(array('mode' => 'radial', 'angle' => 180)),
+                'blur:mode=radial,angle=180'
+            ),
             'border' => array(
                 'border',
                 null,
@@ -354,6 +364,22 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function testCanvasMethodThrowExceptionOnMissingParameters() {
         $this->url->canvas(100, 0);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage width and height must be specified
+     */
+    public function testSmartSizeMethodThrowExceptionOnMissingParameters() {
+        $this->url->smartSize(100, 0);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage `radius` must be specified
+     */
+    public function testBlurMethodThrowExceptionOnMissingParameters() {
+        $this->url->blur(array());
     }
 
     /**
