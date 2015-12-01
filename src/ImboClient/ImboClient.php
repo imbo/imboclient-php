@@ -699,7 +699,8 @@ class ImboClient extends GuzzleClient {
     public function getResourceGroupsUrl() {
         return Http\ResourceGroupsUrl::factory(
             $this->getBaseUrl() . '/groups.json',
-            $this->getConfig('privateKey')
+            $this->getConfig('privateKey'),
+            $this->getPublicKey()
         );
     }
 
@@ -710,12 +711,13 @@ class ImboClient extends GuzzleClient {
      * @return Http\GroupUrl
      */
     public function getResourceGroupUrl($groupName) {
-        $url = sprintf(
-            $this->getBaseUrl() . '/groups/%s.json',
-            $groupName
-        );
+        $url = sprintf($this->getBaseUrl() . '/groups/%s.json', $groupName);
 
-        return Http\ResourceGroupUrl::factory($url, $this->getConfig('privateKey'));
+        return Http\ResourceGroupUrl::factory(
+            $url,
+            $this->getConfig('privateKey'),
+            $this->getPublicKey()
+        );
     }
 
     /**
@@ -726,7 +728,8 @@ class ImboClient extends GuzzleClient {
     public function getKeysUrl() {
         return Http\KeysUrl::factory(
             $this->getBaseUrl() . '/keys.json',
-            $this->getConfig('privateKey')
+            $this->getConfig('privateKey'),
+            $this->getPublicKey()
         );
     }
 
@@ -737,12 +740,13 @@ class ImboClient extends GuzzleClient {
      * @return Http\KeyUrl
      */
     public function getKeyUrl($publicKey) {
-        $url = sprintf(
-            $this->getBaseUrl() . '/keys/%s.json',
-            $publicKey
-        );
+        $url = sprintf($this->getBaseUrl() . '/keys/%s', $publicKey);
 
-        return Http\KeyUrl::factory($url, $this->getConfig('privateKey'));
+        return Http\KeyUrl::factory(
+            $url,
+            $this->getConfig('privateKey'),
+            $this->getPublicKey()
+        );
     }
 
     /**
@@ -751,12 +755,13 @@ class ImboClient extends GuzzleClient {
      * @return Http\UserUrl
      */
     public function getUserUrl() {
-        $url = sprintf(
-            $this->getBaseUrl() . '/users/%s.json',
-            $this->getUser()
-        );
+        $url = sprintf($this->getBaseUrl() . '/users/%s.json', $this->getUser());
 
-        return Http\UserUrl::factory($url, $this->getConfig('privateKey'));
+        return Http\UserUrl::factory(
+            $url,
+            $this->getConfig('privateKey'),
+            $this->getPublicKey()
+        );
     }
 
     /**
@@ -765,12 +770,13 @@ class ImboClient extends GuzzleClient {
      * @return Http\ImagesUrl
      */
     public function getImagesUrl() {
-        $url = sprintf(
-            $this->getBaseUrl() . '/users/%s/images.json',
-            $this->getUser()
-        );
+        $url = sprintf($this->getBaseUrl() . '/users/%s/images.json', $this->getUser());
 
-        return Http\ImagesUrl::factory($url, $this->getConfig('privateKey'));
+        return Http\ImagesUrl::factory(
+            $url,
+            $this->getConfig('privateKey'),
+            $this->getPublicKey()
+        );
     }
 
     /**
@@ -786,7 +792,11 @@ class ImboClient extends GuzzleClient {
             $imageIdentifier
         );
 
-        return Http\ImageUrl::factory($url, $this->getConfig('privateKey'));
+        return Http\ImageUrl::factory(
+            $url,
+            $this->getConfig('privateKey'),
+            $this->getPublicKey()
+        );
     }
 
     /**
@@ -802,7 +812,11 @@ class ImboClient extends GuzzleClient {
             $imageIdentifier
         );
 
-        return Http\MetadataUrl::factory($url, $this->getConfig('privateKey'));
+        return Http\MetadataUrl::factory(
+            $url,
+            $this->getConfig('privateKey'),
+            $this->getPublicKey()
+        );
     }
 
     /**

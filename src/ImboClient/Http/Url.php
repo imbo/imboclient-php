@@ -31,16 +31,35 @@ class Url extends GuzzleUrl {
      *
      * @param string $url URL as a string
      * @param string $privateKey Optional private key
+     * @param string $publicKey Optional public key
      * @return Url
      */
-    public static function factory($url, $privateKey = null) {
+    public static function factory($url, $privateKey = null, $publicKey = null) {
         $url = parent::factory($url);
+        $user = self::getUserFromUrl($url->getPath());
 
         if ($privateKey) {
             $url->setPrivateKey($privateKey);
         }
 
+        if ($publicKey && $user !== $publicKey) {
+            $url->getQuery()->set('publicKey', $publicKey);
+        }
+
         return $url;
+    }
+
+    /**
+     * Get the user part of a given URL
+     *
+     * @return string|null
+     */
+    public function getUserFromUrl($url) {
+        if (preg_match('#/users/(?<user>[^./]+)#', $url, $match)) {
+            return $match['user'];
+        }
+
+        return null;
     }
 
     /**
@@ -78,11 +97,7 @@ class Url extends GuzzleUrl {
      * @return string|null
      */
     public function getUser() {
-        if (preg_match('#/users/(?<user>[^./]+)#', $this->getPath(), $match)) {
-            return $match['user'];
-        }
-
-        return null;
+        return self::getUserFromUrl($this->getPath());
     }
 
     /**
