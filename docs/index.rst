@@ -460,6 +460,270 @@ To be able to generate short image URLs you can use the ``generateShortUrl`` met
 
 The generated ID can be used with the global short URL resource in Imbo.
 
+Get resource groups
++++++++++++++++++++
+
+To retrieve resource groups available on the Imbo server, you can use the ``getResourceGroups`` method:
+
+.. code-block:: php
+
+    $collection = $client->getResourceGroups();
+
+    echo '<h1>Available resource groups:</h1>';
+    echo '<ul>';
+
+    foreach ($collection['groups'] as $group) {
+        echo '<li>' . $group['name'] . '</li>';
+    }
+
+    echo '</ul>';
+
+The ``$collection`` variable returned from the ``getResourceGroups`` methods has two elements: ``search`` and ``groups``. ``search`` is an array related to pagination and holds information about the groups returned by your query:
+
+``(int) hits``
+    The number of hits from your query.
+
+``(int) page``
+    The current page.
+
+``(int) limit``
+    Limit the number of groups per page.
+
+``(int) count``
+    The number of groups currently on the page.
+
+and the ``groups`` element is a traversable where each element represents a group. Each group is an associative array which includes the following elements:
+
+* ``name`` - name of the group
+* ``resources`` - array of strings defining the resources the group consists of
+
+The ``getResourceGroups`` method can also take a parameter which specifies a query to execute. The parameter is an instance of the ``ImboClient\Query`` class. This class has a set of methods that can be used to customize your query. All methods can be chained when used with a parameter (when setting a value). If you skip the parameter, the methods will return the current value instead:
+
+``page($page = null)``
+    Set or get the ``page`` value. Defaults to ``1``.
+
+``limit($limit = null)``
+    Set or get the ``limit`` value. Defaults to ``20``.
+
+.. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
+
+Get specific resource group
++++++++++++++++++++++++++++
+
+To retrieve a single resource group, you can use the ``getResourceGroup`` method:
+
+.. code-block:: php
+
+    $group = $client->getResourceGroup('group-name');
+
+    echo '<h1>"group-name" consists of the following resources:</h1>';
+    echo '<ul>';
+
+    foreach ($group['resources'] as $resource) {
+        echo '<li>' . $resource . '</li>';
+    }
+
+    echo '</ul>';
+
+The ``$group`` variable returned from the ``getResourceGroup`` method currently only has a single element: ``resources``, which represents the resources the group consists of.
+
+This method will throw an exception if the group name is invalid, already exists or an error occurs.
+
+.. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
+
+Add a resource group
+++++++++++++++++++++
+
+Resource groups can be created using the ``addResourceGroup`` method:
+
+.. code-block:: php
+
+    $client->addResourceGroup('group-name', [
+        'image.get',
+        'image.head',
+        'images.post',
+        'images.get',
+        'images.head'
+    ]);
+
+This method will throw an exception if the group name is invalid, already exists or an error occurs.
+
+.. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
+
+Edit a resource group
++++++++++++++++++++++
+
+Resource groups can be edited using the ``editResourceGroup`` method:
+
+.. code-block:: php
+
+    $client->editResourceGroup('group-name', [
+        'image.get',
+        'image.head',
+        'images.post',
+        'images.get',
+        'images.head'
+    ]);
+
+It's important to note that if the resource group with the given name does not already exist, it will be created. If it exists, the resources provided in the second argument will **overwrite** the existing resources for that group. If you need to add more resources to an existing group, first retrieve it's resources using the ``getResourceGroup``-method and merge the resources returned with the ones you want to add.
+
+.. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
+
+Delete a resource group
++++++++++++++++++++++++
+
+Resource groups can be deleted using the ``deleteResourceGroup`` method:
+
+.. code-block:: php
+
+    $client->deleteResourceGroup('group-name');
+
+.. note:: Any access control rules that are using this resource group will also be deleted, since they are now invalid.
+.. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
+
+Check for the existence of a resource group
++++++++++++++++++++++++++++++++++++++++++++
+
+Calling the ``resourceGroupExists`` method will return whether a resource group exists:
+
+.. code-block:: php
+
+    if ($client->resourceGroupExists('group-name')) {
+        echo 'Resource group exists';
+    } else {
+        echo 'Resource group does NOT exist';
+    }
+
+.. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
+
+Creating a new public/private key pair
+++++++++++++++++++++++++++++++++++++++
+
+Adding new public keys (and an associated private key) can be achieved by using the ``addPublicKey`` method:
+
+.. code-block:: php
+
+    $client->addPublicKey('new-pub-key', 'associated-priv-key');
+
+This method will throw an exception if the public key name is invalid, already exists or an error occurs.
+
+.. note:: This function sends the private and public key as plain text to the Imbo server, and should only be used over HTTPS.
+.. note:: Private keys should be hard to guess. We advise you to use a secure password generator to generate one.
+.. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
+
+Editing a public/private key pair
++++++++++++++++++++++++++++++++++
+
+Editing existing public/private key pairs can be achieved by using the ``editPublicKey`` method:
+
+.. code-block:: php
+
+    $client->editPublicKey('public-key', 'new-private-key');
+
+This method will throw an exception if the public key name is invalid or an error occurs.
+
+.. note:: All the same considerations should be taken as when using the ``addPublicKey`` method - data is sent in plain text, do not use unless you are communicating over HTTPS!
+
+Deleting a public key
++++++++++++++++++++++
+
+Deleting a public key (and the associated private key) can be achieved by using the ``deletePublicKey`` method:
+
+.. code-block:: php
+
+    $client->deletePublicKey('public-key');
+
+This method will throw an exception if the public key name is invalid or an error occurs.
+
+.. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
+
+Check for the existence of a public key
++++++++++++++++++++++++++++++++++++++++
+
+Calling the ``publicKeyExists`` method will return whether a public key exists:
+
+.. code-block:: php
+
+    if ($client->publicKeyExists('public-key')) {
+        echo 'Public key exists';
+    } else {
+        echo 'Public key does NOT exist';
+    }
+
+.. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
+
+Getting list of ACL-rules for a public key
+++++++++++++++++++++++++++++++++++++++++++
+
+To retrieve a list of the defined access control rules for a given public key, you can use the ``getAccessControlRules`` method:
+
+.. code-block:: php
+
+    $aclRules = $client->getAccessControlRules('public-key');
+
+The return value of this method is a traversable where each element represents a single ACL-rule. See the documentation of ``getAccessControlRule`` below for the details on the contents of these rules.
+
+.. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
+
+
+Getting a specific ACL-rule for a public key
+++++++++++++++++++++++++++++++++++++++++++++
+
+To retrieve a specific access control rule, you can use the ``getAccessControlRule`` method:
+
+.. code-block:: php
+
+    $aclRule = $client->getAccessControlRule('public-key', 'acl-rule-id');
+
+The return value of this method is a collection (accessible as an array), containing the following keys:
+
+``(string) id``
+    The ID of the ACL-rule (same as the one specified when retrieving the rule).
+
+``(string) group``
+    Name of the resource group which defines which resources this rule should apply for. Only present if ``resources`` is not.
+
+``(array) resources``
+    An array of the resources this ACL-rule grants access to. Only present if ``group`` is not.
+
+``(array|string) users``
+    Either an array of users which this ACL-rule grants access to, or the string ``*``, meaning it gives access to the given resources for **all** users.
+
+.. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
+
+Adding ACL-rules for a public key
++++++++++++++++++++++++++++++++++
+
+To add new access control rules, you can use the ``addAccessControlRules``. It accepts an array of ACL-rules:
+
+.. code-block:: php
+
+    $client->addAccessControlRules('public-key', [
+        [
+            'group' => 'some-group',
+            'users' => ['user1', 'user2']
+        ],
+        [
+            'resources' => ['image.get', 'image.head', 'image.options'],
+            'users' => '*'
+        ]
+    ]);
+
+The ACL-rules you want to create should have the same pattern as documented in ``getAccessControlRule``, expect no ``id`` should be defined.
+
+.. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
+
+Deleting an ACL-rule for a public key
++++++++++++++++++++++++++++++++++++++
+
+Deleting an access control rule can be achieve by using the ``deleteAccessControlRule`` method:
+
+.. code-block:: php
+
+    $client->deleteAccessControlRule('public-key', 'acl-rule-id');
+
+.. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
+
 .. _imbo-urls:
 
 Imbo URLs
@@ -497,24 +761,31 @@ All these methods return instances of different classes, and all can be used in 
 The available transformation methods are:
 
 * ``autoRotate()``
+* ``blur($params)``
 * ``border($color = '000000', $width = 1, $height = 1, $mode = 'outbound')``
 * ``canvas($width, $height, $mode = null, $x = null, $y = null, $bg = null)``
 * ``compress($level = 75)``
+* ``contrast($alpha = null, $beta = null)``
 * ``crop($x, $y, $width, $height, $mode)``
 * ``desaturate()``
+* ``drawPois()``
 * ``flipHorizontally()``
 * ``flipVertically()``
 * ``histogram($scale = null, $ratio = null, $red = null, $green = null, $blue = null)``
+* ``level($amount = 1, $channel = null)``
 * ``maxSize($maxWidth = null, $maxHeight = null)``
 * ``modulate($brightness = null, $saturation = null, $hue = null)``
 * ``progressive()``
 * ``resize($width = null, $height = null)``
 * ``rotate($angle, $bg = '000000')``
 * ``sepia($threshold = 80)``
+* ``sharpen($params = null)``
+* ``smartSize($width, $height, $crop = null, $poi = null)``
 * ``strip()``
 * ``thumbnail($width = 50, $height = 50, $fit = 'outbound')``
 * ``transpose()``
 * ``transverse()``
+* ``vignette($scale = null, $outerColor = null, $innerColor = null)``
 * ``watermark($img = null, $width = null, $height = null, $position = 'top-left', $x = 0, $y = 0)``
 
 Please refer to the `server documentation <http://docs.imbo-project.org/>`_ for details about the image transformations.
@@ -548,6 +819,11 @@ There are also some other methods available:
     Removes all transformations added to the URL instance.
 
 The methods related to the image type (``convert`` and the proxy methods) can be added anywhere in the chain. Otherwise all transformations will be applied to the image in the same order as they appear in the chain.
+
+Migrating from ImboClient < 1.3.0
++++++++++++++++++++++++++++++++++
+
+From ImboClient 1.3.0, the client fully supports Imbo 2.0. While the client itself is fully backwards-compatible, we encourage all users to add the ``user`` property when instantiating the client. For users who are still using Imbo 1.x, the user will have the same value as ``publicKey``, while in Imbo 2, these two values can be different.
 
 Migrating from ImboClient < 1.0.0
 +++++++++++++++++++++++++++++++++
