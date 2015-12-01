@@ -66,7 +66,7 @@ class Url extends GuzzleUrl {
      *
      * @return string|null
      */
-    public function getUserFromUrl($url) {
+    public static function getUserFromUrl($url) {
         if (preg_match('#/users/(?<user>[^./]+)#', $url, $match)) {
             return $match['user'];
         }
