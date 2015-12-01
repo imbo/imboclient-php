@@ -840,7 +840,7 @@ class ImboClientTest extends GuzzleTestCase {
 
         $this->assertSame('POST', $request->getMethod());
         $this->assertSame('http://imbo/keys/some-pubkey/access', urldecode($request->getUrl()));
-        $this->assertSame(json_encode([$rule]), (string) $request->getBody());
+        $this->assertSame(json_encode(array($rule)), (string) $request->getBody());
         $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
         $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
     }
