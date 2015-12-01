@@ -43,11 +43,17 @@ class PublicKey implements EventSubscriberInterface {
         $command = $event['command'];
         $request = $command->getRequest();
         $client = $request->getClient();
+        $url = $request->getUrl(true);
+
+        // Don't add public key if query string already contains public key
+        if ($url->getQuery()->hasKey('publicKey')) {
+            return;
+        }
 
         $publicKey = $client->getPublicKey();
         $user = $client->getUser();
 
-        // No need for the query parameter if the user and public key matches
+        // No need for the header if the user and public key matches
         if ($user && $user === $publicKey) {
             return;
         }
