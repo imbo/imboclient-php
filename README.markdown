@@ -4,7 +4,7 @@ A PHP client for [Imbo](https://github.com/imbo/imbo).
 [![Current build Status](https://secure.travis-ci.org/imbo/imboclient-php.png)](http://travis-ci.org/imbo/imboclient-php)
 
 ## License
-Copyright (c) 2011-2014, Christer Edvartsen <cogo@starzinger.net>
+Copyright (c) 2011-2015, Christer Edvartsen <cogo@starzinger.net>
 
 Licensed under the MIT License
 
