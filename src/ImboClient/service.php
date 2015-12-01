@@ -310,7 +310,7 @@ return array(
             ),
             'responseClass' => 'GenerateShortUrl',
         ),
-        'GetGroups' => array(
+        'GetResourceGroups' => array(
             'httpMethod' => 'GET',
             'uri' => 'groups.json',
             'summary' => 'Fetch available resource groups',
@@ -327,16 +327,10 @@ return array(
                     'location' => 'query',
                     'description' => 'Limit the number of groups returned',
                 ),
-                'publicKey' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'query',
-                    'description' => 'The public key used to access the resource',
-                ),
             ),
-            'responseClass' => 'GetGroups',
+            'responseClass' => 'GetResourceGroups',
         ),
-        'GetGroup' => array(
+        'GetResourceGroup' => array(
             'httpMethod' => 'GET',
             'uri' => 'groups/{groupName}.json',
             'summary' => 'Fetch a specific resource group',
@@ -347,16 +341,10 @@ return array(
                     'location' => 'uri',
                     'description' => 'The name of the resource group',
                 ),
-                'publicKey' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'query',
-                    'description' => 'The public key used to access the resource',
-                ),
             ),
-            'responseClass' => 'GetGroup',
+            'responseClass' => 'GetResourceGroup',
         ),
-        'GroupExists' => array(
+        'GetResourceGroup' => array(
             'httpMethod' => 'GET',
             'uri' => 'groups/{groupName}.json',
             'summary' => 'Fetch a specific resource group',
@@ -367,16 +355,10 @@ return array(
                     'location' => 'uri',
                     'description' => 'The name of the resource group',
                 ),
-                'publicKey' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'query',
-                    'description' => 'The public key used to access the resource',
-                ),
             ),
-            'responseClass' => 'GetGroup',
+            'responseClass' => 'GetResourceGroup',
         ),
-        'EditGroup' => array(
+        'EditResourceGroup' => array(
             'httpMethod' => 'PUT',
             'uri' => 'groups/{groupName}',
             'summary' => 'Edit or add a resource group',
@@ -393,16 +375,9 @@ return array(
                     'location' => 'body',
                     'description' => 'The resources the group should have access to',
                 ),
-                'publicKey' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'x-imbo-publickey',
-                    'description' => 'The public key used to access the resource',
-                ),
             ),
         ),
-        'DeleteGroup' => array(
+        'DeleteResourceGroup' => array(
             'httpMethod' => 'DELETE',
             'uri' => 'groups/{groupName}',
             'summary' => 'Delete a resource group',
@@ -412,13 +387,6 @@ return array(
                     'required' => true,
                     'location' => 'uri',
                     'description' => 'The name of the group to delete',
-                ),
-                'publicKey' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'x-imbo-publickey',
-                    'description' => 'The public key used to access the resource',
                 ),
             ),
         ),
@@ -439,32 +407,18 @@ return array(
                     'location' => 'body',
                     'description' => 'The properties for this public key',
                 ),
-                'signaturePublicKey' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'x-imbo-publickey',
-                    'description' => 'The public key used to access the resource',
-                ),
             ),
         ),
         'DeletePublicKey' => array(
             'httpMethod' => 'DELETE',
             'uri' => 'keys/{publicKey}',
-            'summary' => 'Delete a resource group',
+            'summary' => 'Delete a public key',
             'parameters' => array(
                 'publicKey' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
                     'description' => 'The name of the public key to delete',
-                ),
-                'signaturePublicKey' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'x-imbo-publickey',
-                    'description' => 'The public key used to access the resource',
                 ),
             ),
         ),
@@ -478,13 +432,6 @@ return array(
                     'required' => true,
                     'location' => 'uri',
                     'description' => 'The name of the public key to delete',
-                ),
-                'signaturePublicKey' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'x-imbo-publickey',
-                    'description' => 'The public key used to access the resource',
                 ),
             ),
             'responseClass' => 'GetAccessControlRules',
@@ -506,13 +453,6 @@ return array(
                     'location' => 'uri',
                     'description' => 'The id of the rule to retrieve',
                 ),
-                'signaturePublicKey' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'x-imbo-publickey',
-                    'description' => 'The public key used to access the resource',
-                ),
             ),
             'responseClass' => 'GetAccessControlRule',
         ),
@@ -533,13 +473,6 @@ return array(
                     'location' => 'body',
                     'description' => 'Access control rules represented as JSON',
                 ),
-                'signaturePublicKey' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'x-imbo-publickey',
-                    'description' => 'The public key used to access the resource',
-                ),
             ),
         ),
 
@@ -553,13 +486,6 @@ return array(
                     'required' => true,
                     'location' => 'uri',
                     'description' => 'The name of the public key to delete',
-                ),
-                'signaturePublicKey' => array(
-                    'type' => 'string',
-                    'required' => true,
-                    'location' => 'header',
-                    'sentAs' => 'x-imbo-publickey',
-                    'description' => 'The public key used to access the resource',
                 ),
                 'id' => array(
                     'type' => 'string',
@@ -765,7 +691,7 @@ return array(
                 ),
             ),
         ),
-        'GetGroups' => array(
+        'GetResourceGroups' => array(
             'type' => 'object',
             'properties' => array(
                 'search' => $search,
@@ -790,7 +716,7 @@ return array(
                 ),
             ),
         ),
-        'GetGroup' => array(
+        'GetResourceGroup' => array(
             'type' => 'object',
             'properties' => array(
                 'resources' => array(

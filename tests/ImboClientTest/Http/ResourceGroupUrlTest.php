@@ -10,14 +10,14 @@
 
 namespace ImboClientTest\Http;
 
-use ImboClient\Http\GroupUrl;
+use ImboClient\Http\ResourceGroupUrl;
 
 /**
  * @package Test suite
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
- * @covers ImboClient\Http\GroupUrl
+ * @covers ImboClient\Http\ResourceGroupUrl
  */
-class GroupUrlTest extends \PHPUnit_Framework_TestCase {
+class ResourceGroupUrlTest extends \PHPUnit_Framework_TestCase {
     /**
      * Data provider
      *
@@ -37,7 +37,7 @@ class GroupUrlTest extends \PHPUnit_Framework_TestCase {
      * @dataProvider getGroupUrls
      */
     public function testCanFetchTheGroupInTheUrl($url, $groupName) {
-        $groupUrl = GroupUrl::factory($url);
+        $groupUrl = ResourceGroupUrl::factory($url);
         $this->assertSame($groupName, $groupUrl->getGroup());
     }
 }

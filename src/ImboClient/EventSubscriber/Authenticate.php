@@ -49,8 +49,8 @@ class Authenticate implements EventSubscriberInterface {
             case 'EditMetadata':
             case 'DeleteMetadata':
             case 'GenerateShortUrl':
-            case 'EditGroup':
-            case 'DeleteGroup':
+            case 'EditResourceGroup':
+            case 'DeleteResourceGroup':
             case 'EditPublicKey':
             case 'DeletePublicKey':
             case 'AddAccessControlRules':

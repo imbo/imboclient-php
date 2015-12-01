@@ -30,41 +30,28 @@ class PublicKey implements EventSubscriberInterface {
      */
     public static function getSubscribedEvents() {
         return array(
-            'command.before_send' => array('appendPublicKey', -500),
+            'command.before_send' => array('addPublicKey', -500),
         );
     }
 
     /**
-     * Append a public key query parameter to the request URL
+     * Add a public key header to the request
      *
      * @param Event $event The current event
      */
-    public function appendPublicKey(Event $event) {
+    public function addPublicKey(Event $event) {
         $command = $event['command'];
         $request = $command->getRequest();
         $client = $request->getClient();
+
         $publicKey = $client->getPublicKey();
         $user = $client->getUser();
 
         // No need for the query parameter if the user and public key matches
-        if ($user === $publicKey) {
+        if ($user && $user === $publicKey) {
             return;
         }
 
-        switch ($command->getName()) {
-            case 'AddImage':
-            case 'DeleteImage':
-            case 'DeleteMetadata':
-            case 'EditMetadata':
-            case 'GenerateShortUrl':
-            case 'GetImageProperties':
-            case 'GetImages':
-            case 'GetMetadata':
-            case 'GetUserInfo':
-            case 'ReplaceMetadata':
-                // Add as query parameter
-                $request->getQuery()->set('publicKey', $publicKey);
-                break;
-        }
+        $request->setHeader('X-Imbo-PublicKey', $publicKey);
     }
 }

@@ -46,17 +46,17 @@ class PublicKeyTest extends \PHPUnit_Framework_TestCase {
      */
     public function getCommands() {
         return array(
-            array('GetUserInfo', 'user', 'publicKey', true),
-            array('GetUserInfo', 'user', 'user', false),
-            array('GetImages', 'user', 'publicKey', true),
-            array('GetImageProperties', 'user', 'user', false),
-            array('GetMetadata', 'user', 'publicKey', true),
+            array('user', 'publicKey', true),
+            array('user', 'user', false),
+            array('user', 'publicKey', true),
+            array('user', 'user', false),
+            array('user', 'publicKey', true),
 
-            array('AddImage', 'user', 'publicKey', true),
-            array('DeleteImage', 'user', 'publicKey', true),
-            array('ReplaceMetadata', 'user', 'publicKey', true),
-            array('EditMetadata', 'user', 'publicKey', true),
-            array('DeleteMetadata', 'user', 'publicKey', true),
+            array('user', 'publicKey', true),
+            array('user', 'publicKey', true),
+            array('user', 'publicKey', true),
+            array('user', 'publicKey', true),
+            array('user', 'publicKey', true),
         );
     }
 
@@ -67,7 +67,7 @@ class PublicKeyTest extends \PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getCommands
      */
-    public function testAppendsPublicKeyOnlyForSomeCommands($commandName, $user, $publicKey, $shouldAdd) {
+    public function testAddsPublicKeyIfUserAndPublicKeyDiffers($user, $publicKey, $shouldAdd) {
         $client = $this->getMockBuilder('ImboClient\ImboClient')->disableOriginalConstructor()->getMock();
         $client->expects($this->once())->method('getUser')->will($this->returnValue($user));
         $client->expects($this->once())->method('getPublicKey')->will($this->returnValue($publicKey));
@@ -79,19 +79,14 @@ class PublicKeyTest extends \PHPUnit_Framework_TestCase {
         $command->expects($this->any())->method('getRequest')->will($this->returnValue($request));
 
         if (!$shouldAdd) {
-            $request->expects($this->never())->method('getQuery');
-            $command->expects($this->never())->method('getName');
+            $request->expects($this->never())->method('setHeader');
         } else {
-            $query = $this->getMock('Guzzle\Http\QueryString');
-            $query->expects($this->once())->method('set')->with('publicKey', $this->isType('string'));
-
-            $request->expects($this->once())->method('getQuery')->will($this->returnValue($query));
-            $command->expects($this->once())->method('getName')->will($this->returnValue($commandName));
+            $request->expects($this->once())->method('setHeader')->with('X-Imbo-PublicKey', $publicKey);
         }
 
         $event = new Event();
         $event['command'] = $command;
 
-        $this->subscriber->appendPublicKey($event);
+        $this->subscriber->addPublicKey($event);
     }
 }

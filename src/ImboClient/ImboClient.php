@@ -425,13 +425,12 @@ class ImboClient extends GuzzleClient {
      * @param Query $query An optional query object
      * @return Model
      */
-    public function getGroups(Query $query = null) {
+    public function getResourceGroups(Query $query = null) {
         if (!$query) {
             $query = new Query();
         }
 
-        return $this->getCommand('GetGroups', array(
-            'publicKey' => $this->getPublicKey(),
+        return $this->getCommand('GetResourceGroups', array(
             'page' => $query->page(),
             'limit' => $query->limit(),
         ))->execute();
@@ -444,11 +443,10 @@ class ImboClient extends GuzzleClient {
      * @return Model
      * @throws InvalidArgumentException If the group name is invalid
      */
-    public function getGroup($groupName) {
-        $this->validateGroupName($groupName);
+    public function getResourceGroup($groupName) {
+        $this->validateResourceGroupName($groupName);
 
-        return $this->getCommand('GetGroup', array(
-            'publicKey' => $this->getPublicKey(),
+        return $this->getCommand('GetResourceGroup', array(
             'groupName' => $groupName,
         ))->execute();
     }
@@ -461,31 +459,32 @@ class ImboClient extends GuzzleClient {
      * @return Model
      * @throws InvalidArgumentException Throw when group name is invalid or group already exists
      */
-    public function addGroup($groupName, array $resources) {
-        $this->validateGroupName($groupName);
+    public function addResourceGroup($groupName, array $resources) {
+        $this->validateResourceGroupName($groupName);
 
-        if ($this->groupExists($groupName)) {
+        if ($this->resourceGroupExists($groupName)) {
             throw new InvalidArgumentException(
-                'Group with name "' . $groupName . '" already exists'
+                'Resource group with name "' . $groupName . '" already exists'
             );
         }
 
-        return $this->editGroup($groupName, $resources);
+        return $this->editResourceGroup($groupName, $resources);
     }
 
     /**
      * Edit a resource group
+     *
+     * Note: If the resource group does not already exist, it will be created
      *
      * @param string $groupName Name of the group to edit
      * @param array $resources Array of resource names the group should contain
      * @return Model
      * @throws InvalidArgumentException Thrown when group name is invalid or group already exists
      */
-    public function editGroup($groupName, array $resources) {
-        $this->validateGroupName($groupName);
+    public function editResourceGroup($groupName, array $resources) {
+        $this->validateResourceGroupName($groupName);
 
-        return $this->getCommand('EditGroup', array(
-            'publicKey' => $this->getPublicKey(),
+        return $this->getCommand('EditResourceGroup', array(
             'groupName' => $groupName,
             'resources' => json_encode($resources),
         ))->execute();
@@ -498,11 +497,10 @@ class ImboClient extends GuzzleClient {
      * @return Model
      * @throws InvalidArgumentException Thrown when the group name is invalid or does not exist
      */
-    public function deleteGroup($groupName) {
-        $this->validateGroupName($groupName);
+    public function deleteResourceGroup($groupName) {
+        $this->validateResourceGroupName($groupName);
 
-        return $this->getCommand('DeleteGroup', array(
-            'publicKey' => $this->getPublicKey(),
+        return $this->getCommand('DeleteResourceGroup', array(
             'groupName' => $groupName,
         ))->execute();
     }
@@ -514,10 +512,10 @@ class ImboClient extends GuzzleClient {
      * @throws InvalidArgumentException Throws an exception if group name is invalid
      * @return boolean
      */
-    public function groupExists($groupName) {
-        $this->validateGroupName($groupName);
+    public function resourceGroupExists($groupName) {
+        $this->validateResourceGroupName($groupName);
 
-        return $this->resourceExists($this->getGroupUrl($groupName));
+        return $this->resourceExists($this->getResourceGroupUrl($groupName));
     }
 
     /**
@@ -538,7 +536,6 @@ class ImboClient extends GuzzleClient {
         }
 
         return $this->getCommand('EditPublicKey', array(
-            'signaturePublicKey' => $this->getPublicKey(),
             'properties' => json_encode(array('privateKey' => $privateKey)),
             'publicKey' => $publicKey,
         ))->execute();
@@ -556,7 +553,6 @@ class ImboClient extends GuzzleClient {
         $this->validatePublicKeyName($publicKey);
 
         return $this->getCommand('EditPublicKey', array(
-            'signaturePublicKey' => $this->getPublicKey(),
             'properties' => json_encode(array('privateKey' => $privateKey)),
             'publicKey' => $publicKey,
         ))->execute();
@@ -573,7 +569,6 @@ class ImboClient extends GuzzleClient {
         $this->validatePublicKeyName($publicKey);
 
         return $this->getCommand('DeletePublicKey', array(
-            'signaturePublicKey' => $this->getPublicKey(),
             'publicKey' => $publicKey,
         ))->execute();
     }
@@ -602,7 +597,6 @@ class ImboClient extends GuzzleClient {
         $this->validatePublicKeyName($publicKey);
 
         return $this->getCommand('GetAccessControlRules', array(
-            'signaturePublicKey' => $this->getPublicKey(),
             'publicKey' => $publicKey,
         ))->execute();
     }
@@ -619,7 +613,6 @@ class ImboClient extends GuzzleClient {
         $this->validatePublicKeyName($publicKey);
 
         return $this->getCommand('GetAccessControlRule', array(
-            'signaturePublicKey' => $this->getPublicKey(),
             'publicKey' => $publicKey,
             'id' => $ruleId,
         ))->execute();
@@ -649,7 +642,6 @@ class ImboClient extends GuzzleClient {
         $this->validatePublicKeyName($publicKey);
 
         return $this->getCommand('AddAccessControlRules', array(
-            'signaturePublicKey' => $this->getPublicKey(),
             'publicKey' => $publicKey,
             'rules' => json_encode($rules),
         ))->execute();
@@ -667,7 +659,6 @@ class ImboClient extends GuzzleClient {
         $this->validatePublicKeyName($publicKey);
 
         return $this->getCommand('DeleteAccessControlRule', array(
-            'signaturePublicKey' => $this->getPublicKey(),
             'publicKey' => $publicKey,
             'id' => $ruleId,
         ))->execute();
@@ -705,8 +696,8 @@ class ImboClient extends GuzzleClient {
      *
      * @return Http\GroupsUrl
      */
-    public function getGroupsUrl() {
-        return Http\GroupsUrl::factory(
+    public function getResourceGroupsUrl() {
+        return Http\ResourceGroupsUrl::factory(
             $this->getBaseUrl() . '/groups.json',
             $this->getConfig('privateKey')
         );
@@ -718,13 +709,13 @@ class ImboClient extends GuzzleClient {
      * @param string $groupName Name of group
      * @return Http\GroupUrl
      */
-    public function getGroupUrl($groupName) {
+    public function getResourceGroupUrl($groupName) {
         $url = sprintf(
             $this->getBaseUrl() . '/groups/%s.json',
             $groupName
         );
 
-        return Http\GroupUrl::factory($url, $this->getConfig('privateKey'));
+        return Http\ResourceGroupUrl::factory($url, $this->getConfig('privateKey'));
     }
 
     /**
@@ -987,7 +978,7 @@ class ImboClient extends GuzzleClient {
      * @throws InvalidArgumentException
      */
     private function validatePublicKeyName($name) {
-        return $this->validateGroupName($name, 'Public key');
+        return $this->validateResourceGroupName($name, 'Public key');
     }
 
     /**
@@ -997,7 +988,7 @@ class ImboClient extends GuzzleClient {
      * @param string $entity Entity we're validating
      * @throws InvalidArgumentException
      */
-    private function validateGroupName($name, $entity = 'Group name') {
+    private function validateResourceGroupName($name, $entity = 'Group name') {
         if (!preg_match('/^[a-z0-9_-]{1,}$/', $name)) {
             throw new InvalidArgumentException(
                 $entity . ' can only consist of: a-z, 0-9 and the characters _ and -'

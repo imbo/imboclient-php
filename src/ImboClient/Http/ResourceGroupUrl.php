@@ -11,12 +11,12 @@
 namespace ImboClient\Http;
 
 /**
- * Group URL
+ * Resource group URL
  *
  * @package Client\Urls
  * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  */
-class GroupUrl extends Url {
+class ResourceGroupUrl extends Url {
     /**
      * Get the group part of a URL
      *

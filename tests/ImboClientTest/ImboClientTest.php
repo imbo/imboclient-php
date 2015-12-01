@@ -171,7 +171,7 @@ class ImboClientTest extends GuzzleTestCase {
             'stats' => array('getStatsUrl', 'ImboClient\Http\StatsUrl'),
             'user' => array('getUserUrl', 'ImboClient\Http\UserUrl'),
             'images' => array('getImagesUrl', 'ImboClient\Http\ImagesUrl'),
-            'groups' => array('getGroupsUrl', 'ImboClient\Http\GroupsUrl'),
+            'groups' => array('getResourceGroupsUrl', 'ImboClient\Http\ResourceGroupsUrl'),
             'keys' => array('getKeysUrl', 'ImboClient\Http\KeysUrl'),
         );
     }
@@ -191,8 +191,8 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertInstanceOf('ImboClient\Http\MetadataUrl', $this->client->getMetadataUrl('identifier'));
     }
 
-    public function testCanCreateGroupUrls() {
-        $this->assertInstanceOf('ImboClient\Http\GroupUrl', $this->client->getGroupUrl('group'));
+    public function testCanCreateResourceGroupUrls() {
+        $this->assertInstanceOf('ImboClient\Http\ResourceGroupUrl', $this->client->getResourceGroupUrl('group'));
     }
 
     public function testCanCreateKeyUrls() {
@@ -419,7 +419,7 @@ class ImboClientTest extends GuzzleTestCase {
 
         $requests = $this->getMockedRequests();
         $request = $requests[0];
-        $this->assertSame('http://imbo/users/testuser/images.json?page=2&limit=5&metadata=1&from=123&to=456&fields[0]=width&sort[0]=size&ids[0]=id1&ids[1]=id2&checksums[0]=checksum1&checksums[1]=checksum2&originalChecksums[0]=checksum3&originalChecksums[1]=checksum4&publicKey=christer&accessToken=962bc7a372839a4a0defc206f551ae666b1a2e0fd1dc2a2509794f83b2f6572c', urldecode($request->getUrl()));
+        $this->assertSame('http://imbo/users/testuser/images.json?page=2&limit=5&metadata=1&from=123&to=456&fields[0]=width&sort[0]=size&ids[0]=id1&ids[1]=id2&checksums[0]=checksum1&checksums[1]=checksum2&originalChecksums[0]=checksum3&originalChecksums[1]=checksum4&accessToken=01b1aa98aefccd5a50e2325316401fb26976f4fe525b4f33de66f515f8ccd169', urldecode($request->getUrl()));
     }
 
     /**
@@ -584,9 +584,9 @@ class ImboClientTest extends GuzzleTestCase {
         $url = $this->client->getShortUrl($this->client->getImageUrl('image'));
     }
 
-    public function testCanGetGroups() {
+    public function testCanGetResourceGroups() {
         $this->setMockResponse($this->client, 'groups_get');
-        $response = $this->client->getGroups();
+        $response = $this->client->getResourceGroups();
 
         $this->assertSame(2, $response['search']['hits']);
         $this->assertSame(1, $response['search']['page']);
@@ -600,22 +600,22 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertCount(4, $response['groups'][1]['resources']);
     }
 
-    public function testCanGetGroupsUsingAQueryObject() {
+    public function testCanGetResourceGroupsUsingAQueryObject() {
         $this->setMockResponse($this->client, 'groups_get');
 
         $query = new Query();
         $query->page(2)->limit(5);
 
-        $response = $this->client->getGroups($query);
+        $response = $this->client->getResourceGroups($query);
 
         $requests = $this->getMockedRequests();
         $request = $requests[0];
-        $this->assertSame('http://imbo/groups.json?page=2&limit=5&publicKey=christer&accessToken=9f9d18597c57a5fd5687aebd989b750577be90e0651ec8c8813f2e3a4378ac61', urldecode($request->getUrl()));
+        $this->assertSame('http://imbo/groups.json?page=2&limit=5&accessToken=2e1f640dc7e72e17703957dfb773f3cc58423df28fe97c481f702da2b50ddfe9', urldecode($request->getUrl()));
     }
 
-    public function testCanGetGroup() {
+    public function testCanGetResourceGroup() {
         $this->setMockResponse($this->client, 'group_get');
-        $response = $this->client->getGroup('images-read');
+        $response = $this->client->getResourceGroup('images-read');
 
         $this->assertCount(2, $response['resources']);
         $this->assertSame('images.get', $response['resources'][0]);
@@ -623,7 +623,7 @@ class ImboClientTest extends GuzzleTestCase {
 
         $requests = $this->getMockedRequests();
         $request = $requests[0];
-        $this->assertSame('http://imbo/groups/images-read.json?publicKey=christer&accessToken=9d1e3884939c0f9d471bb35af69f2e10d6fb2f9cd79cf30e85d3b7ec7bbf3d1a', urldecode($request->getUrl()));
+        $this->assertSame('http://imbo/groups/images-read.json?accessToken=6bc45d67228a0b9b712f01656945465255ecf35ea8ccef9c1b8048e74d58f2f0', urldecode($request->getUrl()));
     }
 
     public function testCanCheckIfAGroupExistsOnTheServer() {
@@ -632,8 +632,8 @@ class ImboClientTest extends GuzzleTestCase {
             'group_does_not_exist',
         ));
 
-        $this->assertTrue($this->client->groupExists('group1'));
-        $this->assertFalse($this->client->groupExists('group2'));
+        $this->assertTrue($this->client->resourceGroupExists('group1'));
+        $this->assertFalse($this->client->resourceGroupExists('group2'));
     }
 
     public function testCanAddGroup() {
@@ -641,7 +641,7 @@ class ImboClientTest extends GuzzleTestCase {
             'group_does_not_exist',
             'group_created'
         ));
-        $response = $this->client->addGroup('some-group', array('foo', 'bar'));
+        $response = $this->client->addResourceGroup('some-group', array('foo', 'bar'));
 
         $requests = $this->getMockedRequests();
         $request = $requests[1];
@@ -655,16 +655,16 @@ class ImboClientTest extends GuzzleTestCase {
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Group with name "some-group" already exists
+     * @expectedExceptionMessage Resource group with name "some-group" already exists
      */
     public function testAddGroupThrowsIfAlreadyExists() {
         $this->setMockResponse($this->client, 'group_exists');
-        $response = $this->client->addGroup('some-group', array('foo', 'bar'));
+        $response = $this->client->addResourceGroup('some-group', array('foo', 'bar'));
     }
 
     public function testCanEditGroup() {
         $this->setMockResponse($this->client, 'group_exists');
-        $response = $this->client->editGroup('some-group', array('foo', 'bar'));
+        $response = $this->client->editResourceGroup('some-group', array('foo', 'bar'));
 
         $requests = $this->getMockedRequests();
         $request = $requests[0];
@@ -678,7 +678,7 @@ class ImboClientTest extends GuzzleTestCase {
 
     public function testCanDeleteGroup() {
         $this->setMockResponse($this->client, 'group_deleted');
-        $response = $this->client->deleteGroup('some-group', array('foo', 'bar'));
+        $response = $this->client->deleteResourceGroup('some-group', array('foo', 'bar'));
 
         $requests = $this->getMockedRequests();
         $request = $requests[0];
@@ -766,7 +766,7 @@ class ImboClientTest extends GuzzleTestCase {
 
         $requests = $this->getMockedRequests();
         $request = $requests[0];
-        $this->assertSame('http://imbo/keys/some-pubkey/access.json', urldecode($request->getUrl()));
+        $this->assertSame('http://imbo/keys/some-pubkey/access.json?accessToken=43ccb50a0ea66251eee79ec1f381647a7092ec1c4b26585e28f25911516c3e1a', urldecode($request->getUrl()));
 
         $this->assertCount(3, $response);
 
@@ -792,7 +792,7 @@ class ImboClientTest extends GuzzleTestCase {
 
         $requests = $this->getMockedRequests();
         $request = $requests[0];
-        $this->assertSame('http://imbo/keys/some-pubkey/access/15.json', urldecode($request->getUrl()));
+        $this->assertSame('http://imbo/keys/some-pubkey/access/15.json?accessToken=63c8ed7a13b2aa62a56bcf3fe73b55800ca114acd3aa02fdeb70e7a3ab3ea788', urldecode($request->getUrl()));
 
         $this->assertSame('images-read', $rule['group']);
         $this->assertSame(1, $rule['id']);
