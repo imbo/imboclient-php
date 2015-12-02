@@ -318,6 +318,22 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Timestamp'));
     }
 
+    public function testCanAddAnImageFromUrlToDifferentImbo() {
+        $this->setMockResponse($this->client, array(
+            new Response(200, array(), file_get_contents(__DIR__ . '/_files/image.png')),
+            'image_created',
+            new Response(200, array(), file_get_contents(__DIR__ . '/_files/image.png')),
+            'image_created',
+        ));
+
+        $this->client->addImageFromUrl('http://imbo/users/foo/images/img?t[]=blur&t[]=desaturate');
+        $this->client->addImageFromUrl('http://imbo/users/foo/images/img?t%5B%5D=blur&t%5B%5D=desaturate');
+
+        $requests = $this->getMockedRequests();
+        $this->assertSame('http://imbo/users/foo/images/img?t%5B%5D=blur&t%5B%5D=desaturate', $requests[0]->getUrl());
+        $this->assertSame('http://imbo/users/foo/images/img?t%5B%5D=blur&t%5B%5D=desaturate', $requests[2]->getUrl());
+    }
+
     /**
      * @expectedException Guzzle\Http\Exception\ClientErrorResponseException
      * @expectedExceptionMessage Not Found
