@@ -8,6 +8,30 @@
  * distributed with this source code.
  */
 
+// Reused in various list resources
+$search = array(
+    'location' => 'json',
+    'type' => 'object',
+    'properties' => array(
+        'limit' => array(
+            'location' => 'json',
+            'type' => 'integer',
+        ),
+        'page' => array(
+            'location' => 'json',
+            'type' => 'integer',
+        ),
+        'hits' => array(
+            'location' => 'json',
+            'type' => 'integer',
+        ),
+        'count' => array(
+            'location' => 'json',
+            'type' => 'integer',
+        )
+    )
+);
+
 return array(
     'name' => 'Imbo',
     'apiVersion' => '1.0',
@@ -26,24 +50,24 @@ return array(
         ),
         'GetUserInfo' => array(
             'httpMethod' => 'GET',
-            'uri' => 'users/{publicKey}.json',
+            'uri' => 'users/{user}.json',
             'summary' => 'Get information about a specific user',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
-                    'description' => 'The public key of the user we want information about',
+                    'description' => 'The user we want information about',
                 ),
             ),
             'responseClass' => 'GetUserInfo',
         ),
         'AddImage' => array(
             'httpMethod' => 'POST',
-            'uri' => 'users/{publicKey}/images',
+            'uri' => 'users/{user}/images',
             'summary' => 'Add an image',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -60,10 +84,10 @@ return array(
         ),
         'DeleteImage' => array(
             'httpMethod' => 'DELETE',
-            'uri' => 'users/{publicKey}/images/{imageIdentifier}',
+            'uri' => 'users/{user}/images/{imageIdentifier}',
             'summary' => 'Delete an image',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -80,10 +104,10 @@ return array(
         ),
         'GetImageProperties' => array(
             'httpMethod' => 'HEAD',
-            'uri' => 'users/{publicKey}/images/{imageIdentifier}',
+            'uri' => 'users/{user}/images/{imageIdentifier}',
             'summary' => 'Get properties of an image',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -100,10 +124,10 @@ return array(
         ),
         'EditMetadata' => array(
             'httpMethod' => 'POST',
-            'uri' => 'users/{publicKey}/images/{imageIdentifier}/metadata',
+            'uri' => 'users/{user}/images/{imageIdentifier}/metadata',
             'summary' => 'Update metadata attached to an image. Supports partial updates',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -125,10 +149,10 @@ return array(
         ),
         'GetMetadata' => array(
             'httpMethod' => 'GET',
-            'uri' => 'users/{publicKey}/images/{imageIdentifier}/metadata.json',
+            'uri' => 'users/{user}/images/{imageIdentifier}/metadata.json',
             'summary' => 'Get metadata attached to an image',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -144,10 +168,10 @@ return array(
         ),
         'ReplaceMetadata' => array(
             'httpMethod' => 'PUT',
-            'uri' => 'users/{publicKey}/images/{imageIdentifier}/metadata',
+            'uri' => 'users/{user}/images/{imageIdentifier}/metadata',
             'summary' => 'Completely replace the metadata attached to an image with new metadata',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -169,10 +193,10 @@ return array(
         ),
         'DeleteMetadata' => array(
             'httpMethod' => 'DELETE',
-            'uri' => 'users/{publicKey}/images/{imageIdentifier}/metadata',
+            'uri' => 'users/{user}/images/{imageIdentifier}/metadata',
             'summary' => 'Delete metadata attached to an image',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -188,10 +212,10 @@ return array(
         ),
         'GetImages' => array(
             'httpMethod' => 'GET',
-            'uri' => 'users/{publicKey}/images.json',
+            'uri' => 'users/{user}/images.json',
             'summary' => 'Fetch information about images owned by a specific user',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -262,10 +286,10 @@ return array(
         ),
         'GenerateShortUrl' => array(
             'httpMethod' => 'POST',
-            'uri' => 'users/{publicKey}/images/{imageIdentifier}/shorturls',
+            'uri' => 'users/{user}/images/{imageIdentifier}/shorturls',
             'summary' => 'Create a short URL to an image with a set of image transformations applied to it',
             'parameters' => array(
-                'publicKey' => array(
+                'user' => array(
                     'type' => 'string',
                     'required' => true,
                     'location' => 'uri',
@@ -286,10 +310,195 @@ return array(
             ),
             'responseClass' => 'GenerateShortUrl',
         ),
+        'GetResourceGroups' => array(
+            'httpMethod' => 'GET',
+            'uri' => 'groups.json',
+            'summary' => 'Fetch available resource groups',
+            'parameters' => array(
+                'page' => array(
+                    'type' => 'integer',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Which page to fetch from',
+                ),
+                'limit' => array(
+                    'type' => 'integer',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Limit the number of groups returned',
+                ),
+            ),
+            'responseClass' => 'GetResourceGroups',
+        ),
+        'GetResourceGroup' => array(
+            'httpMethod' => 'GET',
+            'uri' => 'groups/{groupName}.json',
+            'summary' => 'Fetch a specific resource group',
+            'parameters' => array(
+                'groupName' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the resource group',
+                ),
+            ),
+            'responseClass' => 'GetResourceGroup',
+        ),
+        'GetResourceGroup' => array(
+            'httpMethod' => 'GET',
+            'uri' => 'groups/{groupName}.json',
+            'summary' => 'Fetch a specific resource group',
+            'parameters' => array(
+                'groupName' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the resource group',
+                ),
+            ),
+            'responseClass' => 'GetResourceGroup',
+        ),
+        'EditResourceGroup' => array(
+            'httpMethod' => 'PUT',
+            'uri' => 'groups/{groupName}',
+            'summary' => 'Edit or add a resource group',
+            'parameters' => array(
+                'groupName' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the group to edit/create',
+                ),
+                'resources' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'body',
+                    'description' => 'The resources the group should have access to',
+                ),
+            ),
+        ),
+        'DeleteResourceGroup' => array(
+            'httpMethod' => 'DELETE',
+            'uri' => 'groups/{groupName}',
+            'summary' => 'Delete a resource group',
+            'parameters' => array(
+                'groupName' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the group to delete',
+                ),
+            ),
+        ),
+        'EditPublicKey' => array(
+            'httpMethod' => 'PUT',
+            'uri' => 'keys/{publicKey}',
+            'summary' => 'Edit or add a public/private key pair',
+            'parameters' => array(
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the public key to edit/create',
+                ),
+                'properties' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'body',
+                    'description' => 'The properties for this public key',
+                ),
+            ),
+        ),
+        'DeletePublicKey' => array(
+            'httpMethod' => 'DELETE',
+            'uri' => 'keys/{publicKey}',
+            'summary' => 'Delete a public key',
+            'parameters' => array(
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the public key to delete',
+                ),
+            ),
+        ),
+        'GetAccessControlRules' => array(
+            'httpMethod' => 'GET',
+            'uri' => 'keys/{publicKey}/access.json',
+            'summary' => 'Fetch access control rules for the given public key',
+            'parameters' => array(
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the public key to delete',
+                ),
+            ),
+            'responseClass' => 'GetAccessControlRules',
+        ),
+        'GetAccessControlRule' => array(
+            'httpMethod' => 'GET',
+            'uri' => 'keys/{publicKey}/access/{id}.json',
+            'summary' => 'Fetch a given access control rule for the given public key',
+            'parameters' => array(
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the public key to retrieve the rule from',
+                ),
+                'id' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The id of the rule to retrieve',
+                ),
+            ),
+            'responseClass' => 'GetAccessControlRule',
+        ),
+        'AddAccessControlRules' => array(
+            'httpMethod' => 'POST',
+            'uri' => 'keys/{publicKey}/access',
+            'summary' => 'Add access control rules to the given public key',
+            'parameters' => array(
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the public key to add rules to',
+                ),
+                'rules' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'body',
+                    'description' => 'Access control rules represented as JSON',
+                ),
+            ),
+        ),
+
+        'DeleteAccessControlRule' => array(
+            'httpMethod' => 'DELETE',
+            'uri' => 'keys/{publicKey}/access/{id}',
+            'summary' => 'Delete an access control rule',
+            'parameters' => array(
+                'publicKey' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The name of the public key to delete',
+                ),
+                'id' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'ID of the rule to delete',
+                )
+            ),
+        ),
     ),
     'models' => array(
         'GetServerStatus' => array(
-            'type' => 'array',
+            'type' => 'object',
             'properties' => array(
                 'status' => array(
                     'location' => 'statusCode',
@@ -309,9 +518,13 @@ return array(
             ),
         ),
         'GetUserInfo' => array(
-            'type' => 'array',
+            'type' => 'object',
             'properties' => array(
                 'publicKey' => array(
+                    'location' => 'json',
+                    'type' => 'string',
+                ),
+                'user' => array(
                     'location' => 'json',
                     'type' => 'string',
                 ),
@@ -329,7 +542,7 @@ return array(
             ),
         ),
         'AddImage' => array(
-            'type' => 'array',
+            'type' => 'object',
             'properties' => array(
                 'imageIdentifier' => array(
                     'location' => 'json',
@@ -354,7 +567,7 @@ return array(
             ),
         ),
         'DeleteImage' => array(
-            'type' => 'array',
+            'type' => 'object',
             'properties' => array(
                 'imageIdentifier' => array(
                     'location' => 'json',
@@ -367,7 +580,7 @@ return array(
             ),
         ),
         'GetImageProperties' => array(
-            'type' => 'array',
+            'type' => 'object',
             'properties' => array(
                 'width' => array(
                     'location' => 'header',
@@ -400,12 +613,9 @@ return array(
             ),
         ),
         'GetImages' => array(
-            'type' => 'array',
+            'type' => 'object',
             'properties' => array(
-                'search' => array(
-                    'location' => 'json',
-                    'type' => 'string',
-                ),
+                'search' => $search,
                 'images' => array(
                     'location' => 'json',
                     'type' => 'array',
@@ -459,13 +669,17 @@ return array(
                                 'location' => 'json',
                                 'type' => 'string',
                             ),
+                            'user' => array(
+                                'location' => 'json',
+                                'type' => 'string',
+                            ),
                         ),
                     ),
                 ),
             ),
         ),
         'GenerateShortUrl' => array(
-            'type' => 'array',
+            'type' => 'object',
             'properties' => array(
                 'id' => array(
                     'location' => 'json',
@@ -477,5 +691,79 @@ return array(
                 ),
             ),
         ),
+        'GetResourceGroups' => array(
+            'type' => 'object',
+            'properties' => array(
+                'search' => $search,
+                'groups' => array(
+                    'location' => 'json',
+                    'type' => 'array',
+                    'items' => array(
+                        'type' => 'object',
+                        'properties' => array(
+                            'name' => array(
+                                'location' => 'json',
+                            ),
+                            'resources' => array(
+                                'location' => 'json',
+                                'type' => 'array',
+                                'items' => array(
+                                    'type' => 'string'
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        'GetResourceGroup' => array(
+            'type' => 'object',
+            'properties' => array(
+                'resources' => array(
+                    'location' => 'json',
+                    'type' => 'array',
+                    'items' => array(
+                        'type' => 'string'
+                    ),
+                ),
+            ),
+        ),
+        'GetAccessControlRules' => array(
+            'type' => 'array',
+            'additionalProperties' => array(
+                'location' => 'json'
+            ),
+        ),
+        'GetAccessControlRule' => array(
+            'type' => 'object',
+            'properties' => array(
+                'id' => array(
+                    'location' => 'json',
+                    'required' => true,
+                    'type' => 'string',
+                ),
+                'resources' => array(
+                    'type' => 'array',
+                    'location' => 'json',
+                    'items' => array(
+                        'type' => 'string'
+                    )
+                ),
+                'group' => array(
+                    'type' => 'string',
+                    'require' => false,
+                    'location' => 'json',
+                ),
+                'users' => array(
+                    'type' => array('string', 'array'),
+                    'location' => 'json',
+                    'items' => array('type' => 'string')
+                )
+            )
+        ),
+        'AddAccessControlRules' => array(
+            'type' => 'object',
+            'properties' => array(),
+        )
     ),
 );

@@ -55,6 +55,46 @@ class ImageUrl extends ImagesUrl {
     }
 
     /**
+     * Add a blur transformation
+     *
+     * Parameters:
+     *  `mode`   - `gaussian`, `adaptive`, `motion` or `radial`. Default: `guassian`
+     *
+     *  `radius` - Radius of the gaussian, in pixels, not counting the center pixel.
+     *             Required for `gaussian`, `adaptive` and `motion`-modes
+     *
+     *  `sigma`  - The standard deviation of the gaussian, in pixels.
+     *             Required for `gaussian`, `adaptive` and `motion`-modes
+     *
+     *  `angle`  - Angle of the radial blur. Only used in `radial`-mode.
+     *
+     * @param array $params Array of parameters
+     * @return self
+     */
+    public function blur(array $params) {
+        $mode = isset($params['mode']) ? $params['mode'] : null;
+        $required = array('radius', 'sigma');
+
+        if ($mode === 'motion') {
+            $required[] = 'angle';
+        } else if ($mode === 'radial') {
+            $required = array('angle');
+        }
+
+        $transformation = $mode ? array('mode=' . $mode) : array();
+
+        foreach ($required as $param) {
+            if (!isset($params[$param])) {
+                throw new InvalidArgumentException('`' . $param . '` must be specified');
+            }
+
+            $transformation[] = $param . '=' . $params[$param];
+        }
+
+        return $this->addTransformation(sprintf('blur:%s', implode(',', $transformation)));
+    }
+
+    /**
      * Add a border transformation
      *
      * @param string $color Color of the border
@@ -118,6 +158,29 @@ class ImageUrl extends ImagesUrl {
      */
     public function compress($level = 75) {
         return $this->addTransformation(sprintf('compress:level=%d', (int) $level));
+    }
+
+    /**
+     * Add a contrast transformation
+     *
+     * @param float $alpha Adjusts intensity differences between lighter and darker elements
+     * @param float $beta Where the midpoint of the gradient will be. Range: 0 to 1
+     * @return self
+     */
+    public function contrast($alpha = null, $beta = null) {
+        $params = array();
+
+        if ($alpha !== null) {
+            $params[] = 'alpha=' . (float) $alpha;
+        }
+
+        if ($beta !== null) {
+            $params[] = 'beta=' . (float) min(1, max(0, $beta));
+        }
+
+        return $this->addTransformation(
+            'contrast' . ($params ? ':' . implode(',', $params) : '')
+        );
     }
 
     /**
@@ -208,6 +271,35 @@ class ImageUrl extends ImagesUrl {
     }
 
     /**
+     * Add a transformation that draws an outline around all the POIs (points of interest)
+     * stored in the metadata for the image. The format of the metadata is documented under
+     * the smartSize-transformation on the Imbo server API.
+     *
+     * @param string $color Color of the drawn outline
+     * @param int $borderSize Thickness of the outline, in pixels
+     * @param int $pointSize Diameter, in pixels, of the circle drawn
+     *                       around POIs that do not have height and width specified
+     * @return self
+     */
+    public function drawPois($color = null, $borderSize = null, $pointSize = null) {
+        $params = array();
+
+        if ($color) {
+            $params[] = 'color=' . $color;
+        }
+
+        if ($borderSize) {
+            $params[] = 'borderSize=' . (int) $borderSize;
+        }
+
+        if ($pointSize) {
+            $params[] = 'pointSize=' . $pointSize;
+        }
+
+        return $this->addTransformation('drawPois' . ($params ? ':' . implode(',', $params) : ''));
+    }
+
+    /**
      * Add a flipHorizontally transformation
      *
      * @return self
@@ -259,6 +351,24 @@ class ImageUrl extends ImagesUrl {
         }
 
         return $this->addTransformation('histogram' . ($params ? ':' . implode(',', $params) : ''));
+    }
+
+    /**
+     * Add a level transformation to the image, adjusting the levels of an image
+     *
+     * @param int $amount Amount to adjust, on a scale from -100 to 100
+     * @param string $channel Optional channel to adjust. Possible values:
+     *                        r, g, b, c, m, y, k - can be combined to adjust multiple.
+     * @return self
+     */
+    public function level($amount = 1, $channel = null) {
+        $params = array('amount=' . $amount);
+
+        if ($channel) {
+            $params[] = 'channel=' . $channel;
+        }
+
+        return $this->addTransformation('level:' . implode(',', $params));
     }
 
     /**
@@ -380,6 +490,68 @@ class ImageUrl extends ImagesUrl {
     }
 
     /**
+     * Add a sharpen transformation
+     *
+     * Parameters:
+     *  `preset`    - `light`, `moderate`, `strong`, `extreme`.
+     *  `radius`    - Radius of the gaussian, in pixels
+     *  `sigma`     - Standard deviation of the gaussian, in pixels
+     *  `threshold` - The threshold in pixels needed to apply the difference gain
+     *  `gain`      - Percentage of difference between original and the blur image
+     *                that is added back into the original
+     *
+     * @param array $params Parameters for the transformation
+     * @return self
+     */
+    public function sharpen(array $params = null) {
+        $options = array('preset', 'radius', 'sigma', 'threshold', 'gain');
+        $transformation = array();
+
+        foreach ($options as $param) {
+            if (!isset($params[$param])) {
+                continue;
+            }
+
+            $transformation[] = $param . '=' . $params[$param];
+        }
+
+        return $this->addTransformation(
+            'sharpen' . ($transformation ? ':' . implode(',', $transformation) : '')
+        );
+    }
+
+    /**
+     * Add a smartSize transformation
+     *
+     * @param int $width Width of the resized image
+     * @param int $height Height of the resized image
+     * @param string $crop Closeness of crop (`close`, `medium` or `wide`). Optional.
+     * @param string $poi POI-coordinate to crop around (as `x,y`).
+     *                    Optional if POI-metadata exists for the image.
+     * @return self
+     */
+    public function smartSize($width, $height, $crop = null, $poi = null) {
+        if (!$width || !$height) {
+            throw new InvalidArgumentException('width and height must be specified');
+        }
+
+        $params = array(
+            'width=' . (int) $width,
+            'height=' . (int) $height,
+        );
+
+        if ($crop) {
+            $params[] = 'crop=' . $crop;
+        }
+
+        if ($poi) {
+            $params[] = 'poi=' . $poi;
+        }
+
+        return $this->addTransformation(sprintf('smartSize:%s', implode(',', $params)));
+    }
+
+    /**
      * Add a strip transformation
      *
      * @return self
@@ -418,6 +590,34 @@ class ImageUrl extends ImagesUrl {
      */
     public function transverse() {
         return $this->addTransformation('transverse');
+    }
+
+    /**
+     * Add a vignette transformation
+     *
+     * @param float $scale Scale factor of vignette. 2 means twice the size of the original image
+     * @param string $outerColor Color at the edge of the image
+     * @param string $innerColor Color at the center of the image
+     * @return self
+     */
+    public function vignette($scale = null, $outerColor = null, $innerColor = null) {
+        $params = array();
+
+        if ($scale) {
+            $params[] = 'scale=' . $scale;
+        }
+
+        if ($outerColor) {
+            $params[] = 'outer=' . $outerColor;
+        }
+
+        if ($innerColor) {
+            $params[] = 'inner=' . $innerColor;
+        }
+
+        return $this->addTransformation(
+            'vignette' . ($params ? ':' . implode(',', $params) : '')
+        );
     }
 
     /**

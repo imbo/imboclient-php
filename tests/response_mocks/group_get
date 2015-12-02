@@ -1,0 +1,11 @@
+HTTP/1.1 200 OK
+Date: Mon, 30 Nov 2015 11:28:30 GMT
+Connection: close
+Content-Type: application/json
+
+{
+    "resources": [
+        "images.get",
+        "images.head"
+    ]
+}

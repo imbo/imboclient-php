@@ -25,19 +25,20 @@ class UserUrlTest extends \PHPUnit_Framework_TestCase {
      */
     public function getUserUrls() {
         return array(
-            'no extension' => array('http://imbo/users/christer', 'christer'),
-            'extension (json)' => array('http://imbo/users/christer.json', 'christer'),
-            'extension (xml)' => array('http://imbo/users/christer.xml', 'christer'),
-            'URL with path prefix' => array('http://imbo/some_prefix/users/christer.xml', 'christer'),
-            'missing public key' => array('http://imbo/', null),
+            'no extension' => array('http://imbo/users/christer', 'christer', 'christer'),
+            'extension (json)' => array('http://imbo/users/christer.json?publicKey=foo', 'christer', 'foo'),
+            'extension (xml)' => array('http://imbo/users/christer.xml', 'christer', 'christer'),
+            'URL with path prefix' => array('http://imbo/some_prefix/users/christer.xml?publicKey=z', 'christer', 'z'),
+            'missing public key' => array('http://imbo/?publicKey=bar', null, 'bar'),
         );
     }
 
     /**
      * @dataProvider getUserUrls
      */
-    public function testCanFetchThePublicKeyInTheUrl($url, $publicKey) {
+    public function testCanFetchTheUserAndPublicKeyInTheUrl($url, $user, $publicKey) {
         $userUrl = UserUrl::factory($url);
+        $this->assertSame($user, $userUrl->getUser());
         $this->assertSame($publicKey, $userUrl->getPublicKey());
     }
 }

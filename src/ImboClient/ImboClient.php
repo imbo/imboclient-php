@@ -11,6 +11,7 @@
 namespace ImboClient;
 
 use ImboClient\Http,
+    ImboClient\Helper\PublicKeyFallback,
     Guzzle\Common\Collection,
     Guzzle\Service\Client as GuzzleClient,
     Guzzle\Service\Description\ServiceDescription,
@@ -69,6 +70,7 @@ class ImboClient extends GuzzleClient {
         $dispatcher = $this->getEventDispatcher();
         $dispatcher->addSubscriber(new EventSubscriber\AccessToken());
         $dispatcher->addSubscriber(new EventSubscriber\Authenticate());
+        $dispatcher->addSubscriber(new EventSubscriber\PublicKey());
 
         $client = $this;
         $dispatcher->addListener('command.before_send', function($event) use ($client) {
@@ -105,11 +107,17 @@ class ImboClient extends GuzzleClient {
     public static function factory($config = array()) {
         $default = array(
             'serverUrls' => null,
+            'user' => null,
             'publicKey' => null,
             'privateKey' => null,
         );
 
-        $required = array('serverUrls', 'publicKey', 'privateKey');
+        // Backwards-compatibility with old client where user === publicKey
+        if (!isset($config['user']) && isset($config['publicKey'])) {
+            $config['user'] = $config['publicKey'];
+        }
+
+        $required = array('serverUrls', 'publicKey', 'privateKey', 'user');
         $config = Collection::fromConfig($config, $default, $required);
 
         if (!is_array($serverUrls = $config->get('serverUrls')) || empty($serverUrls)) {
@@ -127,6 +135,27 @@ class ImboClient extends GuzzleClient {
      */
     public function getPublicKey() {
         return $this->getConfig('publicKey');
+    }
+
+    /**
+     * Get the current user
+     *
+     * @return string
+     */
+    public function getUser() {
+        return $this->getConfig('user');
+    }
+
+    /**
+     * Set the current user
+     *
+     * @param string $user
+     * @return self
+     */
+    public function setUser($user) {
+        $this->getConfig()->set('user', $user);
+
+        return $this;
     }
 
     /**
@@ -185,7 +214,7 @@ class ImboClient extends GuzzleClient {
         }
 
         return $this->getCommand('AddImage', array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'image' => $image,
         ))->execute();
     }
@@ -214,9 +243,11 @@ class ImboClient extends GuzzleClient {
      * @return Model
      */
     public function getUserInfo() {
-        return $this->getCommand('GetUserInfo', array(
-            'publicKey' => $this->getConfig('publicKey'),
+        $userInfo = $this->getCommand('GetUserInfo', array(
+            'user' => $this->getUser(),
         ))->execute();
+
+        return PublicKeyFallback::fallback($userInfo);
     }
 
     /**
@@ -227,7 +258,7 @@ class ImboClient extends GuzzleClient {
      */
     public function deleteImage($imageIdentifier) {
         return $this->getCommand('DeleteImage', array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
         ))->execute();
     }
@@ -240,7 +271,7 @@ class ImboClient extends GuzzleClient {
      */
     public function getImageProperties($imageIdentifier) {
         return $this->getCommand('GetImageProperties', array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
         ))->execute();
     }
@@ -254,7 +285,7 @@ class ImboClient extends GuzzleClient {
      */
     public function editMetadata($imageIdentifier, array $metadata) {
         return $this->getCommand('EditMetadata', array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
             'metadata' => json_encode($metadata),
         ))->execute();
@@ -269,7 +300,7 @@ class ImboClient extends GuzzleClient {
      */
     public function replaceMetadata($imageIdentifier, array $metadata) {
         return $this->getCommand('ReplaceMetadata', array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
             'metadata' => json_encode($metadata),
         ))->execute();
@@ -283,7 +314,7 @@ class ImboClient extends GuzzleClient {
      */
     public function getMetadata($imageIdentifier) {
         return $this->getCommand('GetMetadata', array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
         ))->execute();
     }
@@ -300,7 +331,7 @@ class ImboClient extends GuzzleClient {
         }
 
         $params = array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'page' => $query->page(),
             'limit' => $query->limit(),
         );
@@ -337,7 +368,13 @@ class ImboClient extends GuzzleClient {
             $params['originalChecksums'] = $originalChecksums;
         }
 
-        return $this->getCommand('GetImages', $params)->execute();
+        $response = $this->getCommand('GetImages', $params)->execute();
+        $response['images'] = array_map(
+            array('ImboClient\Helper\PublicKeyFallback', 'fallback'),
+            $response['images']
+        );
+
+        return $response;
     }
 
     /**
@@ -348,7 +385,7 @@ class ImboClient extends GuzzleClient {
      */
     public function deleteMetadata($imageIdentifier) {
         return $this->getCommand('DeleteMetadata', array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
         ))->execute();
     }
@@ -369,16 +406,261 @@ class ImboClient extends GuzzleClient {
         }
 
         $params = array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'imageIdentifier' => $imageUrl->getImageIdentifier(),
             'extension' => $imageUrl->getExtension(),
             'query' => $transformations,
         );
 
         return $this->getCommand('GenerateShortUrl', array(
-            'publicKey' => $this->getConfig('publicKey'),
+            'user' => $this->getUser(),
             'imageIdentifier' => $imageUrl->getImageIdentifier(),
             'params' => json_encode($params),
+        ))->execute();
+    }
+
+    /**
+     * Get the available resource groups
+     *
+     * @param Query $query An optional query object
+     * @return Model
+     */
+    public function getResourceGroups(Query $query = null) {
+        if (!$query) {
+            $query = new Query();
+        }
+
+        return $this->getCommand('GetResourceGroups', array(
+            'page' => $query->page(),
+            'limit' => $query->limit(),
+        ))->execute();
+    }
+
+    /**
+     * Get the details of a specific resource group
+     *
+     * @param string $groupName Name of group to get
+     * @return Model
+     * @throws InvalidArgumentException If the group name is invalid
+     */
+    public function getResourceGroup($groupName) {
+        $this->validateResourceGroupName($groupName);
+
+        return $this->getCommand('GetResourceGroup', array(
+            'groupName' => $groupName,
+        ))->execute();
+    }
+
+    /**
+     * Add a new resource group
+     *
+     * @param string $groupName Name of the group to create
+     * @param array $resources Array of resource names the group should contain
+     * @return Model
+     * @throws InvalidArgumentException Throw when group name is invalid or group already exists
+     */
+    public function addResourceGroup($groupName, array $resources) {
+        $this->validateResourceGroupName($groupName);
+
+        if ($this->resourceGroupExists($groupName)) {
+            throw new InvalidArgumentException(
+                'Resource group with name "' . $groupName . '" already exists'
+            );
+        }
+
+        return $this->editResourceGroup($groupName, $resources);
+    }
+
+    /**
+     * Edit a resource group
+     *
+     * Note: If the resource group does not already exist, it will be created
+     *
+     * @param string $groupName Name of the group to edit
+     * @param array $resources Array of resource names the group should contain
+     * @return Model
+     * @throws InvalidArgumentException Thrown when group name is invalid or group already exists
+     */
+    public function editResourceGroup($groupName, array $resources) {
+        $this->validateResourceGroupName($groupName);
+
+        return $this->getCommand('EditResourceGroup', array(
+            'groupName' => $groupName,
+            'resources' => json_encode($resources),
+        ))->execute();
+    }
+
+    /**
+     * Delete a resource group
+     *
+     * @param  string $groupName Name of the group to delete
+     * @return Model
+     * @throws InvalidArgumentException Thrown when the group name is invalid or does not exist
+     */
+    public function deleteResourceGroup($groupName) {
+        $this->validateResourceGroupName($groupName);
+
+        return $this->getCommand('DeleteResourceGroup', array(
+            'groupName' => $groupName,
+        ))->execute();
+    }
+
+    /**
+     * Checks if a given group exists on the server already
+     *
+     * @param string $groupName Name of the group
+     * @throws InvalidArgumentException Throws an exception if group name is invalid
+     * @return boolean
+     */
+    public function resourceGroupExists($groupName) {
+        $this->validateResourceGroupName($groupName);
+
+        return $this->resourceExists($this->getResourceGroupUrl($groupName));
+    }
+
+    /**
+     * Create a new public/private key pair
+     *
+     * @param string $publicKey Public key to create
+     * @param string $privateKey Private key for the new public key
+     * @return Model
+     * @throws InvalidArgumentException If the public key name is invalid
+     */
+    public function addPublicKey($publicKey, $privateKey) {
+        $this->validatePublicKeyName($publicKey);
+
+        if ($this->publicKeyExists($publicKey)) {
+            throw new InvalidArgumentException(
+                'Public key with name "' . $publicKey . '" already exists'
+            );
+        }
+
+        return $this->getCommand('EditPublicKey', array(
+            'properties' => json_encode(array('privateKey' => $privateKey)),
+            'publicKey' => $publicKey,
+        ))->execute();
+    }
+
+    /**
+     * Edit a public/private key pair
+     *
+     * @param string $publicKey Public key to alter private key for
+     * @param string $privateKey New private key to use for the given public key
+     * @return Model
+     * @throws InvalidArgumentException If the public key name is invalid
+     */
+    public function editPublicKey($publicKey, $privateKey) {
+        $this->validatePublicKeyName($publicKey);
+
+        return $this->getCommand('EditPublicKey', array(
+            'properties' => json_encode(array('privateKey' => $privateKey)),
+            'publicKey' => $publicKey,
+        ))->execute();
+    }
+
+    /**
+     * Delete a public key
+     *
+     * @param  string $publicKey Name of the public key to delete
+     * @return Model
+     * @throws InvalidArgumentException If the public key name is invalid
+     */
+    public function deletePublicKey($publicKey) {
+        $this->validatePublicKeyName($publicKey);
+
+        return $this->getCommand('DeletePublicKey', array(
+            'publicKey' => $publicKey,
+        ))->execute();
+    }
+
+    /**
+     * Checks if a given public key exists on the server already
+     *
+     * @param string $publicKey Public key
+     * @return boolean
+     * @throws InvalidArgumentException If the public key name is invalid
+     */
+    public function publicKeyExists($publicKey) {
+        $this->validatePublicKeyName($publicKey);
+
+        return $this->resourceExists($this->getKeyUrl($publicKey));
+    }
+
+    /**
+     * Get access control rules for the given public key
+     *
+     * @param string $publicKey Public key
+     * @return Model
+     * @throws InvalidArgumentException If the public key name is invalid
+     */
+    public function getAccessControlRules($publicKey) {
+        $this->validatePublicKeyName($publicKey);
+
+        return $this->getCommand('GetAccessControlRules', array(
+            'publicKey' => $publicKey,
+        ))->execute();
+    }
+
+    /**
+     * Get the access control rule with the given ID which belongs to the given public key
+     *
+     * @param string $publicKey Public key
+     * @param string $ruleId ID of the rule to retrieve
+     * @return Model
+     * @throws InvalidArgumentException If the public key name is invalid
+     */
+    public function getAccessControlRule($publicKey, $ruleId) {
+        $this->validatePublicKeyName($publicKey);
+
+        return $this->getCommand('GetAccessControlRule', array(
+            'publicKey' => $publicKey,
+            'id' => $ruleId,
+        ))->execute();
+    }
+
+    /**
+     * Add access control rule to the given public key
+     *
+     * @param string $publicKey Public key to add rule to
+     * @param array $rule Rule to add
+     * @return Model
+     * @throws InvalidArgumentException If the public key name is invalid
+     */
+    public function addAccessControlRule($publicKey, $rule) {
+        return $this->addAccessControlRules($publicKey, array($rule));
+    }
+
+    /**
+     * Add access control rules to the given public key
+     *
+     * @param string $publicKey Public key to add rules to
+     * @param array $rules Rules to add
+     * @return Model
+     * @throws InvalidArgumentException If the public key name is invalid
+     */
+    public function addAccessControlRules($publicKey, $rules) {
+        $this->validatePublicKeyName($publicKey);
+
+        return $this->getCommand('AddAccessControlRules', array(
+            'publicKey' => $publicKey,
+            'rules' => json_encode($rules),
+        ))->execute();
+    }
+
+    /**
+     * Delete an access control rule
+     *
+     * @param string $publicKey Name of the public key which owns the rule
+     * @param string $ruleId ID of the rule to delete
+     * @return Model
+     * @throws InvalidArgumentException Thrown if the public key name is invalid
+     */
+    public function deleteAccessControlRule($publicKey, $ruleId) {
+        $this->validatePublicKeyName($publicKey);
+
+        return $this->getCommand('DeleteAccessControlRule', array(
+            'publicKey' => $publicKey,
+            'id' => $ruleId,
         ))->execute();
     }
 
@@ -410,17 +692,76 @@ class ImboClient extends GuzzleClient {
     }
 
     /**
+     * Get a URL for the groups endpoint
+     *
+     * @return Http\GroupsUrl
+     */
+    public function getResourceGroupsUrl() {
+        return Http\ResourceGroupsUrl::factory(
+            $this->getBaseUrl() . '/groups.json',
+            $this->getConfig('privateKey'),
+            $this->getPublicKey()
+        );
+    }
+
+    /**
+     * Get a URL for the group endpoint
+     *
+     * @param string $groupName Name of group
+     * @return Http\GroupUrl
+     */
+    public function getResourceGroupUrl($groupName) {
+        $url = sprintf($this->getBaseUrl() . '/groups/%s.json', $groupName);
+
+        return Http\ResourceGroupUrl::factory(
+            $url,
+            $this->getConfig('privateKey'),
+            $this->getPublicKey()
+        );
+    }
+
+    /**
+     * Get a URL for the keys endpoint
+     *
+     * @return Http\KeysUrl
+     */
+    public function getKeysUrl() {
+        return Http\KeysUrl::factory(
+            $this->getBaseUrl() . '/keys.json',
+            $this->getConfig('privateKey'),
+            $this->getPublicKey()
+        );
+    }
+
+    /**
+     * Get a URL for the key endpoint
+     *
+     * @param string $publicKey Public key
+     * @return Http\KeyUrl
+     */
+    public function getKeyUrl($publicKey) {
+        $url = sprintf($this->getBaseUrl() . '/keys/%s', $publicKey);
+
+        return Http\KeyUrl::factory(
+            $url,
+            $this->getConfig('privateKey'),
+            $this->getPublicKey()
+        );
+    }
+
+    /**
      * Get a URL for the user endpoint
      *
      * @return Http\UserUrl
      */
     public function getUserUrl() {
-        $url = sprintf(
-            $this->getBaseUrl() . '/users/%s.json',
-            $this->getConfig('publicKey')
-        );
+        $url = sprintf($this->getBaseUrl() . '/users/%s.json', $this->getUser());
 
-        return Http\UserUrl::factory($url, $this->getConfig('privateKey'));
+        return Http\UserUrl::factory(
+            $url,
+            $this->getConfig('privateKey'),
+            $this->getPublicKey()
+        );
     }
 
     /**
@@ -429,12 +770,13 @@ class ImboClient extends GuzzleClient {
      * @return Http\ImagesUrl
      */
     public function getImagesUrl() {
-        $url = sprintf(
-            $this->getBaseUrl() . '/users/%s/images.json',
-            $this->getConfig('publicKey')
-        );
+        $url = sprintf($this->getBaseUrl() . '/users/%s/images.json', $this->getUser());
 
-        return Http\ImagesUrl::factory($url, $this->getConfig('privateKey'));
+        return Http\ImagesUrl::factory(
+            $url,
+            $this->getConfig('privateKey'),
+            $this->getPublicKey()
+        );
     }
 
     /**
@@ -446,11 +788,15 @@ class ImboClient extends GuzzleClient {
     public function getImageUrl($imageIdentifier) {
         $url = sprintf(
             $this->getHostForImageIdentifier($imageIdentifier) . '/users/%s/images/%s',
-            $this->getConfig('publicKey'),
+            $this->getUser(),
             $imageIdentifier
         );
 
-        return Http\ImageUrl::factory($url, $this->getConfig('privateKey'));
+        return Http\ImageUrl::factory(
+            $url,
+            $this->getConfig('privateKey'),
+            $this->getPublicKey()
+        );
     }
 
     /**
@@ -462,11 +808,15 @@ class ImboClient extends GuzzleClient {
     public function getMetadataUrl($imageIdentifier) {
         $url = sprintf(
             $this->getHostForImageIdentifier($imageIdentifier) . '/users/%s/images/%s/metadata.json',
-            $this->getConfig('publicKey'),
+            $this->getUser(),
             $imageIdentifier
         );
 
-        return Http\MetadataUrl::factory($url, $this->getConfig('privateKey'));
+        return Http\MetadataUrl::factory(
+            $url,
+            $this->getConfig('privateKey'),
+            $this->getPublicKey()
+        );
     }
 
     /**
@@ -535,17 +885,7 @@ class ImboClient extends GuzzleClient {
      * @return boolean
      */
     public function imageIdentifierExists($imageIdentifier) {
-        try {
-            $response = $this->head((string) $this->getImageUrl($imageIdentifier))->send();
-
-            return $response->getStatusCode() === 200;
-        } catch (GuzzleException $e) {
-            if ($e->getResponse()->getStatusCode() === 404) {
-                return false;
-            }
-
-            throw $e;
-        }
+        return $this->resourceExists($this->getImageUrl($imageIdentifier));
     }
 
     /**
@@ -575,7 +915,13 @@ class ImboClient extends GuzzleClient {
      * @return string
      */
     private function getHostForImageIdentifier($imageIdentifier) {
-        $dec = hexdec($imageIdentifier[0] . $imageIdentifier[1]);
+        $dec = ord(substr($imageIdentifier, -1));
+
+        // If this is an old image identifier (32 character hex string),
+        // maintain backwards compatibility
+        if (preg_match('#^[a-f0-9]{32}$#', $imageIdentifier)) {
+            $dec = hexdec($imageIdentifier[0] . $imageIdentifier[1]);
+        }
 
         return $this->serverUrls[$dec % count($this->serverUrls)];
     }
@@ -636,6 +982,51 @@ class ImboClient extends GuzzleClient {
 
         if (!filesize($path)) {
             throw new InvalidArgumentException('File is of zero length: ' . $path);
+        }
+    }
+
+    /**
+     * Helper method to make sure a public key is valid
+     *
+     * @param string $name Public key name
+     * @throws InvalidArgumentException
+     */
+    private function validatePublicKeyName($name) {
+        return $this->validateResourceGroupName($name, 'Public key');
+    }
+
+    /**
+     * Helper method to make sure a group name is valid
+     *
+     * @param string $name The name of the group
+     * @param string $entity Entity we're validating
+     * @throws InvalidArgumentException
+     */
+    private function validateResourceGroupName($name, $entity = 'Group name') {
+        if (!preg_match('/^[a-z0-9_-]{1,}$/', $name)) {
+            throw new InvalidArgumentException(
+                $entity . ' can only consist of: a-z, 0-9 and the characters _ and -'
+            );
+        }
+    }
+
+    /**
+     * Check if a given resource URL exists (returns a 200 in response to a HEAD-request)
+     *
+     * @param string $url URL of the resource to check
+     * @return boolean
+     */
+    private function resourceExists($url) {
+        try {
+            $response = $this->head((string) $url)->send();
+
+            return $response->getStatusCode() === 200;
+        } catch (GuzzleException $e) {
+            if ($e->getResponse()->getStatusCode() === 404) {
+                return false;
+            }
+
+            throw $e;
         }
     }
 }

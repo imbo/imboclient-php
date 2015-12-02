@@ -12,6 +12,7 @@ namespace ImboClientTest;
 
 use ImboClient\ImboClient,
     ImboClient\ImagesQuery,
+    ImboClient\Query,
     Guzzle\Http\Url,
     Guzzle\Http\Message\Response,
     Guzzle\Tests\GuzzleTestCase,
@@ -44,6 +45,11 @@ class ImboClientTest extends GuzzleTestCase {
     private $privateKey = 'test';
 
     /**
+     * @var string
+     */
+    private $user = 'testuser';
+
+    /**
      * Set up the client
      */
     public function setUp() {
@@ -51,6 +57,7 @@ class ImboClientTest extends GuzzleTestCase {
             'serverUrls' => array($this->baseUrl),
             'publicKey' => $this->publicKey,
             'privateKey' => $this->privateKey,
+            'user' => $this->user,
         );
 
         $this->client = ImboClient::factory($config);
@@ -63,8 +70,32 @@ class ImboClientTest extends GuzzleTestCase {
         $this->client = null;
     }
 
-    public function testCanFetchThePublicKeyOfTheCurrentUser() {
+    public function testFallsBackToPublicKeyIfUserNotSpecified() {
+        $this->client = ImboClient::factory(array(
+            'serverUrls' => array($this->baseUrl),
+            'publicKey' => $this->publicKey,
+            'privateKey' => $this->privateKey,
+        ));
+        $this->assertSame($this->publicKey, $this->client->getUser());
+    }
+
+    public function testCanFetchThePublicKeyOfTheClient() {
         $this->assertSame($this->publicKey, $this->client->getPublicKey());
+    }
+
+    public function testCanFetchTheCurrentUser() {
+        $this->assertSame($this->user, $this->client->getUser());
+    }
+
+    public function testCanSetDifferentUserAfterInstantiation() {
+        $this->assertSame($this->user, $this->client->getUser());
+        $this->assertSame($this->client, $this->client->setUser('foobar'));
+        $this->assertSame('foobar', $this->client->getUser());
+
+        $this->assertContains('/users/foobar', (string) $this->client->getUserUrl());
+        $this->assertContains('/users/foobar', (string) $this->client->getImagesUrl());
+        $this->assertContains('/users/foobar', (string) $this->client->getImageUrl('z'));
+        $this->assertContains('/users/foobar', (string) $this->client->getMetadataUrl('z'));
     }
 
     public function testCanFetchServerStatusWhenEverythingIsOk() {
@@ -116,6 +147,19 @@ class ImboClientTest extends GuzzleTestCase {
         $user = $this->client->getUserInfo();
 
         $this->assertSame('christer', $user['publicKey']);
+        $this->assertSame('christer', $user['user']);
+        $this->assertSame(11, $user['numImages']);
+        $this->assertInstanceOf('DateTime', $user['lastModified']);
+        $this->assertSame('2013-04-09 07:00:18', $user['lastModified']->format('Y-m-d H:i:s'));
+    }
+
+    public function testCanFetchUserInformationInImbo1Format() {
+        $this->setMockResponse($this->client, 'user_ok_old');
+
+        $user = $this->client->getUserInfo();
+
+        $this->assertSame('christer', $user['publicKey']);
+        $this->assertSame('christer', $user['user']);
         $this->assertSame(11, $user['numImages']);
         $this->assertInstanceOf('DateTime', $user['lastModified']);
         $this->assertSame('2013-04-09 07:00:18', $user['lastModified']->format('Y-m-d H:i:s'));
@@ -127,6 +171,8 @@ class ImboClientTest extends GuzzleTestCase {
             'stats' => array('getStatsUrl', 'ImboClient\Http\StatsUrl'),
             'user' => array('getUserUrl', 'ImboClient\Http\UserUrl'),
             'images' => array('getImagesUrl', 'ImboClient\Http\ImagesUrl'),
+            'groups' => array('getResourceGroupsUrl', 'ImboClient\Http\ResourceGroupsUrl'),
+            'keys' => array('getKeysUrl', 'ImboClient\Http\KeysUrl'),
         );
     }
 
@@ -143,6 +189,14 @@ class ImboClientTest extends GuzzleTestCase {
 
     public function testCanCreateMetadataUrls() {
         $this->assertInstanceOf('ImboClient\Http\MetadataUrl', $this->client->getMetadataUrl('identifier'));
+    }
+
+    public function testCanCreateResourceGroupUrls() {
+        $this->assertInstanceOf('ImboClient\Http\ResourceGroupUrl', $this->client->getResourceGroupUrl('group'));
+    }
+
+    public function testCanCreateKeyUrls() {
+        $this->assertInstanceOf('ImboClient\Http\KeyUrl', $this->client->getKeyUrl('somekey'));
     }
 
     /**
@@ -335,6 +389,17 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame('29f7a5488303927ca345416e22f8836e', $response['images'][1]['imageIdentifier']);
     }
 
+    public function testProvidesBackwardsCompatibilityForGetImages() {
+        $this->setMockResponse($this->client, 'images_get');
+        $response = $this->client->getImages();
+
+        $this->assertCount(2, $response['images']);
+        $this->assertSame('christer', $response['images'][0]['user']);
+        $this->assertSame('christer', $response['images'][0]['publicKey']);
+        $this->assertSame('espen', $response['images'][1]['user']);
+        $this->assertSame('espen', $response['images'][1]['publicKey']);
+    }
+
     public function testCanGetImagesUsingAQueryObject() {
         $this->setMockResponse($this->client, 'images_get');
 
@@ -354,7 +419,7 @@ class ImboClientTest extends GuzzleTestCase {
 
         $requests = $this->getMockedRequests();
         $request = $requests[0];
-        $this->assertSame('http://imbo/users/christer/images.json?page=2&limit=5&metadata=1&from=123&to=456&fields[0]=width&sort[0]=size&ids[0]=id1&ids[1]=id2&checksums[0]=checksum1&checksums[1]=checksum2&originalChecksums[0]=checksum3&originalChecksums[1]=checksum4&accessToken=8543972a575f42c1a6d380fd6fef033bec5e9af52042bb19ced45e87f4a7046f', urldecode($request->getUrl()));
+        $this->assertSame('http://imbo/users/testuser/images.json?page=2&limit=5&metadata=1&from=123&to=456&fields[0]=width&sort[0]=size&ids[0]=id1&ids[1]=id2&checksums[0]=checksum1&checksums[1]=checksum2&originalChecksums[0]=checksum3&originalChecksums[1]=checksum4&accessToken=01b1aa98aefccd5a50e2325316401fb26976f4fe525b4f33de66f515f8ccd169', urldecode($request->getUrl()));
     }
 
     /**
@@ -471,7 +536,7 @@ class ImboClientTest extends GuzzleTestCase {
         $request = $requests[0];
 
         $this->assertSame(
-            '{"publicKey":"christer","imageIdentifier":"image","extension":"jpg","query":"?t[]=thumbnail:width=50,height=50,fit=outbound&t[]=desaturate"}',
+            '{"user":"testuser","imageIdentifier":"image","extension":"jpg","query":"?t[]=thumbnail:width=50,height=50,fit=outbound&t[]=desaturate"}',
             (string) $request->getBody(),
             'Invalid JSON-encoded data in the request body'
         );
@@ -489,7 +554,7 @@ class ImboClientTest extends GuzzleTestCase {
         $requests = $this->getMockedRequests();
 
         $this->assertSame(
-            '{"publicKey":"christer","imageIdentifier":"image","extension":null,"query":null}',
+            '{"user":"testuser","imageIdentifier":"image","extension":null,"query":null}',
             (string) $requests[0]->getBody(),
             'Invalid JSON-encoded data in the request body'
         );
@@ -517,5 +582,279 @@ class ImboClientTest extends GuzzleTestCase {
     public function testThrowsExceptionWhenTryingToGetShortUrlAndGenerateShortUrlFails() {
         $this->setMockResponse($this->client, new Response(400));
         $url = $this->client->getShortUrl($this->client->getImageUrl('image'));
+    }
+
+    public function testCanGetResourceGroups() {
+        $this->setMockResponse($this->client, 'groups_get');
+        $response = $this->client->getResourceGroups();
+
+        $this->assertSame(2, $response['search']['hits']);
+        $this->assertSame(1, $response['search']['page']);
+        $this->assertSame(20, $response['search']['limit']);
+        $this->assertSame(2, $response['search']['count']);
+
+        $this->assertCount(2, $response['groups']);
+        $this->assertSame('images-read', $response['groups'][0]['name']);
+        $this->assertSame('groups-read', $response['groups'][1]['name']);
+        $this->assertCount(2, $response['groups'][0]['resources']);
+        $this->assertCount(4, $response['groups'][1]['resources']);
+    }
+
+    public function testCanGetResourceGroupsUsingAQueryObject() {
+        $this->setMockResponse($this->client, 'groups_get');
+
+        $query = new Query();
+        $query->page(2)->limit(5);
+
+        $response = $this->client->getResourceGroups($query);
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+        $this->assertSame('http://imbo/groups.json?page=2&limit=5&accessToken=2e1f640dc7e72e17703957dfb773f3cc58423df28fe97c481f702da2b50ddfe9', urldecode($request->getUrl()));
+    }
+
+    public function testCanGetResourceGroup() {
+        $this->setMockResponse($this->client, 'group_get');
+        $response = $this->client->getResourceGroup('images-read');
+
+        $this->assertCount(2, $response['resources']);
+        $this->assertSame('images.get', $response['resources'][0]);
+        $this->assertSame('images.head', $response['resources'][1]);
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+        $this->assertSame('http://imbo/groups/images-read.json?accessToken=6bc45d67228a0b9b712f01656945465255ecf35ea8ccef9c1b8048e74d58f2f0', urldecode($request->getUrl()));
+    }
+
+    public function testCanCheckIfAGroupExistsOnTheServer() {
+        $this->setMockResponse($this->client, array(
+            'group_exists',
+            'group_does_not_exist',
+        ));
+
+        $this->assertTrue($this->client->resourceGroupExists('group1'));
+        $this->assertFalse($this->client->resourceGroupExists('group2'));
+    }
+
+    public function testCanAddGroup() {
+        $this->setMockResponse($this->client, array(
+            'group_does_not_exist',
+            'group_created'
+        ));
+        $response = $this->client->addResourceGroup('some-group', array('foo', 'bar'));
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[1];
+
+        $this->assertSame('PUT', $request->getMethod());
+        $this->assertSame('http://imbo/groups/some-group', urldecode($request->getUrl()));
+        $this->assertSame('["foo","bar"]', (string) $request->getBody());
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Resource group with name "some-group" already exists
+     */
+    public function testAddGroupThrowsIfAlreadyExists() {
+        $this->setMockResponse($this->client, 'group_exists');
+        $response = $this->client->addResourceGroup('some-group', array('foo', 'bar'));
+    }
+
+    public function testCanEditGroup() {
+        $this->setMockResponse($this->client, 'group_exists');
+        $response = $this->client->editResourceGroup('some-group', array('foo', 'bar'));
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+
+        $this->assertSame('PUT', $request->getMethod());
+        $this->assertSame('http://imbo/groups/some-group', urldecode($request->getUrl()));
+        $this->assertSame('["foo","bar"]', (string) $request->getBody());
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
+    }
+
+    public function testCanDeleteGroup() {
+        $this->setMockResponse($this->client, 'group_deleted');
+        $response = $this->client->deleteResourceGroup('some-group', array('foo', 'bar'));
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+
+        $this->assertSame('DELETE', $request->getMethod());
+        $this->assertSame('http://imbo/groups/some-group', urldecode($request->getUrl()));
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
+    }
+
+    public function testCanCheckIfAPublicKeyExistsOnTheServer() {
+        $this->setMockResponse($this->client, array(
+            'public_key_exists',
+            'public_key_does_not_exist',
+        ));
+
+        $this->assertTrue($this->client->publicKeyExists('key1'));
+        $this->assertFalse($this->client->publicKeyExists('key2'));
+    }
+
+    public function testCanEditPublicKey() {
+        $this->setMockResponse($this->client, 'public_key_created');
+        $response = $this->client->editPublicKey('pubkey', 'newprivkey');
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+
+        $this->assertSame('PUT', $request->getMethod());
+        $this->assertSame('http://imbo/keys/pubkey', urldecode($request->getUrl()));
+        $this->assertSame('{"privateKey":"newprivkey"}', (string) $request->getBody());
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Public key can only consist of:
+     */
+    public function testThrowsExceptionWhenEditingPublicKeyWithInvalidCharacters() {
+        $this->client->editPublicKey('foo.bar', 'wat');
+    }
+
+    public function testCanAddPublicKey() {
+        $this->setMockResponse($this->client, array(
+            'public_key_does_not_exist',
+            'public_key_created'
+        ));
+        $response = $this->client->addPublicKey('pubkey', 'newprivkey');
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[1];
+
+        $this->assertSame('PUT', $request->getMethod());
+        $this->assertSame('http://imbo/keys/pubkey', urldecode($request->getUrl()));
+        $this->assertSame('{"privateKey":"newprivkey"}', (string) $request->getBody());
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Public key with name "pubkey" already exists
+     */
+    public function testAddPublicKeyThrowsIfAlreadyExists() {
+        $this->setMockResponse($this->client, 'public_key_exists');
+        $this->client->addPublicKey('pubkey', 'newprivkey');
+    }
+
+    public function testCanDeletePublicKey() {
+        $this->setMockResponse($this->client, 'public_key_deleted');
+        $response = $this->client->deletePublicKey('some-public-key');
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+
+        $this->assertSame('DELETE', $request->getMethod());
+        $this->assertSame('http://imbo/keys/some-public-key', urldecode($request->getUrl()));
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
+    }
+
+    public function testCanGetAccessControlRules() {
+        $this->setMockResponse($this->client, 'acl_rules_get');
+        $response = $this->client->getAccessControlRules('some-pubkey');
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+        $this->assertSame('http://imbo/keys/some-pubkey/access.json?accessToken=43ccb50a0ea66251eee79ec1f381647a7092ec1c4b26585e28f25911516c3e1a', urldecode($request->getUrl()));
+
+        $this->assertCount(3, $response);
+
+        $this->assertSame('images-read', $response[0]['group']);
+        $this->assertSame('groups-read', $response[1]['group']);
+
+        $this->assertSame(1, $response[0]['id']);
+        $this->assertSame(2, $response[1]['id']);
+        $this->assertSame(3, $response[2]['id']);
+
+        $this->assertSame('user', $response[0]['users'][0]);
+        $this->assertSame('user2', $response[0]['users'][1]);
+        $this->assertSame('*', $response[1]['users']);
+        $this->assertSame('*', $response[2]['users']);
+
+        $this->assertSame('group.delete', $response[2]['resources'][0]);
+        $this->assertSame('group.put', $response[2]['resources'][1]);
+    }
+
+    public function testCanGetAccessControlRule() {
+        $this->setMockResponse($this->client, 'acl_rule_get');
+        $rule = $this->client->getAccessControlRule('some-pubkey', 15);
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+        $this->assertSame('http://imbo/keys/some-pubkey/access/15.json?accessToken=63c8ed7a13b2aa62a56bcf3fe73b55800ca114acd3aa02fdeb70e7a3ab3ea788', urldecode($request->getUrl()));
+
+        $this->assertSame('images-read', $rule['group']);
+        $this->assertSame(1, $rule['id']);
+        $this->assertSame('user', $rule['users'][0]);
+        $this->assertSame('user2', $rule['users'][1]);
+    }
+
+    public function testCanAddAccessControlRules() {
+        $this->setMockResponse($this->client, 'acl_rules_created');
+
+        $rules = array(
+            array(
+                'group' => 'foo',
+                'users' => array('user1', 'user2')
+            ), array(
+                'resources' => array('res1', 'res2'),
+                'users' => '*'
+            )
+        );
+
+        // Add multiple rules
+        $response = $this->client->addAccessControlRules('some-pubkey', $rules);
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame('http://imbo/keys/some-pubkey/access', urldecode($request->getUrl()));
+        $this->assertSame(json_encode($rules), (string) $request->getBody());
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
+    }
+
+    public function testCanAddAccessControlRule() {
+        $this->setMockResponse($this->client, 'acl_rules_created');
+
+        $rule = array(
+            'group' => 'foo',
+            'users' => array('user1', 'user2')
+        );
+
+        // Add single rule
+        $this->client->addAccessControlRule('some-pubkey', $rule);
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame('http://imbo/keys/some-pubkey/access', urldecode($request->getUrl()));
+        $this->assertSame(json_encode(array($rule)), (string) $request->getBody());
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
+    }
+
+    public function testCanDeleteAccessControlRule() {
+        $this->setMockResponse($this->client, 'acl_rule_deleted');
+        $response = $this->client->deleteAccessControlRule('some-public-key', 'bf1942');
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+
+        $this->assertSame('DELETE', $request->getMethod());
+        $this->assertSame('http://imbo/keys/some-public-key/access/bf1942', urldecode($request->getUrl()));
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
     }
 }
