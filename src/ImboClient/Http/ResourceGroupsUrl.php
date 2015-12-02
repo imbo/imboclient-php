@@ -11,9 +11,9 @@
 namespace ImboClient\Http;
 
 /**
- * User URL
+ * Resource groups URL
  *
  * @package Client\Urls
- * @author Christer Edvartsen <cogo@starzinger.net>
+ * @author Espen Hovlandsdal <espen@hovlandsdal.com>
  */
-class UserUrl extends Url {}
+class ResourceGroupsUrl extends Url {}

@@ -1,6 +1,20 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-1.3.0
+----------------
+__2015-12-02__
+
+* #104: Added support for Imbo 2.x:
+    * New `user` parameter added to client constructor/factory
+    * Support image URLs with image identifiers outside of hex-range, and with lengths down to 1 character
+    * Add methods for handling access control - resource groups, access control rules and public keys, including documentation for these
+    * Add new transformations to the ImageUrl-class (`blur`, `contrast`, `drawPois`, `level`, `sharpen`, `smartSize`, `vignette`)
+
+Bug fixes:
+
+* #101: Fix bug where generateShortUrl would not sign requests (J5lx)
+
 ImboClient-1.2.0
 ----------------
 __2014-04-08__

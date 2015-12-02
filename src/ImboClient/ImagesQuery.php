@@ -16,108 +16,62 @@ namespace ImboClient;
  * @package Client
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
-class ImagesQuery {
-    /**
-     * The page to get
-     *
-     * @var int
-     */
-    private $page = 1;
-
-    /**
-     * Number of images to get
-     *
-     * @var int
-     */
-    private $limit = 20;
-
+class ImagesQuery extends Query {
     /**
      * Return metadata or not
      *
      * @var boolean
      */
-    private $metadata = false;
+    protected $metadata = false;
 
     /**
      * Unix timestamp to start fetching from
      *
      * @var int
      */
-    private $from;
+    protected $from;
 
     /**
      * Unix timestamp to fetch until
      *
      * @var int
      */
-    private $to;
+    protected $to;
 
     /**
      * List of fields to include in the response
      *
      * @var string[]
      */
-    private $fields = array();
+    protected $fields = array();
 
     /**
      * List of fields to sort by
      *
      * @var string[]
      */
-    private $sort = array();
+    protected $sort = array();
 
     /**
      * Filter on these ID's
      *
      * @var string[]
      */
-    private $ids = array();
+    protected $ids = array();
 
     /**
      * Filter on these checksums
      *
      * @var string[]
      */
-    private $checksums = array();
+    protected $checksums = array();
 
     /**
      * Filter on these original checksums
      *
      * @var string[]
      */
-    private $originalChecksums = array();
-
-    /**
-     * Set or get the page property
-     *
-     * @param int $page Give this a value to set the page property
-     * @return int|self
-     */
-    public function page($page = null) {
-        if ($page === null) {
-            return $this->page;
-        }
-
-        $this->page = (int) $page;
-
-        return $this;
-    }
-
-    /**
-     * Set or get the limit property
-     *
-     * @param int $limit Give this a value to set the limit property
-     * @return int|self
-     */
-    public function limit($limit = null) {
-        if ($limit === null) {
-            return $this->limit;
-        }
-
-        $this->limit = (int) $limit;
-
-        return $this;
-    }
+    protected $originalChecksums = array();
 
     /**
      * Set or get the metadata flag

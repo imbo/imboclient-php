@@ -37,7 +37,7 @@ Content-Type: application/json
       "height":50,
       "mime":"image\/jpeg",
       "imageIdentifier":"29f7a5488303927ca345416e22f8836e",
-      "publicKey":"christer"
+      "user":"espen"
     }
   ]
 }
