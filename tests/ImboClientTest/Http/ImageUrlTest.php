@@ -416,7 +416,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
 
     public function testCanAddMultipleTransformations() {
         $this->assertSame(
-            'http://imbo/users/christer/images/image.jpg?t%5B0%5D=border%3Acolor%3D000000%2Cwidth%3D1%2Cheight%3D1%2Cmode%3Doutbound&t%5B1%5D=desaturate',
+            'http://imbo/users/christer/images/image.jpg?t%5B%5D=border%3Acolor%3D000000%2Cwidth%3D1%2Cheight%3D1%2Cmode%3Doutbound&t%5B%5D=desaturate',
             (string) $this->url->border()->jpg()->desaturate()
         );
     }
@@ -465,7 +465,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
         $this->url->setPrivateKey('key');
         $this->url->maxSize(123, 123);
 
-        $this->assertSame('http://imbo/users/christer/images/image?t%5B0%5D=maxSize%3Awidth%3D123%2Cheight%3D123&accessToken=ae738aa84615093e78c635fbbdbef4debb177346a956eb4cefe50bc83592da70', (string) $this->url);
+        $this->assertSame('http://imbo/users/christer/images/image?t%5B%5D=maxSize%3Awidth%3D123%2Cheight%3D123&accessToken=ae738aa84615093e78c635fbbdbef4debb177346a956eb4cefe50bc83592da70', (string) $this->url);
         $this->assertSame((string) $this->url, (string) $this->url);
     }
 
@@ -482,7 +482,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
 
         $this->url->desaturate();
 
-        $expectedUrl .= '?t%5B0%5D=desaturate';
+        $expectedUrl .= '?t%5B%5D=desaturate';
 
         $this->assertSame($expectedUrl, (string) $this->url);
         $this->assertSame($expectedUrl, (string) $this->url);
@@ -537,5 +537,117 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
 
         $this->url->reset();
         $this->assertSame(array(), $this->url->getTransformations(), 'Resetting the URL did not clear the added transformations');
+    }
+
+    public function testCanRecreateUrlFromString() {
+        $url  = 'http://imbo/users/foo-bar/images/imgIdentifier.jpg';
+        $url .= '?t[]=flipHorizontally';
+        $url .= '&t[]=sepia:threshold=30';
+        $url .= '&publicKey=pub-key-generator';
+
+        $imgUrl = ImageUrl::factory($url . '&accessToken=njkn12k4jbn124jk1n4jn13j4nk2341');
+
+        $transformations = $imgUrl->getTransformations();
+        $this->assertCount(2, $transformations);
+        $this->assertSame('flipHorizontally', $transformations[0]);
+        $this->assertSame('sepia:threshold=30', $transformations[1]);
+        $this->assertSame('jpg', $imgUrl->getExtension());
+        $this->assertSame('imgIdentifier', $imgUrl->getImageIdentifier());
+        $this->assertSame('pub-key-generator', $imgUrl->getPublicKey());
+        $this->assertSame('foo-bar', $imgUrl->getUser());
+
+        $this->assertSame($url, rawurldecode((string) $imgUrl));
+    }
+
+    public function testGeneratesAccessTokenIfPrivateKeyIsPassed() {
+        $url  = 'http://imbo/users/foo-bar/images/imgIdentifier.jpg';
+        $url .= '?t[]=flipHorizontally';
+        $url .= '&t[]=sepia:threshold=30';
+        $url .= '&publicKey=pub-key-generator';
+
+        $imgUrl = ImageUrl::factory($url, 'privkey');
+        $this->assertContains(
+            '&accessToken=4b5b46a27669ae0fe8095e7fc1f0c1ba86c1231ba759ed8865a761f853bc08a3',
+            (string) $imgUrl
+        );
+    }
+
+    public function testOverridesPublicKeyIfNewPubKeyIsPassed() {
+        $url  = 'http://imbo/users/foo-bar/images/imgIdentifier.jpg';
+        $url .= '?t[]=flipHorizontally';
+        $url .= '&t[]=sepia:threshold=30';
+        $url .= '&publicKey=pub-key-generator';
+        $url .= '&accessToken=foo';
+
+        $imgUrl = ImageUrl::factory($url, 'privkey', 'pubkey');
+        $this->assertNotContains('&publicKey=pub-key', (string) $imgUrl);
+        $this->assertNotContains('&accessToken=foo', (string) $imgUrl);
+        $this->assertContains(
+            '&accessToken=8d9de618264f772df86a9b4f082ea00a3fa203bbc5644ae1d409d3c785806772',
+            (string) $imgUrl
+        );
+    }
+
+    public function testNormalizesUrlByRemovingRedundantPublicKey() {
+        $url  = 'http://imbo/users/foo-bar/images/imgIdentifier.jpg';
+        $url .= '?t[]=flipHorizontally';
+        $url .= '&t[]=sepia:threshold=30';
+        $url .= '&publicKey=foo-bar';
+        $url .= '&accessToken=foo';
+
+        $imgUrl = ImageUrl::factory($url, 'privkey', 'pubkey');
+        $this->assertNotContains('&publicKey=pub-key', (string) $imgUrl);
+    }
+
+    public function testDoesNotIncludeAccessTokenIfPrivateKeyNotSet() {
+        $url  = 'http://imbo/users/foo-bar/images/imgIdentifier.jpg';
+        $url .= '?t[]=flipHorizontally';
+        $url .= '&t[]=sepia:threshold=30';
+        $url .= '&accessToken=foo';
+
+        $imgUrl = ImageUrl::factory($url);
+        $imgUrl->desaturate();
+
+        $this->assertNotContains('&accessToken=', (string) $imgUrl);
+    }
+
+    public function testContinuesToBuildOnExistingTransformations() {
+        $url  = 'http://imbo/users/foo-bar/images/imgIdentifier.jpg';
+        $url .= '?t[]=flipHorizontally';
+        $url .= '&t[]=sepia:threshold=30';
+
+        $imgUrl = ImageUrl::factory($url);
+        $imgUrl->desaturate()->autoRotate();
+
+        $this->assertContains(
+            '?t%5B%5D=flipHorizontally&t%5B%5D=sepia%3Athreshold%3D30&t%5B%5D=desaturate&t%5B%5D=autoRotate',
+            (string) $imgUrl
+        );
+    }
+
+    public function testCanResetExistingUrlToRemoveTransformationsAndExtension() {
+        $url  = 'http://imbo/users/bar/images/imgIdentifier.jpg';
+        $url .= '?t[]=flipHorizontally';
+        $url .= '&t[]=sepia:threshold=30';
+
+        $imgUrl = ImageUrl::factory($url, 'foo', 'bar');
+        $imgUrl->reset();
+
+        $at = '23d459cc4ad6b57bac6953c6d75cb78d3d235583d3e93f651aec7691cb427755';
+        $this->assertSame(
+            'http://imbo/users/bar/images/imgIdentifier?accessToken=' . $at,
+            (string) $imgUrl
+        );
+    }
+
+    public function testDoesNotIncludeTransformationQueryParamIfNoTransformationsAdded() {
+        $url  = 'http://imbo/users/bar/images/imgIdentifier.jpg?foo=bar&z=lulz';
+
+        $imgUrl = ImageUrl::factory($url);
+
+        $this->assertSame(
+            'http://imbo/users/bar/images/imgIdentifier.jpg?foo=bar&z=lulz',
+            (string) $imgUrl
+        );
     }
 }
