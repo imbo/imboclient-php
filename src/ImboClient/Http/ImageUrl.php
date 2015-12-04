@@ -34,6 +34,38 @@ class ImageUrl extends ImagesUrl {
     private $extension;
 
     /**
+     * Factory method
+     *
+     * @param string $url URL as a string
+     * @param string $privateKey Optional private key
+     * @param string $publicKey Optional public key
+     * @return Url
+     */
+    public static function factory($url, $privateKey = null, $publicKey = null) {
+        $url = parent::factory($url, $privateKey, $publicKey);
+        $query = $url->getQuery();
+
+        // Fetch transformations from string and add them as state
+        $transformations = $query->get('t');
+        $transformations = is_array($transformations) ? $transformations : array();
+
+        foreach ($transformations as $transformation) {
+            $url->addTransformation($transformation);
+        }
+
+        // Extract any extension and set it as state
+        $pattern = '#^/users/[^/]+/images/[^\.]+(\.(?<extension>gif|jpg|png))?$#';
+        if (preg_match($pattern, $url->getPath(), $match) && isset($match['extension'])) {
+            $url->convert($match['extension']);
+        }
+
+        // Remove any existing access token (new one will be recreated when toString is called)
+        $query->remove('accessToken');
+
+        return $url;
+    }
+
+    /**
      * Add a transformation
      *
      * @param string $transformation A transformation
