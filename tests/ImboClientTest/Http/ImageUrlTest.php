@@ -641,12 +641,12 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testDoesNotIncludeTransformationQueryParamIfNoTransformationsAdded() {
-        $url  = 'http://imbo/users/bar/images/imgIdentifier.jpg?foo=bar&z=lulz';
+        $url  = 'http://imbo/users/bar/images/imgIdentifier?foo=bar&z=lulz';
 
         $imgUrl = ImageUrl::factory($url);
 
         $this->assertSame(
-            'http://imbo/users/bar/images/imgIdentifier.jpg?foo=bar&z=lulz',
+            'http://imbo/users/bar/images/imgIdentifier?foo=bar&z=lulz',
             (string) $imgUrl
         );
     }
