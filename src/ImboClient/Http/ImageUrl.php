@@ -731,7 +731,7 @@ class ImageUrl extends ImagesUrl {
         // string has already been converted to a string
         $this->query->set('t', $this->transformations);
 
-        return parent::__toString();
+        return preg_replace('/t%5B[0-9]+%5D=/', 't%5B%5D=', parent::__toString());
     }
 
     /**
@@ -763,8 +763,8 @@ class ImageUrl extends ImagesUrl {
      * @return string|null
      */
     public function getImageIdentifier() {
-        if (preg_match('#/users/[^/]+/images/(?<imageIdentifier>[^./]+)#', $this->getPath(), $match)) {
-            return $match['imageIdentifier'];
+        if (preg_match('#/users/[^/]+/images/(?<imgId>[^./]+)#', $this->getPath(), $match)) {
+            return $match['imgId'];
         }
 
         return null;
