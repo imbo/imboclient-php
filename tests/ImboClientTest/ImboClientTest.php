@@ -663,7 +663,7 @@ class ImboClientTest extends GuzzleTestCase {
     }
 
     public function testCanEditGroup() {
-        $this->setMockResponse($this->client, 'group_exists');
+        $this->setMockResponse($this->client, 'group_edit');
         $response = $this->client->editResourceGroup('some-group', array('foo', 'bar'));
 
         $requests = $this->getMockedRequests();

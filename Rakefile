@@ -97,6 +97,15 @@ task :test do
   end
 end
 
+desc "Run unit tests without code coverage"
+task :test_no_cc do
+  begin
+    sh %{./vendor/bin/phpunit --verbose -c tests}
+  rescue Exception
+    exit 1
+  end
+end
+
 desc "Generate API documentation using phpdoc"
 task :apidocs do
   system "phpdoc -d #{source} -t #{build}/docs --title \"ImboClient API documentation\""

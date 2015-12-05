@@ -1,6 +1,14 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-2.0.0
+----------------
+__2015-12-05__
+
+This version of the client includes one backward compatibility break:
+
+When constructing ImageUrl's using `ImageUrl::factory()`, it will be populated with the transformations and extension of the original URL. If anyone relied on the constructed image url to be cleared of any transformations, you will now have to call `reset()` on the image url instance returned, before applying any other transformations.
+
 ImboClient-1.3.0
 ----------------
 __2015-12-02__
