@@ -1,6 +1,12 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-2.0.2
+----------------
+__2015-12-06__
+
+Bug fix: Lock `symfony/yaml` dependency to specific version to prevent errors on PHP 5.3/5.4.
+
 ImboClient-2.0.1
 ----------------
 __2015-12-06__
