@@ -387,6 +387,16 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertCount(2, $response['images']);
         $this->assertSame('d6c335a9e0ba3aa485942925ca5ec9cd', $response['images'][0]['imageIdentifier']);
         $this->assertSame('29f7a5488303927ca345416e22f8836e', $response['images'][1]['imageIdentifier']);
+
+        $requests = $this->getMockedRequests();
+        $request = $requests[0];
+
+        $this->assertSame('GET', $request->getMethod());
+        $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
+        $this->assertContains(
+            'http://imbo/users/testuser/images.json?page=1&limit=20&accessToken=',
+            urldecode($request->getUrl())
+        );
     }
 
     public function testProvidesBackwardsCompatibilityForGetImages() {
