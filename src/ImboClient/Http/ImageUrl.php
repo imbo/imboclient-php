@@ -46,7 +46,13 @@ class ImageUrl extends ImagesUrl {
         $query = $url->getQuery();
 
         // Fetch transformations from string and add them as state
-        $transformations = $query->get('t');
+        $transformations = (array) $query->get('t');
+        foreach ($query as $key => $value) {
+            if (preg_match('#^t\[\d+\]$#', $key)) {
+                $transformations[] = $value;
+            }
+        }
+
         $transformations = is_array($transformations) ? $transformations : array();
 
         foreach ($transformations as $transformation) {
@@ -731,7 +737,7 @@ class ImageUrl extends ImagesUrl {
         // string has already been converted to a string
         $this->query->set('t', $this->transformations);
 
-        return preg_replace('/t%5B[0-9]+%5D=/', 't%5B%5D=', parent::__toString());
+        return parent::__toString();
     }
 
     /**

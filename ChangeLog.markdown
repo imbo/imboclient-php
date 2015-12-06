@@ -1,6 +1,12 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-2.0.1
+----------------
+__2015-12-06__
+
+Bug fix: Fix normalizing of image URLs causing incorrect access tokens.
+
 ImboClient-2.0.0
 ----------------
 __2015-12-05__

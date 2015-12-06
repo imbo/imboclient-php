@@ -416,7 +416,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
 
     public function testCanAddMultipleTransformations() {
         $this->assertSame(
-            'http://imbo/users/christer/images/image.jpg?t%5B%5D=border%3Acolor%3D000000%2Cwidth%3D1%2Cheight%3D1%2Cmode%3Doutbound&t%5B%5D=desaturate',
+            'http://imbo/users/christer/images/image.jpg?t%5B0%5D=border%3Acolor%3D000000%2Cwidth%3D1%2Cheight%3D1%2Cmode%3Doutbound&t%5B1%5D=desaturate',
             (string) $this->url->border()->jpg()->desaturate()
         );
     }
@@ -465,7 +465,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
         $this->url->setPrivateKey('key');
         $this->url->maxSize(123, 123);
 
-        $this->assertSame('http://imbo/users/christer/images/image?t%5B%5D=maxSize%3Awidth%3D123%2Cheight%3D123&accessToken=ae738aa84615093e78c635fbbdbef4debb177346a956eb4cefe50bc83592da70', (string) $this->url);
+        $this->assertSame('http://imbo/users/christer/images/image?t%5B0%5D=maxSize%3Awidth%3D123%2Cheight%3D123&accessToken=ae738aa84615093e78c635fbbdbef4debb177346a956eb4cefe50bc83592da70', (string) $this->url);
         $this->assertSame((string) $this->url, (string) $this->url);
     }
 
@@ -482,7 +482,7 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
 
         $this->url->desaturate();
 
-        $expectedUrl .= '?t%5B%5D=desaturate';
+        $expectedUrl .= '?t%5B0%5D=desaturate';
 
         $this->assertSame($expectedUrl, (string) $this->url);
         $this->assertSame($expectedUrl, (string) $this->url);
@@ -541,6 +541,26 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
 
     public function testCanRecreateUrlFromString() {
         $url  = 'http://imbo/users/foo-bar/images/imgIdentifier.jpg';
+        $url .= '?t[0]=flipHorizontally';
+        $url .= '&t[1]=sepia:threshold=30';
+        $url .= '&publicKey=pub-key-generator';
+
+        $imgUrl = ImageUrl::factory($url . '&accessToken=njkn12k4jbn124jk1n4jn13j4nk2341');
+
+        $transformations = $imgUrl->getTransformations();
+        $this->assertCount(2, $transformations);
+        $this->assertSame('flipHorizontally', $transformations[0]);
+        $this->assertSame('sepia:threshold=30', $transformations[1]);
+        $this->assertSame('jpg', $imgUrl->getExtension());
+        $this->assertSame('imgIdentifier', $imgUrl->getImageIdentifier());
+        $this->assertSame('pub-key-generator', $imgUrl->getPublicKey());
+        $this->assertSame('foo-bar', $imgUrl->getUser());
+
+        $this->assertSame($url, rawurldecode((string) $imgUrl));
+    }
+
+    public function testCanRecreateUrlFromStringWithNonNumericTransformations() {
+        $url  = 'http://imbo/users/foo-bar/images/imgIdentifier.jpg';
         $url .= '?t[]=flipHorizontally';
         $url .= '&t[]=sepia:threshold=30';
         $url .= '&publicKey=pub-key-generator';
@@ -556,7 +576,10 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame('pub-key-generator', $imgUrl->getPublicKey());
         $this->assertSame('foo-bar', $imgUrl->getUser());
 
-        $this->assertSame($url, rawurldecode((string) $imgUrl));
+        $this->assertSame(
+            'http://imbo/users/foo-bar/images/imgIdentifier.jpg?t[0]=flipHorizontally&t[1]=sepia:threshold=30&publicKey=pub-key-generator',
+            rawurldecode((string) $imgUrl)
+        );
     }
 
     public function testGeneratesAccessTokenIfPrivateKeyIsPassed() {
@@ -620,9 +643,20 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
         $imgUrl->desaturate()->autoRotate();
 
         $this->assertContains(
-            '?t%5B%5D=flipHorizontally&t%5B%5D=sepia%3Athreshold%3D30&t%5B%5D=desaturate&t%5B%5D=autoRotate',
+            '?t%5B0%5D=flipHorizontally&t%5B1%5D=sepia%3Athreshold%3D30&t%5B2%5D=desaturate&t%5B3%5D=autoRotate',
             (string) $imgUrl
         );
+    }
+
+    public function testRetrievesAllTransformationsRegardlessOfIndex() {
+        $url  = 'http://imbo/users/foo-bar/images/imgIdentifier.jpg';
+        $url .= '?t[0]=flipHorizontally';
+        $url .= '&t[]=sepia:threshold=30';
+        $url .= '&t=eh';
+        $url .= '&t[1]=strip';
+
+        $imgUrl = ImageUrl::factory($url);
+        $this->assertCount(4, $imgUrl->getTransformations());
     }
 
     public function testCanResetExistingUrlToRemoveTransformationsAndExtension() {
