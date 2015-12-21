@@ -670,9 +670,10 @@ class ImageUrl extends ImagesUrl {
      *                         'top-left'.
      * @param int $x Offset in the X-axis relative to the $position parameter. Defaults to 0
      * @param int $y Offset in the Y-axis relative to the $position parameter. Defaults to 0
+     * @param int $opacity Opacity of the watermark image, can be an integer from 0 to 100. Defaults to null
      * @return self
      */
-    public function watermark($img = null, $width = null, $height = null, $position = 'top-left', $x = 0, $y = 0) {
+    public function watermark($img = null, $width = null, $height = null, $position = 'top-left', $x = 0, $y = 0, $opacity = null) {
         $params = array(
             'position=' . $position,
             'x=' . (int) $x,
@@ -689,6 +690,10 @@ class ImageUrl extends ImagesUrl {
 
         if ($height !== null) {
             $params[] = 'height=' . (int) $height;
+        }
+
+        if ($opacity !== null) {
+            $params[] = 'opacity=' . (int) $opacity;
         }
 
         return $this->addTransformation(sprintf('watermark:%s', implode(',', $params)));

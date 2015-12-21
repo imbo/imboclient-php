@@ -289,8 +289,8 @@ class ImageUrlTest extends \PHPUnit_Framework_TestCase {
             ),
             'watermark with all params' => array(
                 'watermark',
-                array('img', 40, 50, 'center', 1, 2),
-                'watermark:position=center,x=1,y=2,img=img,width=40,height=50',
+                array('img', 40, 50, 'center', 1, 2, 30),
+                'watermark:position=center,x=1,y=2,img=img,width=40,height=50,opacity=30',
             ),
         );
     }
