@@ -1,9 +1,9 @@
 Changelog for ImboClient
 ========================
 
-ImboClient-x.x.x
+ImboClient-2.0.3
 ----------------
-__N/A__
+__2016-03-17__
 
 * #109: Don't allow generation of image URL's with no image identifier (Christer Edvartsen)
 
