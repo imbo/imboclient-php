@@ -782,10 +782,15 @@ class ImboClient extends GuzzleClient {
     /**
      * Get a URL for the image resource
      *
+     * @throws InvalidArgumentException
      * @param string $imageIdentifier An image identifier
      * @return Http\ImageUrl
      */
     public function getImageUrl($imageIdentifier) {
+        if (empty($imageIdentifier)) {
+            throw new InvalidArgumentException('Missing image identifier');
+        }
+
         $url = sprintf(
             $this->getHostForImageIdentifier($imageIdentifier) . '/users/%s/images/%s',
             $this->getUser(),
