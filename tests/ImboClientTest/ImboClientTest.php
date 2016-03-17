@@ -867,4 +867,12 @@ class ImboClientTest extends GuzzleTestCase {
         $this->assertSame('christer', (string) $request->getHeader('x-imbo-publickey'));
         $this->assertTrue($request->hasHeader('X-Imbo-Authenticate-Signature'));
     }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Missing image identifier
+     */
+    public function testClientShouldNotBeAbleToGenerateImageUrlWithNoImageIdentifier() {
+        echo $this->client->getImageUrl('');
+    }
 }
