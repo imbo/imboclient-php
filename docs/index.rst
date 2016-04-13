@@ -446,19 +446,25 @@ The response is the existing metadata, which in this case is an empty object.
 Generate short image URL
 ++++++++++++++++++++++++
 
-To be able to generate short image URLs you can use the ``generateShortUrl`` method, and simply specify an instance of the image URL you want to shorten:
+To be able to generate short image URLs you can use the ``getShortUrl`` method, and simply specify an instance of the image URL you want to shorten:
 
 .. code-block:: php
 
    // Create an image URL with some optional transformations
    $imageUrl = $client->getImageUrl('image identifier')->thumbnail()->desaturate()->jpg();
 
-   // Pass the image URL instance to the generateShortUrl method
+   // Pass the image URL instance to the getShortUrl method
+   $response = $client->getShortUrl($imageUrl);
+
+   echo 'Short URL: ' . $response;
+
+If you only want to fetch the short URL ID and not the whole URL you can use the ``generateShortUrl`` method (that ``getShortUrl`` uses internally):
+
+.. code-block:: php
+
    $response = $client->generateShortUrl($imageUrl);
 
    echo 'Short URL ID: ' . $response['id'];
-
-The generated ID can be used with the global short URL resource in Imbo.
 
 Get resource groups
 +++++++++++++++++++
