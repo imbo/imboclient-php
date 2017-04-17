@@ -11,6 +11,7 @@
 namespace ImboClient;
 
 use ImboClient\Http,
+    ImboClient\Http\QueryAggregator\UnindexedPhpAggregator,
     ImboClient\Helper\PublicKeyFallback,
     Guzzle\Common\Collection,
     Guzzle\Service\Client as GuzzleClient,
@@ -35,6 +36,13 @@ class ImboClient extends GuzzleClient {
      * @var array
      */
     private $serverUrls = array();
+
+    /**
+     * Query string aggregator to use when encountering duplicates
+     *
+     * @var Guzzle\Http\QueryAggregator\QueryAggregatorInterface
+     */
+    private $queryStringAggregator;
 
     /**
      * The name of the current command
@@ -195,9 +203,15 @@ class ImboClient extends GuzzleClient {
             throw new InvalidArgumentException('URL is missing scheme: ' . (string) $url);
         }
 
-        // Fetch the image we want to add
-        $image = (string) $this->get($url)->send()->getBody();
+        // Make sure we're using array-style querystring with no indexes (t[]= vs t[0]=)
+        $url->getQuery()->setAggregator($this->getQueryStringAggregator());
 
+        // First, instantiate a request, then explicitly set the URL to be the originally
+        // constructed URL. Guzzle returns a modified copy which doesn't use our aggregator
+        $request = $this->get($url)->setUrl($url);
+
+        // Fetch the image we want to add
+        $image = $request->send()->getBody();
         return $this->addImageFromString($image);
     }
 
@@ -1033,5 +1047,18 @@ class ImboClient extends GuzzleClient {
 
             throw $e;
         }
+    }
+
+    /**
+     * Get the query string aggregator to use for requests
+     *
+     * @return Guzzle\Http\QueryAggregator\QueryAggregatorInterface
+     */
+    private function getQueryStringAggregator() {
+        if (!$this->queryStringAggregator) {
+            $this->queryStringAggregator = new UnindexedPhpAggregator();
+        }
+
+        return $this->queryStringAggregator;
     }
 }
