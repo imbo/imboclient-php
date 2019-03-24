@@ -10,6 +10,8 @@
 
 namespace ImboClient;
 
+use Guzzle\Http\Exception\ClientErrorResponseException;
+use Guzzle\Http\Exception\CurlException;
 use ImboClient\Http,
     ImboClient\Helper\PublicKeyFallback,
     Guzzle\Common\Collection,
@@ -1020,13 +1022,14 @@ class ImboClient extends GuzzleClient {
      *
      * @param string $url URL of the resource to check
      * @return boolean
+     * @throws CurlException|ClientErrorResponseException
      */
     private function resourceExists($url) {
         try {
             $response = $this->head((string) $url)->send();
 
             return $response->getStatusCode() === 200;
-        } catch (GuzzleException $e) {
+        } catch (ClientErrorResponseException $e) {
             if ($e->getResponse()->getStatusCode() === 404) {
                 return false;
             }
