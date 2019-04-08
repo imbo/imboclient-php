@@ -284,6 +284,86 @@ return array(
             ),
             'responseClass' => 'GetImages',
         ),
+        'SearchImages' => array(
+            'httpMethod' => 'SEARCH',
+            'uri' => 'users/{user}/images.json',
+            'summary' => 'Fetch information about images owned by a specific user',
+            'parameters' => array(
+                'user' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'location' => 'uri',
+                    'description' => 'The owner of the images',
+                ),
+                'page' => array(
+                    'type' => 'integer',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Which page to fetch from',
+                ),
+                'limit' => array(
+                    'type' => 'integer',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Limit the number of images returned',
+                ),
+                'metadata' => array(
+                    'type' => 'boolean',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Whether or not to include metadata in the response',
+                ),
+                'from' => array(
+                    'type' => 'integer',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Unix timestamp representing the oldest possible image in the set',
+                ),
+                'to' => array(
+                    'type' => 'integer',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Unix timestamp representing the newest possible image in the set',
+                ),
+                'fields' => array(
+                    'type' => 'array',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Array of fields to include in the result set',
+                ),
+                'sort' => array(
+                    'type' => 'array',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Array of fields to sort by',
+                ),
+                'ids' => array(
+                    'type' => 'array',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Array of image identifiers to filter by',
+                ),
+                'checksums' => array(
+                    'type' => 'array',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Array of image checksums to filter by',
+                ),
+                'originalChecksums' => array(
+                    'type' => 'array',
+                    'required' => false,
+                    'location' => 'query',
+                    'description' => 'Array of original image checksums to filter by',
+                ),
+                'metadata_search' => array(
+                    'type' => 'string',
+                    'required' => false,
+                    'location' => 'body',
+                    'description' => 'Metadata search request presented as JSON'
+                )
+            ),
+            'responseClass' => 'GetImages',
+        ),
         'GenerateShortUrl' => array(
             'httpMethod' => 'POST',
             'uri' => 'users/{user}/images/{imageIdentifier}/shorturls',
