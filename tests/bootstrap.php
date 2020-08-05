@@ -10,14 +10,16 @@
 
 namespace ImboClientTest;
 
+/*
 use Guzzle\Tests\GuzzleTestCase,
     Guzzle\Service\Builder\ServiceBuilder;
+ */
 
 require __DIR__ . '/../vendor/autoload.php';
 
 // Set a default service builder for the tests
-$serviceDescription = require __DIR__ . '/../src/ImboClient/service.php';
-GuzzleTestCase::setServiceBuilder(ServiceBuilder::factory($serviceDescription['operations']));
+// $serviceDescription = require __DIR__ . '/../src/ImboClient/service.php';
+// GuzzleTestCase::setServiceBuilder(ServiceBuilder::factory($serviceDescription['operations']));
 
 // Set the base path for respones mocks
-GuzzleTestCase::setMockBasePath(__DIR__ . '/response_mocks');
+// GuzzleTestCase::setMockBasePath(__DIR__ . '/response_mocks');

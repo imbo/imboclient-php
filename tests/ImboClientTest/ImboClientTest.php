@@ -10,24 +10,30 @@
 
 namespace ImboClientTest;
 
-use ImboClient\ImboClient,
-    ImboClient\ImagesQuery,
-    ImboClient\Query,
-    Guzzle\Http\Url,
-    Guzzle\Http\Message\Response,
-    Guzzle\Tests\GuzzleTestCase,
-    Guzzle\Http\Exception\ServerErrorResponseException;
+use ImboClient\ImboClient;
+use ImboClient\ImagesQuery;
+use ImboClient\Query;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\Message\Response;
+use GuzzleHttp\Psr7\Uri;
 
 /**
  * @package Test suite
  * @author Christer Edvartsen <cogo@starzinger.net>
  * @covers ImboClient\ImboClient
  */
-class ImboClientTest extends GuzzleTestCase {
+class ImboClientTest extends \PHPUnit_Framework_TestCase {
     /**
      * @var ImboClient
      */
     private $client;
+
+    /**
+     * @var MockHandler
+     */
+    private $mockHandler;
 
     /**
      * @var string
@@ -53,11 +59,14 @@ class ImboClientTest extends GuzzleTestCase {
      * Set up the client
      */
     public function setUp() {
+        $this->mockHandler = new MockHandler();
+
         $config = array(
             'serverUrls' => array($this->baseUrl),
             'publicKey' => $this->publicKey,
             'privateKey' => $this->privateKey,
             'user' => $this->user,
+            'handler' => $this->mockHandler,
         );
 
         $this->client = ImboClient::factory($config);
@@ -67,7 +76,12 @@ class ImboClientTest extends GuzzleTestCase {
      * Tear down the client
      */
     public function tearDown() {
+        $this->mockHandler = null;
         $this->client = null;
+    }
+
+    public function setMockResponse($code, $message) {
+        $this->mockHandler->append($code, $message);
     }
 
     public function testFallsBackToPublicKeyIfUserNotSpecified() {
@@ -99,7 +113,7 @@ class ImboClientTest extends GuzzleTestCase {
     }
 
     public function testCanFetchServerStatusWhenEverythingIsOk() {
-        $this->setMockResponse($this->client, 'status_ok');
+        $this->setMockResponse(200, 'status_ok');
 
         $status = $this->client->getServerStatus();
         $this->assertInstanceOf('DateTime', $status['date']);
@@ -109,7 +123,7 @@ class ImboClientTest extends GuzzleTestCase {
     }
 
     public function testCanFetchServerStatusWhenDatabaseIsDown() {
-        $this->setMockResponse($this->client, 'status_database_down');
+        $this->setMockResponse(500, 'status_database_down');
 
         $status = $this->client->getServerStatus();
 
@@ -120,7 +134,7 @@ class ImboClientTest extends GuzzleTestCase {
     }
 
     public function testCanFetchServerStatusWhenStorageIsDown() {
-        $this->setMockResponse($this->client, 'status_storage_down');
+        $this->setMockResponse(500, 'status_storage_down');
 
         $status = $this->client->getServerStatus();
 
@@ -131,7 +145,7 @@ class ImboClientTest extends GuzzleTestCase {
     }
 
     public function testCanFetchServerStatusWhenDatabaseAndStorageIsDown() {
-        $this->setMockResponse($this->client, 'status_database_and_storage_down');
+        $this->setMockResponse(500, 'status_database_and_storage_down');
 
         $status = $this->client->getServerStatus();
 
@@ -142,7 +156,7 @@ class ImboClientTest extends GuzzleTestCase {
     }
 
     public function testCanFetchUserInformation() {
-        $this->setMockResponse($this->client, 'user_ok');
+        $this->setMockResponse(200, 'user_ok');
 
         $user = $this->client->getUserInfo();
 
@@ -154,7 +168,7 @@ class ImboClientTest extends GuzzleTestCase {
     }
 
     public function testCanFetchUserInformationInImbo1Format() {
-        $this->setMockResponse($this->client, 'user_ok_old');
+        $this->setMockResponse(200, 'user_ok_old');
 
         $user = $this->client->getUserInfo();
 
@@ -228,7 +242,7 @@ class ImboClientTest extends GuzzleTestCase {
      * @expectedExceptionMessage URL is missing scheme: /some/path
      */
     public function testThrowsExceptionWhenAddingImageFromUrlAndUrlIsInvalid() {
-        $this->client->addImageFromUrl(Url::factory('/some/path'));
+        $this->client->addImageFromUrl(new Uri('/some/path'));
     }
 
     /**
@@ -282,7 +296,7 @@ class ImboClientTest extends GuzzleTestCase {
     }
 
     public function testCanAddAnImageFromALocalPath() {
-        $this->setMockResponse($this->client, 'image_created');
+        $this->setMockResponse(r00, 'image_created');
 
         $response = $this->client->addImage(__DIR__ . '/_files/image.png');
         $this->assertSame('929db9c5fc3099f7576f5655207eba47', $response['imageIdentifier']);
@@ -574,7 +588,7 @@ class ImboClientTest extends GuzzleTestCase {
         $this->setMockResponse($this->client, 'shorturl_created');
         $url = $this->client->getShortUrl($this->client->getImageUrl('image'));
 
-        $this->assertInstanceOf('Guzzle\Http\Url', $url);
+        $this->assertInstanceOf('GuzzleHttp\Psr7\Uri', $url);
         $this->assertSame('http://imbo/s/aaaaaaa', (string) $url);
     }
 

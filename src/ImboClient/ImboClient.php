@@ -10,13 +10,16 @@
 
 namespace ImboClient;
 
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Handler\CurlHandler;
 use ImboClient\Http,
     ImboClient\Helper\PublicKeyFallback,
     Guzzle\Common\Collection,
-    Guzzle\Service\Client as GuzzleClient,
-    Guzzle\Service\Description\ServiceDescription,
+    GuzzleHttp\Client as GuzzleClient,
+    GuzzleHttp\Command\Guzzle\GuzzleClient as GuzzleCommandClient,
+    GuzzleHttp\Command\Guzzle\Description,
     Guzzle\Service\Resource\Model,
-    Guzzle\Http\Url as GuzzleUrl,
+    GuzzleHttp\Psr7\Uri as Uri,
     Guzzle\Common\Exception\GuzzleException,
     InvalidArgumentException;
 
@@ -37,34 +40,44 @@ class ImboClient extends GuzzleClient {
     private $serverUrls = array();
 
     /**
-     * The name of the current command
-     *
-     * This property is used with error handling
-     *
-     * @var string
-     */
-    public $currentCommand;
-
-    /**
      * Class constructor
      *
      * Call parent constructor and attach an event listener that in turn will attach listeners to
      * the request based on the command being called.
      *
      * @param string $baseUrl The base URL to Imbo
-     * @param array|Collection $config Client configuration
+     * @param array $config Client configuration
      */
     public function __construct($baseUrl, $config) {
-        parent::__construct($baseUrl, $config);
+        parent::__construct(array_merge([
+            'base_uri' => $baseUrl ,
+            'headers' => [
+                'User-Agent' => 'ImboClient/' . Version::VERSION
+            ]
+        ], $config));
 
         if (empty($config['serverUrls'])) {
             $config['serverUrls'] = array($baseUrl);
         }
 
-        $this->setServerUrls($config['serverUrls']);
-        $this->setDescription(ServiceDescription::factory(__DIR__ . '/service.php'));
-        $this->setUserAgent('ImboClient/' . Version::VERSION, true);
+        $commandHandlerStack = new HandlerStack();
+        $commandHandlerStack->setHandler(new CurlHandler());
+        $commandHandlerStack->push(new Middleware\AccessToken($config['privateKey']));
+        $commandHandlerStack->push(new Middleware\Authenticate($config['publicKey'], $config['privateKey']));
+        $commandHandlerStack->push(new Middleware\PublicKey($config['publicKey']));
 
+        $description = new Description(require __DIR__ . '/service.php');
+        $this->commandClient = new GuzzleCommandClient(
+            $this,
+            $description,
+            new Http\Serializer($description),
+            null,
+            $commandHandlerStack
+        );
+
+        $this->setServerUrls($config['serverUrls']);
+
+        /*
         // Attach event listeners that handles the signing of write operations and the appending of
         // access tokens to requests that require this
         $dispatcher = $this->getEventDispatcher();
@@ -83,6 +96,7 @@ class ImboClient extends GuzzleClient {
                 $client->currentCommand = null;
             }
         });
+         */
     }
 
     /**
@@ -105,22 +119,19 @@ class ImboClient extends GuzzleClient {
      * @throws InvalidArgumentException
      */
     public static function factory($config = array()) {
-        $default = array(
-            'serverUrls' => null,
-            'user' => null,
-            'publicKey' => null,
-            'privateKey' => null,
-        );
-
         // Backwards-compatibility with old client where user === publicKey
         if (!isset($config['user']) && isset($config['publicKey'])) {
             $config['user'] = $config['publicKey'];
         }
 
-        $required = array('serverUrls', 'publicKey', 'privateKey', 'user');
-        $config = Collection::fromConfig($config, $default, $required);
+        $requiredFields = array('serverUrls', 'publicKey', 'privateKey', 'user');
+        foreach ($requiredFields as $requiredField) {
+            if (empty($config[$requiredField])) {
+                throw new InvalidArgumentException("Missing required field {$requiredField}");
+            }
+        }
 
-        if (!is_array($serverUrls = $config->get('serverUrls')) || empty($serverUrls)) {
+        if (!is_array($serverUrls = $config['serverUrls'])) {
             throw new InvalidArgumentException('serverUrls must be an array');
         }
 
@@ -174,17 +185,17 @@ class ImboClient extends GuzzleClient {
     /**
      * Add an image from a URL
      *
-     * @param GuzzleUrl|string $url A URL to an image
+     * @param Uri|string $url A URL to an image
      * @return Model
      * @throws InvalidArgumentException
      */
     public function addImageFromUrl($url) {
         if (is_string($url)) {
             // URL specified as a string. Create a URL instance
-            $url = GuzzleUrl::factory($url);
+            $url = new Uri($url);
         }
 
-        if (!($url instanceof GuzzleUrl)) {
+        if (!($url instanceof Uri)) {
             // Invalid argument
             throw new InvalidArgumentException(
                 'Parameter must be a string or an instance of Guzzle\Http\Url'
@@ -213,10 +224,11 @@ class ImboClient extends GuzzleClient {
             throw new InvalidArgumentException('Specified image is empty');
         }
 
-        return $this->getCommand('AddImage', array(
+        $command = $this->commandClient->getCommand('AddImage', array(
             'user' => $this->getUser(),
             'image' => $image,
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -225,7 +237,8 @@ class ImboClient extends GuzzleClient {
      * @return array
      */
     public function getServerStats() {
-        return $this->getCommand('GetServerStats')->execute();
+        $command = $this->commandClient->getCommand('GetServerStats');
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -234,7 +247,8 @@ class ImboClient extends GuzzleClient {
      * @return Model
      */
     public function getServerStatus() {
-        return $this->getCommand('GetServerStatus')->execute();
+        $command = $this->commandClient->getCommand('GetServerStatus');
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -243,9 +257,10 @@ class ImboClient extends GuzzleClient {
      * @return Model
      */
     public function getUserInfo() {
-        $userInfo = $this->getCommand('GetUserInfo', array(
+        $command = $this->commandClient->getCommand('GetUserInfo', array(
             'user' => $this->getUser(),
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
 
         return PublicKeyFallback::fallback($userInfo);
     }
@@ -257,10 +272,11 @@ class ImboClient extends GuzzleClient {
      * @return Model
      */
     public function deleteImage($imageIdentifier) {
-        return $this->getCommand('DeleteImage', array(
+        $command = $this->commandClient->getCommand('DeleteImage', array(
             'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -270,10 +286,11 @@ class ImboClient extends GuzzleClient {
      * @return Model
      */
     public function getImageProperties($imageIdentifier) {
-        return $this->getCommand('GetImageProperties', array(
+        $command = $this->commandClient->getCommand('GetImageProperties', array(
             'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -284,11 +301,12 @@ class ImboClient extends GuzzleClient {
      * @return Model
      */
     public function editMetadata($imageIdentifier, array $metadata) {
-        return $this->getCommand('EditMetadata', array(
+        $command = $this->commandClient->getCommand('EditMetadata', array(
             'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
             'metadata' => json_encode($metadata),
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -299,11 +317,12 @@ class ImboClient extends GuzzleClient {
      * @return Model
      */
     public function replaceMetadata($imageIdentifier, array $metadata) {
-        return $this->getCommand('ReplaceMetadata', array(
+        $command = $this->commandClient->getCommand('ReplaceMetadata', array(
             'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
             'metadata' => json_encode($metadata),
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -313,10 +332,11 @@ class ImboClient extends GuzzleClient {
      * @return array
      */
     public function getMetadata($imageIdentifier) {
-        return $this->getCommand('GetMetadata', array(
+        $command = $this->commandClient->getCommand('GetMetadata', array(
             'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -368,7 +388,8 @@ class ImboClient extends GuzzleClient {
             $params['originalChecksums'] = $originalChecksums;
         }
 
-        $response = $this->getCommand('GetImages', $params)->execute();
+        $command = $this->commandClient->getCommand('GetImages', $params);
+        $response = $this->commandClient->execute($command);
         $response['images'] = array_map(
             array('ImboClient\Helper\PublicKeyFallback', 'fallback'),
             $response['images']
@@ -384,10 +405,11 @@ class ImboClient extends GuzzleClient {
      * @return Model
      */
     public function deleteMetadata($imageIdentifier) {
-        return $this->getCommand('DeleteMetadata', array(
+        $command = $this->commandClient->getCommand('DeleteMetadata', array(
             'user' => $this->getUser(),
             'imageIdentifier' => $imageIdentifier,
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -412,11 +434,12 @@ class ImboClient extends GuzzleClient {
             'query' => $transformations,
         );
 
-        return $this->getCommand('GenerateShortUrl', array(
+        $command = $this->commandClient->getCommand('GenerateShortUrl', array(
             'user' => $this->getUser(),
             'imageIdentifier' => $imageUrl->getImageIdentifier(),
             'params' => json_encode($params),
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -430,10 +453,11 @@ class ImboClient extends GuzzleClient {
             $query = new Query();
         }
 
-        return $this->getCommand('GetResourceGroups', array(
+        $command = $this->commandClient->getCommand('GetResourceGroups', array(
             'page' => $query->page(),
             'limit' => $query->limit(),
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -446,9 +470,10 @@ class ImboClient extends GuzzleClient {
     public function getResourceGroup($groupName) {
         $this->validateResourceGroupName($groupName);
 
-        return $this->getCommand('GetResourceGroup', array(
+        $command = $this->commandClient->getCommand('GetResourceGroup', array(
             'groupName' => $groupName,
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -484,10 +509,11 @@ class ImboClient extends GuzzleClient {
     public function editResourceGroup($groupName, array $resources) {
         $this->validateResourceGroupName($groupName);
 
-        return $this->getCommand('EditResourceGroup', array(
+        $command = $this->commandClient->getCommand('EditResourceGroup', array(
             'groupName' => $groupName,
             'resources' => json_encode($resources),
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -500,9 +526,10 @@ class ImboClient extends GuzzleClient {
     public function deleteResourceGroup($groupName) {
         $this->validateResourceGroupName($groupName);
 
-        return $this->getCommand('DeleteResourceGroup', array(
+        $command = $this->commandClient->getCommand('DeleteResourceGroup', array(
             'groupName' => $groupName,
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -535,10 +562,11 @@ class ImboClient extends GuzzleClient {
             );
         }
 
-        return $this->getCommand('EditPublicKey', array(
+        $command = $this->commandClient->getCommand('EditPublicKey', array(
             'properties' => json_encode(array('privateKey' => $privateKey)),
             'publicKey' => $publicKey,
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -552,10 +580,11 @@ class ImboClient extends GuzzleClient {
     public function editPublicKey($publicKey, $privateKey) {
         $this->validatePublicKeyName($publicKey);
 
-        return $this->getCommand('EditPublicKey', array(
+        $command = $this->commandClient->getCommand('EditPublicKey', array(
             'properties' => json_encode(array('privateKey' => $privateKey)),
             'publicKey' => $publicKey,
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -568,9 +597,10 @@ class ImboClient extends GuzzleClient {
     public function deletePublicKey($publicKey) {
         $this->validatePublicKeyName($publicKey);
 
-        return $this->getCommand('DeletePublicKey', array(
+        $command = $this->commandClient->getCommand('DeletePublicKey', array(
             'publicKey' => $publicKey,
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -596,9 +626,10 @@ class ImboClient extends GuzzleClient {
     public function getAccessControlRules($publicKey) {
         $this->validatePublicKeyName($publicKey);
 
-        return $this->getCommand('GetAccessControlRules', array(
+        $command = $this->commandClient->getCommand('GetAccessControlRules', array(
             'publicKey' => $publicKey,
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -612,10 +643,11 @@ class ImboClient extends GuzzleClient {
     public function getAccessControlRule($publicKey, $ruleId) {
         $this->validatePublicKeyName($publicKey);
 
-        return $this->getCommand('GetAccessControlRule', array(
+        $command = $this->commandClient->getCommand('GetAccessControlRule', array(
             'publicKey' => $publicKey,
             'id' => $ruleId,
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -641,10 +673,11 @@ class ImboClient extends GuzzleClient {
     public function addAccessControlRules($publicKey, $rules) {
         $this->validatePublicKeyName($publicKey);
 
-        return $this->getCommand('AddAccessControlRules', array(
+        $command = $this->commandClient->getCommand('AddAccessControlRules', array(
             'publicKey' => $publicKey,
             'rules' => json_encode($rules),
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -658,10 +691,11 @@ class ImboClient extends GuzzleClient {
     public function deleteAccessControlRule($publicKey, $ruleId) {
         $this->validatePublicKeyName($publicKey);
 
-        return $this->getCommand('DeleteAccessControlRule', array(
+        $command = $this->commandClient->getCommand('DeleteAccessControlRule', array(
             'publicKey' => $publicKey,
             'id' => $ruleId,
-        ))->execute();
+        ));
+        return $this->commandClient->execute($command);
     }
 
     /**
@@ -829,7 +863,7 @@ class ImboClient extends GuzzleClient {
      *
      * @param Http\ImageUrl $imageUrl An instance of an imageUrl
      * @param boolean $asString Set to true to return the URL as a string
-     * @return GuzzleUrl|string
+     * @return Uri|string
      * @throws InvalidArgumentException
      */
     public function getShortUrl(Http\ImageUrl $imageUrl, $asString = false) {
@@ -843,7 +877,7 @@ class ImboClient extends GuzzleClient {
             );
 
             if (!$asString) {
-                $shortUrl = GuzzleUrl::factory($shortUrl);
+                $shortUrl = new Uri($shortUrl);
             }
         } catch (GuzzleException $e) {
             throw new InvalidArgumentException('Could not generate short URL', 0, $e);
