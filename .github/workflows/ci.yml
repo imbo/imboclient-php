@@ -1,0 +1,55 @@
+name: CI
+on: push
+jobs:
+  ci:
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: ['ubuntu-20.04']
+        php-versions: ['7.4', '8.0']
+    name: Run CI build
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          tools: php-cs-fixer
+          extensions: imagick
+
+      - name: PHP version info
+        run: |
+          php -v
+          php -i
+          php -m
+
+      - name: Validate composer files
+        run: composer validate --strict
+
+      - name: Get Composer Cache Directory
+        id: composer-cache-dir
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Run unit tests
+        run: vendor/bin/phpunit --verbose
+
+      - name: Run static code analysis
+        run: vendor/bin/psalm
+
+      - name: Check coding standard
+        run: php-cs-fixer fix --dry-run --diff
