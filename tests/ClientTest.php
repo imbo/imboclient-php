@@ -17,10 +17,10 @@ class ClientTest extends TestCase
     private string $privateKey = 'test';
 
     /**
-     * @param array<int,Response> $responses
+     * @param array<Response> $responses
      * @param array<array{response:Response,request:Request}> $history
      * @param-out array<array{response:Response,request:Request}> $history
-     * @return HttpClient
+     * @return GuzzleHttpClient
      */
     private function getMockGuzzleHttpClient(array $responses, array &$history = []): GuzzleHttpClient
     {
@@ -30,7 +30,7 @@ class ClientTest extends TestCase
         return new GuzzleHttpClient(['handler' => $handler]);
     }
 
-    private function getClient(array $responses, array &$history = [])
+    private function getClient(array $responses, array &$history = []): Client
     {
         return new Client(
             $this->imboUrl,
