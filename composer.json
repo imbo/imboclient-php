@@ -32,7 +32,6 @@
     "imbo/imbo-coding-standard": "^2.0",
     "phpunit/phpunit": "^9.5",
     "psalm/plugin-phpunit": "^0.16.1",
-    "symfony/yaml": "~2.1",
     "vimeo/psalm": "^4.10"
   },
   "scripts": {
