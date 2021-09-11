@@ -8,6 +8,7 @@ use GuzzleHttp\HandlerStack;
 use ImboClient\Exception\RequestException;
 use ImboClient\Middleware\AccessToken;
 use ImboClient\Middleware\Authenticate;
+use ImboClient\Response\Stats;
 use ImboClient\Response\Status;
 
 class Client
@@ -58,6 +59,17 @@ class Client
         }
 
         return Status::fromHttpResponse($response);
+    }
+
+    public function getServerStats(): Stats
+    {
+        try {
+            $response = $this->httpClient->get($this->getUriForPath('stats.json'));
+        } catch (BadResponseException $e) {
+            throw new RequestException('Unable to request Imbo stats', $e->getRequest(), $e);
+        }
+
+        return Stats::fromHttpResponse($response);
     }
 
     private function getUriForPath(string $path): string

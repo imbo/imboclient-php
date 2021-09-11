@@ -2,11 +2,9 @@
 namespace ImboClient\Response;
 
 use DateTime;
-use ImboClient\Exception\InvalidResponseBodyException;
-use JsonException;
 use Psr\Http\Message\ResponseInterface;
 
-class Status
+class Status extends Response
 {
     private DateTime $date;
     private bool $databaseStatus;
@@ -19,18 +17,10 @@ class Status
         $this->storageStatus = $storageStatus;
     }
 
-    /**
-     * @throws InvalidResponseBodyException
-     */
     public static function fromHttpResponse(ResponseInterface $response): self
     {
-        try {
-            /** @var array{date:string,database:bool,storage:bool} */
-            $body = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
-            throw new InvalidResponseBodyException('Invalid JSON in response body', $response, $e);
-        }
-
+        /** @var array{date:string,database:bool,storage:bool} */
+        $body = self::convertResponseToArray($response);
         return new self(new DateTime($body['date']), $body['database'], $body['storage']);
     }
 
