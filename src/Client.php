@@ -10,6 +10,8 @@ use ImboClient\Middleware\AccessToken;
 use ImboClient\Middleware\Authenticate;
 use ImboClient\Response\Stats;
 use ImboClient\Response\Status;
+use ImboClient\Response\User;
+use Psr\Http\Message\ResponseInterface;
 
 class Client
 {
@@ -51,11 +53,15 @@ class Client
     public function getServerStatus(): Status
     {
         try {
-            $response = $this->httpClient->get($this->getUriForPath('status.json'));
-        } catch (ServerException $e) {
-            $response = $e->getResponse();
-        } catch (BadResponseException $e) {
-            throw new RequestException('Unable to request Imbo status', $e->getRequest(), $e);
+            $response = $this->getHttpResponse('status.json');
+        } catch (RequestException $e) {
+            $previous = $e->getPrevious();
+
+            if (!$previous instanceof ServerException) {
+                throw $e;
+            }
+
+            $response = $previous->getResponse();
         }
 
         return Status::fromHttpResponse($response);
@@ -63,17 +69,29 @@ class Client
 
     public function getServerStats(): Stats
     {
-        try {
-            $response = $this->httpClient->get($this->getUriForPath('stats.json'));
-        } catch (BadResponseException $e) {
-            throw new RequestException('Unable to request Imbo stats', $e->getRequest(), $e);
-        }
+        return Stats::fromHttpResponse(
+            $this->getHttpResponse('stats.json'),
+        );
+    }
 
-        return Stats::fromHttpResponse($response);
+    public function getUserInfo(): User
+    {
+        return User::fromHttpResponse(
+            $this->getHttpResponse(sprintf('users/%s.json', $this->user)),
+        );
     }
 
     private function getUriForPath(string $path): string
     {
         return rtrim($this->serverUrl, '/') . '/' . ltrim($path, '/');
+    }
+
+    private function getHttpResponse(string $path): ResponseInterface
+    {
+        try {
+            return $this->httpClient->get($this->getUriForPath($path));
+        } catch (BadResponseException $e) {
+            throw new RequestException('Unable to get Imbo response', $e->getRequest(), $e);
+        }
     }
 }
