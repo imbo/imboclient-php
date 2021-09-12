@@ -12,6 +12,7 @@ use ImboClient\Middleware\AccessToken;
 use ImboClient\Middleware\Authenticate;
 use ImboClient\Response\AddedImage;
 use ImboClient\Response\DeletedImage;
+use ImboClient\Response\ImageProperties;
 use ImboClient\Response\Images;
 use ImboClient\Response\Stats;
 use ImboClient\Response\Status;
@@ -167,6 +168,17 @@ class Client
             '%s/%s',
             rtrim($this->serverUrl, '/'),
             ltrim($path, '/'),
+        );
+    }
+
+    public function getImageProperties(string $imageIdentifier): ImageProperties
+    {
+        return ImageProperties::fromHttpResponse(
+            $this->getHttpResponse(
+                sprintf('users/%s/images/%s', $this->user, $imageIdentifier),
+                [],
+                'HEAD',
+            ),
         );
     }
 
