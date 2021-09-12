@@ -182,6 +182,52 @@ class Client
         );
     }
 
+    public function getMetadata(string $imageIdentifier): array
+    {
+        return Utils::convertResponseToArray(
+            $this->getHttpResponse(
+                sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
+            ),
+        );
+    }
+
+    public function setMetadata(string $imageIdentifier, array $metadata): array
+    {
+        return Utils::convertResponseToArray(
+            $this->getHttpResponse(
+                sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
+                [
+                    'json' => $metadata,
+                ],
+                'PUT',
+            ),
+        );
+    }
+
+    public function updateMetadata(string $imageIdentifier, array $metadata): array
+    {
+        return Utils::convertResponseToArray(
+            $this->getHttpResponse(
+                sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
+                [
+                    'json' => $metadata,
+                ],
+                'POST',
+            ),
+        );
+    }
+
+    public function deleteMetadata(string $imageIdentifier): array
+    {
+        return Utils::convertResponseToArray(
+            $this->getHttpResponse(
+                sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
+                [],
+                'DELETE',
+            ),
+        );
+    }
+
     /**
      * @param array<string,mixed> $options
      */
