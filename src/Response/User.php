@@ -2,9 +2,10 @@
 namespace ImboClient\Response;
 
 use DateTime;
+use ImboClient\Utils;
 use Psr\Http\Message\ResponseInterface;
 
-class User extends Response
+class User
 {
     private string $user;
     private int $numImages;
@@ -20,7 +21,7 @@ class User extends Response
     public static function fromHttpResponse(ResponseInterface $response): self
     {
         /** @var array{user:string,numImages:int,lastModified:string} */
-        $body = self::convertResponseToArray($response);
+        $body = Utils::convertResponseToArray($response);
         return new self($body['user'], $body['numImages'], new DateTime($body['lastModified']));
     }
 

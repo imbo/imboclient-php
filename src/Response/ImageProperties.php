@@ -3,7 +3,7 @@ namespace ImboClient\Response;
 
 use Psr\Http\Message\ResponseInterface;
 
-class ImageProperties extends Response
+class ImageProperties
 {
     private string $imageIdentifier;
     private int $originalSize;

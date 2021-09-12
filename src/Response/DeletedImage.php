@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 namespace ImboClient\Response;
 
+use ImboClient\Utils;
 use Psr\Http\Message\ResponseInterface;
 
-class DeletedImage extends Response
+class DeletedImage
 {
     private string $imageIdentifier;
 
@@ -15,7 +16,7 @@ class DeletedImage extends Response
     public static function fromHttpResponse(ResponseInterface $response): self
     {
         /** @var array{imageIdentifier:string} */
-        $body = self::convertResponseToArray($response);
+        $body = Utils::convertResponseToArray($response);
         return new self($body['imageIdentifier']);
     }
 

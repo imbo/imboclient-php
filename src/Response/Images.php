@@ -5,10 +5,11 @@ use DateTime;
 use ImboClient\Exception\InvalidResponseBodyException;
 use ImboClient\ImagesQuery;
 use ImboClient\Response\Images\Image;
+use ImboClient\Utils;
 use Iterator;
 use Psr\Http\Message\ResponseInterface;
 
-class Images extends Response implements Iterator
+class Images implements Iterator
 {
     private int $iteratorIndex = 0;
     private PageInfo $page;
@@ -32,7 +33,7 @@ class Images extends Response implements Iterator
     public static function fromHttpResponse(ResponseInterface $response, ImagesQuery $query): self
     {
         /** @var array{search:array<string,int>,images:array<array{imageIdentifier:string,checksum:string,originalChecksum:string,user:string,added:string,updated:string,size:int,width:int,height:int,mime:string,extension:string,metadata:array}>} */
-        $body = self::convertResponseToArray($response);
+        $body = Utils::convertResponseToArray($response);
 
         $images = array_map(function (array $image): Image {
             return new Image(

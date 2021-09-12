@@ -2,9 +2,10 @@
 namespace ImboClient\Response;
 
 use ImboClient\Exception\InvalidResponseBodyException;
+use ImboClient\Utils;
 use Psr\Http\Message\ResponseInterface;
 
-class Stats extends Response
+class Stats
 {
     private int $numImages;
     private int $numUsers;
@@ -25,7 +26,7 @@ class Stats extends Response
     public static function fromHttpResponse(ResponseInterface $response): self
     {
         /** @var array{numImages:int,numUsers:int,numBytes:int,custom:array} */
-        $body = self::convertResponseToArray($response);
+        $body = Utils::convertResponseToArray($response);
         return new self($body['numImages'], $body['numUsers'], $body['numBytes'], $body['custom']);
     }
 

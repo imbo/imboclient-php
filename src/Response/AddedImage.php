@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 namespace ImboClient\Response;
 
+use ImboClient\Utils;
 use Psr\Http\Message\ResponseInterface;
 
-class AddedImage extends Response
+class AddedImage
 {
     private string $imageIdentifier;
     private int $width;
@@ -21,7 +22,7 @@ class AddedImage extends Response
     public static function fromHttpResponse(ResponseInterface $response): self
     {
         /** @var array{imageIdentifier:string,width:int,height:int,extension:string} */
-        $body = self::convertResponseToArray($response);
+        $body = Utils::convertResponseToArray($response);
         return new self($body['imageIdentifier'], $body['width'], $body['height'], $body['extension']);
     }
 

@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
-namespace ImboClient\Response;
+namespace ImboClient;
 
 use ImboClient\Exception\InvalidResponseBodyException;
 use JsonException;
 use Psr\Http\Message\ResponseInterface;
 
-class Response
+class Utils
 {
     /**
      * @throws InvalidResponseBodyException
      */
-    protected static function convertResponseToArray(ResponseInterface $response): array
+    public static function convertResponseToArray(ResponseInterface $response): array
     {
         try {
             /** @var mixed */

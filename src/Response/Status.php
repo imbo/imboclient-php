@@ -2,9 +2,10 @@
 namespace ImboClient\Response;
 
 use DateTime;
+use ImboClient\Utils;
 use Psr\Http\Message\ResponseInterface;
 
-class Status extends Response
+class Status
 {
     private DateTime $date;
     private bool $databaseStatus;
@@ -20,7 +21,7 @@ class Status extends Response
     public static function fromHttpResponse(ResponseInterface $response): self
     {
         /** @var array{date:string,database:bool,storage:bool} */
-        $body = self::convertResponseToArray($response);
+        $body = Utils::convertResponseToArray($response);
         return new self(new DateTime($body['date']), $body['database'], $body['storage']);
     }
 
