@@ -1,7 +1,6 @@
 <?php declare(strict_types=1);
 namespace ImboClient\Response;
 
-use ArrayObject;
 use DateTime;
 use ImboClient\Exception\InvalidResponseBodyException;
 use ImboClient\ImagesQuery;
@@ -48,7 +47,7 @@ class Images extends Response implements Iterator
                 $image['height'],
                 $image['mime'],
                 $image['extension'],
-                new ArrayObject($image['metadata']),
+                $image['metadata'],
             );
         }, $body['images']);
 

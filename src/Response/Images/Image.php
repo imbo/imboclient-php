@@ -1,7 +1,6 @@
 <?php declare(strict_types=1);
 namespace ImboClient\Response\Images;
 
-use ArrayObject;
 use DateTime;
 
 class Image
@@ -17,9 +16,9 @@ class Image
     private int $height;
     private string $mime;
     private string $extension;
-    private ArrayObject $metadata;
+    private array $metadata;
 
-    public function __construct(string $imageIdentifier, string $checksum, string $originalChecksum, string $user, DateTime $added, DateTime $updated, int $size, int $width, int $height, string $mime, string $extension, ArrayObject $metadata)
+    public function __construct(string $imageIdentifier, string $checksum, string $originalChecksum, string $user, DateTime $added, DateTime $updated, int $size, int $width, int $height, string $mime, string $extension, array $metadata)
     {
         $this->imageIdentifier  = $imageIdentifier;
         $this->checksum         = $checksum;
@@ -90,7 +89,7 @@ class Image
         return $this->extension;
     }
 
-    public function getMetadata(): ArrayObject
+    public function getMetadata(): array
     {
         return $this->metadata;
     }
