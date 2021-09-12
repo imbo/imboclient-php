@@ -5,7 +5,7 @@ class ImagesQuery
 {
     private int $page = 1;
     private int $limit = 20;
-    private bool $returnMetadata = false;
+    private bool $metadata = false;
     private ?int $from = null;
     private ?int $to = null;
     private array $ids = [];
@@ -37,10 +37,10 @@ class ImagesQuery
         return $this->limit;
     }
 
-    public function withReturnMetadata(bool $returnMetadata): self
+    public function withMetadata(bool $metadata): self
     {
         $clone = clone $this;
-        $clone->returnMetadata = $returnMetadata;
+        $clone->metadata = $metadata;
         return $clone;
     }
 
@@ -103,7 +103,7 @@ class ImagesQuery
         return [
             'page'              => $this->page,
             'limit'             => $this->limit,
-            'returnMetadata'    => $this->returnMetadata,
+            'metadata'          => $this->metadata,
             'from'              => $this->from,
             'to'                => $this->to,
             'ids'               => $this->ids,
