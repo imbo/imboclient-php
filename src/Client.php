@@ -81,15 +81,60 @@ class Client
         );
     }
 
+    public function addImageFromString(string $blob): AddedImage
+    {
+        return AddedImage::fromHttpResponse(
+            $this->httpClient->post(
+                $this->getUriForPath(sprintf('users/%s/images', $this->user)),
+                [
+                    'body' => $blob,
+                ],
+            ),
+        );
+    }
+
+    /**
+     * @throws InvalidLocalFileException
+     */
+    public function addImageFromPath(string $path): AddedImage
+    {
+        if (!is_file($path)) {
+            throw new InvalidLocalFileException(sprintf('File does not exist: %s', $path));
+        }
+
+        if (!filesize($path)) {
+            throw new InvalidLocalFileException(sprintf('File is of zero length: %s', $path));
+        }
+
+        return $this->addImageFromString(file_get_contents($path));
+    }
+
+    /**
+     * @throws RuntimeException
+     */
+    public function addImageFromUrl(string $url): AddedImage
+    {
+        try {
+            $blob = $this->httpClient->get($url)->getBody()->getContents();
+        } catch (BadResponseException $e) {
+            throw new RuntimeException(sprintf('Unable to fetch file at URL: %s', $url), (int) $e->getCode(), $e);
+        }
+
+        return $this->addImageFromString($blob);
+    }
+
     private function getUriForPath(string $path): string
     {
         return rtrim($this->serverUrl, '/') . '/' . ltrim($path, '/');
     }
 
-    private function getHttpResponse(string $path): ResponseInterface
+    /**
+     * @param array<string,mixed> $query
+     */
+    private function getHttpResponse(string $path, array $query = []): ResponseInterface
     {
         try {
-            return $this->httpClient->get($this->getUriForPath($path));
+            return $this->httpClient->get($this->getUriForPath($path), ['query' => $query]);
         } catch (BadResponseException $e) {
             throw new RequestException('Unable to get Imbo response', $e->getRequest(), $e);
         }
