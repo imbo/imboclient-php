@@ -5,9 +5,13 @@ use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\HandlerStack;
+use ImboClient\Exception\InvalidLocalFileException;
 use ImboClient\Exception\RequestException;
+use ImboClient\Exception\RuntimeException;
 use ImboClient\Middleware\AccessToken;
 use ImboClient\Middleware\Authenticate;
+use ImboClient\Response\AddedImage;
+use ImboClient\Response\Images;
 use ImboClient\Response\Stats;
 use ImboClient\Response\Status;
 use ImboClient\Response\User;
@@ -81,14 +85,36 @@ class Client
         );
     }
 
+    public function getImages(ImagesQuery $query = null): Images
+    {
+        if (null === $query) {
+            $query = new ImagesQuery();
+        }
+
+        $queryAsArray = array_filter($query->toArray());
+
+        return Images::fromHttpResponse(
+            $this->getHttpResponse(
+                sprintf('users/%s/images.json', $this->user),
+                array_filter(
+                    [
+                        'query' => $queryAsArray,
+                    ],
+                ),
+            ),
+            $query,
+        );
+    }
+
     public function addImageFromString(string $blob): AddedImage
     {
         return AddedImage::fromHttpResponse(
-            $this->httpClient->post(
-                $this->getUriForPath(sprintf('users/%s/images', $this->user)),
+            $this->getHttpResponse(
+                sprintf('users/%s/images', $this->user),
                 [
                     'body' => $blob,
                 ],
+                'POST',
             ),
         );
     }
@@ -125,18 +151,26 @@ class Client
 
     private function getUriForPath(string $path): string
     {
-        return rtrim($this->serverUrl, '/') . '/' . ltrim($path, '/');
+        return sprintf(
+            '%s/%s',
+            rtrim($this->serverUrl, '/'),
+            ltrim($path, '/'),
+        );
     }
 
     /**
-     * @param array<string,mixed> $query
+     * @param array<string,mixed> $options
      */
-    private function getHttpResponse(string $path, array $query = []): ResponseInterface
+    private function getHttpResponse(string $path, array $options = [], string $method = 'GET'): ResponseInterface
     {
         try {
-            return $this->httpClient->get($this->getUriForPath($path), ['query' => $query]);
+            return $this->httpClient->request(
+                $method,
+                $this->getUriForPath($path),
+                $options,
+            );
         } catch (BadResponseException $e) {
-            throw new RequestException('Unable to get Imbo response', $e->getRequest(), $e);
+            throw new RequestException('Imbo request failed', $e->getRequest(), $e);
         }
     }
 }
