@@ -11,6 +11,7 @@ use ImboClient\Exception\RuntimeException;
 use ImboClient\Middleware\AccessToken;
 use ImboClient\Middleware\Authenticate;
 use ImboClient\Response\AddedImage;
+use ImboClient\Response\DeletedImage;
 use ImboClient\Response\Images;
 use ImboClient\Response\Stats;
 use ImboClient\Response\Status;
@@ -147,6 +148,17 @@ class Client
         }
 
         return $this->addImageFromString($blob);
+    }
+
+    public function deleteImage(string $imageIdentifier): DeletedImage
+    {
+        return DeletedImage::fromHttpResponse(
+            $this->getHttpResponse(
+                sprintf('users/%s/images/%s', $this->user, $imageIdentifier),
+                [],
+                'DELETE',
+            ),
+        );
     }
 
     private function getUriForPath(string $path): string
