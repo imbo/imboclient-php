@@ -2,8 +2,8 @@
 namespace ImboClient\Middleware;
 
 use GuzzleHttp\Promise\PromiseInterface;
+use ImboClient\Exception\RuntimeException;
 use Psr\Http\Message\RequestInterface;
-use RuntimeException;
 
 class Authenticate
 {
@@ -31,8 +31,12 @@ class Authenticate
             RequestInterface $request,
             array $options
         ) use ($handler): PromiseInterface {
+            if (array_key_exists('require_imbo_signature', $options) && true === $options['require_imbo_signature']) {
+                $request = $this->addAuthenticationHeaders($request);
+            }
+
             $result = $handler(
-                $this->addAuthenticationHeaders($request),
+                $request,
                 $options,
             );
 

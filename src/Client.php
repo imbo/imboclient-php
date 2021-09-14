@@ -5,10 +5,10 @@ use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7;
 use ImboClient\Exception\InvalidLocalFileException;
 use ImboClient\Exception\RequestException;
 use ImboClient\Exception\RuntimeException;
-use ImboClient\Middleware\AccessToken;
 use ImboClient\Middleware\Authenticate;
 use ImboClient\Response\AddedImage;
 use ImboClient\Response\DeletedImage;
@@ -18,6 +18,7 @@ use ImboClient\Response\Stats;
 use ImboClient\Response\Status;
 use ImboClient\Response\User;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 
 class Client
 {
@@ -45,7 +46,6 @@ class Client
 
         if (null === $httpClient) {
             $handler = HandlerStack::create();
-            $handler->push(new AccessToken($this->privateKey));
             $handler->push(new Authenticate($this->publicKey, $this->privateKey));
             $httpClient = new GuzzleHttpClient(['handler' => $handler]);
         }
@@ -59,7 +59,12 @@ class Client
     public function getServerStatus(): Status
     {
         try {
-            $response = $this->getHttpResponse('status.json');
+            $response = $this->getHttpResponse(
+                $this->getUriForPath(
+                    'status.json',
+                    false,
+                ),
+            );
         } catch (RequestException $e) {
             $previous = $e->getPrevious();
 
@@ -76,32 +81,38 @@ class Client
     public function getServerStats(): Stats
     {
         return Stats::fromHttpResponse(
-            $this->getHttpResponse('stats.json'),
+            $this->getHttpResponse(
+                $this->getUriForPath(
+                    'stats.json',
+                    false,
+                ),
+            ),
         );
     }
 
     public function getUserInfo(): User
     {
         return User::fromHttpResponse(
-            $this->getHttpResponse(sprintf('users/%s.json', $this->user)),
+            $this->getHttpResponse(
+                $this->getUriForPath(
+                    sprintf('users/%s.json', $this->user),
+                ),
+            ),
         );
     }
 
     public function getImages(ImagesQuery $query = null): Images
     {
-        if (null === $query) {
-            $query = new ImagesQuery();
-        }
+        $query = $query ?? new ImagesQuery();
 
-        $queryAsArray = array_filter($query->toArray());
+        $path = sprintf('users/%s/images.json', $this->user);
+        $queryString = http_build_query($query->toArray());
 
         return Images::fromHttpResponse(
             $this->getHttpResponse(
-                sprintf('users/%s/images.json', $this->user),
-                array_filter(
-                    [
-                        'query' => $queryAsArray,
-                    ],
+                $this->getUriForPath(
+                    sprintf('%s?%s', $path, $queryString),
+                    true,
                 ),
             ),
             $query,
@@ -112,11 +123,15 @@ class Client
     {
         return AddedImage::fromHttpResponse(
             $this->getHttpResponse(
-                sprintf('users/%s/images', $this->user),
+                $this->getUriForPath(
+                    sprintf('users/%s/images', $this->user),
+                    false,
+                ),
                 [
                     'body' => $blob,
                 ],
                 'POST',
+                true,
             ),
         );
     }
@@ -155,19 +170,14 @@ class Client
     {
         return DeletedImage::fromHttpResponse(
             $this->getHttpResponse(
-                sprintf('users/%s/images/%s', $this->user, $imageIdentifier),
+                $this->getUriForPath(
+                    sprintf('users/%s/images/%s', $this->user, $imageIdentifier),
+                    false,
+                ),
                 [],
                 'DELETE',
+                true,
             ),
-        );
-    }
-
-    private function getUriForPath(string $path): string
-    {
-        return sprintf(
-            '%s/%s',
-            rtrim($this->serverUrl, '/'),
-            ltrim($path, '/'),
         );
     }
 
@@ -175,7 +185,9 @@ class Client
     {
         return ImageProperties::fromHttpResponse(
             $this->getHttpResponse(
-                sprintf('users/%s/images/%s', $this->user, $imageIdentifier),
+                $this->getUriForPath(
+                    sprintf('users/%s/images/%s', $this->user, $imageIdentifier),
+                ),
                 [],
                 'HEAD',
             ),
@@ -186,7 +198,9 @@ class Client
     {
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
-                sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
+                $this->getUriForPath(
+                    sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
+                ),
             ),
         );
     }
@@ -195,11 +209,15 @@ class Client
     {
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
-                sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
+                $this->getUriForPath(
+                    sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
+                    false,
+                ),
                 [
                     'json' => $metadata,
                 ],
                 'PUT',
+                true,
             ),
         );
     }
@@ -208,11 +226,15 @@ class Client
     {
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
-                sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
+                $this->getUriForPath(
+                    sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
+                    false,
+                ),
                 [
                     'json' => $metadata,
                 ],
                 'POST',
+                true,
             ),
         );
     }
@@ -221,23 +243,46 @@ class Client
     {
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
-                sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
+                $this->getUriForPath(
+                    sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
+                ),
                 [],
                 'DELETE',
+                true,
             ),
         );
+    }
+
+    private function getUriForPath(string $path, bool $withAccessToken = true): UriInterface
+    {
+        $uri = Psr7\Utils::uriFor(sprintf(
+            '%s/%s',
+            rtrim($this->serverUrl, '/'),
+            ltrim($path, '/'),
+        ));
+
+        if ($withAccessToken) {
+            $uri = Psr7\Uri::withQueryValue($uri, 'accessToken', hash_hmac('sha256', (string) $uri, $this->privateKey));
+        }
+
+        return $uri;
     }
 
     /**
      * @param array<string,mixed> $options
      */
-    private function getHttpResponse(string $path, array $options = [], string $method = 'GET'): ResponseInterface
+    private function getHttpResponse(UriInterface $uri, array $options = [], string $method = 'GET', bool $requireSignature = false): ResponseInterface
     {
         try {
             return $this->httpClient->request(
                 $method,
-                $this->getUriForPath($path),
-                $options,
+                $uri,
+                array_merge(
+                    $options,
+                    [
+                        'require_imbo_signature' => $requireSignature,
+                    ],
+                ),
             );
         } catch (BadResponseException $e) {
             throw new RequestException('Imbo request failed', $e->getRequest(), $e);
