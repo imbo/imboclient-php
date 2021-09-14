@@ -5,7 +5,8 @@ use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\Query;
+use GuzzleHttp\Psr7\Uri;
 use ImboClient\Exception\InvalidLocalFileException;
 use ImboClient\Exception\RequestException;
 use ImboClient\Exception\RuntimeException;
@@ -17,12 +18,14 @@ use ImboClient\Response\Images;
 use ImboClient\Response\Stats;
 use ImboClient\Response\Status;
 use ImboClient\Response\User;
+use ImboClient\Uri\AccessTokenUri;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 class Client
 {
-    private string $serverUrl;
+    /** @var array<string> */
+    private array $baseUris;
     private string $user;
     private string $publicKey;
     private string $privateKey;
@@ -31,15 +34,19 @@ class Client
     /**
      * Class constructor
      *
-     * @param string $serverUrl URL to the Imbo server
+     * @param string|array<string> $baseUris URI(s) to the Imbo server
      * @param string $user User for imbo
      * @param string $publicKey Public key for user
      * @param string $privateKey Private key for user
      * @param GuzzleHttpClient $httpClient Pre-configured HTTP client
      */
-    public function __construct(string $serverUrl, string $user, string $publicKey, string $privateKey, GuzzleHttpClient $httpClient = null)
+    public function __construct($baseUris, string $user, string $publicKey, string $privateKey, GuzzleHttpClient $httpClient = null)
     {
-        $this->serverUrl = $serverUrl;
+        if (!is_array($baseUris)) {
+            $baseUris = [$baseUris];
+        }
+
+        $this->baseUris = array_map(fn (string $uri): string => rtrim($uri, '/'), $baseUris);
         $this->user = $user;
         $this->publicKey = $publicKey;
         $this->privateKey = $privateKey;
@@ -60,10 +67,7 @@ class Client
     {
         try {
             $response = $this->getHttpResponse(
-                $this->getUriForPath(
-                    'status.json',
-                    false,
-                ),
+                $this->getUriForPath('status.json'),
             );
         } catch (RequestException $e) {
             $previous = $e->getPrevious();
@@ -82,10 +86,7 @@ class Client
     {
         return Stats::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUriForPath(
-                    'stats.json',
-                    false,
-                ),
+                $this->getUriForPath('stats.json'),
             ),
         );
     }
@@ -94,25 +95,18 @@ class Client
     {
         return User::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUriForPath(
-                    sprintf('users/%s.json', $this->user),
-                ),
+                $this->getAccessTokenUriForPath(sprintf('users/%s.json', $this->user)),
             ),
         );
     }
 
     public function getImages(ImagesQuery $query = null): Images
     {
-        $query = $query ?? new ImagesQuery();
-
-        $path = sprintf('users/%s/images.json', $this->user);
-        $queryString = http_build_query($query->toArray());
-
+        $query = $query ?: new ImagesQuery();
         return Images::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUriForPath(
-                    sprintf('%s?%s', $path, $queryString),
-                    true,
+                $this->getAccessTokenUriForPath(
+                    sprintf('users/%s/images.json?%s', $this->user, Query::build($query->toArray())),
                 ),
             ),
             $query,
@@ -123,10 +117,7 @@ class Client
     {
         return AddedImage::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUriForPath(
-                    sprintf('users/%s/images', $this->user),
-                    false,
-                ),
+                $this->getUriForPath(sprintf('users/%s/images', $this->user)),
                 [
                     'body' => $blob,
                 ],
@@ -172,7 +163,6 @@ class Client
             $this->getHttpResponse(
                 $this->getUriForPath(
                     sprintf('users/%s/images/%s', $this->user, $imageIdentifier),
-                    false,
                 ),
                 [],
                 'DELETE',
@@ -199,7 +189,8 @@ class Client
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
                 $this->getUriForPath(
-                    sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
+                    sprintf('users/%s/images/%s/metadata.json', $this->user, $imageIdentifier),
+                    $this->getHostForImageIdentifier($imageIdentifier),
                 ),
             ),
         );
@@ -211,7 +202,6 @@ class Client
             $this->getHttpResponse(
                 $this->getUriForPath(
                     sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
-                    false,
                 ),
                 [
                     'json' => $metadata,
@@ -228,7 +218,6 @@ class Client
             $this->getHttpResponse(
                 $this->getUriForPath(
                     sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
-                    false,
                 ),
                 [
                     'json' => $metadata,
@@ -253,19 +242,19 @@ class Client
         );
     }
 
-    private function getUriForPath(string $path, bool $withAccessToken = true): UriInterface
+    private function getAccessTokenUriForPath(string $path, string $baseUri = null): AccessTokenUri
     {
-        $uri = Psr7\Utils::uriFor(sprintf(
-            '%s/%s',
-            rtrim($this->serverUrl, '/'),
-            ltrim($path, '/'),
-        ));
+        return new AccessTokenUri(
+            sprintf('%s/%s', $baseUri ?: $this->baseUris[0], $path),
+            $this->privateKey,
+        );
+    }
 
-        if ($withAccessToken) {
-            $uri = Psr7\Uri::withQueryValue($uri, 'accessToken', hash_hmac('sha256', (string) $uri, $this->privateKey));
-        }
-
-        return $uri;
+    private function getUriForPath(string $path, string $baseUri = null): UriInterface
+    {
+        return new Uri(
+            sprintf('%s/%s', $baseUri ?: $this->baseUris[0], $path),
+        );
     }
 
     /**
@@ -287,5 +276,21 @@ class Client
         } catch (BadResponseException $e) {
             throw new RequestException('Imbo request failed', $e->getRequest(), $e);
         }
+    }
+
+    /**
+     * Get a predictable hostname for the given image identifier
+     *
+     * @param string $imageIdentifier The image identifier
+     * @return string
+     */
+    private function getHostForImageIdentifier(string $imageIdentifier): string
+    {
+        if (1 === count($this->baseUris)) {
+            return $this->baseUris[0];
+        }
+
+        $dec = ord($imageIdentifier[-1]);
+        return $this->baseUris[$dec % count($this->baseUris)];
     }
 }
