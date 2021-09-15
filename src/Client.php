@@ -5,7 +5,6 @@ use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Uri;
 use ImboClient\Exception\InvalidLocalFileException;
 use ImboClient\Exception\RequestException;
@@ -19,6 +18,7 @@ use ImboClient\Response\Stats;
 use ImboClient\Response\Status;
 use ImboClient\Response\User;
 use ImboClient\Uri\AccessTokenUri;
+use ImboClient\Uri\ImageUri;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -106,7 +106,7 @@ class Client
         return Images::fromHttpResponse(
             $this->getHttpResponse(
                 $this->getAccessTokenUriForPath(
-                    sprintf('users/%s/images.json?%s', $this->user, Query::build($query->toArray())),
+                    sprintf('users/%s/images.json?%s', $this->user, http_build_query($query->toArray())),
                 ),
             ),
             $query,
@@ -239,6 +239,19 @@ class Client
                 'DELETE',
                 true,
             ),
+        );
+    }
+
+    public function getImageUri(string $imageIdentifier): ImageUri
+    {
+        return new ImageUri(
+            sprintf(
+                '%s/users/%s/images/%s',
+                $this->getHostForImageIdentifier($imageIdentifier),
+                $this->user,
+                $imageIdentifier,
+            ),
+            $this->privateKey,
         );
     }
 
