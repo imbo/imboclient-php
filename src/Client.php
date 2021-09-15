@@ -95,7 +95,7 @@ class Client
     {
         return User::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getAccessTokenUriForPath(sprintf('users/%s.json', $this->user)),
+                $this->getAccessTokenUriForPath('users/' . $this->user . '.json'),
             ),
         );
     }
@@ -106,7 +106,7 @@ class Client
         return Images::fromHttpResponse(
             $this->getHttpResponse(
                 $this->getAccessTokenUriForPath(
-                    sprintf('users/%s/images.json?%s', $this->user, http_build_query($query->toArray())),
+                    'users/' . $this->user . '/images.json?' . http_build_query($query->toArray()),
                 ),
             ),
             $query,
@@ -117,7 +117,7 @@ class Client
     {
         return AddedImage::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUriForPath(sprintf('users/%s/images', $this->user)),
+                $this->getUriForPath('users/' . $this->user . '/images'),
                 [
                     'body' => $blob,
                 ],
@@ -133,11 +133,11 @@ class Client
     public function addImageFromPath(string $path): AddedImage
     {
         if (!is_file($path)) {
-            throw new InvalidLocalFileException(sprintf('File does not exist: %s', $path));
+            throw new InvalidLocalFileException('File does not exist: ' . $path);
         }
 
         if (!filesize($path)) {
-            throw new InvalidLocalFileException(sprintf('File is of zero length: %s', $path));
+            throw new InvalidLocalFileException('File is of zero length: ' . $path);
         }
 
         return $this->addImageFromString(file_get_contents($path));
@@ -151,7 +151,7 @@ class Client
         try {
             $blob = $this->httpClient->get($url)->getBody()->getContents();
         } catch (BadResponseException $e) {
-            throw new RuntimeException(sprintf('Unable to fetch file at URL: %s', $url), (int) $e->getCode(), $e);
+            throw new RuntimeException('Unable to fetch file at URL: ' . $url, (int) $e->getCode(), $e);
         }
 
         return $this->addImageFromString($blob);
@@ -162,7 +162,7 @@ class Client
         return DeletedImage::fromHttpResponse(
             $this->getHttpResponse(
                 $this->getUriForPath(
-                    sprintf('users/%s/images/%s', $this->user, $imageIdentifier),
+                    'users/' . $this->user . '/images/' . $imageIdentifier,
                 ),
                 [],
                 'DELETE',
@@ -176,7 +176,7 @@ class Client
         return ImageProperties::fromHttpResponse(
             $this->getHttpResponse(
                 $this->getUriForPath(
-                    sprintf('users/%s/images/%s', $this->user, $imageIdentifier),
+                    'users/' . $this->user . '/images/' . $imageIdentifier,
                 ),
                 [],
                 'HEAD',
@@ -189,7 +189,7 @@ class Client
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
                 $this->getUriForPath(
-                    sprintf('users/%s/images/%s/metadata.json', $this->user, $imageIdentifier),
+                    'users/' . $this->user . '/images/' . $imageIdentifier . '/metadata.json',
                     $this->getHostForImageIdentifier($imageIdentifier),
                 ),
             ),
@@ -201,7 +201,7 @@ class Client
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
                 $this->getUriForPath(
-                    sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
+                    'users/' . $this->user . '/images/' . $imageIdentifier . '/metadata',
                 ),
                 [
                     'json' => $metadata,
@@ -217,7 +217,7 @@ class Client
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
                 $this->getUriForPath(
-                    sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
+                    'users/' . $this->user . '/images/' . $imageIdentifier . '/metadata',
                 ),
                 [
                     'json' => $metadata,
@@ -233,7 +233,7 @@ class Client
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
                 $this->getUriForPath(
-                    sprintf('users/%s/images/%s/metadata', $this->user, $imageIdentifier),
+                    'users/' . $this->user . '/images/' . $imageIdentifier . '/metadata',
                 ),
                 [],
                 'DELETE',
@@ -245,12 +245,7 @@ class Client
     public function getImageUri(string $imageIdentifier): ImageUri
     {
         return new ImageUri(
-            sprintf(
-                '%s/users/%s/images/%s',
-                $this->getHostForImageIdentifier($imageIdentifier),
-                $this->user,
-                $imageIdentifier,
-            ),
+            $this->getHostForImageIdentifier($imageIdentifier) . '/users/' . $this->user . '/images/' . $imageIdentifier,
             $this->privateKey,
         );
     }
@@ -258,7 +253,7 @@ class Client
     private function getAccessTokenUriForPath(string $path, string $baseUri = null): AccessTokenUri
     {
         return new AccessTokenUri(
-            sprintf('%s/%s', $baseUri ?: $this->baseUris[0], $path),
+            ($baseUri ?: $this->baseUris[0]) . '/' . $path,
             $this->privateKey,
         );
     }
@@ -266,7 +261,7 @@ class Client
     private function getUriForPath(string $path, string $baseUri = null): UriInterface
     {
         return new Uri(
-            sprintf('%s/%s', $baseUri ?: $this->baseUris[0], $path),
+            ($baseUri ?: $this->baseUris[0]) . '/' . $path,
         );
     }
 
