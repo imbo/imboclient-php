@@ -101,4 +101,9 @@ class Images implements Iterator
     {
         return isset($this->images[$this->iteratorIndex]);
     }
+
+    public function asArray(): array
+    {
+        return $this->images;
+    }
 }
