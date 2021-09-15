@@ -6,12 +6,16 @@ use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Uri;
+use ImboClient\Exception\ClientException;
 use ImboClient\Exception\InvalidLocalFileException;
 use ImboClient\Exception\RequestException;
 use ImboClient\Exception\RuntimeException;
 use ImboClient\Middleware\Authenticate;
 use ImboClient\Response\AddedImage;
+use ImboClient\Response\AddedShortUri;
 use ImboClient\Response\DeletedImage;
+use ImboClient\Response\DeletedShortUri;
+use ImboClient\Response\DeletedShortUris;
 use ImboClient\Response\ImageProperties;
 use ImboClient\Response\Images;
 use ImboClient\Response\Stats;
@@ -24,6 +28,8 @@ use Psr\Http\Message\UriInterface;
 
 class Client
 {
+    public const MAJOR_VERSION = 3;
+
     /** @var array<string> */
     private array $baseUris;
     private string $user;
@@ -54,7 +60,12 @@ class Client
         if (null === $httpClient) {
             $handler = HandlerStack::create();
             $handler->push(new Authenticate($this->publicKey, $this->privateKey));
-            $httpClient = new GuzzleHttpClient(['handler' => $handler]);
+            $httpClient = new GuzzleHttpClient([
+                'handler' => $handler,
+                'headers' => [
+                    'User-Agent' => 'ImboClient/' . self::MAJOR_VERSION,
+                ],
+            ]);
         }
 
         $this->httpClient = $httpClient;
@@ -127,19 +138,9 @@ class Client
         );
     }
 
-    /**
-     * @throws InvalidLocalFileException
-     */
     public function addImageFromPath(string $path): AddedImage
     {
-        if (!is_file($path)) {
-            throw new InvalidLocalFileException('File does not exist: ' . $path);
-        }
-
-        if (!filesize($path)) {
-            throw new InvalidLocalFileException('File is of zero length: ' . $path);
-        }
-
+        $this->validateLocalFile($path);
         return $this->addImageFromString(file_get_contents($path));
     }
 
@@ -250,6 +251,98 @@ class Client
         );
     }
 
+    public function createShortUri(ImageUri $imageUri): AddedShortUri
+    {
+        return AddedShortUri::fromHttpResponse(
+            $this->getHttpResponse(
+                $this->getUriForPath(
+                    'users/' . $this->user . '/images/' . $imageUri->getImageIdentifier() . '/shorturls',
+                ),
+                [
+                    'json' => [
+                        'user'            => $this->user,
+                        'imageIdentifier' => $imageUri->getImageIdentifier(),
+                        'extension'       => $imageUri->getExtension(),
+                        'query'           => $imageUri->getQuery() ?: null,
+                    ],
+                ],
+                'POST',
+                true,
+            ),
+        );
+    }
+
+    public function deleteImageShortUris(string $imageIdentifier): DeletedShortUris
+    {
+        return DeletedShortUris::fromHttpResponse(
+            $this->getHttpResponse(
+                $this->getUriForPath(
+                    'users/' . $this->user . '/images/' . $imageIdentifier . '/shorturls',
+                ),
+                [],
+                'DELETE',
+                true,
+            ),
+        );
+    }
+
+    public function getShortUriProperties(string $shortUriId): ImageProperties
+    {
+        return ImageProperties::fromHttpResponse(
+            $this->getHttpResponse(
+                $this->getUriForPath(
+                    's/' . $shortUriId,
+                ),
+                [],
+                'HEAD',
+            ),
+        );
+    }
+
+    public function deleteShortUri(string $shortUriId): DeletedShortUri
+    {
+        $properties = $this->getShortUriProperties($shortUriId);
+        return DeletedShortUri::fromHttpResponse(
+            $this->getHttpResponse(
+                $this->getUriForPath(
+                    'users/' . $this->user . '/images/' . $properties->getImageIdentifier() . '/shorturls/' . $shortUriId,
+                ),
+                [],
+                'DELETE',
+                true,
+            ),
+        );
+    }
+
+    public function imageExists(string $path): bool
+    {
+        $this->validateLocalFile($path);
+        $checksum = md5_file($path);
+        $query = new ImagesQuery();
+        $images = $this->getImages(
+            $query
+                ->withOriginalChecksums([$checksum])
+                ->withLimit(1),
+        );
+
+        return 0 < count($images);
+    }
+
+    public function imageIdentifierExists(string $imageIdentifier): bool
+    {
+        try {
+            $this->getImageProperties($imageIdentifier);
+        } catch (ClientException $e) {
+            if (404 === $e->getCode()) {
+                return false;
+            }
+
+            throw $e;
+        }
+
+        return true;
+    }
+
     private function getAccessTokenUriForPath(string $path, string $baseUri = null): AccessTokenUri
     {
         return new AccessTokenUri(
@@ -300,5 +393,20 @@ class Client
 
         $dec = ord($imageIdentifier[-1]);
         return $this->baseUris[$dec % count($this->baseUris)];
+    }
+
+    /**
+     * @param string $path
+     * @throws InvalidLocalFileException
+     */
+    private function validateLocalFile(string $path): void
+    {
+        if (!is_file($path)) {
+            throw new InvalidLocalFileException('File does not exist: ' . $path);
+        }
+
+        if (!filesize($path)) {
+            throw new InvalidLocalFileException('File is of zero length: ' . $path);
+        }
     }
 }

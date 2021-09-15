@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 namespace ImboClient\Uri;
 
+use ImboClient\Exception\InvalidArgumentException;
 use ImboClient\Exception\InvalidImageTransformationException;
 
 class ImageUri extends AccessTokenUri
@@ -11,6 +12,30 @@ class ImageUri extends AccessTokenUri
         'jpg',
         'png',
     ];
+
+    private string $imageIdentifier;
+
+    public function __construct(string $uri, string $privateKey)
+    {
+        parent::__construct($uri, $privateKey);
+
+        if (!preg_match('#/users/[^/]+/images/(?<imageIdentifier>[^./]+)#', $this->getPath(), $match)) {
+            throw new InvalidArgumentException('Missing image identifier');
+        }
+
+        $this->imageIdentifier = $match['imageIdentifier'];
+    }
+
+    public function getImageIdentifier(): string
+    {
+        return $this->imageIdentifier;
+    }
+
+    public function getExtension(): ?string
+    {
+        preg_match('#\.(?<extension>gif|jpg|png)$#', $this->getPath(), $match);
+        return $match['extension'] ?? null;
+    }
 
     public function autorotate(): self
     {

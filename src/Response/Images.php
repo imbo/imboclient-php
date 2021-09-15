@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 namespace ImboClient\Response;
 
+use Countable;
 use DateTime;
 use ImboClient\Exception\InvalidResponseBodyException;
 use ImboClient\ImagesQuery;
@@ -9,7 +10,7 @@ use ImboClient\Utils;
 use Iterator;
 use Psr\Http\Message\ResponseInterface;
 
-class Images implements Iterator
+class Images implements Iterator, Countable
 {
     private int $iteratorIndex = 0;
     private PageInfo $page;
@@ -105,5 +106,10 @@ class Images implements Iterator
     public function asArray(): array
     {
         return $this->images;
+    }
+
+    public function count(): int
+    {
+        return count($this->images);
     }
 }

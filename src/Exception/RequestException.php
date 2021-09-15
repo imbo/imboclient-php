@@ -11,7 +11,7 @@ class RequestException extends RuntimeException implements ClientException
     public function __construct(string $message, RequestInterface $request, Throwable $previous = null)
     {
         $this->request = $request;
-        parent::__construct($message, 0, $previous);
+        parent::__construct($message, $previous ? (int) $previous->getCode() : 0, $previous);
     }
 
     public function getRequest(): RequestInterface
