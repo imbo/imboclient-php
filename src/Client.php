@@ -343,6 +343,26 @@ class Client
         return true;
     }
 
+    public function getImageData(string $imageIdentifier): string
+    {
+        return $this->getImageDataFromUrl($this->getImageUri($imageIdentifier));
+    }
+
+    /**
+     * @throws RuntimeException
+     */
+    public function getImageDataFromUrl(ImageUri $uri): string
+    {
+        try {
+            $blob = $this->httpClient->get($uri)->getBody()->getContents();
+        } catch (BadResponseException $e) {
+            throw new RuntimeException('Unable to fetch file at URL: ' . $uri, (int) $e->getCode(), $e);
+        }
+
+        return $blob;
+    }
+
+
     private function getAccessTokenUriForPath(string $path, string $baseUri = null): AccessTokenUri
     {
         return new AccessTokenUri(
