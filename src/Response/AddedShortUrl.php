@@ -4,7 +4,7 @@ namespace ImboClient\Response;
 use ImboClient\Utils;
 use Psr\Http\Message\ResponseInterface;
 
-class DeletedShortUri
+class AddedShortUrl
 {
     private string $id;
 

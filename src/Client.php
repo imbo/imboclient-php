@@ -12,17 +12,17 @@ use ImboClient\Exception\RequestException;
 use ImboClient\Exception\RuntimeException;
 use ImboClient\Middleware\Authenticate;
 use ImboClient\Response\AddedImage;
-use ImboClient\Response\AddedShortUri;
+use ImboClient\Response\AddedShortUrl;
 use ImboClient\Response\DeletedImage;
-use ImboClient\Response\DeletedShortUri;
-use ImboClient\Response\DeletedShortUris;
+use ImboClient\Response\DeletedShortUrl;
+use ImboClient\Response\DeletedShortUrls;
 use ImboClient\Response\ImageProperties;
 use ImboClient\Response\Images;
 use ImboClient\Response\Stats;
 use ImboClient\Response\Status;
 use ImboClient\Response\User;
-use ImboClient\Uri\AccessTokenUri;
-use ImboClient\Uri\ImageUri;
+use ImboClient\Url\AccessTokenUrl;
+use ImboClient\Url\ImageUrl;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -31,7 +31,7 @@ class Client
     public const MAJOR_VERSION = 3;
 
     /** @var array<string> */
-    private array $baseUris;
+    private array $baseUrls;
     private string $user;
     private string $publicKey;
     private string $privateKey;
@@ -40,19 +40,19 @@ class Client
     /**
      * Class constructor
      *
-     * @param string|array<string> $baseUris URI(s) to the Imbo server
+     * @param string|array<string> $baseUrls URL(s) to the Imbo server
      * @param string $user User for imbo
      * @param string $publicKey Public key for user
      * @param string $privateKey Private key for user
      * @param GuzzleHttpClient $httpClient Pre-configured HTTP client
      */
-    public function __construct($baseUris, string $user, string $publicKey, string $privateKey, GuzzleHttpClient $httpClient = null)
+    public function __construct($baseUrls, string $user, string $publicKey, string $privateKey, GuzzleHttpClient $httpClient = null)
     {
-        if (!is_array($baseUris)) {
-            $baseUris = [$baseUris];
+        if (!is_array($baseUrls)) {
+            $baseUrls = [$baseUrls];
         }
 
-        $this->baseUris = array_map(fn (string $uri): string => rtrim($uri, '/'), $baseUris);
+        $this->baseUrls = array_map(fn (string $url): string => rtrim($url, '/'), $baseUrls);
         $this->user = $user;
         $this->publicKey = $publicKey;
         $this->privateKey = $privateKey;
@@ -78,7 +78,7 @@ class Client
     {
         try {
             $response = $this->getHttpResponse(
-                $this->getUriForPath('status.json'),
+                $this->getUrlForPath('status.json'),
             );
         } catch (RequestException $e) {
             $previous = $e->getPrevious();
@@ -97,7 +97,7 @@ class Client
     {
         return Stats::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUriForPath('stats.json'),
+                $this->getUrlForPath('stats.json'),
             ),
         );
     }
@@ -106,7 +106,7 @@ class Client
     {
         return User::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getAccessTokenUriForPath('users/' . $this->user . '.json'),
+                $this->getAccessTokenUrlForPath('users/' . $this->user . '.json'),
             ),
         );
     }
@@ -116,7 +116,7 @@ class Client
         $query = $query ?: new ImagesQuery();
         return Images::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getAccessTokenUriForPath(
+                $this->getAccessTokenUrlForPath(
                     'users/' . $this->user . '/images.json?' . http_build_query($query->toArray()),
                 ),
             ),
@@ -128,7 +128,7 @@ class Client
     {
         return AddedImage::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUriForPath('users/' . $this->user . '/images'),
+                $this->getUrlForPath('users/' . $this->user . '/images'),
                 [
                     'body' => $blob,
                 ],
@@ -162,7 +162,7 @@ class Client
     {
         return DeletedImage::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUriForPath(
+                $this->getUrlForPath(
                     'users/' . $this->user . '/images/' . $imageIdentifier,
                 ),
                 [],
@@ -176,7 +176,7 @@ class Client
     {
         return ImageProperties::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUriForPath(
+                $this->getUrlForPath(
                     'users/' . $this->user . '/images/' . $imageIdentifier,
                 ),
                 [],
@@ -189,7 +189,7 @@ class Client
     {
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
-                $this->getUriForPath(
+                $this->getUrlForPath(
                     'users/' . $this->user . '/images/' . $imageIdentifier . '/metadata.json',
                     $this->getHostForImageIdentifier($imageIdentifier),
                 ),
@@ -201,7 +201,7 @@ class Client
     {
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
-                $this->getUriForPath(
+                $this->getUrlForPath(
                     'users/' . $this->user . '/images/' . $imageIdentifier . '/metadata',
                 ),
                 [
@@ -217,7 +217,7 @@ class Client
     {
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
-                $this->getUriForPath(
+                $this->getUrlForPath(
                     'users/' . $this->user . '/images/' . $imageIdentifier . '/metadata',
                 ),
                 [
@@ -233,7 +233,7 @@ class Client
     {
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
-                $this->getUriForPath(
+                $this->getUrlForPath(
                     'users/' . $this->user . '/images/' . $imageIdentifier . '/metadata',
                 ),
                 [],
@@ -243,27 +243,27 @@ class Client
         );
     }
 
-    public function getImageUri(string $imageIdentifier): ImageUri
+    public function getImageUrl(string $imageIdentifier): ImageUrl
     {
-        return new ImageUri(
+        return new ImageUrl(
             $this->getHostForImageIdentifier($imageIdentifier) . '/users/' . $this->user . '/images/' . $imageIdentifier,
             $this->privateKey,
         );
     }
 
-    public function createShortUri(ImageUri $imageUri): AddedShortUri
+    public function createShortUrl(ImageUrl $imageUrl): AddedShortUrl
     {
-        return AddedShortUri::fromHttpResponse(
+        return AddedShortUrl::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUriForPath(
-                    'users/' . $this->user . '/images/' . $imageUri->getImageIdentifier() . '/shorturls',
+                $this->getUrlForPath(
+                    'users/' . $this->user . '/images/' . $imageUrl->getImageIdentifier() . '/shorturls',
                 ),
                 [
                     'json' => [
                         'user'            => $this->user,
-                        'imageIdentifier' => $imageUri->getImageIdentifier(),
-                        'extension'       => $imageUri->getExtension(),
-                        'query'           => $imageUri->getQuery() ?: null,
+                        'imageIdentifier' => $imageUrl->getImageIdentifier(),
+                        'extension'       => $imageUrl->getExtension(),
+                        'query'           => $imageUrl->getQuery() ?: null,
                     ],
                 ],
                 'POST',
@@ -272,11 +272,11 @@ class Client
         );
     }
 
-    public function deleteImageShortUris(string $imageIdentifier): DeletedShortUris
+    public function deleteImageShortUrls(string $imageIdentifier): DeletedShortUrls
     {
-        return DeletedShortUris::fromHttpResponse(
+        return DeletedShortUrls::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUriForPath(
+                $this->getUrlForPath(
                     'users/' . $this->user . '/images/' . $imageIdentifier . '/shorturls',
                 ),
                 [],
@@ -286,12 +286,12 @@ class Client
         );
     }
 
-    public function getShortUriProperties(string $shortUriId): ImageProperties
+    public function getShortUrlProperties(string $shortUrlId): ImageProperties
     {
         return ImageProperties::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUriForPath(
-                    's/' . $shortUriId,
+                $this->getUrlForPath(
+                    's/' . $shortUrlId,
                 ),
                 [],
                 'HEAD',
@@ -299,13 +299,13 @@ class Client
         );
     }
 
-    public function deleteShortUri(string $shortUriId): DeletedShortUri
+    public function deleteShortUrl(string $shortUrlId): DeletedShortUrl
     {
-        $properties = $this->getShortUriProperties($shortUriId);
-        return DeletedShortUri::fromHttpResponse(
+        $properties = $this->getShortUrlProperties($shortUrlId);
+        return DeletedShortUrl::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUriForPath(
-                    'users/' . $this->user . '/images/' . $properties->getImageIdentifier() . '/shorturls/' . $shortUriId,
+                $this->getUrlForPath(
+                    'users/' . $this->user . '/images/' . $properties->getImageIdentifier() . '/shorturls/' . $shortUrlId,
                 ),
                 [],
                 'DELETE',
@@ -345,48 +345,48 @@ class Client
 
     public function getImageData(string $imageIdentifier): string
     {
-        return $this->getImageDataFromUrl($this->getImageUri($imageIdentifier));
+        return $this->getImageDataFromUrl($this->getImageUrl($imageIdentifier));
     }
 
     /**
      * @throws RuntimeException
      */
-    public function getImageDataFromUrl(ImageUri $uri): string
+    public function getImageDataFromUrl(ImageUrl $url): string
     {
         try {
-            $blob = $this->httpClient->get($uri)->getBody()->getContents();
+            $blob = $this->httpClient->get($url)->getBody()->getContents();
         } catch (BadResponseException $e) {
-            throw new RuntimeException('Unable to fetch file at URL: ' . $uri, (int) $e->getCode(), $e);
+            throw new RuntimeException('Unable to fetch file at URL: ' . $url, (int) $e->getCode(), $e);
         }
 
         return $blob;
     }
 
 
-    private function getAccessTokenUriForPath(string $path, string $baseUri = null): AccessTokenUri
+    private function getAccessTokenUrlForPath(string $path, string $baseUrl = null): AccessTokenUrl
     {
-        return new AccessTokenUri(
-            ($baseUri ?: $this->baseUris[0]) . '/' . $path,
+        return new AccessTokenUrl(
+            ($baseUrl ?: $this->baseUrls[0]) . '/' . $path,
             $this->privateKey,
         );
     }
 
-    private function getUriForPath(string $path, string $baseUri = null): UriInterface
+    private function getUrlForPath(string $path, string $baseUrl = null): UriInterface
     {
         return new Uri(
-            ($baseUri ?: $this->baseUris[0]) . '/' . $path,
+            ($baseUrl ?: $this->baseUrls[0]) . '/' . $path,
         );
     }
 
     /**
      * @param array<string,mixed> $options
      */
-    private function getHttpResponse(UriInterface $uri, array $options = [], string $method = 'GET', bool $requireSignature = false): ResponseInterface
+    private function getHttpResponse(UriInterface $url, array $options = [], string $method = 'GET', bool $requireSignature = false): ResponseInterface
     {
         try {
             return $this->httpClient->request(
                 $method,
-                $uri,
+                $url,
                 array_merge(
                     $options,
                     [
@@ -407,12 +407,12 @@ class Client
      */
     private function getHostForImageIdentifier(string $imageIdentifier): string
     {
-        if (1 === count($this->baseUris)) {
-            return $this->baseUris[0];
+        if (1 === count($this->baseUrls)) {
+            return $this->baseUrls[0];
         }
 
         $dec = ord($imageIdentifier[-1]);
-        return $this->baseUris[$dec % count($this->baseUris)];
+        return $this->baseUrls[$dec % count($this->baseUrls)];
     }
 
     /**

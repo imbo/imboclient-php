@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
-namespace ImboClient\Uri;
+namespace ImboClient\Url;
 
 use ImboClient\Exception\InvalidArgumentException;
 use ImboClient\Exception\InvalidImageTransformationException;
 
-class ImageUri extends AccessTokenUri
+class ImageUrl extends AccessTokenUrl
 {
     /** @var array<string> */
     private array $validExtensions = [
@@ -15,9 +15,9 @@ class ImageUri extends AccessTokenUri
 
     private string $imageIdentifier;
 
-    public function __construct(string $uri, string $privateKey)
+    public function __construct(string $url, string $privateKey)
     {
-        parent::__construct($uri, $privateKey);
+        parent::__construct($url, $privateKey);
 
         if (!preg_match('#/users/[^/]+/images/(?<imageIdentifier>[^./]+)#', $this->getPath(), $match)) {
             throw new InvalidArgumentException('Missing image identifier');

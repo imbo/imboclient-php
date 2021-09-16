@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
-namespace ImboClient\Uri;
+namespace ImboClient\Url;
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass ImboClient\Uri\AccessTokenUri
+ * @coversDefaultClass ImboClient\Url\AccessTokenUrl
  */
-class AccessTokenUriTest extends TestCase
+class AccessTokenUrlTest extends TestCase
 {
     /**
      * @return array<int,array{expected:string,base:string,privateKey:string}>
      */
-    public function getUris(): array
+    public function getUrls(): array
     {
         return [
             [
@@ -28,7 +28,7 @@ class AccessTokenUriTest extends TestCase
     }
 
     /**
-     * @dataProvider getUris
+     * @dataProvider getUrls
      * @covers ::__construct
      * @covers ::__toString
      */
@@ -36,7 +36,7 @@ class AccessTokenUriTest extends TestCase
     {
         $this->assertSame(
             $expected,
-            (string) new AccessTokenUri($base, $privateKey),
+            (string) new AccessTokenUrl($base, $privateKey),
             'Incorrect string generated',
         );
     }

@@ -4,7 +4,7 @@ namespace ImboClient\Response;
 use ImboClient\Utils;
 use Psr\Http\Message\ResponseInterface;
 
-class DeletedShortUris
+class DeletedShortUrls
 {
     private string $imageIdentifier;
 
