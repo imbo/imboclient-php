@@ -37,23 +37,23 @@ class ImageUrl extends AccessTokenUrl
         return $match['extension'] ?? null;
     }
 
-    public function autorotate(): self
+    public function autoRotate(): self
     {
         return $this->withTransformation('autoRotate');
     }
 
     public function blur(array $params): self
     {
-        $mode = array_key_exists('mode', $params) ? (string) $params['mode'] : null;
+        $type = array_key_exists('type', $params) ? (string) $params['type'] : null;
         $required = ['radius', 'sigma'];
 
-        if ('motion' === $mode) {
+        if ('motion' === $type) {
             $required[] = 'angle';
-        } elseif ('radial' === $mode) {
+        } elseif ('radial' === $type) {
             $required = ['angle'];
         }
 
-        $transformation = $mode ? ['mode=' . $mode] : [];
+        $transformation = $type ? ['type=' . $type] : [];
 
         foreach ($required as $param) {
             if (!array_key_exists($param, $params)) {
