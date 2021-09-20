@@ -12,6 +12,8 @@ use ImboClient\Exception\InvalidLocalFileException;
 use ImboClient\Exception\RequestException;
 use ImboClient\Exception\RuntimeException;
 use ImboClient\Middleware\Authenticate;
+use ImboClient\Response\AccessControlRule;
+use ImboClient\Response\AccessControlRules;
 use ImboClient\Response\AddedImage;
 use ImboClient\Response\AddedShortUrl;
 use ImboClient\Response\DeletedImage;
@@ -571,6 +573,65 @@ class Client
         }
 
         return true;
+    }
+
+    public function getAccessControlRules(string $publicKey): AccessControlRules
+    {
+        $this->validatePublicKeyName($publicKey);
+        return AccessControlRules::fromHttpResponse(
+            $this->getHttpResponse(
+                $this->getAccessTokenUrlForPath('keys/' . $publicKey . '/access.json'),
+                [
+                    'query' => [
+                        'publicKey' => $this->publicKey,
+                    ],
+                ],
+                'GET',
+            ),
+        );
+    }
+
+    public function getAccessControlRule(string $publicKey, string $ruleId): AccessControlRule
+    {
+        $this->validatePublicKeyName($publicKey);
+        return AccessControlRule::fromHttpResponse(
+            $this->getHttpResponse(
+                $this->getAccessTokenUrlForPath('keys/' . $publicKey . '/access/' . $ruleId . '.json'),
+                [
+                    'query' => [
+                        'publicKey' => $this->publicKey,
+                    ],
+                ],
+            ),
+        );
+    }
+
+    public function addAccessControlRules(string $publicKey, array $rules): AccessControlRules
+    {
+        $this->validatePublicKeyName($publicKey);
+        return AccessControlRules::fromHttpResponse(
+            $this->getHttpResponse(
+                $this->getUrlForPath('keys/' . $publicKey . '/access.json'),
+                [
+                    'json' => $rules,
+                ],
+                'POST',
+                true,
+            ),
+        );
+    }
+
+    public function deleteAccessControlRule(string $publicKey, string $ruleId): AccessControlRule
+    {
+        $this->validatePublicKeyName($publicKey);
+        return AccessControlRule::fromHttpResponse(
+            $this->getHttpResponse(
+                $this->getUrlForPath('keys/' . $publicKey . '/access/' . $ruleId . '.json'),
+                [],
+                'DELETE',
+                true,
+            ),
+        );
     }
 
     private function getAccessTokenUrlForPath(string $path, string $baseUrl = null): AccessTokenUrl
