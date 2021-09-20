@@ -21,6 +21,7 @@ class AuthenticateTest extends TestCase
     public function testCanAddHeaders(): void
     {
         $assertions = function (RequestInterface $request, array $_options): PromiseInterface {
+            $this->assertNotEmpty($request->getHeaderLine('x-imbo-publickey'));
             $this->assertNotEmpty($request->getHeaderLine('x-imbo-authenticate-signature'));
             $this->assertNotEmpty($request->getHeaderLine('x-imbo-authenticate-timestamp'));
             return $this->createMock(PromiseInterface::class);
@@ -85,6 +86,7 @@ class AuthenticateTest extends TestCase
     public function testDoesNotAddSignatureWhenOptionIsNotSet(array $options): void
     {
         $assertions = function (RequestInterface $request, array $_options): PromiseInterface {
+            $this->assertEmpty($request->getHeaderLine('x-imbo-publickey'));
             $this->assertEmpty($request->getHeaderLine('x-imbo-authenticate-signature'));
             $this->assertEmpty($request->getHeaderLine('x-imbo-authenticate-timestamp'));
             return $this->createMock(PromiseInterface::class);

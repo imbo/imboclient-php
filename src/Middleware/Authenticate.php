@@ -21,6 +21,7 @@ class Authenticate
         $timestamp = gmdate('Y-m-d\TH:i:s\Z');
         $data = $request->getMethod() . '|' . $request->getUri() . '|' . $this->publicKey . '|' . $timestamp;
         return $request
+            ->withHeader('X-Imbo-PublicKey', $this->publicKey)
             ->withHeader('X-Imbo-Authenticate-Signature', hash_hmac('sha256', $data, $this->privateKey))
             ->withHeader('X-Imbo-Authenticate-Timestamp', $timestamp);
     }
