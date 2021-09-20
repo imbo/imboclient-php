@@ -255,7 +255,7 @@ class Client
         );
     }
 
-    public function createShortUrl(ImageUrl $imageUrl): AddedShortUrl
+    public function addShortUrl(ImageUrl $imageUrl): AddedShortUrl
     {
         return AddedShortUrl::fromHttpResponse(
             $this->getHttpResponse(
