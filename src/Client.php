@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Uri;
 use ImboClient\Exception\ClientException;
+use ImboClient\Exception\InvalidArgumentException;
 use ImboClient\Exception\InvalidLocalFileException;
 use ImboClient\Exception\RequestException;
 use ImboClient\Exception\RuntimeException;
@@ -18,6 +19,8 @@ use ImboClient\Response\DeletedShortUrl;
 use ImboClient\Response\DeletedShortUrls;
 use ImboClient\Response\ImageProperties;
 use ImboClient\Response\Images;
+use ImboClient\Response\ResourceGroup;
+use ImboClient\Response\ResourceGroups;
 use ImboClient\Response\Stats;
 use ImboClient\Response\Status;
 use ImboClient\Response\User;
@@ -116,9 +119,10 @@ class Client
         $query = $query ?: new ImagesQuery();
         return Images::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getAccessTokenUrlForPath(
-                    'users/' . $this->user . '/images.json?' . http_build_query($query->toArray()),
-                ),
+                $this->getAccessTokenUrlForPath('users/' . $this->user . '/images.json'),
+                [
+                    'query' => $query->toArray(),
+                ],
             ),
             $query,
         );
@@ -362,6 +366,123 @@ class Client
         return $blob;
     }
 
+    /**
+     * @param array<string> $resources
+     * @throws InvalidArgumentException
+     */
+    public function addResourceGroup(string $name, array $resources = []): ResourceGroup
+    {
+        $this->validateResourceGroupName($name);
+
+        if ($this->resourceGroupExists($name)) {
+            throw new InvalidArgumentException('Resource group already exists');
+        }
+
+        return ResourceGroup::fromHttpResponse(
+            $this->getHttpResponse(
+                $this->getUrlForPath('groups'),
+                [
+                    'json' => [
+                        'name'      => $name,
+                        'resources' => $resources,
+                    ],
+                ],
+                'POST',
+                true,
+            ),
+        );
+    }
+
+    /**
+     * @param array<string> $resources
+     */
+    public function updateResourceGroup(string $name, array $resources = []): ResourceGroup
+    {
+        $this->validateResourceGroupName($name);
+        return ResourceGroup::fromHttpResponse(
+            $this->getHttpResponse(
+                $this->getUrlForPath('groups/' . $name),
+                [
+                    'json' => [
+                        'resources' => $resources,
+                    ],
+                ],
+                'PUT',
+                true,
+            ),
+        );
+    }
+
+    public function deleteResourceGroup(string $name): ResourceGroup
+    {
+        $this->validateResourceGroupName($name);
+        return ResourceGroup::fromHttpResponse(
+            $this->getHttpResponse(
+                $this->getUrlForPath('groups/' . $name),
+                [],
+                'DELETE',
+                true,
+            ),
+        );
+    }
+
+    public function resourceGroupExists(string $name): bool
+    {
+        try {
+            $this->getHttpResponse(
+                $this->getAccessTokenUrlForPath('groups/' . $name),
+                [
+                    'query' => [
+                        'publicKey' => $this->publicKey,
+                    ],
+                ],
+                'HEAD',
+            );
+        } catch (ClientException $e) {
+            if (404 === $e->getCode()) {
+                return false;
+            }
+
+            throw $e;
+        }
+
+        return true;
+    }
+
+
+    public function getResourceGroup(string $name): ResourceGroup
+    {
+        $this->validateResourceGroupName($name);
+        return ResourceGroup::fromHttpResponse(
+            $this->getHttpResponse(
+                $this->getAccessTokenUrlForPath('groups/' . $name),
+                [
+                    'query' => [
+                        'publicKey' => $this->publicKey,
+                    ],
+                ],
+            ),
+        );
+    }
+
+    public function getResourceGroups(Query $query = null): ResourceGroups
+    {
+        $query = $query ?: new Query();
+        return ResourceGroups::fromHttpResponse(
+            $this->getHttpResponse(
+                $this->getAccessTokenUrlForPath('groups'),
+                [
+                    'query' => array_merge(
+                        $query->toArray(),
+                        [
+                            'publicKey' => $this->publicKey,
+                        ],
+                    ),
+                ],
+            ),
+            $query,
+        );
+    }
 
     private function getAccessTokenUrlForPath(string $path, string $baseUrl = null): AccessTokenUrl
     {
@@ -427,6 +548,15 @@ class Client
 
         if (!filesize($path)) {
             throw new InvalidLocalFileException('File is of zero length: ' . $path);
+        }
+    }
+
+    private function validateResourceGroupName(string $name): void
+    {
+        if (!preg_match('/^[a-z0-9_-]+$/', $name)) {
+            throw new InvalidArgumentException(
+                'Group name can only consist of: a-z, 0-9 and the characters _ and -',
+            );
         }
     }
 }
