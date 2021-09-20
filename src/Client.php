@@ -19,6 +19,7 @@ use ImboClient\Response\DeletedShortUrl;
 use ImboClient\Response\DeletedShortUrls;
 use ImboClient\Response\ImageProperties;
 use ImboClient\Response\Images;
+use ImboClient\Response\PublicKey;
 use ImboClient\Response\ResourceGroup;
 use ImboClient\Response\ResourceGroups;
 use ImboClient\Response\Stats;
@@ -484,6 +485,94 @@ class Client
         );
     }
 
+    public function addPublicKey(string $publicKey, string $privateKey): PublicKey
+    {
+        $this->validatePublicKeyName($publicKey);
+
+        if ($this->publicKeyExists($publicKey)) {
+            throw new InvalidArgumentException('Public key already exists');
+        }
+
+        return PublicKey::fromHttpResponse(
+            $this->getHttpResponse(
+                $this->getUrlForPath('keys'),
+                [
+                    'json' => [
+                        'publicKey'  => $publicKey,
+                        'privateKey' => $privateKey,
+                    ],
+                ],
+                'POST',
+                true,
+            ),
+        );
+    }
+
+    public function updatePublicKey(string $publicKey, string $privateKey): PublicKey
+    {
+        $this->validatePublicKeyName($publicKey);
+
+        if (!$this->publicKeyExists($publicKey)) {
+            throw new InvalidArgumentException('Public key does not exist');
+        }
+
+        return PublicKey::fromHttpResponse(
+            $this->getHttpResponse(
+                $this->getUrlForPath('keys/' . $publicKey),
+                [
+                    'json' => [
+                        'privateKey' => $privateKey,
+                    ],
+                ],
+                'PUT',
+                true,
+            ),
+        );
+    }
+
+    public function deletePublicKey(string $publicKey): PublicKey
+    {
+        $this->validatePublicKeyName($publicKey);
+
+        if (!$this->publicKeyExists($publicKey)) {
+            throw new InvalidArgumentException('Public key does not exist');
+        }
+
+        return PublicKey::fromHttpResponse(
+            $this->getHttpResponse(
+                $this->getUrlForPath('keys/' . $publicKey),
+                [],
+                'DELETE',
+                true,
+            ),
+        );
+    }
+
+    public function publicKeyExists(string $publicKey): bool
+    {
+        $this->validatePublicKeyName($publicKey);
+
+        try {
+            $this->getHttpResponse(
+                $this->getAccessTokenUrlForPath('keys/' . $publicKey),
+                [
+                    'query' => [
+                        'publicKey' => $this->publicKey,
+                    ],
+                ],
+                'HEAD',
+            );
+        } catch (ClientException $e) {
+            if (404 === $e->getCode()) {
+                return false;
+            }
+
+            throw $e;
+        }
+
+        return true;
+    }
+
     private function getAccessTokenUrlForPath(string $path, string $baseUrl = null): AccessTokenUrl
     {
         return new AccessTokenUrl(
@@ -556,6 +645,15 @@ class Client
         if (!preg_match('/^[a-z0-9_-]+$/', $name)) {
             throw new InvalidArgumentException(
                 'Group name can only consist of: a-z, 0-9 and the characters _ and -',
+            );
+        }
+    }
+
+    private function validatePublicKeyName(string $name): void
+    {
+        if (!preg_match('/^[a-z0-9_-]+$/', $name)) {
+            throw new InvalidArgumentException(
+                'Public key can only consist of: a-z, 0-9 and the characters _ and -',
             );
         }
     }
