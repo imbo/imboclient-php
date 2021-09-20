@@ -1,10 +1,8 @@
 <?php declare(strict_types=1);
 namespace ImboClient;
 
-class ImagesQuery
+class ImagesQuery extends Query
 {
-    private int $page = 1;
-    private int $limit = 20;
     private bool $metadata = false;
     private ?int $from = null;
     private ?int $to = null;
@@ -12,30 +10,6 @@ class ImagesQuery
     private array $checksums = [];
     private array $originalChecksums = [];
     private array $sort = [];
-
-    public function withPage(int $page): self
-    {
-        $clone = clone $this;
-        $clone->page = $page;
-        return $clone;
-    }
-
-    public function getPage(): int
-    {
-        return $this->page;
-    }
-
-    public function withLimit(int $limit): self
-    {
-        $clone = clone $this;
-        $clone->limit = $limit;
-        return $clone;
-    }
-
-    public function getLimit(): int
-    {
-        return $this->limit;
-    }
 
     public function withMetadata(bool $metadata): self
     {
@@ -100,9 +74,7 @@ class ImagesQuery
      */
     public function toArray(): array
     {
-        return [
-            'page'              => $this->page,
-            'limit'             => $this->limit,
+        return array_merge(parent::toArray(), [
             'metadata'          => $this->metadata,
             'from'              => $this->from,
             'to'                => $this->to,
@@ -110,6 +82,6 @@ class ImagesQuery
             'checksums'         => $this->checksums,
             'originalChecksums' => $this->originalChecksums,
             'sort'              => $this->sort,
-        ];
+        ]);
     }
 }
