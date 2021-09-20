@@ -666,7 +666,7 @@ class Client
                 ),
             );
         } catch (BadResponseException $e) {
-            throw new RequestException('Imbo request failed', $e->getRequest(), $e);
+            throw new RequestException('Imbo request failed', $e->getRequest(), $e->getResponse(), $e);
         }
     }
 

@@ -1,21 +1,8 @@
 <?php declare(strict_types=1);
 namespace ImboClient\Exception;
 
-use Psr\Http\Message\RequestInterface;
-use RuntimeException;
-use Throwable;
+use GuzzleHttp\Exception\BadResponseException;
 
-class RequestException extends RuntimeException implements ClientException
+class RequestException extends BadResponseException implements ClientException
 {
-    private RequestInterface $request;
-    public function __construct(string $message, RequestInterface $request, Throwable $previous = null)
-    {
-        $this->request = $request;
-        parent::__construct($message, $previous ? (int) $previous->getCode() : 0, $previous);
-    }
-
-    public function getRequest(): RequestInterface
-    {
-        return $this->request;
-    }
 }
