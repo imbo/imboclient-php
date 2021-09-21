@@ -139,7 +139,7 @@ class ImageUrl extends AccessTokenUrl
         );
     }
 
-    public function crop(int $x = null, int $y = null, int $width = null, int $height = null, string $mode = null): self
+    public function crop(int $width, int $height, int $x = null, int $y = null, string $mode = null): self
     {
         if (null === $mode && (null === $x || null === $y)) {
             throw new InvalidImageTransformationException('x and y needs to be specified without a crop mode');
@@ -151,10 +151,6 @@ class ImageUrl extends AccessTokenUrl
 
         if ('center-y' === $mode && null === $x) {
             throw new InvalidImageTransformationException('x needs to be specified when mode is center-y');
-        }
-
-        if (null === $width || null === $height) {
-            throw new InvalidImageTransformationException('width and height needs to be specified');
         }
 
         $params = [
