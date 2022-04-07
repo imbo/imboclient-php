@@ -113,4 +113,34 @@ class ClientTest extends TestCase
         $_ = $client->getUserInfo();
         $this->assertSame('/users/testuser.json', $this->getPreviousRequest()->getUri()->getPath());
     }
+
+    /**
+     * @return array<string,array{query:?ImagesQuery,expectedQueryString:string}>
+     */
+    public function getImagesQuery(): array
+    {
+        return [
+            'no query' => [
+                'query' => null,
+                'expectedQueryString' => 'page=1&limit=20&metadata=0',
+            ],
+
+            'custom query' => [
+                'query' => (new ImagesQuery())->withLimit(10)->withIds(['id1', 'id2']),
+                'expectedQueryString' => 'page=1&limit=10&metadata=0&ids%5B0%5D=id1&ids%5B1%5D=id2',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider getImagesQuery
+     * @covers ::getImages
+     */
+    public function testGetImages(?ImagesQuery $query, string $expectedQueryString): void
+    {
+        $client = $this->getClient([new Response(200, [], '{"search":{"hits":0,"page":1,"limit":10,"count":0},"images":[]}')]);
+        $_ = $client->getImages($query);
+        $this->assertSame('/users/testuser/images.json', $this->getPreviousRequest()->getUri()->getPath());
+        $this->assertSame($expectedQueryString, $this->getPreviousRequest()->getUri()->getQuery());
+    }
 }
