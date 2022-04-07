@@ -1,7 +1,6 @@
 <?php declare(strict_types=1);
 namespace ImboClient;
 
-use ArrayObject;
 use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -9,6 +8,8 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use ImboClient\Exception\ClientException;
+use ImboClient\Exception\InvalidLocalFileException;
+use ImboClient\Exception\RuntimeException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 
@@ -21,11 +22,11 @@ class ClientTest extends TestCase
     private string $user = 'testuser';
     private string $publicKey = 'christer';
     private string $privateKey = 'test';
-    private ArrayObject $historyContainer;
+    private array $historyContainer;
 
     protected function setUp(): void
     {
-        $this->historyContainer = new ArrayObject();
+        $this->historyContainer = [];
     }
 
     /**
@@ -42,7 +43,7 @@ class ClientTest extends TestCase
     /**
      * @param array<int,ResponseInterface> $responses
      */
-    private function getClient(array $responses): Client
+    private function getClient(array $responses = []): Client
     {
         return new Client(
             $this->imboUrl,
@@ -55,13 +56,39 @@ class ClientTest extends TestCase
 
     private function getPreviousRequest(): Request
     {
-        if (!count($this->historyContainer)) {
-            $this->fail('Expected a request to be present');
+        return $this->getPreviousTransaction()['request'];
+    }
+
+    /**
+     * @return array<int,Request>
+     */
+    private function getPreviousRequests(int $num): array
+    {
+        return array_map(
+            fn (array $transaction): Request => $transaction['request'],
+            $this->getPreviousTransactions($num),
+        );
+    }
+
+    /**
+     * @return array{request:Request,response:Response}
+     */
+    private function getPreviousTransaction(): array
+    {
+        return $this->getPreviousTransactions(1)[0];
+    }
+
+    /**
+     * @return array<int,array{request:Request,response:Response}>
+     */
+    private function getPreviousTransactions(int $num): array
+    {
+        if ($num > count($this->historyContainer)) {
+            $this->fail('Not enough transactions in the Guzzle history');
         }
 
-        /** @var array{request:Request,response:Response} */
-        $transaction = $this->historyContainer[0];
-        return $transaction['request'];
+        /** @var array<int,array{request:Request,response:Response}> */
+        return array_slice($this->historyContainer, -$num);
     }
 
     /**
@@ -140,7 +167,90 @@ class ClientTest extends TestCase
     {
         $client = $this->getClient([new Response(200, [], '{"search":{"hits":0,"page":1,"limit":10,"count":0},"images":[]}')]);
         $_ = $client->getImages($query);
-        $this->assertSame('/users/testuser/images.json', $this->getPreviousRequest()->getUri()->getPath());
-        $this->assertSame($expectedQueryString, $this->getPreviousRequest()->getUri()->getQuery());
+        $uri = $this->getPreviousRequest()->getUri();
+        $this->assertSame('/users/testuser/images.json', $uri->getPath());
+        $this->assertSame($expectedQueryString, $uri->getQuery());
+    }
+
+    /**
+     * @covers ::addImageFromString
+     */
+    public function testAddImageFromString(): void
+    {
+        $blob = 'some image data';
+        $client = $this->getClient([new Response(200, [], '{"imageIdentifier":"id","width":100,"height":100,"extension":"jpg"}')]);
+        $_ = $client->addImageFromString($blob);
+        $request = $this->getPreviousRequest();
+        $this->assertSame('/users/testuser/images', $request->getUri()->getPath());
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame($blob, $request->getBody()->getContents());
+    }
+
+    /**
+     * @covers ::addImageFromPath
+     * @covers ::validateLocalFile
+     */
+    public function testAddImageFromPath(): void
+    {
+        $path = __DIR__ . '/_files/image.jpg';
+        $client = $this->getClient([new Response(200, [], '{"imageIdentifier":"id","width":100,"height":100,"extension":"jpg"}')]);
+        $_ = $client->addImageFromPath($path);
+        $request = $this->getPreviousRequest();
+        $this->assertSame('/users/testuser/images', $request->getUri()->getPath());
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame(file_get_contents($path), $request->getBody()->getContents());
+    }
+
+    /**
+     * @covers ::addImageFromPath
+     * @covers ::validateLocalFile
+     */
+    public function testAddImageFromPathThrowsExceptionWhenFileDoesNotExist(): void
+    {
+        $this->expectException(InvalidLocalFileException::class);
+        $this->expectExceptionMessage('File does not exist');
+        $this->getClient()->addImageFromPath('/foo/bar/baz.jpg');
+    }
+
+    /**
+     * @covers ::addImageFromPath
+     * @covers ::validateLocalFile
+     */
+    public function testAddImageFromPathThrowsExceptionWhenFileIsEmpty(): void
+    {
+        $this->expectException(InvalidLocalFileException::class);
+        $this->expectExceptionMessage('File is of zero length');
+        $this->getClient()->addImageFromPath(__DIR__ . '/_files/emptyImage.png');
+    }
+
+    /**
+     * @covers ::addImageFromUrl
+     */
+    public function testAddImageFromUrl(): void
+    {
+        $url = 'http://example.com/image.jpg';
+        $client = $this->getClient([
+            new Response(200, [], 'external image blob'),
+            new Response(200, [], '{"imageIdentifier":"id","width":100,"height":100,"extension":"jpg"}'),
+        ]);
+        $_ = $client->addImageFromUrl($url);
+
+        [$externalImageRequest, $imboRequest] = $this->getPreviousRequests(2);
+
+        $this->assertSame($url, (string) $externalImageRequest->getUri());
+        $this->assertSame('/users/testuser/images', $imboRequest->getUri()->getPath());
+        $this->assertSame('POST', $imboRequest->getMethod());
+        $this->assertSame('external image blob', $imboRequest->getBody()->getContents());
+    }
+
+    /**
+     * @covers ::addImageFromUrl
+     */
+    public function testAddImageFromUrlThrowsExceptionWhenUnableToFetchImage(): void
+    {
+        $client = $this->getClient([new Response(404)]);
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Unable to fetch file at URL');
+        $client->addImageFromUrl('http://example.com/image.jpg');
     }
 }
