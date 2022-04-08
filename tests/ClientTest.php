@@ -253,4 +253,77 @@ class ClientTest extends TestCase
         $this->expectExceptionMessage('Unable to fetch file at URL');
         $client->addImageFromUrl('http://example.com/image.jpg');
     }
+
+    /**
+     * @covers ::deleteImage
+     */
+    public function testDeleteImage(): void
+    {
+        $client = $this->getClient([new Response(200, [], '{"imageIdentifier":"some-id"}')]);
+        $_ = $client->deleteImage('some-id');
+        $request = $this->getPreviousRequest();
+        $this->assertSame('/users/testuser/images/some-id', $request->getUri()->getPath());
+        $this->assertSame('DELETE', $request->getMethod());
+    }
+
+    /**
+     * @covers ::getImageProperties
+     */
+    public function testGetImageProperties(): void
+    {
+        $client = $this->getClient([new Response(200)]);
+        $_ = $client->getImageProperties('some-id');
+        $request = $this->getPreviousRequest();
+        $this->assertSame('/users/testuser/images/some-id', $request->getUri()->getPath());
+        $this->assertSame('HEAD', $request->getMethod());
+    }
+
+    /**
+     * @covers ::getMetadata
+     */
+    public function testGetMetadata(): void
+    {
+        $client = $this->getClient([new Response(200, [], '{"some":"data"}')]);
+        $metadata = $client->getMetadata('some-id');
+        $this->assertSame('/users/testuser/images/some-id/metadata.json', $this->getPreviousRequest()->getUri()->getPath());
+        $this->assertSame(['some' => 'data'], $metadata);
+    }
+
+    /**
+     * @covers ::setMetadata
+     */
+    public function testSetMetadata(): void
+    {
+        $client = $this->getClient([new Response(200, [], '{"some":"data"}')]);
+        $_ = $client->setMetadata('some-id', ['some' => 'data']);
+        $request = $this->getPreviousRequest();
+        $this->assertSame('/users/testuser/images/some-id/metadata', $request->getUri()->getPath());
+        $this->assertSame('PUT', $request->getMethod());
+        $this->assertSame('{"some":"data"}', $request->getBody()->getContents());
+    }
+
+    /**
+     * @covers ::updateMetadata
+     */
+    public function testUpdateMetadata(): void
+    {
+        $client = $this->getClient([new Response(200, [], '{"some":"data"}')]);
+        $_ = $client->updateMetadata('some-id', ['some' => 'data']);
+        $request = $this->getPreviousRequest();
+        $this->assertSame('/users/testuser/images/some-id/metadata', $request->getUri()->getPath());
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame('{"some":"data"}', $request->getBody()->getContents());
+    }
+
+    /**
+     * @covers ::deleteMetadata
+     */
+    public function testDeleteMetadata(): void
+    {
+        $client = $this->getClient([new Response(200, [], '{}')]);
+        $_ = $client->deleteMetadata('some-id');
+        $request = $this->getPreviousRequest();
+        $this->assertSame('/users/testuser/images/some-id/metadata', $request->getUri()->getPath());
+        $this->assertSame('DELETE', $request->getMethod());
+    }
 }
