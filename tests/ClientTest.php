@@ -326,4 +326,70 @@ class ClientTest extends TestCase
         $this->assertSame('/users/testuser/images/some-id/metadata', $request->getUri()->getPath());
         $this->assertSame('DELETE', $request->getMethod());
     }
+
+    /**
+     * @return array<int,array{serverUrls:array<string>|string,imageIdentifier:string,expectedHost:string}>
+     */
+    public function getHostsForImageUrl(): array
+    {
+        $serverUrls = [
+            'https://imbo1',
+            'https://imbo2',
+            'https://imbo3',
+            'https://imbo4',
+            'https://imbo5',
+        ];
+
+        return [
+            [
+                'serverUrls' => 'https://imbo',
+                'imageIdentifier' => 'id-1',
+                'expectedHost' => 'imbo',
+            ],
+            [
+                'serverUrls' => $serverUrls,
+                'imageIdentifier' => 'id-1',
+                'expectedHost' => 'imbo5',
+            ],
+            [
+                'serverUrls' => $serverUrls,
+                'imageIdentifier' => 'id-2',
+                'expectedHost' => 'imbo1',
+            ],
+            [
+                'serverUrls' => $serverUrls,
+                'imageIdentifier' => 'id-3',
+                'expectedHost' => 'imbo2',
+            ],
+            [
+                'serverUrls' => $serverUrls,
+                'imageIdentifier' => 'id-4',
+                'expectedHost' => 'imbo3',
+            ],
+            [
+                'serverUrls' => $serverUrls,
+                'imageIdentifier' => 'id-5',
+                'expectedHost' => 'imbo4',
+            ],
+            [
+                'serverUrls' => $serverUrls,
+                'imageIdentifier' => 'id-6',
+                'expectedHost' => 'imbo5',
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string>|string $serverUrls
+     * @dataProvider getHostsForImageUrl
+     * @covers ::__construct
+     * @covers ::getImageUrl
+     * @covers ::getHostForImageIdentifier
+     */
+    public function testGetImageUrl($serverUrls, string $imageIdentifier, string $expectedHost): void
+    {
+        $url = (new Client($serverUrls, 'user', 'pub', 'priv'))->getImageUrl($imageIdentifier);
+        $this->assertSame('/users/user/images/' . $imageIdentifier, $url->getPath());
+        $this->assertSame($expectedHost, $url->getHost());
+    }
 }
