@@ -1,6 +1,12 @@
 Changelog for ImboClient
 ========================
 
+ImboClient-3.0.0
+----------------
+__N/A__
+
+* #115: Remove custom logic for handling image identifiers that looks like MD5 hashes when choosing an Imbo host
+
 ImboClient-2.0.3
 ----------------
 __2016-03-17__
