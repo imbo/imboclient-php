@@ -10,6 +10,7 @@ use GuzzleHttp\Psr7\Response;
 use ImboClient\Exception\ClientException;
 use ImboClient\Exception\InvalidLocalFileException;
 use ImboClient\Exception\RuntimeException;
+use ImboClient\Url\ImageUrl;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 
@@ -391,5 +392,63 @@ class ClientTest extends TestCase
         $url = (new Client($serverUrls, 'user', 'pub', 'priv'))->getImageUrl($imageIdentifier);
         $this->assertSame('/users/user/images/' . $imageIdentifier, $url->getPath());
         $this->assertSame($expectedHost, $url->getHost());
+    }
+
+    /**
+     * @covers ::addShortUrl
+     */
+    public function testAddShortUrl(): void
+    {
+        $imageUrl = $this->createConfiguredMock(ImageUrl::class, [
+            'getImageIdentifier' => 'image-id',
+            'getExtension' => 'png',
+            'getQuery' => 't[]=thumbnail',
+        ]);
+
+        $client = $this->getClient([new Response(200, [], '{"id":"some-id"}')]);
+        $_ = $client->addShortUrl($imageUrl);
+        $request = $this->getPreviousRequest();
+        $this->assertSame('/users/testuser/images/image-id/shorturls', $request->getUri()->getPath());
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame('{"user":"testuser","imageIdentifier":"image-id","extension":"png","query":"t[]=thumbnail"}', $request->getBody()->getContents());
+    }
+
+    /**
+     * @covers ::deleteImageShortUrls
+     */
+    public function testDeleteImageShortUrls(): void
+    {
+        $client = $this->getClient([new Response(200, [], '{"imageIdentifier":"image-id"}')]);
+        $_ = $client->deleteImageShortUrls('image-id');
+        $request = $this->getPreviousRequest();
+        $this->assertSame('/users/testuser/images/image-id/shorturls', $request->getUri()->getPath());
+        $this->assertSame('DELETE', $request->getMethod());
+    }
+
+    /**
+     * @covers ::getShortUrlProperties
+     */
+    public function testGetShortUrlProperties(): void
+    {
+        $client = $this->getClient([new Response(200)]);
+        $_ = $client->getShortUrlProperties('short-url-id');
+        $request = $this->getPreviousRequest();
+        $this->assertSame('/s/short-url-id', $request->getUri()->getPath());
+        $this->assertSame('HEAD', $request->getMethod());
+    }
+
+    /**
+     * @covers ::deleteShortUrl
+     */
+    public function testDeleteShortUrl(): void
+    {
+        $client = $this->getClient([
+            new Response(200, ['x-imbo-imageidentifier' => 'image-id']),
+            new Response(200, [], '{"id":"short-url-id"}'),
+        ]);
+        $_ = $client->deleteShortUrl('short-url-id');
+        $request = $this->getPreviousRequest();
+        $this->assertSame('/users/testuser/images/image-id/shorturls/short-url-id', $request->getUri()->getPath());
+        $this->assertSame('DELETE', $request->getMethod());
     }
 }
