@@ -451,4 +451,112 @@ class ClientTest extends TestCase
         $this->assertSame('/users/testuser/images/image-id/shorturls/short-url-id', $request->getUri()->getPath());
         $this->assertSame('DELETE', $request->getMethod());
     }
+
+    /**
+     * @covers ::imageExists
+     */
+    public function testImageExists(): void
+    {
+        $body = <<<JSON
+        {
+            "search": {
+                "hits": 1,
+                "page": 1,
+                "limit": 1,
+                "count": 1
+            },
+            "images": [
+                {
+                    "imageIdentifier": "some-id",
+                    "checksum": "929db9c5fc3099f7576f5655207eba47",
+                    "originalChecksum": "929db9c5fc3099f7576f5655207eba47",
+                    "user": "testuser",
+                    "added": "Mon, 10 Dec 2012 11:57:51 GMT",
+                    "updated":"Mon, 10 Dec 2012 11:57:51 GMT",
+                    "size": 41423,
+                    "width": 665,
+                    "height": 463,
+                    "mime": "image/png",
+                    "extension": "png",
+                    "metadata":{}
+                }
+            ]
+        }
+        JSON;
+        $client = $this->getClient([new Response(200, [], $body)]);
+        $this->assertTrue($client->imageExists(__DIR__ . '/_files/image.png'));
+        $request = $this->getPreviousRequest();
+        $this->assertSame('GET', $request->getMethod());
+        $this->assertSame('/users/testuser/images.json', $request->getUri()->getPath());
+        $this->assertSame('page=1&limit=1&metadata=0&originalChecksums%5B0%5D=929db9c5fc3099f7576f5655207eba47', $request->getUri()->getQuery());
+    }
+
+    /**
+     * @covers ::imageExists
+     * @covers ::validateLocalFile
+     */
+    public function testImageExistsThrowsExceptionWhenLocalFileDoesNotExist(): void
+    {
+        $client = $this->getClient();
+        $this->expectException(InvalidLocalFileException::class);
+        $this->expectExceptionMessage('File does not exist');
+        $client->imageExists('/foo/bar/baz.jpg');
+    }
+
+    /**
+     * @covers ::imageIdentifierExists
+     */
+    public function testImageIdentifierExists(): void
+    {
+        $client = $this->getClient([new Response(200)]);
+        $this->assertTrue($client->imageIdentifierExists('image-id'));
+        $request = $this->getPreviousRequest();
+        $this->assertSame('HEAD', $request->getMethod());
+        $this->assertSame('/users/testuser/images/image-id', $request->getUri()->getPath());
+    }
+
+    /**
+     * @covers ::imageIdentifierExists
+     */
+    public function testImageIdentifierExistsReturnsFalseOn404(): void
+    {
+        $client = $this->getClient([new Response(404)]);
+        $this->assertFalse($client->imageIdentifierExists('image-id'));
+    }
+
+    /**
+     * @covers ::imageIdentifierExists
+     */
+    public function testImageIdentifierExistsThrowsExceptionOnErrors(): void
+    {
+        $client = $this->getClient([new Response(400)]);
+        $this->expectException(ClientException::class);
+        $this->expectExceptionCode(400);
+        $client->imageIdentifierExists('image-id');
+    }
+
+    /**
+     * @covers ::getImageData
+     * @covers ::getImageDataFromUrl
+     */
+    public function testGetImageData(): void
+    {
+        $client = $this->getClient([new Response(200, [], 'image data')]);
+        $this->assertSame('image data', $client->getImageData('image-id'));
+        $request = $this->getPreviousRequest();
+        $this->assertSame('GET', $request->getMethod());
+        $this->assertSame('/users/testuser/images/image-id', $request->getUri()->getPath());
+    }
+
+    /**
+     * @covers ::getImageData
+     * @covers ::getImageDataFromUrl
+     */
+    public function testGetImageDataFromUrlThrowsExceptionOnError(): void {
+        $client = $this->getClient([new Response(400)]);
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionCode(400);
+        $this->expectExceptionMessage('Unable to fetch file at URL');
+        $client->getImageData('image-id');
+    }
 }
