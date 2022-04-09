@@ -552,7 +552,8 @@ class ClientTest extends TestCase
      * @covers ::getImageData
      * @covers ::getImageDataFromUrl
      */
-    public function testGetImageDataFromUrlThrowsExceptionOnError(): void {
+    public function testGetImageDataFromUrlThrowsExceptionOnError(): void
+    {
         $client = $this->getClient([new Response(400)]);
         $this->expectException(RuntimeException::class);
         $this->expectExceptionCode(400);
