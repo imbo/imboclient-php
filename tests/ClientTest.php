@@ -12,6 +12,7 @@ use ImboClient\Exception\InvalidArgumentException;
 use ImboClient\Exception\InvalidLocalFileException;
 use ImboClient\Exception\RequestException;
 use ImboClient\Exception\RuntimeException;
+use ImboClient\Url\AccessTokenUrl;
 use ImboClient\Url\ImageUrl;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -96,6 +97,7 @@ class ClientTest extends TestCase
 
     /**
      * @covers ::getServerStatus
+     * @covers ::getUrlForPath
      */
     public function testGetServerStatus(): void
     {
@@ -136,12 +138,15 @@ class ClientTest extends TestCase
 
     /**
      * @covers ::getUserInfo
+     * @covers ::getAccessTokenUrlForPath
      */
     public function testGetUserInfo(): void
     {
         $client = $this->getClient([new Response(200, [], '{"user":"testuser","numImages":0,"lastModified":"Mon, 20 Sep 2021 20:33:57 GMT"}')]);
         $_ = $client->getUserInfo();
-        $this->assertSame('/users/testuser.json', $this->getPreviousRequest()->getUri()->getPath());
+        $uri = $this->getPreviousRequest()->getUri();
+        $this->assertSame('/users/testuser.json', $uri->getPath());
+        $this->assertInstanceOf(AccessTokenUrl::class, $uri);
     }
 
     /**
@@ -682,11 +687,13 @@ class ClientTest extends TestCase
 
     /**
      * @covers ::resourceGroupExists
+     * @covers ::getHttpResponse
      */
     public function testResourceGroupExistsThrowsExceptionOnError(): void
     {
         $client = $this->getClient([new Response(400)]);
         $this->expectException(RequestException::class);
+        $this->expectExceptionMessage('Imbo request failed');
         $this->expectExceptionCode(400);
         $client->resourceGroupExists('my-group');
     }
