@@ -8,7 +8,9 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use ImboClient\Exception\ClientException;
+use ImboClient\Exception\InvalidArgumentException;
 use ImboClient\Exception\InvalidLocalFileException;
+use ImboClient\Exception\RequestException;
 use ImboClient\Exception\RuntimeException;
 use ImboClient\Url\ImageUrl;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +23,7 @@ class ClientTest extends TestCase
 {
     private string $imboUrl = 'http://imbo';
     private string $user = 'testuser';
-    private string $publicKey = 'christer';
+    private string $publicKey = 'user';
     private string $privateKey = 'test';
     private array $historyContainer;
 
@@ -559,5 +561,175 @@ class ClientTest extends TestCase
         $this->expectExceptionCode(400);
         $this->expectExceptionMessage('Unable to fetch file at URL');
         $client->getImageData('image-id');
+    }
+
+    /**
+     * @covers ::addResourceGroup
+     */
+    public function testAddResourceGroup(): void
+    {
+        $client = $this->getClient([
+            new Response(404),
+            new Response(201, [], '{"name":"my-group","resources":["images"]}'),
+        ]);
+        $_ = $client->addResourceGroup('my-group', ['images']);
+        $request = $this->getPreviousRequest();
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame('/groups', $request->getUri()->getPath());
+        $this->assertSame('{"name":"my-group","resources":["images"]}', $request->getBody()->getContents());
+    }
+
+    /**
+     * @covers ::addResourceGroup
+     */
+    public function testAddResourceGroupThrowsExceptionOnInvalidGroupName(): void
+    {
+        $client = $this->getClient();
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Group name can only consist of');
+        $client->addResourceGroup('My Group');
+    }
+
+    /**
+     * @covers ::addResourceGroup
+     */
+    public function testAddResourceGroupThrowsExceptionWhenGroupAlreadyExists(): void
+    {
+        $client = $this->getClient([
+            new Response(200, [], '{"name":"my-group","resources":[]}'),
+        ]);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Resource group already exists');
+        $client->addResourceGroup('my-group');
+    }
+
+    /**
+     * @covers ::updateResourceGroup
+     */
+    public function testUpdateResourceGroup(): void
+    {
+        $client = $this->getClient([
+            new Response(200, [], '{"name":"my-group","resources":["images"]}'),
+        ]);
+        $_ = $client->updateResourceGroup('my-group', ['images']);
+        $request = $this->getPreviousRequest();
+        $this->assertSame('PUT', $request->getMethod());
+        $this->assertSame('/groups/my-group', $request->getUri()->getPath());
+        $this->assertSame('{"resources":["images"]}', $request->getBody()->getContents());
+    }
+
+    /**
+     * @covers ::updateResourceGroup
+     */
+    public function testUpdateResourceGroupThrowsExceptionOnInvalidGroupName(): void
+    {
+        $client = $this->getClient();
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Group name can only consist of');
+        $client->updateResourceGroup('My Group', ['images']);
+    }
+
+    /**
+     * @covers ::deleteResourceGroup
+     */
+    public function testDeleteResourceGroup(): void
+    {
+        $client = $this->getClient([
+            new Response(200, [], '{"name":"my-group","resources":[]}'),
+        ]);
+        $_ = $client->deleteResourceGroup('my-group');
+        $request = $this->getPreviousRequest();
+        $this->assertSame('DELETE', $request->getMethod());
+        $this->assertSame('/groups/my-group', $request->getUri()->getPath());
+    }
+
+    /**
+     * @covers ::deleteResourceGroup
+     */
+    public function testDeleteResourceGroupThrowsExceptionOnInvalidGroupName(): void
+    {
+        $client = $this->getClient();
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Group name can only consist of');
+        $client->deleteResourceGroup('My Group');
+    }
+
+    /**
+     * @covers ::resourceGroupExists
+     */
+    public function testResourceGroupExists(): void
+    {
+        $client = $this->getClient([new Response(200)]);
+        $this->assertTrue($client->resourceGroupExists('my-group'));
+        $request = $this->getPreviousRequest();
+        $this->assertSame('HEAD', $request->getMethod());
+        $this->assertSame('/groups/my-group', $request->getUri()->getPath());
+        $this->assertSame('publicKey=' . $this->publicKey, $request->getUri()->getQuery());
+    }
+
+    /**
+     * @covers ::resourceGroupExists
+     */
+    public function testResourceGroupExistsReturnsFalseWhenGroupDoesNotExist(): void
+    {
+        $client = $this->getClient([new Response(404)]);
+        $this->assertFalse($client->resourceGroupExists('my-group'));
+        $request = $this->getPreviousRequest();
+        $this->assertSame('HEAD', $request->getMethod());
+        $this->assertSame('/groups/my-group', $request->getUri()->getPath());
+    }
+
+    /**
+     * @covers ::resourceGroupExists
+     */
+    public function testResourceGroupExistsThrowsExceptionOnError(): void
+    {
+        $client = $this->getClient([new Response(400)]);
+        $this->expectException(RequestException::class);
+        $this->expectExceptionCode(400);
+        $client->resourceGroupExists('my-group');
+    }
+
+    /**
+     * @covers ::getResourceGroup
+     */
+    public function testGetResourceGroup(): void
+    {
+        $client = $this->getClient([new Response(200, [], '{"name":"my-group","resources":[]}')]);
+        $_ = $client->getResourceGroup('my-group');
+        $request = $this->getPreviousRequest();
+        $this->assertSame('GET', $request->getMethod());
+        $this->assertSame('/groups/my-group', $request->getUri()->getPath());
+        $this->assertSame('publicKey=' . $this->publicKey, $request->getUri()->getQuery());
+    }
+
+    /**
+     * @covers ::getResourceGroups
+     */
+    public function testGetResourceGroups(): void
+    {
+        $body = <<<JSON
+        {
+            "search": {
+                "hits": 1,
+                "page": 1,
+                "limit": 1,
+                "count": 1
+            },
+            "groups": [
+                {
+                    "name": "my-group",
+                    "resources": []
+                }
+            ]
+        }
+        JSON;
+        $client = $this->getClient([new Response(200, [], $body)]);
+        $query = (new Query())->withPage(2)->withLimit(3);
+        $_ = $client->getResourceGroups($query);
+        $request = $this->getPreviousRequest();
+        $this->assertSame('GET', $request->getMethod());
+        $this->assertSame('/groups', $request->getUri()->getPath());
+        $this->assertSame('page=2&limit=3&publicKey=' . $this->publicKey, $request->getUri()->getQuery());
     }
 }
