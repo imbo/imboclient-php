@@ -885,4 +885,98 @@ class ClientTest extends TestCase
         $this->expectExceptionCode(400);
         $client->publicKeyExists('public');
     }
+
+    /**
+     * @covers ::getAccessControlRules
+     */
+    public function testGetAccessControlRules(): void
+    {
+        $body = <<<JSON
+        [
+            {
+                "id": "id-1",
+                "resources": [],
+                "group": "group",
+                "users": []
+            }
+        ]
+        JSON;
+        $client = $this->getClient([new Response(200, [], $body)]);
+        $_ = $client->getAccessControlRules('public');
+        $request = $this->getPreviousRequest();
+        $this->assertSame('GET', $request->getMethod());
+        $this->assertSame('/keys/public/access.json', $request->getUri()->getPath());
+        $this->assertSame('publicKey=' . $this->publicKey, $request->getUri()->getQuery());
+    }
+
+    /**
+     * @covers ::getAccessControlRule
+     */
+    public function testGetAccessControlRule(): void
+    {
+        $body = <<<JSON
+        {
+            "id": "id-1",
+            "resources": [],
+            "group": "group",
+            "users": []
+        }
+        JSON;
+        $client = $this->getClient([new Response(200, [], $body)]);
+        $_ = $client->getAccessControlRule('public', 'id-1');
+        $request = $this->getPreviousRequest();
+        $this->assertSame('GET', $request->getMethod());
+        $this->assertSame('/keys/public/access/id-1.json', $request->getUri()->getPath());
+        $this->assertSame('publicKey=' . $this->publicKey, $request->getUri()->getQuery());
+    }
+
+    /**
+     * @covers ::addAccessControlRules
+     */
+    public function testAddAccessControlRules(): void
+    {
+        $rules = <<<JSON
+        [
+            {
+                "id": "id-1",
+                "resources": [],
+                "group": "group",
+                "users": []
+            }
+        ]
+        JSON;
+
+        $client = $this->getClient([new Response(200, [], $rules)]);
+        $_ = $client->addAccessControlRules('public', [
+            [
+                'resources' => [],
+                'group' => 'group',
+                'users' => [],
+            ],
+        ]);
+        $request = $this->getPreviousRequest();
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame('/keys/public/access.json', $request->getUri()->getPath());
+        $this->assertSame('[{"resources":[],"group":"group","users":[]}]', $request->getBody()->getContents());
+    }
+
+    /**
+     * @covers ::deleteAccessControlRule
+     */
+    public function testDeleteAccessControlRule(): void
+    {
+        $rule = <<<JSON
+        {
+            "id": "id-1",
+            "resources": [],
+            "group": "group",
+            "users": []
+        }
+        JSON;
+        $client = $this->getClient([new Response(200, [], $rule)]);
+        $_ = $client->deleteAccessControlRule('public', 'id-1');
+        $request = $this->getPreviousRequest();
+        $this->assertSame('DELETE', $request->getMethod());
+        $this->assertSame('/keys/public/access/id-1.json', $request->getUri()->getPath());
+    }
 }
