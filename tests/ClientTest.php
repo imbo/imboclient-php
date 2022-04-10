@@ -581,6 +581,7 @@ class ClientTest extends TestCase
 
     /**
      * @covers ::addResourceGroup
+     * @covers ::validateResourceGroupName
      */
     public function testAddResourceGroupThrowsExceptionOnInvalidGroupName(): void
     {
@@ -731,5 +732,157 @@ class ClientTest extends TestCase
         $this->assertSame('GET', $request->getMethod());
         $this->assertSame('/groups', $request->getUri()->getPath());
         $this->assertSame('page=2&limit=3&publicKey=' . $this->publicKey, $request->getUri()->getQuery());
+    }
+
+    /**
+     * @covers ::addPublicKey
+     */
+    public function testAddPublicKey(): void
+    {
+        $client = $this->getClient([
+            new Response(404),
+            new Response(201, [], '{"publicKey":"public"}'),
+        ]);
+        $_ = $client->addPublicKey('public', 'private');
+        $request = $this->getPreviousRequest();
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame('/keys', $request->getUri()->getPath());
+        $this->assertSame('{"publicKey":"public","privateKey":"private"}', $request->getBody()->getContents());
+    }
+
+    /**
+     * @covers ::addPublicKey
+     * @covers ::validatePublicKeyName
+     */
+    public function testAddPublicKeyThrowsExceptionOnInvalidKeyName(): void
+    {
+        $client = $this->getClient();
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Public key can only consist of');
+        $client->addPublicKey('My Public Key', 'private');
+    }
+
+    /**
+     * @covers ::addPublicKey
+     */
+    public function testAddPublicKeyThrowsExceptionWhenKeyAlreadyExists(): void
+    {
+        $client = $this->getClient([
+            new Response(200, [], '{"publicKey":"public"}'),
+        ]);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Public key already exists');
+        $client->addPublicKey('public', 'private');
+    }
+
+    /**
+     * @covers ::updatePublicKey
+     */
+    public function testUpdatePublicKey(): void
+    {
+        $client = $this->getClient([
+            new Response(200),
+            new Response(200, [], '{"publicKey":"public"}'),
+        ]);
+        $_ = $client->updatePublicKey('public', 'private');
+        $request = $this->getPreviousRequest();
+        $this->assertSame('PUT', $request->getMethod());
+        $this->assertSame('/keys/public', $request->getUri()->getPath());
+        $this->assertSame('{"privateKey":"private"}', $request->getBody()->getContents());
+    }
+
+    /**
+     * @covers ::updatePublicKey
+     */
+    public function testUpdatePublicKeyThrowsExceptionOnInvalidKeyName(): void
+    {
+        $client = $this->getClient();
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Public key can only consist of');
+        $client->updatePublicKey('Public Key', 'private');
+    }
+
+    /**
+     * @covers ::updatePublicKey
+     */
+    public function testUpdatePublicKeyThrowsExceptionWhenKeyDoesNotExist(): void
+    {
+        $client = $this->getClient([new Response(404)]);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Public key does not exist');
+        $client->updatePublicKey('public', 'private');
+    }
+
+    /**
+     * @covers ::deletePublicKey
+     */
+    public function testDeletePublicKey(): void
+    {
+        $client = $this->getClient([
+            new Response(200),
+            new Response(200, [], '{"publicKey":"public"}'),
+        ]);
+        $_ = $client->deletePublicKey('public');
+        $request = $this->getPreviousRequest();
+        $this->assertSame('DELETE', $request->getMethod());
+        $this->assertSame('/keys/public', $request->getUri()->getPath());
+    }
+
+    /**
+     * @covers ::deletePublicKey
+     */
+    public function testDeletePublicKeyThrowsExceptionOnInvalidKeyName(): void
+    {
+        $client = $this->getClient();
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Public key can only consist of');
+        $client->deletePublicKey('My Key');
+    }
+
+    /**
+     * @covers ::deletePublicKey
+     */
+    public function testDeletePublicKeyThrowsExceptionWhenKeyDoesNotExist(): void
+    {
+        $client = $this->getClient([new Response(404)]);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Public key does not exist');
+        $client->deletePublicKey('public');
+    }
+
+    /**
+     * @covers ::publicKeyExists
+     */
+    public function testPublicKeyExists(): void
+    {
+        $client = $this->getClient([new Response(200)]);
+        $this->assertTrue($client->publicKeyExists('public'));
+        $request = $this->getPreviousRequest();
+        $this->assertSame('HEAD', $request->getMethod());
+        $this->assertSame('/keys/public', $request->getUri()->getPath());
+        $this->assertSame('publicKey=' . $this->publicKey, $request->getUri()->getQuery());
+    }
+
+    /**
+     * @covers ::publicKeyExists
+     */
+    public function testPublicKeyExistsReturnsFalseWhenKeyDoesNotExist(): void
+    {
+        $client = $this->getClient([new Response(404)]);
+        $this->assertFalse($client->publicKeyExists('public'));
+        $request = $this->getPreviousRequest();
+        $this->assertSame('HEAD', $request->getMethod());
+        $this->assertSame('/keys/public', $request->getUri()->getPath());
+    }
+
+    /**
+     * @covers ::publicKeyExists
+     */
+    public function testPublicKeyExistsThrowsExceptionOnError(): void
+    {
+        $client = $this->getClient([new Response(400)]);
+        $this->expectException(RequestException::class);
+        $this->expectExceptionCode(400);
+        $client->publicKeyExists('public');
     }
 }
