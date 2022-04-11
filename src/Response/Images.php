@@ -88,9 +88,9 @@ class Images implements Iterator, Countable
         return $this->images[$this->iteratorIndex];
     }
 
-    public function key(): string
+    public function key(): int
     {
-        return $this->images[$this->iteratorIndex]->getImageIdentifier();
+        return $this->iteratorIndex;
     }
 
     public function next(): void
@@ -101,11 +101,6 @@ class Images implements Iterator, Countable
     public function valid(): bool
     {
         return isset($this->images[$this->iteratorIndex]);
-    }
-
-    public function asArray(): array
-    {
-        return $this->images;
     }
 
     public function count(): int

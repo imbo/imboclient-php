@@ -62,11 +62,6 @@ class AccessControlRules implements Iterator, Countable
         return isset($this->rules[$this->iteratorIndex]);
     }
 
-    public function asArray(): array
-    {
-        return $this->rules;
-    }
-
     public function count(): int
     {
         return count($this->rules);

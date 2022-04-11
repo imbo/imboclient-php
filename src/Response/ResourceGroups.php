@@ -89,11 +89,6 @@ class ResourceGroups implements Iterator, Countable
         return isset($this->resourceGroups[$this->iteratorIndex]);
     }
 
-    public function asArray(): array
-    {
-        return $this->resourceGroups;
-    }
-
     public function count(): int
     {
         return count($this->resourceGroups);
