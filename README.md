@@ -1,5 +1,3 @@
-:warning: Repo is undergoing a rewrite, and the `main`-branch is currently completely broken :warning:
-
 # PHP client for Imbo v3
 
 [![CI](https://github.com/imbo/imboclient-php/workflows/CI/badge.svg)](https://github.com/imbo/imboclient-php/actions?query=workflow%3ACI)
