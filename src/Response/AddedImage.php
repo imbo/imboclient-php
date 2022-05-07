@@ -50,10 +50,10 @@ class AddedImage extends ApiResponse
     protected function getArrayOffsets(): array
     {
         return [
-            'imageIdentifier' => fn () => $this->getImageIdentifier(),
-            'width' => fn () => $this->getWidth(),
-            'height' => fn () => $this->getHeight(),
-            'extension' => fn () => $this->getExtension(),
+            'imageIdentifier' => fn (): string => $this->getImageIdentifier(),
+            'width' => fn (): int => $this->getWidth(),
+            'height' => fn (): int => $this->getHeight(),
+            'extension' => fn (): string => $this->getExtension(),
         ];
     }
 }

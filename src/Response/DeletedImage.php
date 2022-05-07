@@ -29,7 +29,7 @@ class DeletedImage extends ApiResponse
     protected function getArrayOffsets(): array
     {
         return [
-            'imageIdentifier' => fn () => $this->getImageIdentifier(),
+            'imageIdentifier' => fn (): string => $this->getImageIdentifier(),
         ];
     }
 }
