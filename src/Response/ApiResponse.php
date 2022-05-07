@@ -7,7 +7,7 @@ use Psr\Http\Message\ResponseInterface;
 
 abstract class ApiResponse implements ArrayAccess
 {
-    private ?ResponseInterface $response;
+    private ?ResponseInterface $response = null;
 
     /**
      * @return array<string,callable>

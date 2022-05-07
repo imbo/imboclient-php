@@ -5,7 +5,7 @@ use DateTime;
 use ImboClient\Utils;
 use Psr\Http\Message\ResponseInterface;
 
-class Status
+class Status extends ApiResponse
 {
     private DateTime $date;
     private bool $databaseStatus;
@@ -22,7 +22,8 @@ class Status
     {
         /** @var array{date:string,database:bool,storage:bool} */
         $body = Utils::convertResponseToArray($response);
-        return new self(new DateTime($body['date']), $body['database'], $body['storage']);
+        $status = new self(new DateTime($body['date']), $body['database'], $body['storage']);
+        return $status->withResponse($response);
     }
 
     public function getDate(): DateTime
@@ -43,5 +44,17 @@ class Status
     public function isStorageHealthy(): bool
     {
         return $this->storageStatus;
+    }
+
+    protected function getArrayOffsets(): array
+    {
+        $response = $this->getResponse();
+        return [
+            'date' => fn (): DateTime => $this->getDate(),
+            'database' => fn (): bool => $this->isDatabaseHealthy(),
+            'storage' => fn (): bool => $this->isStorageHealthy(),
+            'status' => fn (): ?int => $response ? $response->getStatusCode() : null,
+            'message' => fn (): ?string => $response ? $response->getReasonPhrase() : null,
+        ];
     }
 }
