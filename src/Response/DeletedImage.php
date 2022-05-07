@@ -4,7 +4,7 @@ namespace ImboClient\Response;
 use ImboClient\Utils;
 use Psr\Http\Message\ResponseInterface;
 
-class DeletedImage
+class DeletedImage extends ApiResponse
 {
     private string $imageIdentifier;
 
@@ -17,11 +17,19 @@ class DeletedImage
     {
         /** @var array{imageIdentifier:string} */
         $body = Utils::convertResponseToArray($response);
-        return new self($body['imageIdentifier']);
+        $deletedImage = new self($body['imageIdentifier']);
+        return $deletedImage->withResponse($response);
     }
 
     public function getImageIdentifier(): string
     {
         return $this->imageIdentifier;
+    }
+
+    protected function getArrayOffsets(): array
+    {
+        return [
+            'imageIdentifier' => fn () => $this->getImageIdentifier(),
+        ];
     }
 }

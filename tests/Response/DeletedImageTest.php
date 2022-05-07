@@ -24,5 +24,27 @@ class DeletedImageTest extends TestCase
         ]);
         $deletedImage = DeletedImage::fromHttpResponse($response);
         $this->assertSame('image-id', $deletedImage->getImageIdentifier());
+        $this->assertSame($response, $deletedImage->getResponse());
+    }
+
+    /**
+     * @covers ::offsetExists
+     * @covers ::offsetGet
+     * @covers ::getArrayOffsets
+     */
+    public function testArrayAccess(): void
+    {
+        $response = $this->createConfiguredMock(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+                'getContents' => '{"imageIdentifier": "image-id"}',
+            ]),
+        ]);
+        $deletedImage = DeletedImage::fromHttpResponse($response);
+
+        $this->assertArrayHasKey('imageIdentifier', $deletedImage);
+        $this->assertArrayNotHasKey('foobar', $deletedImage);
+
+        $this->assertSame('image-id', $deletedImage['imageIdentifier']);
+        $this->assertSame(null, $deletedImage['foobar']);
     }
 }

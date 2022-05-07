@@ -35,7 +35,6 @@ class AddedImageTest extends TestCase
             'getBody' => $this->createConfiguredMock(StreamInterface::class, [
                 'getContents' => $contents,
             ]),
-            'getHeaders' => [],
         ]);
         $addedImage = AddedImage::fromHttpResponse($response);
         $this->assertSame('image-id', $addedImage->getImageIdentifier());
@@ -48,6 +47,7 @@ class AddedImageTest extends TestCase
     /**
      * @covers ::offsetExists
      * @covers ::offsetGet
+     * @covers ::getArrayOffsets
      */
     public function testArrayAccess(): void
     {
@@ -63,7 +63,6 @@ class AddedImageTest extends TestCase
             'getBody' => $this->createConfiguredMock(StreamInterface::class, [
                 'getContents' => $contents,
             ]),
-            'getHeaders' => [],
         ]);
         $addedImage = AddedImage::fromHttpResponse($response);
 
