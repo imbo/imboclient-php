@@ -49,7 +49,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'imboclient-php'
-copyright = u'2014, Christer Edvartsen'
+copyright = u'2011, Christer Edvartsen'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
