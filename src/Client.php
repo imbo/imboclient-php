@@ -131,6 +131,24 @@ class Client
         );
     }
 
+    /**
+     * @param string $image Path to a local file, a URL, or a blob
+     */
+    public function addImage(string $image): AddedImage
+    {
+        if (preg_match('|^https?://|', $image)) {
+            return $this->addImageFromUrl($image);
+        }
+
+        try {
+            return $this->addImageFromPath($image);
+        } catch (InvalidLocalFileException $e) {
+            // not a local file
+        }
+
+        return $this->addImageFromString($image);
+    }
+
     public function addImageFromString(string $blob): AddedImage
     {
         return AddedImage::fromHttpResponse(

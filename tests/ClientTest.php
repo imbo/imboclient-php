@@ -263,6 +263,55 @@ class ClientTest extends TestCase
     }
 
     /**
+     * @testWith ["http://example.com/image.jpg"]
+     *           ["https://example.com/image.jpg"]
+     * @covers ::addImage
+     */
+    public function testGenericAddImageWithUrl(string $url): void
+    {
+        $client = $this->getClient([
+            new Response(200, [], 'external image blob'),
+            new Response(200, [], '{"imageIdentifier":"id","width":100,"height":100,"extension":"jpg"}'),
+        ]);
+        $_ = $client->addImage($url);
+
+        [$externalImageRequest, $imboRequest] = $this->getPreviousRequests(2);
+
+        $this->assertSame($url, (string) $externalImageRequest->getUri());
+        $this->assertSame('/users/testuser/images', $imboRequest->getUri()->getPath());
+        $this->assertSame('POST', $imboRequest->getMethod());
+        $this->assertSame('external image blob', $imboRequest->getBody()->getContents());
+    }
+
+    /**
+     * @covers ::addImage
+     */
+    public function testGenericAddImageWithLocalPath(): void
+    {
+        $path = __DIR__ . '/_files/image.jpg';
+        $client = $this->getClient([new Response(200, [], '{"imageIdentifier":"id","width":100,"height":100,"extension":"jpg"}')]);
+        $_ = $client->addImage($path);
+        $request = $this->getPreviousRequest();
+        $this->assertSame('/users/testuser/images', $request->getUri()->getPath());
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame(file_get_contents($path), $request->getBody()->getContents());
+    }
+
+    /**
+     * @covers ::addImage
+     */
+    public function testGenericAddImageWithImageInString(): void
+    {
+        $blob = 'some image data';
+        $client = $this->getClient([new Response(200, [], '{"imageIdentifier":"id","width":100,"height":100,"extension":"jpg"}')]);
+        $_ = $client->addImage($blob);
+        $request = $this->getPreviousRequest();
+        $this->assertSame('/users/testuser/images', $request->getUri()->getPath());
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame($blob, $request->getBody()->getContents());
+    }
+
+    /**
      * @covers ::deleteImage
      */
     public function testDeleteImage(): void
