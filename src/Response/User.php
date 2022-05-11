@@ -5,7 +5,7 @@ use DateTime;
 use ImboClient\Utils;
 use Psr\Http\Message\ResponseInterface;
 
-class User
+class User extends ApiResponse
 {
     private string $user;
     private int $numImages;
@@ -38,5 +38,14 @@ class User
     public function getLastModified(): DateTime
     {
         return $this->lastModified;
+    }
+
+    protected function getArrayOffsets(): array
+    {
+        return [
+            'user' => fn (): string => $this->getUser(),
+            'numImages' => fn (): int => $this->getNumImages(),
+            'lastModified' => fn (): DateTime => $this->getLastModified(),
+        ];
     }
 }
