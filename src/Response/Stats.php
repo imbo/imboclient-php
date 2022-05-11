@@ -5,7 +5,7 @@ use ImboClient\Exception\InvalidResponseBodyException;
 use ImboClient\Utils;
 use Psr\Http\Message\ResponseInterface;
 
-class Stats
+class Stats extends ApiResponse
 {
     private int $numImages;
     private int $numUsers;
@@ -48,5 +48,15 @@ class Stats
     public function getCustomStats(): array
     {
         return $this->customStats;
+    }
+
+    protected function getArrayOffsets(): array
+    {
+        return [
+            'numImages' => fn (): int => $this->getNumImages(),
+            'numUsers' => fn (): int => $this->getNumUsers(),
+            'numBytes' => fn (): int => $this->getNumBytes(),
+            'custom' => fn (): array => $this->getCustomStats(),
+        ];
     }
 }
