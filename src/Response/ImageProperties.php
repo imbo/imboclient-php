@@ -3,7 +3,7 @@ namespace ImboClient\Response;
 
 use Psr\Http\Message\ResponseInterface;
 
-class ImageProperties
+class ImageProperties extends ApiResponse
 {
     private string $imageIdentifier;
     private int $originalSize;
@@ -62,5 +62,17 @@ class ImageProperties
     public function getOriginalExtension(): string
     {
         return $this->originalExtension;
+    }
+
+    protected function getArrayOffsets(): array
+    {
+        return [
+            'imageIdentifier' => fn (): string => $this->getImageIdentifier(),
+            'size' => fn (): int => $this->getOriginalSize(),
+            'width' => fn (): int => $this->getOriginalWidth(),
+            'height' => fn (): int => $this->getOriginalHeight(),
+            'mimetype' => fn (): string => $this->getOriginalMimeType(),
+            'extension' => fn (): string => $this->getOriginalExtension(),
+        ];
     }
 }
