@@ -8,7 +8,7 @@ use ImboClient\Utils;
 use Iterator;
 use Psr\Http\Message\ResponseInterface;
 
-class ResourceGroups implements Iterator, Countable
+class ResourceGroups extends ApiResponse implements Iterator, Countable
 {
     private int $iteratorIndex = 0;
     private PageInfo $page;
@@ -92,5 +92,12 @@ class ResourceGroups implements Iterator, Countable
     public function count(): int
     {
         return count($this->resourceGroups);
+    }
+
+    protected function getArrayOffsets(): array
+    {
+        return [
+            'groups' => fn (): array => $this->resourceGroups,
+        ];
     }
 }

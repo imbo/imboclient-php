@@ -53,8 +53,7 @@ class ResourceGroupsTest extends TestCase
             ]),
         ]);
 
-        $query = new Query();
-        $resourceGroupsResponse = ResourceGroups::fromHttpResponse($response, $query);
+        $resourceGroupsResponse = ResourceGroups::fromHttpResponse($response, new Query());
         $this->assertSame(3, count($resourceGroupsResponse));
         foreach ($resourceGroupsResponse as $i => $group) {
             $this->assertSame($resourceGroups['groups'][$i]['name'], $group->getName());
@@ -64,5 +63,54 @@ class ResourceGroupsTest extends TestCase
         $nextQuery = $resourceGroupsResponse->getNextQuery();
         $this->assertSame(2, $nextQuery->getPage());
         $this->assertSame(1, $resourceGroupsResponse->getPageInfo()->getPage());
+    }
+
+    /**
+     * @covers ::offsetExists
+     * @covers ::offsetGet
+     * @covers ::getArrayOffsets
+     */
+    public function testArrayAccess(): void
+    {
+        $resourceGroups = [
+            'search' => [
+                'hits' => 100,
+                'page' => 1,
+                'limit' => 3,
+                'count' => 3,
+            ],
+            'groups' => [
+                [
+                    'name' => 'name-1',
+                    'resources' => [],
+                ],
+                [
+                    'name' => 'name-2',
+                    'resources' => [],
+                ],
+                [
+                    'name' => 'name-3',
+                    'resources' => [],
+                ],
+            ],
+        ];
+        $response = $this->createConfiguredMock(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+                'getContents' => json_encode($resourceGroups),
+            ]),
+        ]);
+        $groups = ResourceGroups::fromHttpResponse($response, new Query());
+
+        $this->assertArrayHasKey('groups', $groups);
+        $this->assertArrayNotHasKey('foobar', $groups);
+
+        /** @var array<ResourceGroup> */
+        $rg = $groups['groups'];
+
+        $this->assertSame(3, count($rg));
+
+        foreach ($rg as $i => $group) {
+            $this->assertSame($resourceGroups['groups'][$i]['name'], $group->getName());
+        }
     }
 }

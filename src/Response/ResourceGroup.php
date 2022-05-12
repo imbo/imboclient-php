@@ -5,7 +5,7 @@ use ImboClient\Exception\InvalidResponseBodyException;
 use ImboClient\Utils;
 use Psr\Http\Message\ResponseInterface;
 
-class ResourceGroup
+class ResourceGroup extends ApiResponse
 {
     private string $name;
     /** @var array<string> */
@@ -38,5 +38,13 @@ class ResourceGroup
     public function getResources(): array
     {
         return $this->resources;
+    }
+
+    protected function getArrayOffsets(): array
+    {
+        return [
+            'name' => fn (): string => $this->getName(),
+            'resources' => fn (): array => $this->getResources(),
+        ];
     }
 }
