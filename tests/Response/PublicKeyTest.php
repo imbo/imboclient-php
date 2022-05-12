@@ -25,4 +25,24 @@ class PublicKeyTest extends TestCase
         $publicKey = PublicKey::fromHttpResponse($response);
         $this->assertSame('my-key', $publicKey->getPublicKey());
     }
+
+    /**
+     * @covers ::offsetExists
+     * @covers ::offsetGet
+     * @covers ::getArrayOffsets
+     */
+    public function testArrayAccess(): void
+    {
+        $response = $this->createConfiguredMock(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+                'getContents' => '{"publicKey": "my-key"}',
+            ]),
+        ]);
+        $publicKey = PublicKey::fromHttpResponse($response);
+
+        $this->assertArrayHasKey('publicKey', $publicKey);
+        $this->assertArrayNotHasKey('foobar', $publicKey);
+
+        $this->assertSame('my-key', $publicKey['publicKey']);
+    }
 }

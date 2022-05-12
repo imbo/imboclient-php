@@ -5,7 +5,7 @@ use ImboClient\Exception\InvalidResponseBodyException;
 use ImboClient\Utils;
 use Psr\Http\Message\ResponseInterface;
 
-class PublicKey
+class PublicKey extends ApiResponse
 {
     private string $publicKey;
 
@@ -27,5 +27,12 @@ class PublicKey
     public function getPublicKey(): string
     {
         return $this->publicKey;
+    }
+
+    protected function getArrayOffsets(): array
+    {
+        return [
+            'publicKey' => fn (): string => $this->getPublicKey(),
+        ];
     }
 }
