@@ -4,7 +4,7 @@ namespace ImboClient\Response;
 use ImboClient\Utils;
 use Psr\Http\Message\ResponseInterface;
 
-class AddedShortUrl
+class AddedShortUrl extends ApiResponse
 {
     private string $id;
 
@@ -23,5 +23,12 @@ class AddedShortUrl
         /** @var array{id:string} */
         $body = Utils::convertResponseToArray($response);
         return new self($body['id']);
+    }
+
+    protected function getArrayOffsets(): array
+    {
+        return [
+            'id' => fn (): string => $this->getId(),
+        ];
     }
 }

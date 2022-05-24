@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace ImboClient\Response;
 
-class PageInfo
+class PageInfo extends ApiResponse
 {
     private int $hits;
     private int $page;
@@ -34,5 +34,15 @@ class PageInfo
     public function getCount(): int
     {
         return $this->count;
+    }
+
+    protected function getArrayOffsets(): array
+    {
+        return [
+            'hits' => fn (): int => $this->getHits(),
+            'page' => fn (): int => $this->getPage(),
+            'limit' => fn (): int => $this->getLimit(),
+            'count' => fn (): int => $this->getCount(),
+        ];
     }
 }

@@ -2,8 +2,9 @@
 namespace ImboClient\Response\Images;
 
 use DateTime;
+use ImboClient\Response\ApiResponse;
 
-class Image
+class Image extends ApiResponse
 {
     private string $imageIdentifier;
     private string $checksum;
@@ -92,5 +93,23 @@ class Image
     public function getMetadata(): array
     {
         return $this->metadata;
+    }
+
+    protected function getArrayOffsets(): array
+    {
+        return [
+            'imageIdentifier' => fn (): string => $this->getImageIdentifier(),
+            'checksum' => fn (): string => $this->getChecksum(),
+            'originalChecksum' => fn (): string => $this->getOriginalChecksum(),
+            'user' => fn (): string => $this->getUser(),
+            'added' => fn (): DateTime => $this->getAdded(),
+            'updated' => fn (): DateTime => $this->getUpdated(),
+            'size' => fn (): int => $this->getSize(),
+            'width' => fn (): int => $this->getWidth(),
+            'height' => fn (): int => $this->getHeight(),
+            'mime' => fn (): string => $this->getMime(),
+            'extension' => fn (): string => $this->getExtension(),
+            'metadata' => fn (): array => $this->getMetadata(),
+        ];
     }
 }

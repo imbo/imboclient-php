@@ -6,7 +6,7 @@ use ImboClient\Utils;
 use Iterator;
 use Psr\Http\Message\ResponseInterface;
 
-class AccessControlRules implements Iterator, Countable
+class AccessControlRules extends ApiResponse implements Iterator, Countable
 {
     private int $iteratorIndex = 0;
     /** @var array<AccessControlRule> */
@@ -65,5 +65,12 @@ class AccessControlRules implements Iterator, Countable
     public function count(): int
     {
         return count($this->rules);
+    }
+
+    protected function getArrayOffsets(): array
+    {
+        return [
+            'rules' => fn (): array => $this->rules,
+        ];
     }
 }

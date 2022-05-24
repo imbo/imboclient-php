@@ -25,4 +25,24 @@ class DeletedShortUrlsTest extends TestCase
         $deletedShortUrls = DeletedShortUrls::fromHttpResponse($response);
         $this->assertSame('image-id', $deletedShortUrls->getImageIdentifier());
     }
+
+    /**
+     * @covers ::offsetExists
+     * @covers ::offsetGet
+     * @covers ::getArrayOffsets
+     */
+    public function testArrayAccess(): void
+    {
+        $response = $this->createConfiguredMock(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+                'getContents' => '{"imageIdentifier": "image-id"}',
+            ]),
+        ]);
+        $deletedShortUrls = DeletedShortUrls::fromHttpResponse($response);
+
+        $this->assertArrayHasKey('imageIdentifier', $deletedShortUrls);
+        $this->assertArrayNotHasKey('foobar', $deletedShortUrls);
+
+        $this->assertSame('image-id', $deletedShortUrls['imageIdentifier']);
+    }
 }

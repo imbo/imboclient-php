@@ -25,4 +25,24 @@ class AddedShortUrlTest extends TestCase
         $addedShortUrl = AddedShortUrl::fromHttpResponse($response);
         $this->assertSame('id', $addedShortUrl->getId());
     }
+
+    /**
+     * @covers ::offsetExists
+     * @covers ::offsetGet
+     * @covers ::getArrayOffsets
+     */
+    public function testArrayAccess(): void
+    {
+        $response = $this->createConfiguredMock(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+                'getContents' => '{"id":"id"}',
+            ]),
+        ]);
+        $addedShortUrl = AddedShortUrl::fromHttpResponse($response);
+
+        $this->assertArrayHasKey('id', $addedShortUrl);
+        $this->assertArrayNotHasKey('foobar', $addedShortUrl);
+
+        $this->assertSame('id', $addedShortUrl['id']);
+    }
 }

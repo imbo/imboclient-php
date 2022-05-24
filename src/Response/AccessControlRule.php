@@ -5,7 +5,7 @@ use ImboClient\Exception\InvalidResponseBodyException;
 use ImboClient\Utils;
 use Psr\Http\Message\ResponseInterface;
 
-class AccessControlRule
+class AccessControlRule extends ApiResponse
 {
     private string $id;
     /** @var string|array<string> */
@@ -56,5 +56,15 @@ class AccessControlRule
     public function getGroup(): ?string
     {
         return $this->group;
+    }
+
+    protected function getArrayOffsets(): array
+    {
+        return [
+            'id' => fn (): string => $this->getId(),
+            'users' => fn () => $this->getUsers(),
+            'resources' => fn (): ?array => $this->getResources(),
+            'group' => fn (): ?string => $this->getGroup(),
+        ];
     }
 }

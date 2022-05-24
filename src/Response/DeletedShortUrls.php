@@ -4,7 +4,7 @@ namespace ImboClient\Response;
 use ImboClient\Utils;
 use Psr\Http\Message\ResponseInterface;
 
-class DeletedShortUrls
+class DeletedShortUrls extends ApiResponse
 {
     private string $imageIdentifier;
 
@@ -23,5 +23,12 @@ class DeletedShortUrls
         /** @var array{imageIdentifier:string} */
         $body = Utils::convertResponseToArray($response);
         return new self($body['imageIdentifier']);
+    }
+
+    protected function getArrayOffsets(): array
+    {
+        return [
+            'imageIdentifier' => fn (): string => $this->getImageIdentifier(),
+        ];
     }
 }

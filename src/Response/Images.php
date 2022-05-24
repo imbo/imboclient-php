@@ -10,7 +10,7 @@ use ImboClient\Utils;
 use Iterator;
 use Psr\Http\Message\ResponseInterface;
 
-class Images implements Iterator, Countable
+class Images extends ApiResponse implements Iterator, Countable
 {
     private int $iteratorIndex = 0;
     private PageInfo $page;
@@ -106,5 +106,12 @@ class Images implements Iterator, Countable
     public function count(): int
     {
         return count($this->images);
+    }
+
+    protected function getArrayOffsets(): array
+    {
+        return [
+            'images' => fn (): array => $this->images,
+        ];
     }
 }

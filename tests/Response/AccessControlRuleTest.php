@@ -31,4 +31,30 @@ class AccessControlRuleTest extends TestCase
         $this->assertSame(['resource-1'], $accessControlRule->getResources());
         $this->assertSame('group', $accessControlRule->getGroup());
     }
+
+    /**
+     * @covers ::offsetExists
+     * @covers ::offsetGet
+     * @covers ::getArrayOffsets
+     */
+    public function testArrayAccess(): void
+    {
+        $response = $this->createConfiguredMock(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+                'getContents' => '{"id": "id","users":["user-1","user-2"],"resources":["resource-1"],"group":"group"}',
+            ]),
+        ]);
+        $accessControlRule = AccessControlRule::fromHttpResponse($response);
+
+        $this->assertArrayHasKey('id', $accessControlRule);
+        $this->assertArrayHasKey('users', $accessControlRule);
+        $this->assertArrayHasKey('resources', $accessControlRule);
+        $this->assertArrayHasKey('group', $accessControlRule);
+        $this->assertArrayNotHasKey('foobar', $accessControlRule);
+
+        $this->assertSame('id', $accessControlRule['id']);
+        $this->assertSame(['user-1', 'user-2'], $accessControlRule['users']);
+        $this->assertSame(['resource-1'], $accessControlRule['resources']);
+        $this->assertSame('group', $accessControlRule['group']);
+    }
 }
