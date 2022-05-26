@@ -33,7 +33,7 @@ class Images extends ApiResponse implements Iterator, Countable
      */
     public static function fromHttpResponse(ResponseInterface $response, ImagesQuery $query): self
     {
-        /** @var array{search:array<string,int>,images:array<array{imageIdentifier:string,checksum:string,originalChecksum:string,user:string,added:string,updated:string,size:int,width:int,height:int,mime:string,extension:string,metadata:array}>} */
+        /** @var array{search:array<string,int>,images:array<array{imageIdentifier:string,checksum:string,originalChecksum:string,user:string,added:string,updated:string,size:int,width:int,height:int,mimeType:string,extension:string,metadata:array}>} */
         $body = Utils::convertResponseToArray($response);
 
         $images = array_map(
@@ -47,7 +47,7 @@ class Images extends ApiResponse implements Iterator, Countable
                 $image['size'],
                 $image['width'],
                 $image['height'],
-                $image['mime'],
+                $image['mimeType'],
                 $image['extension'],
                 $image['metadata'],
             ))->withResponse($response),

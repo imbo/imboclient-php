@@ -15,11 +15,11 @@ class Image extends ApiResponse
     private int $size;
     private int $width;
     private int $height;
-    private string $mime;
+    private string $mimeType;
     private string $extension;
     private array $metadata;
 
-    public function __construct(string $imageIdentifier, string $checksum, string $originalChecksum, string $user, DateTime $added, DateTime $updated, int $size, int $width, int $height, string $mime, string $extension, array $metadata)
+    public function __construct(string $imageIdentifier, string $checksum, string $originalChecksum, string $user, DateTime $added, DateTime $updated, int $size, int $width, int $height, string $mimeType, string $extension, array $metadata)
     {
         $this->imageIdentifier  = $imageIdentifier;
         $this->checksum         = $checksum;
@@ -30,7 +30,7 @@ class Image extends ApiResponse
         $this->size             = $size;
         $this->width            = $width;
         $this->height           = $height;
-        $this->mime             = $mime;
+        $this->mimeType         = $mimeType;
         $this->extension        = $extension;
         $this->metadata         = $metadata;
     }
@@ -80,9 +80,9 @@ class Image extends ApiResponse
         return $this->height;
     }
 
-    public function getMime(): string
+    public function getMimeType(): string
     {
-        return $this->mime;
+        return $this->mimeType;
     }
 
     public function getExtension(): string
@@ -107,7 +107,7 @@ class Image extends ApiResponse
             'size' => fn (): int => $this->getSize(),
             'width' => fn (): int => $this->getWidth(),
             'height' => fn (): int => $this->getHeight(),
-            'mime' => fn (): string => $this->getMime(),
+            'mimeType' => fn (): string => $this->getMimeType(),
             'extension' => fn (): string => $this->getExtension(),
             'metadata' => fn (): array => $this->getMetadata(),
         ];

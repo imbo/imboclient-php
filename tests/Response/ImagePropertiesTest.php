@@ -57,7 +57,7 @@ class ImagePropertiesTest extends TestCase
         $this->assertArrayHasKey('size', $imageProperties);
         $this->assertArrayHasKey('width', $imageProperties);
         $this->assertArrayHasKey('height', $imageProperties);
-        $this->assertArrayHasKey('mimetype', $imageProperties);
+        $this->assertArrayHasKey('mimeType', $imageProperties);
         $this->assertArrayHasKey('extension', $imageProperties);
         $this->assertArrayNotHasKey('foobar', $imageProperties);
 
@@ -65,7 +65,7 @@ class ImagePropertiesTest extends TestCase
         $this->assertSame(123, $imageProperties['size']);
         $this->assertSame(456, $imageProperties['width']);
         $this->assertSame(789, $imageProperties['height']);
-        $this->assertSame('image/png', $imageProperties['mimetype']);
+        $this->assertSame('image/png', $imageProperties['mimeType']);
         $this->assertSame('png', $imageProperties['extension']);
     }
 }

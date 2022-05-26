@@ -71,7 +71,7 @@ class ImageProperties extends ApiResponse
             'size' => fn (): int => $this->getOriginalSize(),
             'width' => fn (): int => $this->getOriginalWidth(),
             'height' => fn (): int => $this->getOriginalHeight(),
-            'mimetype' => fn (): string => $this->getOriginalMimeType(),
+            'mimeType' => fn (): string => $this->getOriginalMimeType(),
             'extension' => fn (): string => $this->getOriginalExtension(),
         ];
     }

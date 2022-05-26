@@ -21,7 +21,7 @@ class ImageTest extends TestCase
      * @covers ::getSize
      * @covers ::getWidth
      * @covers ::getHeight
-     * @covers ::getMime
+     * @covers ::getMimeType
      * @covers ::getExtension
      * @covers ::getMetadata
      */
@@ -37,7 +37,7 @@ class ImageTest extends TestCase
         $this->assertSame(1, $image->getSize());
         $this->assertSame(2, $image->getWidth());
         $this->assertSame(3, $image->getHeight());
-        $this->assertSame('image/png', $image->getMime());
+        $this->assertSame('image/png', $image->getMimeType());
         $this->assertSame('png', $image->getExtension());
         $this->assertSame(['some' => 'data'], $image->getMetadata());
     }
@@ -59,7 +59,7 @@ class ImageTest extends TestCase
         $this->assertArrayHasKey('size', $image);
         $this->assertArrayHasKey('width', $image);
         $this->assertArrayHasKey('height', $image);
-        $this->assertArrayHasKey('mime', $image);
+        $this->assertArrayHasKey('mimeType', $image);
         $this->assertArrayHasKey('extension', $image);
         $this->assertArrayHasKey('metadata', $image);
         $this->assertArrayNotHasKey('foobar', $image);
@@ -79,7 +79,7 @@ class ImageTest extends TestCase
         $this->assertSame(1, $image['size']);
         $this->assertSame(2, $image['width']);
         $this->assertSame(3, $image['height']);
-        $this->assertSame('image/png', $image['mime']);
+        $this->assertSame('image/png', $image['mimeType']);
         $this->assertSame('png', $image['extension']);
         $this->assertSame(['some' => 'data'], $image['metadata']);
     }

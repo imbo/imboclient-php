@@ -532,7 +532,7 @@ class ClientTest extends TestCase
                     "size": 41423,
                     "width": 665,
                     "height": 463,
-                    "mime": "image/png",
+                    "mimeType": "image/png",
                     "extension": "png",
                     "metadata":{}
                 }
