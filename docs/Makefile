@@ -55,7 +55,7 @@ spelling:
 	@echo
 	@echo "Spell check finished."
 
-html:
+html: spelling
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
