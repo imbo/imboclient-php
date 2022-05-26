@@ -22,7 +22,7 @@ class DeletedShortUrls extends ApiResponse
     {
         /** @var array{imageIdentifier:string} */
         $body = Utils::convertResponseToArray($response);
-        return new self($body['imageIdentifier']);
+        return (new self($body['imageIdentifier']))->withResponse($response);
     }
 
     protected function getArrayOffsets(): array

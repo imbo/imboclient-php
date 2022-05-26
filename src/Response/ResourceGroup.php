@@ -27,7 +27,7 @@ class ResourceGroup extends ApiResponse
     {
         /** @var array{name:string,resources:array<string>} */
         $body = Utils::convertResponseToArray($response);
-        return new self($body['name'], $body['resources']);
+        return (new self($body['name'], $body['resources']))->withResponse($response);
     }
 
     public function getName(): string

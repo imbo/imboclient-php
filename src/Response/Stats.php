@@ -27,7 +27,7 @@ class Stats extends ApiResponse
     {
         /** @var array{numImages:int,numUsers:int,numBytes:int,custom:array} */
         $body = Utils::convertResponseToArray($response);
-        return new self($body['numImages'], $body['numUsers'], $body['numBytes'], $body['custom']);
+        return (new self($body['numImages'], $body['numUsers'], $body['numBytes'], $body['custom']))->withResponse($response);
     }
 
     public function getNumImages(): int

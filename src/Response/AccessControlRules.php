@@ -25,16 +25,16 @@ class AccessControlRules extends ApiResponse implements Iterator, Countable
         /** @var array<array{id:string,resources?:array<string>,group?:string,users:string|array<string>}> */
         $body = Utils::convertResponseToArray($response);
         $accessControlRules = array_map(
-            fn (array $rule): AccessControlRule => new AccessControlRule(
+            fn (array $rule): AccessControlRule => (new AccessControlRule(
                 $rule['id'],
                 $rule['users'],
                 $rule['resources'] ?? null,
                 $rule['group'] ?? null,
-            ),
+            ))->withResponse($response),
             $body,
         );
 
-        return new self($accessControlRules);
+        return (new self($accessControlRules))->withResponse($response);
     }
 
     public function rewind(): void

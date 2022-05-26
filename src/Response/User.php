@@ -22,7 +22,7 @@ class User extends ApiResponse
     {
         /** @var array{user:string,numImages:int,lastModified:string} */
         $body = Utils::convertResponseToArray($response);
-        return new self($body['user'], $body['numImages'], new DateTime($body['lastModified']));
+        return (new self($body['user'], $body['numImages'], new DateTime($body['lastModified'])))->withResponse($response);
     }
 
     public function getUser(): string

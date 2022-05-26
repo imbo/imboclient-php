@@ -53,8 +53,6 @@ class StatusTest extends TestCase
         $this->assertArrayHasKey('date', $status);
         $this->assertArrayHasKey('database', $status);
         $this->assertArrayHasKey('storage', $status);
-        $this->assertArrayHasKey('status', $status);
-        $this->assertArrayHasKey('message', $status);
         $this->assertArrayNotHasKey('foobar', $status);
 
         /** @var DateTime */
@@ -63,7 +61,5 @@ class StatusTest extends TestCase
         $this->assertSame(1632170037, $date->getTimestamp());
         $this->assertTrue($status['database']);
         $this->assertFalse($status['storage']);
-        $this->assertSame(503, $status['status']);
-        $this->assertSame('storage error', $status['message']);
     }
 }

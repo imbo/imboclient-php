@@ -17,8 +17,7 @@ class DeletedImage extends ApiResponse
     {
         /** @var array{imageIdentifier:string} */
         $body = Utils::convertResponseToArray($response);
-        $deletedImage = new self($body['imageIdentifier']);
-        return $deletedImage->withResponse($response);
+        return (new self($body['imageIdentifier']))->withResponse($response);
     }
 
     public function getImageIdentifier(): string

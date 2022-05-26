@@ -22,8 +22,7 @@ class Status extends ApiResponse
     {
         /** @var array{date:string,database:bool,storage:bool} */
         $body = Utils::convertResponseToArray($response);
-        $status = new self(new DateTime($body['date']), $body['database'], $body['storage']);
-        return $status->withResponse($response);
+        return (new self(new DateTime($body['date']), $body['database'], $body['storage']))->withResponse($response);
     }
 
     public function getDate(): DateTime
@@ -48,13 +47,10 @@ class Status extends ApiResponse
 
     protected function getArrayOffsets(): array
     {
-        $response = $this->getResponse();
         return [
             'date' => fn (): DateTime => $this->getDate(),
             'database' => fn (): bool => $this->isDatabaseHealthy(),
             'storage' => fn (): bool => $this->isStorageHealthy(),
-            'status' => fn (): ?int => $response ? $response->getStatusCode() : null,
-            'message' => fn (): ?string => $response ? $response->getReasonPhrase() : null,
         ];
     }
 }

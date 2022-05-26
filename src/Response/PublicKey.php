@@ -21,7 +21,7 @@ class PublicKey extends ApiResponse
     {
         /** @var array{publicKey:string} */
         $body = Utils::convertResponseToArray($response);
-        return new self($body['publicKey']);
+        return (new self($body['publicKey']))->withResponse($response);
     }
 
     public function getPublicKey(): string

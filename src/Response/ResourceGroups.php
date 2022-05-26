@@ -35,7 +35,7 @@ class ResourceGroups extends ApiResponse implements Iterator, Countable
         $body = Utils::convertResponseToArray($response);
 
         $resourceGroups = array_map(
-            fn (array $group): ResourceGroup => new ResourceGroup($group['name'], $group['resources']),
+            fn (array $group): ResourceGroup => (new ResourceGroup($group['name'], $group['resources']))->withResponse($response),
             $body['groups'],
         );
 
@@ -47,11 +47,7 @@ class ResourceGroups extends ApiResponse implements Iterator, Countable
             $nextQuery = $query->withPage($query->getPage() + 1);
         }
 
-        return new self(
-            $resourceGroups,
-            $pageInfo,
-            $nextQuery,
-        );
+        return (new self($resourceGroups, $pageInfo, $nextQuery))->withResponse($response);
     }
 
     public function getPageInfo(): PageInfo

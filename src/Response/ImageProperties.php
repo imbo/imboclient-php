@@ -24,14 +24,14 @@ class ImageProperties extends ApiResponse
 
     public static function fromHttpResponse(ResponseInterface $response): self
     {
-        return new self(
+        return (new self(
             $response->getHeaderLine('x-imbo-imageidentifier'),
             (int) $response->getHeaderLine('x-imbo-originalfilesize'),
             (int) $response->getHeaderLine('x-imbo-originalwidth'),
             (int) $response->getHeaderLine('x-imbo-originalheight'),
             $response->getHeaderLine('x-imbo-originalmimetype'),
             $response->getHeaderLine('x-imbo-originalextension'),
-        );
+        ))->withResponse($response);
     }
 
     public function getImageIdentifier(): string

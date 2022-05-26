@@ -23,8 +23,7 @@ class AddedImage extends ApiResponse
     {
         /** @var array{imageIdentifier:string,width:int,height:int,extension:string} */
         $body = Utils::convertResponseToArray($response);
-        $addedImage = new self($body['imageIdentifier'], $body['width'], $body['height'], $body['extension']);
-        return $addedImage->withResponse($response);
+        return (new self($body['imageIdentifier'], $body['width'], $body['height'], $body['extension']))->withResponse($response);
     }
 
     public function getImageIdentifier(): string

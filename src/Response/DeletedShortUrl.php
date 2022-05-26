@@ -22,7 +22,7 @@ class DeletedShortUrl extends ApiResponse
     {
         /** @var array{id:string} */
         $body = Utils::convertResponseToArray($response);
-        return new self($body['id']);
+        return (new self($body['id']))->withResponse($response);
     }
 
     protected function getArrayOffsets(): array
