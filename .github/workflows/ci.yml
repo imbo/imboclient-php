@@ -5,12 +5,12 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        operating-system: ['ubuntu-20.04']
-        php-versions: ['7.4', '8.0', '8.1']
+        operating-system: ['ubuntu-22.04']
+        php-versions: ['8.1', '8.2']
     name: Run CI build
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -30,12 +30,11 @@ jobs:
 
       - name: Get Composer Cache Directory
         id: composer-cache-dir
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Composer packages
         id: composer-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache-dir.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -52,4 +51,4 @@ jobs:
         run: vendor/bin/psalm
 
       - name: Check coding standard
-        run: php-cs-fixer fix --dry-run --diff
+        run: PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix --dry-run --diff
