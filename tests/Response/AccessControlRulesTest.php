@@ -81,7 +81,7 @@ class AccessControlRulesTest extends TestCase
         $this->assertArrayHasKey('rules', $accessControlRules);
         $this->assertArrayNotHasKey('foobar', $accessControlRules);
 
-        /** @var array<AccessControlRule> */
+        /** @var array<int, AccessControlRule> */
         $acrs = $accessControlRules['rules'];
 
         $this->assertSame(2, count($acrs));

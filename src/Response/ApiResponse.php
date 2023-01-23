@@ -5,6 +5,9 @@ use ArrayAccess;
 use ImboClient\Exception\RuntimeException;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * @template-implements ArrayAccess<string, mixed>
+ */
 abstract class ApiResponse implements ArrayAccess
 {
     private ?ResponseInterface $response = null;
@@ -41,7 +44,7 @@ abstract class ApiResponse implements ArrayAccess
      * @param string $offset
      * @return mixed
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         $offsets = $this->getArrayOffsets();
         return array_key_exists($offset, $offsets) ? $offsets[$offset]() : null;

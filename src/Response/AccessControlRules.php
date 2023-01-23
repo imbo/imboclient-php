@@ -6,6 +6,9 @@ use ImboClient\Utils;
 use Iterator;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * @template-implements Iterator<int, AccessControlRule>
+ */
 class AccessControlRules extends ApiResponse implements Iterator, Countable
 {
     private int $iteratorIndex = 0;

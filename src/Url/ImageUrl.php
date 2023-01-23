@@ -134,6 +134,7 @@ class ImageUrl extends AccessTokenUrl
         $extensions = implode('|', $this->validExtensions);
         $pathWithNoExtension = preg_replace('#(\.(' . $extensions . '))$#', '', $this->getPath());
 
+        /** @var static */
         return $this->withPath(
             $pathWithNoExtension . '.' . $extension,
         );
@@ -477,6 +478,7 @@ class ImageUrl extends AccessTokenUrl
         }
 
         $query['t'][] = $transformation;
+        /** @var static */
         return $this->withQuery(http_build_query($query));
     }
 
@@ -487,6 +489,7 @@ class ImageUrl extends AccessTokenUrl
             '',
             $this->getPath(),
         );
+        /** @var static */
         return $this
             ->withPath($pathWithNoExtension)
             ->withQuery('');

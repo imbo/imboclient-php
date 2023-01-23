@@ -10,6 +10,9 @@ use ImboClient\Utils;
 use Iterator;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * @template-implements Iterator<int, Image>
+ */
 class Images extends ApiResponse implements Iterator, Countable
 {
     private int $iteratorIndex = 0;

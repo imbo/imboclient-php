@@ -177,7 +177,7 @@ class Client
         try {
             $blob = $this->httpClient->get($url)->getBody()->getContents();
         } catch (BadResponseException $e) {
-            throw new RuntimeException('Unable to fetch file at URL: ' . $url, (int) $e->getCode(), $e);
+            throw new RuntimeException('Unable to fetch file at URL: ' . $url, $e->getCode(), $e);
         }
 
         return $this->addImageFromString($blob);
@@ -381,7 +381,7 @@ class Client
         try {
             $blob = $this->httpClient->get($url)->getBody()->getContents();
         } catch (BadResponseException $e) {
-            throw new RuntimeException('Unable to fetch file at URL: ' . $url, (int) $e->getCode(), $e);
+            throw new RuntimeException('Unable to fetch file at URL: ' . $url, $e->getCode(), $e);
         }
 
         return $blob;

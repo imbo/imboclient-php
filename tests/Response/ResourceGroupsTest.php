@@ -104,7 +104,7 @@ class ResourceGroupsTest extends TestCase
         $this->assertArrayHasKey('groups', $groups);
         $this->assertArrayNotHasKey('foobar', $groups);
 
-        /** @var array<ResourceGroup> */
+        /** @var array<int, ResourceGroup> */
         $rg = $groups['groups'];
 
         $this->assertSame(3, count($rg));

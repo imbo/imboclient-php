@@ -8,6 +8,9 @@ use ImboClient\Utils;
 use Iterator;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * @template-implements Iterator<int, ResourceGroup>
+ */
 class ResourceGroups extends ApiResponse implements Iterator, Countable
 {
     private int $iteratorIndex = 0;
