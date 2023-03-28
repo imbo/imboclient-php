@@ -45,7 +45,7 @@ jobs:
         run: composer install
 
       - name: Run unit tests
-        run: vendor/bin/phpunit --verbose
+        run: vendor/bin/phpunit
 
       - name: Run static code analysis
         run: vendor/bin/psalm
