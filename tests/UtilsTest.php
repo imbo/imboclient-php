@@ -24,7 +24,7 @@ class UtilsTest extends TestCase
         ]);
 
         $this->expectException(InvalidResponseBodyException::class);
-        $this->expectErrorMessage('Invalid JSON');
+        $this->expectExceptionMessage('Invalid JSON');
         Utils::convertResponseToArray($response);
     }
 
@@ -41,7 +41,7 @@ class UtilsTest extends TestCase
         ]);
 
         $this->expectException(InvalidResponseBodyException::class);
-        $this->expectErrorMessage('Expected JSON array');
+        $this->expectExceptionMessage('Expected JSON array');
         Utils::convertResponseToArray($response);
     }
 

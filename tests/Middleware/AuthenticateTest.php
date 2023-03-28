@@ -63,23 +63,6 @@ class AuthenticateTest extends TestCase
     }
 
     /**
-     * @return array<string,array{options:array<string,bool>}>
-     */
-    public function getOptions(): array
-    {
-        return [
-            'missing option' => [
-                'options' => [],
-            ],
-            'option is false' => [
-                'options' => [
-                    'require_imbo_signature' => false,
-                ],
-            ],
-        ];
-    }
-
-    /**
      * @dataProvider getOptions
      * @covers ::__invoke
      */
@@ -109,5 +92,22 @@ class AuthenticateTest extends TestCase
 
         $this->expectException(RuntimeException::class);
         $middleware($handler)(new Request('GET', 'http://localhost'), []);
+    }
+
+    /**
+     * @return array<string,array{options:array<string,bool>}>
+     */
+    public static function getOptions(): array
+    {
+        return [
+            'missing option' => [
+                'options' => [],
+            ],
+            'option is false' => [
+                'options' => [
+                    'require_imbo_signature' => false,
+                ],
+            ],
+        ];
     }
 }

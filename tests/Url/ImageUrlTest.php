@@ -28,9 +28,180 @@ class ImageUrlTest extends TestCase
     }
 
     /**
+     * @dataProvider getUrls
+     * @covers ::__construct
+     * @covers ::getImageIdentifier
+     * @covers ::getExtension
+     */
+    public function testCanGetImageIdentifierAndExtension(string $url, string $expectedImageIdentifier, string $expectedExtension = null): void
+    {
+        $url = new ImageUrl($url, 'private key');
+        $this->assertSame($expectedImageIdentifier, $url->getImageIdentifier());
+        $this->assertSame($expectedExtension, $url->getExtension());
+    }
+
+    /**
+     * @dataProvider getTransformations
+     * @covers ::autoRotate
+     * @covers ::blur
+     * @covers ::border
+     * @covers ::canvas
+     * @covers ::compress
+     * @covers ::contrast
+     * @covers ::convert
+     * @covers ::crop
+     * @covers ::desaturate
+     * @covers ::drawPois
+     * @covers ::extremeSharpen
+     * @covers ::flipHorizontally
+     * @covers ::flipVertically
+     * @covers ::gif
+     * @covers ::histogram
+     * @covers ::jpg
+     * @covers ::level
+     * @covers ::maxSize
+     * @covers ::moderateSharpen
+     * @covers ::modulate
+     * @covers ::resize
+     * @covers ::png
+     * @covers ::progressive
+     * @covers ::rotate
+     * @covers ::sepia
+     * @covers ::sharpen
+     * @covers ::smartSize
+     * @covers ::strip
+     * @covers ::strongSharpen
+     * @covers ::thumbnail
+     * @covers ::transpose
+     * @covers ::transverse
+     * @covers ::vignette
+     * @covers ::watermark
+     * @covers ::withTransformation
+     */
+    public function testCanApplyTransformations(string $method, array $params, string $query = null, string $pathSuffix = null): void
+    {
+        /** @var ImageUrl */
+        $url = $this->url->$method(...$params);
+        $this->assertNotSame($url, $this->url);
+
+        if ($query) {
+            $this->assertStringContainsString($query, urldecode((string) $url));
+        }
+
+        if ($pathSuffix) {
+            $this->assertStringEndsWith($pathSuffix, $url->getPath());
+        }
+    }
+
+    /**
+     * @covers ::blur
+     */
+    public function testBlurCanValidateParams(): void
+    {
+        $this->expectException(InvalidImageTransformationException::class);
+        $this->expectExceptionMessage('radius must be specified');
+        $this->url->blur(['type' => 'motion']);
+    }
+
+    /**
+     * @covers ::canvas
+     */
+    public function testCanvasCanValidateParams(): void
+    {
+        $this->expectException(InvalidImageTransformationException::class);
+        $this->expectExceptionMessage('width and height must be positive');
+        $this->url->canvas(0, 1);
+    }
+
+    /**
+     * @covers ::convert
+     */
+    public function testConvertThrowsExceptionOnUnsupportedExtension(): void
+    {
+        $this->expectException(InvalidImageTransformationException::class);
+        $this->expectExceptionMessage('Extension bmp is not supported');
+        $this->url->convert('bmp');
+    }
+
+    /**
+     * @dataProvider getInvalidCropParams
+     * @covers ::crop
+     */
+    public function testCropCanValidateParams(int $width, int $height, int $x = null, int $y = null, string $mode = null, string $expectedExceptionMessage): void
+    {
+        $this->expectException(InvalidImageTransformationException::class);
+        $this->expectExceptionMessage($expectedExceptionMessage);
+        $this->url->crop($width, $height, $x, $y, $mode);
+    }
+
+    /**
+     * @covers ::maxSize
+     */
+    public function testMaxSizeCanValidateParams(): void
+    {
+        $this->expectException(InvalidImageTransformationException::class);
+        $this->expectExceptionMessage('width and/or height must be specified');
+        $this->url->maxSize();
+    }
+
+    /**
+     * @covers ::modulate
+     */
+    public function testModulateCanValidateParams(): void
+    {
+        $this->expectException(InvalidImageTransformationException::class);
+        $this->expectExceptionMessage('brightness, saturation and/or hue must be specified');
+        $this->url->modulate();
+    }
+
+    /**
+     * @covers ::resize
+     */
+    public function testResizeCanValidateParams(): void
+    {
+        $this->expectException(InvalidImageTransformationException::class);
+        $this->expectExceptionMessage('width and/or height must be specified');
+        $this->url->resize();
+    }
+
+    /**
+     * @covers ::rotate
+     */
+    public function testRotateCanValidateParams(): void
+    {
+        $this->expectException(InvalidImageTransformationException::class);
+        $this->expectExceptionMessage('angle must be positive');
+        $this->url->rotate(-10);
+    }
+
+    /**
+     * @covers ::smartSize
+     */
+    public function testSmartsizeCanValidateParams(): void
+    {
+        $this->expectException(InvalidImageTransformationException::class);
+        $this->expectExceptionMessage('width and height must be positive');
+        $this->url->smartSize(100, 0);
+    }
+
+    /**
+     * @covers ::reset
+     */
+    public function testCanResetUrl(): void
+    {
+        $url = $this->url
+            ->thumbnail()
+            ->png()
+            ->reset();
+
+        $this->assertStringEndsWith('/id', $url->getPath());
+        $this->assertEmpty($url->getQuery());
+    }
+
+    /**
      * @return array<string,array{url:string,expectedImageIdentifier:string,expectedExtension:?string}>
      */
-    public function getUrls(): array
+    public static function getUrls(): array
     {
         return [
             'no extension' => [
@@ -47,22 +218,9 @@ class ImageUrlTest extends TestCase
     }
 
     /**
-     * @dataProvider getUrls
-     * @covers ::__construct
-     * @covers ::getImageIdentifier
-     * @covers ::getExtension
-     */
-    public function testCanGetImageIdentifierAndExtension(string $url, string $expectedImageIdentifier, string $expectedExtension = null): void
-    {
-        $url = new ImageUrl($url, 'private key');
-        $this->assertSame($expectedImageIdentifier, $url->getImageIdentifier());
-        $this->assertSame($expectedExtension, $url->getExtension());
-    }
-
-    /**
      * @return array<string,array{method:string,params:array,query:?string,pathSuffix?:string}>
      */
-    public function getTransformations(): array
+    public static function getTransformations(): array
     {
         return [
             'autoRotate' => [
@@ -300,92 +458,9 @@ class ImageUrlTest extends TestCase
     }
 
     /**
-     * @dataProvider getTransformations
-     * @covers ::autoRotate
-     * @covers ::blur
-     * @covers ::border
-     * @covers ::canvas
-     * @covers ::compress
-     * @covers ::contrast
-     * @covers ::convert
-     * @covers ::crop
-     * @covers ::desaturate
-     * @covers ::drawPois
-     * @covers ::extremeSharpen
-     * @covers ::flipHorizontally
-     * @covers ::flipVertically
-     * @covers ::gif
-     * @covers ::histogram
-     * @covers ::jpg
-     * @covers ::level
-     * @covers ::maxSize
-     * @covers ::moderateSharpen
-     * @covers ::modulate
-     * @covers ::resize
-     * @covers ::png
-     * @covers ::progressive
-     * @covers ::rotate
-     * @covers ::sepia
-     * @covers ::sharpen
-     * @covers ::smartSize
-     * @covers ::strip
-     * @covers ::strongSharpen
-     * @covers ::thumbnail
-     * @covers ::transpose
-     * @covers ::transverse
-     * @covers ::vignette
-     * @covers ::watermark
-     * @covers ::withTransformation
-     */
-    public function testCanApplyTransformations(string $method, array $params, string $query = null, string $pathSuffix = null): void
-    {
-        /** @var ImageUrl */
-        $url = $this->url->$method(...$params);
-        $this->assertNotSame($url, $this->url);
-
-        if ($query) {
-            $this->assertStringContainsString($query, urldecode((string) $url));
-        }
-
-        if ($pathSuffix) {
-            $this->assertStringEndsWith($pathSuffix, $url->getPath());
-        }
-    }
-
-    /**
-     * @covers ::blur
-     */
-    public function testBlurCanValidateParams(): void
-    {
-        $this->expectException(InvalidImageTransformationException::class);
-        $this->expectExceptionMessage('radius must be specified');
-        $this->url->blur(['type' => 'motion']);
-    }
-
-    /**
-     * @covers ::canvas
-     */
-    public function testCanvasCanValidateParams(): void
-    {
-        $this->expectException(InvalidImageTransformationException::class);
-        $this->expectExceptionMessage('width and height must be positive');
-        $this->url->canvas(0, 1);
-    }
-
-    /**
-     * @covers ::convert
-     */
-    public function testConvertThrowsExceptionOnUnsupportedExtension(): void
-    {
-        $this->expectException(InvalidImageTransformationException::class);
-        $this->expectExceptionMessage('Extension bmp is not supported');
-        $this->url->convert('bmp');
-    }
-
-    /**
      * @return array<string,array{width:int,height:int,x:?int,y:?int,mode:?string,expectedExceptionMessage:string}>
      */
-    public function getInvalidCropParams(): array
+    public static function getInvalidCropParams(): array
     {
         return [
             'no crop mode' => [
@@ -413,80 +488,5 @@ class ImageUrlTest extends TestCase
                 'expectedExceptionMessage' => 'x needs to be specified when mode is center-y',
             ],
         ];
-    }
-
-    /**
-     * @dataProvider getInvalidCropParams
-     * @covers ::crop
-     */
-    public function testCropCanValidateParams(int $width, int $height, int $x = null, int $y = null, string $mode = null, string $expectedExceptionMessage): void
-    {
-        $this->expectException(InvalidImageTransformationException::class);
-        $this->expectExceptionMessage($expectedExceptionMessage);
-        $this->url->crop($width, $height, $x, $y, $mode);
-    }
-
-    /**
-     * @covers ::maxSize
-     */
-    public function testMaxSizeCanValidateParams(): void
-    {
-        $this->expectException(InvalidImageTransformationException::class);
-        $this->expectExceptionMessage('width and/or height must be specified');
-        $this->url->maxSize();
-    }
-
-    /**
-     * @covers ::modulate
-     */
-    public function testModulateCanValidateParams(): void
-    {
-        $this->expectException(InvalidImageTransformationException::class);
-        $this->expectExceptionMessage('brightness, saturation and/or hue must be specified');
-        $this->url->modulate();
-    }
-
-    /**
-     * @covers ::resize
-     */
-    public function testResizeCanValidateParams(): void
-    {
-        $this->expectException(InvalidImageTransformationException::class);
-        $this->expectExceptionMessage('width and/or height must be specified');
-        $this->url->resize();
-    }
-
-    /**
-     * @covers ::rotate
-     */
-    public function testRotateCanValidateParams(): void
-    {
-        $this->expectException(InvalidImageTransformationException::class);
-        $this->expectExceptionMessage('angle must be positive');
-        $this->url->rotate(-10);
-    }
-
-    /**
-     * @covers ::smartSize
-     */
-    public function testSmartsizeCanValidateParams(): void
-    {
-        $this->expectException(InvalidImageTransformationException::class);
-        $this->expectExceptionMessage('width and height must be positive');
-        $this->url->smartSize(100, 0);
-    }
-
-    /**
-     * @covers ::reset
-     */
-    public function testCanResetUrl(): void
-    {
-        $url = $this->url
-            ->thumbnail()
-            ->png()
-            ->reset();
-
-        $this->assertStringEndsWith('/id', $url->getPath());
-        $this->assertEmpty($url->getQuery());
     }
 }

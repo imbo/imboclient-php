@@ -30,15 +30,13 @@
   },
   "require-dev": {
     "imbo/imbo-coding-standard": "^2.0",
-    "phpunit/phpunit": "^9.5",
+    "phpunit/phpunit": "^10.0",
     "psalm/plugin-phpunit": "^0.18.4",
     "symfony/var-dumper": "^6.2",
     "vimeo/psalm": "^5.5"
   },
   "scripts": {
-    "docs": [
-      "cd docs; make html"
-    ],
+    "docs": "cd docs; make html",
     "test": "vendor/bin/phpunit --verbose",
     "test:coverage": "vendor/bin/phpunit --verbose --coverage-html build/coverage --coverage-text",
     "sa": "vendor/bin/psalm",

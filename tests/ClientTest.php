@@ -34,68 +34,6 @@ class ClientTest extends TestCase
     }
 
     /**
-     * @param array<int,ResponseInterface> $responses
-     * @return GuzzleHttpClient
-     */
-    private function getMockGuzzleHttpClient(array $responses): GuzzleHttpClient
-    {
-        $handler = HandlerStack::create(new MockHandler($responses));
-        $handler->push(Middleware::history($this->historyContainer));
-        return new GuzzleHttpClient(['handler' => $handler]);
-    }
-
-    /**
-     * @param array<int,ResponseInterface> $responses
-     */
-    private function getClient(array $responses = []): Client
-    {
-        return new Client(
-            $this->imboUrl,
-            $this->user,
-            $this->publicKey,
-            $this->privateKey,
-            $this->getMockGuzzleHttpClient($responses),
-        );
-    }
-
-    private function getPreviousRequest(): Request
-    {
-        return $this->getPreviousTransaction()['request'];
-    }
-
-    /**
-     * @return array<int,Request>
-     */
-    private function getPreviousRequests(int $num): array
-    {
-        return array_map(
-            fn (array $transaction): Request => $transaction['request'],
-            $this->getPreviousTransactions($num),
-        );
-    }
-
-    /**
-     * @return array{request:Request,response:Response}
-     */
-    private function getPreviousTransaction(): array
-    {
-        return $this->getPreviousTransactions(1)[0];
-    }
-
-    /**
-     * @return array<int,array{request:Request,response:Response}>
-     */
-    private function getPreviousTransactions(int $num): array
-    {
-        if ($num > count($this->historyContainer)) {
-            $this->fail('Not enough transactions in the Guzzle history');
-        }
-
-        /** @var array<int,array{request:Request,response:Response}> */
-        return array_slice($this->historyContainer, -$num);
-    }
-
-    /**
      * @covers ::getServerStatus
      * @covers ::getUrlForPath
      */
@@ -147,24 +85,6 @@ class ClientTest extends TestCase
         $uri = $this->getPreviousRequest()->getUri();
         $this->assertSame('/users/testuser.json', $uri->getPath());
         $this->assertInstanceOf(AccessTokenUrl::class, $uri);
-    }
-
-    /**
-     * @return array<string,array{query:?ImagesQuery,expectedQueryString:string}>
-     */
-    public function getImagesQuery(): array
-    {
-        return [
-            'no query' => [
-                'query' => null,
-                'expectedQueryString' => 'page=1&limit=20&metadata=0',
-            ],
-
-            'custom query' => [
-                'query' => (new ImagesQuery())->withLimit(10)->withIds(['id1', 'id2']),
-                'expectedQueryString' => 'page=1&limit=10&metadata=0&ids%5B0%5D=id1&ids%5B1%5D=id2',
-            ],
-        ];
     }
 
     /**
@@ -263,8 +183,7 @@ class ClientTest extends TestCase
     }
 
     /**
-     * @testWith ["http://example.com/image.jpg"]
-     *           ["https://example.com/image.jpg"]
+     * @dataProvider getUrlsForAddImage
      * @covers ::addImage
      */
     public function testGenericAddImageWithUrl(string $url): void
@@ -385,65 +304,14 @@ class ClientTest extends TestCase
     }
 
     /**
-     * @return array<int,array{serverUrls:array<string>|string,imageIdentifier:string,expectedHost:string}>
-     */
-    public function getHostsForImageUrl(): array
-    {
-        $serverUrls = [
-            'https://imbo1',
-            'https://imbo2',
-            'https://imbo3',
-            'https://imbo4',
-            'https://imbo5',
-        ];
-
-        return [
-            [
-                'serverUrls' => 'https://imbo',
-                'imageIdentifier' => 'id-1',
-                'expectedHost' => 'imbo',
-            ],
-            [
-                'serverUrls' => $serverUrls,
-                'imageIdentifier' => 'id-1',
-                'expectedHost' => 'imbo5',
-            ],
-            [
-                'serverUrls' => $serverUrls,
-                'imageIdentifier' => 'id-2',
-                'expectedHost' => 'imbo1',
-            ],
-            [
-                'serverUrls' => $serverUrls,
-                'imageIdentifier' => 'id-3',
-                'expectedHost' => 'imbo2',
-            ],
-            [
-                'serverUrls' => $serverUrls,
-                'imageIdentifier' => 'id-4',
-                'expectedHost' => 'imbo3',
-            ],
-            [
-                'serverUrls' => $serverUrls,
-                'imageIdentifier' => 'id-5',
-                'expectedHost' => 'imbo4',
-            ],
-            [
-                'serverUrls' => $serverUrls,
-                'imageIdentifier' => 'id-6',
-                'expectedHost' => 'imbo5',
-            ],
-        ];
-    }
-
-    /**
-     * @param array<string>|string $serverUrls
      * @dataProvider getHostsForImageUrl
      * @covers ::__construct
      * @covers ::getImageUrl
      * @covers ::getHostForImageIdentifier
+     *
+     * @param array<string>|string $serverUrls
      */
-    public function testGetImageUrl($serverUrls, string $imageIdentifier, string $expectedHost): void
+    public function testGetImageUrl(array|string $serverUrls, string $imageIdentifier, string $expectedHost): void
     {
         $url = (new Client($serverUrls, 'user', 'pub', 'priv'))->getImageUrl($imageIdentifier);
         $this->assertSame('/users/user/images/' . $imageIdentifier, $url->getPath());
@@ -1034,5 +902,148 @@ class ClientTest extends TestCase
         $request = $this->getPreviousRequest();
         $this->assertSame('DELETE', $request->getMethod());
         $this->assertSame('/keys/public/access/id-1.json', $request->getUri()->getPath());
+    }
+
+    /**
+     * @return array<string,array{query:?ImagesQuery,expectedQueryString:string}>
+     */
+    public static function getImagesQuery(): array
+    {
+        return [
+            'no query' => [
+                'query' => null,
+                'expectedQueryString' => 'page=1&limit=20&metadata=0',
+            ],
+
+            'custom query' => [
+                'query' => (new ImagesQuery())->withLimit(10)->withIds(['id1', 'id2']),
+                'expectedQueryString' => 'page=1&limit=10&metadata=0&ids%5B0%5D=id1&ids%5B1%5D=id2',
+            ],
+        ];
+    }
+
+    /**
+     * @return array<int,array{serverUrls:array<string>|string,imageIdentifier:string,expectedHost:string}>
+     */
+    public static function getHostsForImageUrl(): array
+    {
+        $serverUrls = [
+            'https://imbo1',
+            'https://imbo2',
+            'https://imbo3',
+            'https://imbo4',
+            'https://imbo5',
+        ];
+
+        return [
+            [
+                'serverUrls' => 'https://imbo',
+                'imageIdentifier' => 'id-1',
+                'expectedHost' => 'imbo',
+            ],
+            [
+                'serverUrls' => $serverUrls,
+                'imageIdentifier' => 'id-1',
+                'expectedHost' => 'imbo5',
+            ],
+            [
+                'serverUrls' => $serverUrls,
+                'imageIdentifier' => 'id-2',
+                'expectedHost' => 'imbo1',
+            ],
+            [
+                'serverUrls' => $serverUrls,
+                'imageIdentifier' => 'id-3',
+                'expectedHost' => 'imbo2',
+            ],
+            [
+                'serverUrls' => $serverUrls,
+                'imageIdentifier' => 'id-4',
+                'expectedHost' => 'imbo3',
+            ],
+            [
+                'serverUrls' => $serverUrls,
+                'imageIdentifier' => 'id-5',
+                'expectedHost' => 'imbo4',
+            ],
+            [
+                'serverUrls' => $serverUrls,
+                'imageIdentifier' => 'id-6',
+                'expectedHost' => 'imbo5',
+            ],
+        ];
+    }
+
+    /**
+     * @return array<array{url:string}>
+     */
+    public static function getUrlsForAddImage(): array
+    {
+        return [
+            ['url' => 'http://example.com/image.jpg'],
+            ['url' => 'https://example.com/image.jpg'],
+        ];
+    }
+
+    /**
+     * @param array<int,ResponseInterface> $responses
+     * @return GuzzleHttpClient
+     */
+    private function getMockGuzzleHttpClient(array $responses): GuzzleHttpClient
+    {
+        $handler = HandlerStack::create(new MockHandler($responses));
+        $handler->push(Middleware::history($this->historyContainer));
+        return new GuzzleHttpClient(['handler' => $handler]);
+    }
+
+    /**
+     * @param array<int,ResponseInterface> $responses
+     */
+    private function getClient(array $responses = []): Client
+    {
+        return new Client(
+            $this->imboUrl,
+            $this->user,
+            $this->publicKey,
+            $this->privateKey,
+            $this->getMockGuzzleHttpClient($responses),
+        );
+    }
+
+    private function getPreviousRequest(): Request
+    {
+        return $this->getPreviousTransaction()['request'];
+    }
+
+    /**
+     * @return array<int,Request>
+     */
+    private function getPreviousRequests(int $num): array
+    {
+        return array_map(
+            fn (array $transaction): Request => $transaction['request'],
+            $this->getPreviousTransactions($num),
+        );
+    }
+
+    /**
+     * @return array{request:Request,response:Response}
+     */
+    private function getPreviousTransaction(): array
+    {
+        return $this->getPreviousTransactions(1)[0];
+    }
+
+    /**
+     * @return array<int,array{request:Request,response:Response}>
+     */
+    private function getPreviousTransactions(int $num): array
+    {
+        if ($num > count($this->historyContainer)) {
+            $this->fail('Not enough transactions in the Guzzle history');
+        }
+
+        /** @var array<int,array{request:Request,response:Response}> */
+        return array_slice($this->historyContainer, -$num);
     }
 }

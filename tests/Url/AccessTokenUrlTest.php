@@ -9,9 +9,23 @@ use PHPUnit\Framework\TestCase;
 class AccessTokenUrlTest extends TestCase
 {
     /**
+     * @dataProvider getUrls
+     * @covers ::__construct
+     * @covers ::__toString
+     */
+    public function testAppendsAccessTokenQueryParameter(string $expected, string $base, string $privateKey): void
+    {
+        $this->assertSame(
+            $expected,
+            (string) new AccessTokenUrl($base, $privateKey),
+            'Incorrect string generated',
+        );
+    }
+
+    /**
      * @return array<int,array{expected:string,base:string,privateKey:string}>
      */
-    public function getUrls(): array
+    public static function getUrls(): array
     {
         return [
             [
@@ -25,19 +39,5 @@ class AccessTokenUrlTest extends TestCase
                 'privateKey' => 'super secret private key',
             ],
         ];
-    }
-
-    /**
-     * @dataProvider getUrls
-     * @covers ::__construct
-     * @covers ::__toString
-     */
-    public function testAppendsAccessTokenQueryParameter(string $expected, string $base, string $privateKey): void
-    {
-        $this->assertSame(
-            $expected,
-            (string) new AccessTokenUrl($base, $privateKey),
-            'Incorrect string generated',
-        );
     }
 }
