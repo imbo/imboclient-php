@@ -4,7 +4,7 @@ namespace ImboClient\Url;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\Utils;
 
-class AccessTokenUrl extends Uri
+class AccessTokenUrl extends Uri implements \Stringable
 {
     private string $privateKey;
 

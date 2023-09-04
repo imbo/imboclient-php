@@ -34,7 +34,7 @@ use Psr\Http\Message\UriInterface;
 
 class Client
 {
-    public const MAJOR_VERSION = 3;
+    final public const MAJOR_VERSION = 3;
 
     /** @var array<string> */
     private array $baseUrls;
@@ -142,7 +142,7 @@ class Client
 
         try {
             return $this->addImageFromPath($image);
-        } catch (InvalidLocalFileException $e) {
+        } catch (InvalidLocalFileException) {
             // not a local file
         }
 
