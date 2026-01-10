@@ -1,51 +1,48 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Middleware;
 
 use ArrayObject;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Request;
 use ImboClient\Exception\RuntimeException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 
-/**
- * @coversDefaultClass ImboClient\Middleware\Authenticate
- */
+use function count;
+use function sprintf;
+
+#[CoversClass(Authenticate::class)]
 class AuthenticateTest extends TestCase
 {
-    /**
-     * @covers ::__construct
-     * @covers ::__invoke
-     * @covers ::addAuthenticationHeaders
-     */
     public function testCanAddHeaders(): void
     {
-        $assertions = function (RequestInterface $request, array $_options): PromiseInterface {
+        $assertions = function (RequestInterface $request, array $options): PromiseInterface {
             $this->assertNotEmpty($request->getHeaderLine('x-imbo-publickey'));
             $this->assertNotEmpty($request->getHeaderLine('x-imbo-authenticate-signature'));
             $this->assertNotEmpty($request->getHeaderLine('x-imbo-authenticate-timestamp'));
-            return $this->createMock(PromiseInterface::class);
+
+            return $this->createStub(PromiseInterface::class);
         };
 
         $middleware = new Authenticate('public', 'private');
         $middleware($assertions)(new Request('GET', 'http://localhost'), ['require_imbo_signature' => true]);
     }
 
-    /**
-     * @covers ::addAuthenticationHeaders
-     * @covers ::__invoke
-     */
     public function testSignaturesAreUnique(): void
     {
         $numSignaturesToGenerate = 100;
         $signatures = new ArrayObject();
 
-        $assertions = function (RequestInterface $request, array $_options) use ($signatures): PromiseInterface {
+        $assertions = function (RequestInterface $request, array $options) use ($signatures): PromiseInterface {
             $signatures->append($request->getHeaderLine('x-imbo-authenticate-signature'));
-            return $this->createMock(PromiseInterface::class);
+
+            return $this->createStub(PromiseInterface::class);
         };
 
-        for ($i = 0; $i < $numSignaturesToGenerate; $i++) {
+        for ($i = 0; $i < $numSignaturesToGenerate; ++$i) {
             $middleware = new Authenticate('public', uniqid('', true));
             $middleware($assertions)(new Request('GET', 'http://localhost/'), ['require_imbo_signature' => true]);
         }
@@ -55,37 +52,32 @@ class AuthenticateTest extends TestCase
             $signatures,
             sprintf('Expected %d signatures', $numSignaturesToGenerate),
         );
-        $this->assertSame(
+        $this->assertCount(
             count(array_unique($signatures->getArrayCopy())),
-            $signatures->count(),
+            $signatures,
             'Did not expect duplicate signatures',
         );
     }
 
-    /**
-     * @dataProvider getOptions
-     * @covers ::__invoke
-     */
+    #[DataProvider('getOptions')]
     public function testDoesNotAddSignatureWhenOptionIsNotSet(array $options): void
     {
-        $assertions = function (RequestInterface $request, array $_options): PromiseInterface {
+        $assertions = function (RequestInterface $request, array $options): PromiseInterface {
             $this->assertEmpty($request->getHeaderLine('x-imbo-publickey'));
             $this->assertEmpty($request->getHeaderLine('x-imbo-authenticate-signature'));
             $this->assertEmpty($request->getHeaderLine('x-imbo-authenticate-timestamp'));
-            return $this->createMock(PromiseInterface::class);
+
+            return $this->createStub(PromiseInterface::class);
         };
 
         $middleware = new Authenticate('public', 'private');
         $middleware($assertions)(new Request('GET', 'http://localhost'), $options);
     }
 
-    /**
-     * @covers ::__invoke
-     */
     public function testThrowsExceptionWhenHandlerResultIsIncorrect(): void
     {
-        $handler = function (RequestInterface $_request, array $_options): RequestInterface {
-            return $this->createMock(RequestInterface::class);
+        $handler = function (RequestInterface $request, array $options): RequestInterface {
+            return $this->createStub(RequestInterface::class);
         };
 
         $middleware = new Authenticate('public', 'private');

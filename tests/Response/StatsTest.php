@@ -1,27 +1,19 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
-/**
- * @coversDefaultClass ImboClient\Response\Stats
- */
+#[CoversClass(Stats::class)]
 class StatsTest extends TestCase
 {
-    /**
-     * @covers ::fromHttpResponse
-     * @covers ::__construct
-     * @covers ::getNumImages
-     * @covers ::getNumUsers
-     * @covers ::getNumBytes
-     * @covers ::getCustomStats
-     */
     public function testCanCreateFromResponse(): void
     {
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => '{"numImages":123,"numUsers":10,"numBytes":123123123,"custom":{"my-stats":200}}',
             ]),
         ]);
@@ -32,15 +24,10 @@ class StatsTest extends TestCase
         $this->assertSame(['my-stats' => 200], $stats->getCustomStats());
     }
 
-    /**
-     * @covers ::offsetExists
-     * @covers ::offsetGet
-     * @covers ::getArrayOffsets
-     */
     public function testArrayAccess(): void
     {
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => '{"numImages":123,"numUsers":10,"numBytes":123123123,"custom":{"my-stats":200}}',
             ]),
         ]);

@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use ImboClient\Utils;
@@ -22,6 +23,7 @@ class AddedShortUrl extends ApiResponse
     {
         /** @var array{id:string} */
         $body = Utils::convertResponseToArray($response);
+
         return (new self($body['id']))->withResponse($response);
     }
 

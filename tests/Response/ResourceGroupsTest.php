@@ -1,28 +1,16 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use ImboClient\Query;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
-/**
- * @coversDefaultClass ImboClient\Response\ResourceGroups
- */
+#[CoversClass(ResourceGroups::class)]
 class ResourceGroupsTest extends TestCase
 {
-    /**
-     * @covers ::__construct
-     * @covers ::fromHttpResponse
-     * @covers ::count
-     * @covers ::rewind
-     * @covers ::current
-     * @covers ::key
-     * @covers ::next
-     * @covers ::valid
-     * @covers ::getNextQuery
-     * @covers ::getPageInfo
-     */
     public function testCanCreateFromResponse(): void
     {
         $resourceGroups = [
@@ -47,14 +35,14 @@ class ResourceGroupsTest extends TestCase
                 ],
             ],
         ];
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => json_encode($resourceGroups),
             ]),
         ]);
 
         $resourceGroupsResponse = ResourceGroups::fromHttpResponse($response, new Query());
-        $this->assertSame(3, count($resourceGroupsResponse));
+        $this->assertCount(3, $resourceGroupsResponse);
         foreach ($resourceGroupsResponse as $i => $group) {
             $this->assertSame($resourceGroups['groups'][$i]['name'], $group->getName());
         }
@@ -65,11 +53,6 @@ class ResourceGroupsTest extends TestCase
         $this->assertSame(1, $resourceGroupsResponse->getPageInfo()->getPage());
     }
 
-    /**
-     * @covers ::offsetExists
-     * @covers ::offsetGet
-     * @covers ::getArrayOffsets
-     */
     public function testArrayAccess(): void
     {
         $resourceGroups = [
@@ -94,8 +77,8 @@ class ResourceGroupsTest extends TestCase
                 ],
             ],
         ];
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => json_encode($resourceGroups),
             ]),
         ]);
@@ -107,7 +90,7 @@ class ResourceGroupsTest extends TestCase
         /** @var array<int, ResourceGroup> */
         $rg = $groups['groups'];
 
-        $this->assertSame(3, count($rg));
+        $this->assertCount(3, $rg);
 
         foreach ($rg as $i => $group) {
             $this->assertSame($resourceGroups['groups'][$i]['name'], $group->getName());

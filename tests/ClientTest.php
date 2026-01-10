@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient;
 
 use GuzzleHttp\Client as GuzzleHttpClient;
@@ -14,12 +15,15 @@ use ImboClient\Exception\RequestException;
 use ImboClient\Exception\RuntimeException;
 use ImboClient\Url\AccessTokenUrl;
 use ImboClient\Url\ImageUrl;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 
-/**
- * @coversDefaultClass ImboClient\Client
- */
+use function array_slice;
+use function count;
+
+#[CoversClass(Client::class)]
 class ClientTest extends TestCase
 {
     private string $imboUrl = 'http://imbo';
@@ -33,10 +37,6 @@ class ClientTest extends TestCase
         $this->historyContainer = [];
     }
 
-    /**
-     * @covers ::getServerStatus
-     * @covers ::getUrlForPath
-     */
     public function testGetServerStatus(): void
     {
         $client = $this->getClient([new Response(200, [], '{"date":"Mon, 20 Sep 2021 20:33:57 GMT","database":true,"storage":true}')]);
@@ -44,9 +44,6 @@ class ClientTest extends TestCase
         $this->assertSame('/status.json', $this->getPreviousRequest()->getUri()->getPath());
     }
 
-    /**
-     * @covers ::getServerStatus
-     */
     public function testGetServerStatusWithServerError(): void
     {
         $client = $this->getClient([new Response(500, [], '{"date":"Mon, 20 Sep 2021 20:33:57 GMT","database":false,"storage":true}')]);
@@ -54,9 +51,6 @@ class ClientTest extends TestCase
         $this->assertSame('/status.json', $this->getPreviousRequest()->getUri()->getPath());
     }
 
-    /**
-     * @covers ::getServerStatus
-     */
     public function testGetServerStatusWithClientError(): void
     {
         $client = $this->getClient([new Response(400, [], '{}')]);
@@ -64,9 +58,6 @@ class ClientTest extends TestCase
         $_ = $client->getServerStatus();
     }
 
-    /**
-     * @covers ::getServerStats
-     */
     public function testGetServerStats(): void
     {
         $client = $this->getClient([new Response(200, [], '{"numImages":0,"numUsers":0,"numBytes":0,"custom":{}}')]);
@@ -74,10 +65,6 @@ class ClientTest extends TestCase
         $this->assertSame('/stats.json', $this->getPreviousRequest()->getUri()->getPath());
     }
 
-    /**
-     * @covers ::getUserInfo
-     * @covers ::getAccessTokenUrlForPath
-     */
     public function testGetUserInfo(): void
     {
         $client = $this->getClient([new Response(200, [], '{"user":"testuser","numImages":0,"lastModified":"Mon, 20 Sep 2021 20:33:57 GMT"}')]);
@@ -87,10 +74,7 @@ class ClientTest extends TestCase
         $this->assertInstanceOf(AccessTokenUrl::class, $uri);
     }
 
-    /**
-     * @dataProvider getImagesQuery
-     * @covers ::getImages
-     */
+    #[DataProvider('getImagesQuery')]
     public function testGetImages(?ImagesQuery $query, string $expectedQueryString): void
     {
         $client = $this->getClient([new Response(200, [], '{"search":{"hits":0,"page":1,"limit":10,"count":0},"images":[]}')]);
@@ -100,9 +84,6 @@ class ClientTest extends TestCase
         $this->assertSame($expectedQueryString, $uri->getQuery());
     }
 
-    /**
-     * @covers ::addImageFromString
-     */
     public function testAddImageFromString(): void
     {
         $blob = 'some image data';
@@ -114,13 +95,9 @@ class ClientTest extends TestCase
         $this->assertSame($blob, $request->getBody()->getContents());
     }
 
-    /**
-     * @covers ::addImageFromPath
-     * @covers ::validateLocalFile
-     */
     public function testAddImageFromPath(): void
     {
-        $path = __DIR__ . '/_files/image.jpg';
+        $path = __DIR__.'/_files/image.jpg';
         $client = $this->getClient([new Response(200, [], '{"imageIdentifier":"id","width":100,"height":100,"extension":"jpg"}')]);
         $_ = $client->addImageFromPath($path);
         $request = $this->getPreviousRequest();
@@ -129,10 +106,6 @@ class ClientTest extends TestCase
         $this->assertSame(file_get_contents($path), $request->getBody()->getContents());
     }
 
-    /**
-     * @covers ::addImageFromPath
-     * @covers ::validateLocalFile
-     */
     public function testAddImageFromPathThrowsExceptionWhenFileDoesNotExist(): void
     {
         $this->expectException(InvalidLocalFileException::class);
@@ -140,20 +113,13 @@ class ClientTest extends TestCase
         $this->getClient()->addImageFromPath('/foo/bar/baz.jpg');
     }
 
-    /**
-     * @covers ::addImageFromPath
-     * @covers ::validateLocalFile
-     */
     public function testAddImageFromPathThrowsExceptionWhenFileIsEmpty(): void
     {
         $this->expectException(InvalidLocalFileException::class);
         $this->expectExceptionMessage('File is of zero length');
-        $this->getClient()->addImageFromPath(__DIR__ . '/_files/emptyImage.png');
+        $this->getClient()->addImageFromPath(__DIR__.'/_files/emptyImage.png');
     }
 
-    /**
-     * @covers ::addImageFromUrl
-     */
     public function testAddImageFromUrl(): void
     {
         $url = 'http://example.com/image.jpg';
@@ -171,9 +137,6 @@ class ClientTest extends TestCase
         $this->assertSame('external image blob', $imboRequest->getBody()->getContents());
     }
 
-    /**
-     * @covers ::addImageFromUrl
-     */
     public function testAddImageFromUrlThrowsExceptionWhenUnableToFetchImage(): void
     {
         $client = $this->getClient([new Response(404)]);
@@ -182,10 +145,7 @@ class ClientTest extends TestCase
         $client->addImageFromUrl('http://example.com/image.jpg');
     }
 
-    /**
-     * @dataProvider getUrlsForAddImage
-     * @covers ::addImage
-     */
+    #[DataProvider('getUrlsForAddImage')]
     public function testGenericAddImageWithUrl(string $url): void
     {
         $client = $this->getClient([
@@ -202,12 +162,9 @@ class ClientTest extends TestCase
         $this->assertSame('external image blob', $imboRequest->getBody()->getContents());
     }
 
-    /**
-     * @covers ::addImage
-     */
     public function testGenericAddImageWithLocalPath(): void
     {
-        $path = __DIR__ . '/_files/image.jpg';
+        $path = __DIR__.'/_files/image.jpg';
         $client = $this->getClient([new Response(200, [], '{"imageIdentifier":"id","width":100,"height":100,"extension":"jpg"}')]);
         $_ = $client->addImage($path);
         $request = $this->getPreviousRequest();
@@ -216,9 +173,6 @@ class ClientTest extends TestCase
         $this->assertSame(file_get_contents($path), $request->getBody()->getContents());
     }
 
-    /**
-     * @covers ::addImage
-     */
     public function testGenericAddImageWithImageInString(): void
     {
         $blob = 'some image data';
@@ -230,9 +184,6 @@ class ClientTest extends TestCase
         $this->assertSame($blob, $request->getBody()->getContents());
     }
 
-    /**
-     * @covers ::deleteImage
-     */
     public function testDeleteImage(): void
     {
         $client = $this->getClient([new Response(200, [], '{"imageIdentifier":"some-id"}')]);
@@ -242,9 +193,6 @@ class ClientTest extends TestCase
         $this->assertSame('DELETE', $request->getMethod());
     }
 
-    /**
-     * @covers ::getImageProperties
-     */
     public function testGetImageProperties(): void
     {
         $client = $this->getClient([new Response(200)]);
@@ -254,9 +202,6 @@ class ClientTest extends TestCase
         $this->assertSame('HEAD', $request->getMethod());
     }
 
-    /**
-     * @covers ::getMetadata
-     */
     public function testGetMetadata(): void
     {
         $client = $this->getClient([new Response(200, [], '{"some":"data"}')]);
@@ -265,9 +210,6 @@ class ClientTest extends TestCase
         $this->assertSame(['some' => 'data'], $metadata);
     }
 
-    /**
-     * @covers ::setMetadata
-     */
     public function testSetMetadata(): void
     {
         $client = $this->getClient([new Response(200, [], '{"some":"data"}')]);
@@ -278,9 +220,6 @@ class ClientTest extends TestCase
         $this->assertSame('{"some":"data"}', $request->getBody()->getContents());
     }
 
-    /**
-     * @covers ::updateMetadata
-     */
     public function testUpdateMetadata(): void
     {
         $client = $this->getClient([new Response(200, [], '{"some":"data"}')]);
@@ -291,9 +230,6 @@ class ClientTest extends TestCase
         $this->assertSame('{"some":"data"}', $request->getBody()->getContents());
     }
 
-    /**
-     * @covers ::deleteMetadata
-     */
     public function testDeleteMetadata(): void
     {
         $client = $this->getClient([new Response(200, [], '{}')]);
@@ -304,26 +240,19 @@ class ClientTest extends TestCase
     }
 
     /**
-     * @dataProvider getHostsForImageUrl
-     * @covers ::__construct
-     * @covers ::getImageUrl
-     * @covers ::getHostForImageIdentifier
-     *
      * @param array<string>|string $serverUrls
      */
+    #[DataProvider('getHostsForImageUrl')]
     public function testGetImageUrl(array|string $serverUrls, string $imageIdentifier, string $expectedHost): void
     {
         $url = (new Client($serverUrls, 'user', 'pub', 'priv'))->getImageUrl($imageIdentifier);
-        $this->assertSame('/users/user/images/' . $imageIdentifier, $url->getPath());
+        $this->assertSame('/users/user/images/'.$imageIdentifier, $url->getPath());
         $this->assertSame($expectedHost, $url->getHost());
     }
 
-    /**
-     * @covers ::addShortUrl
-     */
     public function testAddShortUrl(): void
     {
-        $imageUrl = $this->createConfiguredMock(ImageUrl::class, [
+        $imageUrl = $this->createConfiguredStub(ImageUrl::class, [
             'getImageIdentifier' => 'image-id',
             'getExtension' => 'png',
             'getQuery' => 't[]=thumbnail',
@@ -337,9 +266,6 @@ class ClientTest extends TestCase
         $this->assertSame('{"user":"testuser","imageIdentifier":"image-id","extension":"png","query":"t[]=thumbnail"}', $request->getBody()->getContents());
     }
 
-    /**
-     * @covers ::deleteImageShortUrls
-     */
     public function testDeleteImageShortUrls(): void
     {
         $client = $this->getClient([new Response(200, [], '{"imageIdentifier":"image-id"}')]);
@@ -349,9 +275,6 @@ class ClientTest extends TestCase
         $this->assertSame('DELETE', $request->getMethod());
     }
 
-    /**
-     * @covers ::getShortUrlProperties
-     */
     public function testGetShortUrlProperties(): void
     {
         $client = $this->getClient([new Response(200)]);
@@ -361,9 +284,6 @@ class ClientTest extends TestCase
         $this->assertSame('HEAD', $request->getMethod());
     }
 
-    /**
-     * @covers ::deleteShortUrl
-     */
     public function testDeleteShortUrl(): void
     {
         $client = $this->getClient([
@@ -376,9 +296,6 @@ class ClientTest extends TestCase
         $this->assertSame('DELETE', $request->getMethod());
     }
 
-    /**
-     * @covers ::imageExists
-     */
     public function testImageExists(): void
     {
         $body = <<<JSON
@@ -408,17 +325,13 @@ class ClientTest extends TestCase
         }
         JSON;
         $client = $this->getClient([new Response(200, [], $body)]);
-        $this->assertTrue($client->imageExists(__DIR__ . '/_files/image.png'));
+        $this->assertTrue($client->imageExists(__DIR__.'/_files/image.png'));
         $request = $this->getPreviousRequest();
         $this->assertSame('GET', $request->getMethod());
         $this->assertSame('/users/testuser/images.json', $request->getUri()->getPath());
         $this->assertSame('page=1&limit=1&metadata=0&originalChecksums%5B0%5D=929db9c5fc3099f7576f5655207eba47', $request->getUri()->getQuery());
     }
 
-    /**
-     * @covers ::imageExists
-     * @covers ::validateLocalFile
-     */
     public function testImageExistsThrowsExceptionWhenLocalFileDoesNotExist(): void
     {
         $client = $this->getClient();
@@ -427,9 +340,6 @@ class ClientTest extends TestCase
         $client->imageExists('/foo/bar/baz.jpg');
     }
 
-    /**
-     * @covers ::imageIdentifierExists
-     */
     public function testImageIdentifierExists(): void
     {
         $client = $this->getClient([new Response(200)]);
@@ -439,18 +349,12 @@ class ClientTest extends TestCase
         $this->assertSame('/users/testuser/images/image-id', $request->getUri()->getPath());
     }
 
-    /**
-     * @covers ::imageIdentifierExists
-     */
     public function testImageIdentifierExistsReturnsFalseOn404(): void
     {
         $client = $this->getClient([new Response(404)]);
         $this->assertFalse($client->imageIdentifierExists('image-id'));
     }
 
-    /**
-     * @covers ::imageIdentifierExists
-     */
     public function testImageIdentifierExistsThrowsExceptionOnErrors(): void
     {
         $client = $this->getClient([new Response(400)]);
@@ -459,10 +363,6 @@ class ClientTest extends TestCase
         $client->imageIdentifierExists('image-id');
     }
 
-    /**
-     * @covers ::getImageData
-     * @covers ::getImageDataFromUrl
-     */
     public function testGetImageData(): void
     {
         $client = $this->getClient([new Response(200, [], 'image data')]);
@@ -472,10 +372,6 @@ class ClientTest extends TestCase
         $this->assertSame('/users/testuser/images/image-id', $request->getUri()->getPath());
     }
 
-    /**
-     * @covers ::getImageData
-     * @covers ::getImageDataFromUrl
-     */
     public function testGetImageDataFromUrlThrowsExceptionOnError(): void
     {
         $client = $this->getClient([new Response(400)]);
@@ -485,9 +381,6 @@ class ClientTest extends TestCase
         $client->getImageData('image-id');
     }
 
-    /**
-     * @covers ::addResourceGroup
-     */
     public function testAddResourceGroup(): void
     {
         $client = $this->getClient([
@@ -501,10 +394,6 @@ class ClientTest extends TestCase
         $this->assertSame('{"name":"my-group","resources":["images"]}', $request->getBody()->getContents());
     }
 
-    /**
-     * @covers ::addResourceGroup
-     * @covers ::validateResourceGroupName
-     */
     public function testAddResourceGroupThrowsExceptionOnInvalidGroupName(): void
     {
         $client = $this->getClient();
@@ -513,9 +402,6 @@ class ClientTest extends TestCase
         $client->addResourceGroup('My Group');
     }
 
-    /**
-     * @covers ::addResourceGroup
-     */
     public function testAddResourceGroupThrowsExceptionWhenGroupAlreadyExists(): void
     {
         $client = $this->getClient([
@@ -526,9 +412,6 @@ class ClientTest extends TestCase
         $client->addResourceGroup('my-group');
     }
 
-    /**
-     * @covers ::updateResourceGroup
-     */
     public function testUpdateResourceGroup(): void
     {
         $client = $this->getClient([
@@ -541,9 +424,6 @@ class ClientTest extends TestCase
         $this->assertSame('{"resources":["images"]}', $request->getBody()->getContents());
     }
 
-    /**
-     * @covers ::updateResourceGroup
-     */
     public function testUpdateResourceGroupThrowsExceptionOnInvalidGroupName(): void
     {
         $client = $this->getClient();
@@ -552,9 +432,6 @@ class ClientTest extends TestCase
         $client->updateResourceGroup('My Group', ['images']);
     }
 
-    /**
-     * @covers ::deleteResourceGroup
-     */
     public function testDeleteResourceGroup(): void
     {
         $client = $this->getClient([
@@ -566,9 +443,6 @@ class ClientTest extends TestCase
         $this->assertSame('/groups/my-group', $request->getUri()->getPath());
     }
 
-    /**
-     * @covers ::deleteResourceGroup
-     */
     public function testDeleteResourceGroupThrowsExceptionOnInvalidGroupName(): void
     {
         $client = $this->getClient();
@@ -577,9 +451,6 @@ class ClientTest extends TestCase
         $client->deleteResourceGroup('My Group');
     }
 
-    /**
-     * @covers ::resourceGroupExists
-     */
     public function testResourceGroupExists(): void
     {
         $client = $this->getClient([new Response(200)]);
@@ -587,12 +458,9 @@ class ClientTest extends TestCase
         $request = $this->getPreviousRequest();
         $this->assertSame('HEAD', $request->getMethod());
         $this->assertSame('/groups/my-group', $request->getUri()->getPath());
-        $this->assertSame('publicKey=' . $this->publicKey, $request->getUri()->getQuery());
+        $this->assertSame('publicKey='.$this->publicKey, $request->getUri()->getQuery());
     }
 
-    /**
-     * @covers ::resourceGroupExists
-     */
     public function testResourceGroupExistsReturnsFalseWhenGroupDoesNotExist(): void
     {
         $client = $this->getClient([new Response(404)]);
@@ -602,10 +470,6 @@ class ClientTest extends TestCase
         $this->assertSame('/groups/my-group', $request->getUri()->getPath());
     }
 
-    /**
-     * @covers ::resourceGroupExists
-     * @covers ::getHttpResponse
-     */
     public function testResourceGroupExistsThrowsExceptionOnError(): void
     {
         $client = $this->getClient([new Response(400)]);
@@ -615,9 +479,6 @@ class ClientTest extends TestCase
         $client->resourceGroupExists('my-group');
     }
 
-    /**
-     * @covers ::getResourceGroup
-     */
     public function testGetResourceGroup(): void
     {
         $client = $this->getClient([new Response(200, [], '{"name":"my-group","resources":[]}')]);
@@ -625,12 +486,9 @@ class ClientTest extends TestCase
         $request = $this->getPreviousRequest();
         $this->assertSame('GET', $request->getMethod());
         $this->assertSame('/groups/my-group', $request->getUri()->getPath());
-        $this->assertSame('publicKey=' . $this->publicKey, $request->getUri()->getQuery());
+        $this->assertSame('publicKey='.$this->publicKey, $request->getUri()->getQuery());
     }
 
-    /**
-     * @covers ::getResourceGroups
-     */
     public function testGetResourceGroups(): void
     {
         $body = <<<JSON
@@ -655,12 +513,9 @@ class ClientTest extends TestCase
         $request = $this->getPreviousRequest();
         $this->assertSame('GET', $request->getMethod());
         $this->assertSame('/groups', $request->getUri()->getPath());
-        $this->assertSame('page=2&limit=3&publicKey=' . $this->publicKey, $request->getUri()->getQuery());
+        $this->assertSame('page=2&limit=3&publicKey='.$this->publicKey, $request->getUri()->getQuery());
     }
 
-    /**
-     * @covers ::addPublicKey
-     */
     public function testAddPublicKey(): void
     {
         $client = $this->getClient([
@@ -674,10 +529,6 @@ class ClientTest extends TestCase
         $this->assertSame('{"publicKey":"public","privateKey":"private"}', $request->getBody()->getContents());
     }
 
-    /**
-     * @covers ::addPublicKey
-     * @covers ::validatePublicKeyName
-     */
     public function testAddPublicKeyThrowsExceptionOnInvalidKeyName(): void
     {
         $client = $this->getClient();
@@ -686,9 +537,6 @@ class ClientTest extends TestCase
         $client->addPublicKey('My Public Key', 'private');
     }
 
-    /**
-     * @covers ::addPublicKey
-     */
     public function testAddPublicKeyThrowsExceptionWhenKeyAlreadyExists(): void
     {
         $client = $this->getClient([
@@ -699,9 +547,6 @@ class ClientTest extends TestCase
         $client->addPublicKey('public', 'private');
     }
 
-    /**
-     * @covers ::updatePublicKey
-     */
     public function testUpdatePublicKey(): void
     {
         $client = $this->getClient([
@@ -715,9 +560,6 @@ class ClientTest extends TestCase
         $this->assertSame('{"privateKey":"private"}', $request->getBody()->getContents());
     }
 
-    /**
-     * @covers ::updatePublicKey
-     */
     public function testUpdatePublicKeyThrowsExceptionOnInvalidKeyName(): void
     {
         $client = $this->getClient();
@@ -726,9 +568,6 @@ class ClientTest extends TestCase
         $client->updatePublicKey('Public Key', 'private');
     }
 
-    /**
-     * @covers ::updatePublicKey
-     */
     public function testUpdatePublicKeyThrowsExceptionWhenKeyDoesNotExist(): void
     {
         $client = $this->getClient([new Response(404)]);
@@ -737,9 +576,6 @@ class ClientTest extends TestCase
         $client->updatePublicKey('public', 'private');
     }
 
-    /**
-     * @covers ::deletePublicKey
-     */
     public function testDeletePublicKey(): void
     {
         $client = $this->getClient([
@@ -752,9 +588,6 @@ class ClientTest extends TestCase
         $this->assertSame('/keys/public', $request->getUri()->getPath());
     }
 
-    /**
-     * @covers ::deletePublicKey
-     */
     public function testDeletePublicKeyThrowsExceptionOnInvalidKeyName(): void
     {
         $client = $this->getClient();
@@ -763,9 +596,6 @@ class ClientTest extends TestCase
         $client->deletePublicKey('My Key');
     }
 
-    /**
-     * @covers ::deletePublicKey
-     */
     public function testDeletePublicKeyThrowsExceptionWhenKeyDoesNotExist(): void
     {
         $client = $this->getClient([new Response(404)]);
@@ -774,9 +604,6 @@ class ClientTest extends TestCase
         $client->deletePublicKey('public');
     }
 
-    /**
-     * @covers ::publicKeyExists
-     */
     public function testPublicKeyExists(): void
     {
         $client = $this->getClient([new Response(200)]);
@@ -784,12 +611,9 @@ class ClientTest extends TestCase
         $request = $this->getPreviousRequest();
         $this->assertSame('HEAD', $request->getMethod());
         $this->assertSame('/keys/public', $request->getUri()->getPath());
-        $this->assertSame('publicKey=' . $this->publicKey, $request->getUri()->getQuery());
+        $this->assertSame('publicKey='.$this->publicKey, $request->getUri()->getQuery());
     }
 
-    /**
-     * @covers ::publicKeyExists
-     */
     public function testPublicKeyExistsReturnsFalseWhenKeyDoesNotExist(): void
     {
         $client = $this->getClient([new Response(404)]);
@@ -799,9 +623,6 @@ class ClientTest extends TestCase
         $this->assertSame('/keys/public', $request->getUri()->getPath());
     }
 
-    /**
-     * @covers ::publicKeyExists
-     */
     public function testPublicKeyExistsThrowsExceptionOnError(): void
     {
         $client = $this->getClient([new Response(400)]);
@@ -810,9 +631,6 @@ class ClientTest extends TestCase
         $client->publicKeyExists('public');
     }
 
-    /**
-     * @covers ::getAccessControlRules
-     */
     public function testGetAccessControlRules(): void
     {
         $body = <<<JSON
@@ -830,12 +648,9 @@ class ClientTest extends TestCase
         $request = $this->getPreviousRequest();
         $this->assertSame('GET', $request->getMethod());
         $this->assertSame('/keys/public/access.json', $request->getUri()->getPath());
-        $this->assertSame('publicKey=' . $this->publicKey, $request->getUri()->getQuery());
+        $this->assertSame('publicKey='.$this->publicKey, $request->getUri()->getQuery());
     }
 
-    /**
-     * @covers ::getAccessControlRule
-     */
     public function testGetAccessControlRule(): void
     {
         $body = <<<JSON
@@ -851,12 +666,9 @@ class ClientTest extends TestCase
         $request = $this->getPreviousRequest();
         $this->assertSame('GET', $request->getMethod());
         $this->assertSame('/keys/public/access/id-1.json', $request->getUri()->getPath());
-        $this->assertSame('publicKey=' . $this->publicKey, $request->getUri()->getQuery());
+        $this->assertSame('publicKey='.$this->publicKey, $request->getUri()->getQuery());
     }
 
-    /**
-     * @covers ::addAccessControlRules
-     */
     public function testAddAccessControlRules(): void
     {
         $rules = <<<JSON
@@ -884,9 +696,6 @@ class ClientTest extends TestCase
         $this->assertSame('[{"resources":[],"group":"group","users":[]}]', $request->getBody()->getContents());
     }
 
-    /**
-     * @covers ::deleteAccessControlRule
-     */
     public function testDeleteAccessControlRule(): void
     {
         $rule = <<<JSON
@@ -987,12 +796,12 @@ class ClientTest extends TestCase
 
     /**
      * @param array<int,ResponseInterface> $responses
-     * @return GuzzleHttpClient
      */
     private function getMockGuzzleHttpClient(array $responses): GuzzleHttpClient
     {
         $handler = HandlerStack::create(new MockHandler($responses));
         $handler->push(Middleware::history($this->historyContainer));
+
         return new GuzzleHttpClient(['handler' => $handler]);
     }
 

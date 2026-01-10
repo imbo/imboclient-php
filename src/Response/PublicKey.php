@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use ImboClient\Exception\InvalidResponseBodyException;
@@ -21,6 +22,7 @@ class PublicKey extends ApiResponse
     {
         /** @var array{publicKey:string} */
         $body = Utils::convertResponseToArray($response);
+
         return (new self($body['publicKey']))->withResponse($response);
     }
 

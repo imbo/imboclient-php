@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient;
 
 class Query
@@ -13,6 +14,7 @@ class Query
     {
         $clone = clone $this;
         $clone->page = $page;
+
         return $clone;
     }
 
@@ -28,6 +30,7 @@ class Query
     {
         $clone = clone $this;
         $clone->limit = $limit;
+
         return $clone;
     }
 
@@ -37,15 +40,15 @@ class Query
     }
 
     /**
-     * Convert the query instance to a key => value array
+     * Convert the query instance to a key => value array.
      *
      * @return array<string,mixed>
      */
     public function toArray(): array
     {
         return [
-            'page'      => $this->page,
-            'limit'     => $this->limit,
+            'page' => $this->page,
+            'limit' => $this->limit,
         ];
     }
 }

@@ -1,30 +1,15 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use DateTime;
 use ImboClient\Response\Images\Image;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass ImboClient\Response\Images\Image
- */
+#[CoversClass(Image::class)]
 class ImageTest extends TestCase
 {
-    /**
-     * @covers ::__construct
-     * @covers ::getImageIdentifier
-     * @covers ::getChecksum
-     * @covers ::getOriginalChecksum
-     * @covers ::getUser
-     * @covers ::getAdded
-     * @covers ::getUpdated
-     * @covers ::getSize
-     * @covers ::getWidth
-     * @covers ::getHeight
-     * @covers ::getMimeType
-     * @covers ::getExtension
-     * @covers ::getMetadata
-     */
     public function testImageAccessors(): void
     {
         $image = new Image('image-id', 'checksum', 'original-checksum', 'user', $added = new DateTime('now'), $updated = new DateTime('now'), 1, 2, 3, 'image/png', 'png', ['some' => 'data']);
@@ -42,11 +27,6 @@ class ImageTest extends TestCase
         $this->assertSame(['some' => 'data'], $image->getMetadata());
     }
 
-    /**
-     * @covers ::offsetExists
-     * @covers ::offsetGet
-     * @covers ::getArrayOffsets
-     */
     public function testArrayAccess(): void
     {
         $image = new Image('image-id', 'checksum', 'original-checksum', 'user', new DateTime('Mon, 20 Sep 2021 20:33:57 GMT'), new DateTime('Mon, 20 Sep 2021 20:33:58 GMT'), 1, 2, 3, 'image/png', 'png', ['some' => 'data']);

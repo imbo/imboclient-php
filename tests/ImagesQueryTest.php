@@ -1,24 +1,13 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass ImboClient\ImagesQuery
- */
+#[CoversClass(ImagesQuery::class)]
 class ImagesQueryTest extends TestCase
 {
-    /**
-     * @covers ::withMetadata
-     * @covers ::withFrom
-     * @covers ::withTo
-     * @covers ::withIds
-     * @covers ::withChecksums
-     * @covers ::withOriginalChecksums
-     * @covers ::withSort
-     * @covers ::withAddedSortParameter
-     * @covers ::toArray
-     */
     public function testCanManipulateQuery(): void
     {
         $query = new ImagesQuery();
@@ -33,26 +22,26 @@ class ImagesQueryTest extends TestCase
             ->withAddedSortParameter('size');
 
         $this->assertEquals([
-            'metadata'          => false,
-            'from'              => null,
-            'to'                => null,
-            'ids'               => [],
-            'checksums'         => [],
+            'metadata' => false,
+            'from' => null,
+            'to' => null,
+            'ids' => [],
+            'checksums' => [],
             'originalChecksums' => [],
-            'sort'              => [],
-            'page'              => 1,
-            'limit'             => 20,
+            'sort' => [],
+            'page' => 1,
+            'limit' => 20,
         ], $query->toArray());
         $this->assertEquals([
-            'metadata'          => true,
-            'from'              => 123,
-            'to'                => 234,
-            'ids'               => ['id1', 'id2'],
-            'checksums'         => ['checksum1', 'checksum2'],
+            'metadata' => true,
+            'from' => 123,
+            'to' => 234,
+            'ids' => ['id1', 'id2'],
+            'checksums' => ['checksum1', 'checksum2'],
             'originalChecksums' => ['checksum3', 'checksum4'],
-            'sort'              => ['id:desc', 'size'],
-            'page'              => 1,
-            'limit'             => 20,
+            'sort' => ['id:desc', 'size'],
+            'page' => 1,
+            'limit' => 20,
         ], $newQuery->toArray());
     }
 }

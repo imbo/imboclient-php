@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use Countable;
@@ -9,6 +10,8 @@ use ImboClient\Response\Images\Image;
 use ImboClient\Utils;
 use Iterator;
 use Psr\Http\Message\ResponseInterface;
+
+use function count;
 
 /**
  * @template-implements Iterator<int, Image>
@@ -26,8 +29,8 @@ class Images extends ApiResponse implements Iterator, Countable
      */
     public function __construct(array $images, PageInfo $page, ?ImagesQuery $nextQuery = null)
     {
-        $this->images    = $images;
-        $this->page      = $page;
+        $this->images = $images;
+        $this->page = $page;
         $this->nextQuery = $nextQuery;
     }
 
@@ -95,7 +98,7 @@ class Images extends ApiResponse implements Iterator, Countable
 
     public function next(): void
     {
-        $this->iteratorIndex++;
+        ++$this->iteratorIndex;
     }
 
     public function valid(): bool

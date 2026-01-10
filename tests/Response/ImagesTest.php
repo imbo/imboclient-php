@@ -1,29 +1,17 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use ImboClient\ImagesQuery;
 use ImboClient\Response\Images\Image;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
-/**
- * @coversDefaultClass ImboClient\Response\Images
- */
+#[CoversClass(Images::class)]
 class ImagesTest extends TestCase
 {
-    /**
-     * @covers ::__construct
-     * @covers ::fromHttpResponse
-     * @covers ::count
-     * @covers ::rewind
-     * @covers ::current
-     * @covers ::key
-     * @covers ::next
-     * @covers ::valid
-     * @covers ::getNextQuery
-     * @covers ::getPageInfo
-     */
     public function testCanCreateFromResponse(): void
     {
         $images = [
@@ -78,15 +66,15 @@ class ImagesTest extends TestCase
                 ],
             ],
         ];
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => json_encode($images),
             ]),
         ]);
 
         $query = new ImagesQuery();
         $imagesResponse = Images::fromHttpResponse($response, $query);
-        $this->assertSame(3, count($imagesResponse));
+        $this->assertCount(3, $imagesResponse);
         foreach ($imagesResponse as $i => $image) {
             $this->assertSame($images['images'][$i]['imageIdentifier'], $image->getImageIdentifier());
         }
@@ -97,15 +85,10 @@ class ImagesTest extends TestCase
         $this->assertSame(1, $imagesResponse->getPageInfo()->getPage());
     }
 
-    /**
-     * @covers ::offsetExists
-     * @covers ::offsetGet
-     * @covers ::getArrayOffsets
-     */
     public function testArrayAccess(): void
     {
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => json_encode([
                     'search' => [
                         'hits' => 100,

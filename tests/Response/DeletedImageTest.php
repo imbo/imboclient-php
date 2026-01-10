@@ -1,24 +1,19 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
-/**
- * @coversDefaultClass ImboClient\Response\DeletedImage
- */
+#[CoversClass(DeletedImage::class)]
 class DeletedImageTest extends TestCase
 {
-    /**
-     * @covers ::fromHttpResponse
-     * @covers ::__construct
-     * @covers ::getImageIdentifier
-     */
     public function testCanCreateFromResponse(): void
     {
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => '{"imageIdentifier": "image-id"}',
             ]),
         ]);
@@ -27,15 +22,10 @@ class DeletedImageTest extends TestCase
         $this->assertSame($response, $deletedImage->getResponse());
     }
 
-    /**
-     * @covers ::offsetExists
-     * @covers ::offsetGet
-     * @covers ::getArrayOffsets
-     */
     public function testArrayAccess(): void
     {
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => '{"imageIdentifier": "image-id"}',
             ]),
         ]);
@@ -45,6 +35,6 @@ class DeletedImageTest extends TestCase
         $this->assertArrayNotHasKey('foobar', $deletedImage);
 
         $this->assertSame('image-id', $deletedImage['imageIdentifier']);
-        $this->assertSame(null, $deletedImage['foobar']);
+        $this->assertNull($deletedImage['foobar']);
     }
 }

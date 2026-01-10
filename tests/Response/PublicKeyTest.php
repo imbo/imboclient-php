@@ -1,24 +1,19 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
-/**
- * @coversDefaultClass ImboClient\Response\PublicKey
- */
+#[CoversClass(PublicKey::class)]
 class PublicKeyTest extends TestCase
 {
-    /**
-     * @covers ::fromHttpResponse
-     * @covers ::__construct
-     * @covers ::getPublicKey
-     */
     public function testCanCreateFromResponse(): void
     {
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => '{"publicKey": "my-key"}',
             ]),
         ]);
@@ -26,15 +21,10 @@ class PublicKeyTest extends TestCase
         $this->assertSame('my-key', $publicKey->getPublicKey());
     }
 
-    /**
-     * @covers ::offsetExists
-     * @covers ::offsetGet
-     * @covers ::getArrayOffsets
-     */
     public function testArrayAccess(): void
     {
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => '{"publicKey": "my-key"}',
             ]),
         ]);

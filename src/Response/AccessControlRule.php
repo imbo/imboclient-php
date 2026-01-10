@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use ImboClient\Exception\InvalidResponseBodyException;
@@ -16,15 +17,16 @@ class AccessControlRule extends ApiResponse
 
     /**
      * @param string|array<string> $users
-     * @param ?array<string> $resources
+     * @param ?array<string>       $resources
      */
-    public function __construct(string $id, $users, array $resources = null, string $group = null)
+    public function __construct(string $id, $users, ?array $resources = null, ?string $group = null)
     {
-        $this->id        = $id;
-        $this->users     = $users;
+        $this->id = $id;
+        $this->users = $users;
         $this->resources = $resources;
-        $this->group     = $group;
+        $this->group = $group;
     }
+
     /**
      * @throws InvalidResponseBodyException
      */
@@ -32,6 +34,7 @@ class AccessControlRule extends ApiResponse
     {
         /** @var array{id:string,resources?:array<string>,group?:string,users:string|array<string>} */
         $body = Utils::convertResponseToArray($response);
+
         return (new self($body['id'], $body['users'], $body['resources'] ?? null, $body['group'] ?? null))->withResponse($response);
     }
 
