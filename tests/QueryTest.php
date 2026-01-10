@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass ImboClient\Query
- */
+#[CoversClass(Query::class)]
 class QueryTest extends TestCase
 {
     private Query $query;
@@ -15,10 +15,6 @@ class QueryTest extends TestCase
         $this->query = new Query();
     }
 
-    /**
-     * @covers ::withPage
-     * @covers ::getPage
-     */
     public function testCanSetPage(): void
     {
         $query = $this->query->withPage(123);
@@ -27,10 +23,6 @@ class QueryTest extends TestCase
         $this->assertSame(1, $this->query->getPage());
     }
 
-    /**
-     * @covers ::withLimit
-     * @covers ::getLimit
-     */
     public function testCanSetLimit(): void
     {
         $query = $this->query->withLimit(2);
@@ -39,13 +31,10 @@ class QueryTest extends TestCase
         $this->assertSame(20, $this->query->getLimit());
     }
 
-    /**
-     * @covers ::toArray
-     */
     public function testCanConvertToArray(): void
     {
         $this->assertEquals([
-            'page'  => 1,
+            'page' => 1,
             'limit' => 20,
         ], $this->query->toArray());
     }

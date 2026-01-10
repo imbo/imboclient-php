@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient;
 
 use GuzzleHttp\Client as GuzzleHttpClient;
@@ -32,6 +33,10 @@ use ImboClient\Url\ImageUrl;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
+use function count;
+use function is_array;
+use function ord;
+
 class Client
 {
     public const MAJOR_VERSION = 3;
@@ -44,15 +49,15 @@ class Client
     private GuzzleHttpClient $httpClient;
 
     /**
-     * Class constructor
+     * Class constructor.
      *
-     * @param string|array<string> $baseUrls URL(s) to the Imbo server
-     * @param string $user User for imbo
-     * @param string $publicKey Public key for user
-     * @param string $privateKey Private key for user
-     * @param GuzzleHttpClient $httpClient Pre-configured HTTP client
+     * @param string|array<string> $baseUrls   URL(s) to the Imbo server
+     * @param string               $user       User for imbo
+     * @param string               $publicKey  Public key for user
+     * @param string               $privateKey Private key for user
+     * @param GuzzleHttpClient     $httpClient Pre-configured HTTP client
      */
-    public function __construct($baseUrls, string $user, string $publicKey, string $privateKey, GuzzleHttpClient $httpClient = null)
+    public function __construct($baseUrls, string $user, string $publicKey, string $privateKey, ?GuzzleHttpClient $httpClient = null)
     {
         if (!is_array($baseUrls)) {
             $baseUrls = [$baseUrls];
@@ -69,7 +74,7 @@ class Client
             $httpClient = new GuzzleHttpClient([
                 'handler' => $handler,
                 'headers' => [
-                    'User-Agent' => 'ImboClient/' . self::MAJOR_VERSION,
+                    'User-Agent' => 'ImboClient/'.self::MAJOR_VERSION,
                 ],
             ]);
         }
@@ -112,17 +117,18 @@ class Client
     {
         return User::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getAccessTokenUrlForPath('users/' . $this->user . '.json'),
+                $this->getAccessTokenUrlForPath('users/'.$this->user.'.json'),
             ),
         );
     }
 
-    public function getImages(ImagesQuery $query = null): Images
+    public function getImages(?ImagesQuery $query = null): Images
     {
         $query = $query ?: new ImagesQuery();
+
         return Images::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getAccessTokenUrlForPath('users/' . $this->user . '/images.json'),
+                $this->getAccessTokenUrlForPath('users/'.$this->user.'/images.json'),
                 [
                     'query' => $query->toArray(),
                 ],
@@ -153,7 +159,7 @@ class Client
     {
         return AddedImage::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUrlForPath('users/' . $this->user . '/images'),
+                $this->getUrlForPath('users/'.$this->user.'/images'),
                 [
                     'body' => $blob,
                 ],
@@ -166,6 +172,7 @@ class Client
     public function addImageFromPath(string $path): AddedImage
     {
         $this->validateLocalFile($path);
+
         return $this->addImageFromString(file_get_contents($path));
     }
 
@@ -177,7 +184,7 @@ class Client
         try {
             $blob = $this->httpClient->get($url)->getBody()->getContents();
         } catch (BadResponseException $e) {
-            throw new RuntimeException('Unable to fetch file at URL: ' . $url, $e->getCode(), $e);
+            throw new RuntimeException('Unable to fetch file at URL: '.$url, $e->getCode(), $e);
         }
 
         return $this->addImageFromString($blob);
@@ -188,7 +195,7 @@ class Client
         return DeletedImage::fromHttpResponse(
             $this->getHttpResponse(
                 $this->getUrlForPath(
-                    'users/' . $this->user . '/images/' . $imageIdentifier,
+                    'users/'.$this->user.'/images/'.$imageIdentifier,
                 ),
                 [],
                 'DELETE',
@@ -202,7 +209,7 @@ class Client
         return ImageProperties::fromHttpResponse(
             $this->getHttpResponse(
                 $this->getUrlForPath(
-                    'users/' . $this->user . '/images/' . $imageIdentifier,
+                    'users/'.$this->user.'/images/'.$imageIdentifier,
                 ),
                 [],
                 'HEAD',
@@ -215,7 +222,7 @@ class Client
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
                 $this->getUrlForPath(
-                    'users/' . $this->user . '/images/' . $imageIdentifier . '/metadata.json',
+                    'users/'.$this->user.'/images/'.$imageIdentifier.'/metadata.json',
                     $this->getHostForImageIdentifier($imageIdentifier),
                 ),
             ),
@@ -227,7 +234,7 @@ class Client
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
                 $this->getUrlForPath(
-                    'users/' . $this->user . '/images/' . $imageIdentifier . '/metadata',
+                    'users/'.$this->user.'/images/'.$imageIdentifier.'/metadata',
                 ),
                 [
                     'json' => $metadata,
@@ -243,7 +250,7 @@ class Client
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
                 $this->getUrlForPath(
-                    'users/' . $this->user . '/images/' . $imageIdentifier . '/metadata',
+                    'users/'.$this->user.'/images/'.$imageIdentifier.'/metadata',
                 ),
                 [
                     'json' => $metadata,
@@ -259,7 +266,7 @@ class Client
         return Utils::convertResponseToArray(
             $this->getHttpResponse(
                 $this->getUrlForPath(
-                    'users/' . $this->user . '/images/' . $imageIdentifier . '/metadata',
+                    'users/'.$this->user.'/images/'.$imageIdentifier.'/metadata',
                 ),
                 [],
                 'DELETE',
@@ -271,7 +278,7 @@ class Client
     public function getImageUrl(string $imageIdentifier): ImageUrl
     {
         return new ImageUrl(
-            $this->getHostForImageIdentifier($imageIdentifier) . '/users/' . $this->user . '/images/' . $imageIdentifier,
+            $this->getHostForImageIdentifier($imageIdentifier).'/users/'.$this->user.'/images/'.$imageIdentifier,
             $this->privateKey,
         );
     }
@@ -281,14 +288,14 @@ class Client
         return AddedShortUrl::fromHttpResponse(
             $this->getHttpResponse(
                 $this->getUrlForPath(
-                    'users/' . $this->user . '/images/' . $imageUrl->getImageIdentifier() . '/shorturls',
+                    'users/'.$this->user.'/images/'.$imageUrl->getImageIdentifier().'/shorturls',
                 ),
                 [
                     'json' => [
-                        'user'            => $this->user,
+                        'user' => $this->user,
                         'imageIdentifier' => $imageUrl->getImageIdentifier(),
-                        'extension'       => $imageUrl->getExtension(),
-                        'query'           => $imageUrl->getQuery() ?: null,
+                        'extension' => $imageUrl->getExtension(),
+                        'query' => $imageUrl->getQuery() ?: null,
                     ],
                 ],
                 'POST',
@@ -302,7 +309,7 @@ class Client
         return DeletedShortUrls::fromHttpResponse(
             $this->getHttpResponse(
                 $this->getUrlForPath(
-                    'users/' . $this->user . '/images/' . $imageIdentifier . '/shorturls',
+                    'users/'.$this->user.'/images/'.$imageIdentifier.'/shorturls',
                 ),
                 [],
                 'DELETE',
@@ -316,7 +323,7 @@ class Client
         return ImageProperties::fromHttpResponse(
             $this->getHttpResponse(
                 $this->getUrlForPath(
-                    's/' . $shortUrlId,
+                    's/'.$shortUrlId,
                 ),
                 [],
                 'HEAD',
@@ -327,10 +334,11 @@ class Client
     public function deleteShortUrl(string $shortUrlId): DeletedShortUrl
     {
         $properties = $this->getShortUrlProperties($shortUrlId);
+
         return DeletedShortUrl::fromHttpResponse(
             $this->getHttpResponse(
                 $this->getUrlForPath(
-                    'users/' . $this->user . '/images/' . $properties->getImageIdentifier() . '/shorturls/' . $shortUrlId,
+                    'users/'.$this->user.'/images/'.$properties->getImageIdentifier().'/shorturls/'.$shortUrlId,
                 ),
                 [],
                 'DELETE',
@@ -381,7 +389,7 @@ class Client
         try {
             $blob = $this->httpClient->get($url)->getBody()->getContents();
         } catch (BadResponseException $e) {
-            throw new RuntimeException('Unable to fetch file at URL: ' . $url, $e->getCode(), $e);
+            throw new RuntimeException('Unable to fetch file at URL: '.$url, $e->getCode(), $e);
         }
 
         return $blob;
@@ -389,6 +397,7 @@ class Client
 
     /**
      * @param array<string> $resources
+     *
      * @throws InvalidArgumentException
      */
     public function addResourceGroup(string $name, array $resources = []): ResourceGroup
@@ -404,7 +413,7 @@ class Client
                 $this->getUrlForPath('groups'),
                 [
                     'json' => [
-                        'name'      => $name,
+                        'name' => $name,
                         'resources' => $resources,
                     ],
                 ],
@@ -420,9 +429,10 @@ class Client
     public function updateResourceGroup(string $name, array $resources = []): ResourceGroup
     {
         $this->validateResourceGroupName($name);
+
         return ResourceGroup::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUrlForPath('groups/' . $name),
+                $this->getUrlForPath('groups/'.$name),
                 [
                     'json' => [
                         'resources' => $resources,
@@ -437,9 +447,10 @@ class Client
     public function deleteResourceGroup(string $name): ResourceGroup
     {
         $this->validateResourceGroupName($name);
+
         return ResourceGroup::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUrlForPath('groups/' . $name),
+                $this->getUrlForPath('groups/'.$name),
                 [],
                 'DELETE',
                 true,
@@ -451,7 +462,7 @@ class Client
     {
         try {
             $this->getHttpResponse(
-                $this->getAccessTokenUrlForPath('groups/' . $name),
+                $this->getAccessTokenUrlForPath('groups/'.$name),
                 [
                     'query' => [
                         'publicKey' => $this->publicKey,
@@ -470,13 +481,13 @@ class Client
         return true;
     }
 
-
     public function getResourceGroup(string $name): ResourceGroup
     {
         $this->validateResourceGroupName($name);
+
         return ResourceGroup::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getAccessTokenUrlForPath('groups/' . $name),
+                $this->getAccessTokenUrlForPath('groups/'.$name),
                 [
                     'query' => [
                         'publicKey' => $this->publicKey,
@@ -486,9 +497,10 @@ class Client
         );
     }
 
-    public function getResourceGroups(Query $query = null): ResourceGroups
+    public function getResourceGroups(?Query $query = null): ResourceGroups
     {
         $query = $query ?: new Query();
+
         return ResourceGroups::fromHttpResponse(
             $this->getHttpResponse(
                 $this->getAccessTokenUrlForPath('groups'),
@@ -518,7 +530,7 @@ class Client
                 $this->getUrlForPath('keys'),
                 [
                     'json' => [
-                        'publicKey'  => $publicKey,
+                        'publicKey' => $publicKey,
                         'privateKey' => $privateKey,
                     ],
                 ],
@@ -538,7 +550,7 @@ class Client
 
         return PublicKey::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUrlForPath('keys/' . $publicKey),
+                $this->getUrlForPath('keys/'.$publicKey),
                 [
                     'json' => [
                         'privateKey' => $privateKey,
@@ -560,7 +572,7 @@ class Client
 
         return PublicKey::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUrlForPath('keys/' . $publicKey),
+                $this->getUrlForPath('keys/'.$publicKey),
                 [],
                 'DELETE',
                 true,
@@ -574,7 +586,7 @@ class Client
 
         try {
             $this->getHttpResponse(
-                $this->getAccessTokenUrlForPath('keys/' . $publicKey),
+                $this->getAccessTokenUrlForPath('keys/'.$publicKey),
                 [
                     'query' => [
                         'publicKey' => $this->publicKey,
@@ -596,9 +608,10 @@ class Client
     public function getAccessControlRules(string $publicKey): AccessControlRules
     {
         $this->validatePublicKeyName($publicKey);
+
         return AccessControlRules::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getAccessTokenUrlForPath('keys/' . $publicKey . '/access.json'),
+                $this->getAccessTokenUrlForPath('keys/'.$publicKey.'/access.json'),
                 [
                     'query' => [
                         'publicKey' => $this->publicKey,
@@ -612,9 +625,10 @@ class Client
     public function getAccessControlRule(string $publicKey, string $ruleId): AccessControlRule
     {
         $this->validatePublicKeyName($publicKey);
+
         return AccessControlRule::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getAccessTokenUrlForPath('keys/' . $publicKey . '/access/' . $ruleId . '.json'),
+                $this->getAccessTokenUrlForPath('keys/'.$publicKey.'/access/'.$ruleId.'.json'),
                 [
                     'query' => [
                         'publicKey' => $this->publicKey,
@@ -627,9 +641,10 @@ class Client
     public function addAccessControlRules(string $publicKey, array $rules): AccessControlRules
     {
         $this->validatePublicKeyName($publicKey);
+
         return AccessControlRules::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUrlForPath('keys/' . $publicKey . '/access.json'),
+                $this->getUrlForPath('keys/'.$publicKey.'/access.json'),
                 [
                     'json' => $rules,
                 ],
@@ -642,9 +657,10 @@ class Client
     public function deleteAccessControlRule(string $publicKey, string $ruleId): AccessControlRule
     {
         $this->validatePublicKeyName($publicKey);
+
         return AccessControlRule::fromHttpResponse(
             $this->getHttpResponse(
-                $this->getUrlForPath('keys/' . $publicKey . '/access/' . $ruleId . '.json'),
+                $this->getUrlForPath('keys/'.$publicKey.'/access/'.$ruleId.'.json'),
                 [],
                 'DELETE',
                 true,
@@ -652,18 +668,18 @@ class Client
         );
     }
 
-    private function getAccessTokenUrlForPath(string $path, string $baseUrl = null): AccessTokenUrl
+    private function getAccessTokenUrlForPath(string $path, ?string $baseUrl = null): AccessTokenUrl
     {
         return new AccessTokenUrl(
-            ($baseUrl ?: $this->baseUrls[0]) . '/' . $path,
+            ($baseUrl ?: $this->baseUrls[0]).'/'.$path,
             $this->privateKey,
         );
     }
 
-    private function getUrlForPath(string $path, string $baseUrl = null): UriInterface
+    private function getUrlForPath(string $path, ?string $baseUrl = null): UriInterface
     {
         return new Uri(
-            ($baseUrl ?: $this->baseUrls[0]) . '/' . $path,
+            ($baseUrl ?: $this->baseUrls[0]).'/'.$path,
         );
     }
 
@@ -689,10 +705,9 @@ class Client
     }
 
     /**
-     * Get a predictable hostname for the given image identifier
+     * Get a predictable hostname for the given image identifier.
      *
      * @param string $imageIdentifier The image identifier
-     * @return string
      */
     private function getHostForImageIdentifier(string $imageIdentifier): string
     {
@@ -701,39 +716,35 @@ class Client
         }
 
         $dec = ord($imageIdentifier[-1]);
+
         return $this->baseUrls[$dec % count($this->baseUrls)];
     }
 
     /**
-     * @param string $path
      * @throws InvalidLocalFileException
      */
     private function validateLocalFile(string $path): void
     {
         if (!is_file($path)) {
-            throw new InvalidLocalFileException('File does not exist: ' . $path);
+            throw new InvalidLocalFileException('File does not exist: '.$path);
         }
 
         if (!filesize($path)) {
-            throw new InvalidLocalFileException('File is of zero length: ' . $path);
+            throw new InvalidLocalFileException('File is of zero length: '.$path);
         }
     }
 
     private function validateResourceGroupName(string $name): void
     {
         if (!preg_match('/^[a-z0-9_-]+$/', $name)) {
-            throw new InvalidArgumentException(
-                'Group name can only consist of: a-z, 0-9 and the characters _ and -',
-            );
+            throw new InvalidArgumentException('Group name can only consist of: a-z, 0-9 and the characters _ and -');
         }
     }
 
     private function validatePublicKeyName(string $name): void
     {
         if (!preg_match('/^[a-z0-9_-]+$/', $name)) {
-            throw new InvalidArgumentException(
-                'Public key can only consist of: a-z, 0-9 and the characters _ and -',
-            );
+            throw new InvalidArgumentException('Public key can only consist of: a-z, 0-9 and the characters _ and -');
         }
     }
 }

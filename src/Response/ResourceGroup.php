@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use ImboClient\Exception\InvalidResponseBodyException;
@@ -27,6 +28,7 @@ class ResourceGroup extends ApiResponse
     {
         /** @var array{name:string,resources:array<string>} */
         $body = Utils::convertResponseToArray($response);
+
         return (new self($body['name'], $body['resources']))->withResponse($response);
     }
 

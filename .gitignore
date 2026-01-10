@@ -1,11 +1,9 @@
 build
-tests/phpunit.xml
-composer.phar
 vendor
 test.php
-.lintcache
 docs/_build
 .vscode
+.php-cs-fixer.php
 .php-cs-fixer.cache
-.phpunit.cache
-.psalm
+.phpunit.result.cache
+phpstan.neon

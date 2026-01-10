@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient;
 
 class ImagesQuery extends Query
@@ -15,6 +16,7 @@ class ImagesQuery extends Query
     {
         $clone = clone $this;
         $clone->metadata = $metadata;
+
         return $clone;
     }
 
@@ -22,6 +24,7 @@ class ImagesQuery extends Query
     {
         $clone = clone $this;
         $clone->from = $from;
+
         return $clone;
     }
 
@@ -29,6 +32,7 @@ class ImagesQuery extends Query
     {
         $clone = clone $this;
         $clone->to = $to;
+
         return $clone;
     }
 
@@ -36,6 +40,7 @@ class ImagesQuery extends Query
     {
         $clone = clone $this;
         $clone->ids = $ids;
+
         return $clone;
     }
 
@@ -43,6 +48,7 @@ class ImagesQuery extends Query
     {
         $clone = clone $this;
         $clone->checksums = $checksums;
+
         return $clone;
     }
 
@@ -50,6 +56,7 @@ class ImagesQuery extends Query
     {
         $clone = clone $this;
         $clone->originalChecksums = $originalChecksums;
+
         return $clone;
     }
 
@@ -57,6 +64,7 @@ class ImagesQuery extends Query
     {
         $clone = clone $this;
         $clone->sort = $sort;
+
         return $clone;
     }
 
@@ -64,24 +72,25 @@ class ImagesQuery extends Query
     {
         $clone = clone $this;
         $clone->sort[] = $sort;
+
         return $clone;
     }
 
     /**
-     * Convert the query instance to a key => value array
+     * Convert the query instance to a key => value array.
      *
      * @return array<string,mixed>
      */
     public function toArray(): array
     {
         return array_merge(parent::toArray(), [
-            'metadata'          => $this->metadata,
-            'from'              => $this->from,
-            'to'                => $this->to,
-            'ids'               => $this->ids,
-            'checksums'         => $this->checksums,
+            'metadata' => $this->metadata,
+            'from' => $this->from,
+            'to' => $this->to,
+            'ids' => $this->ids,
+            'checksums' => $this->checksums,
             'originalChecksums' => $this->originalChecksums,
-            'sort'              => $this->sort,
+            'sort' => $this->sort,
         ]);
     }
 }

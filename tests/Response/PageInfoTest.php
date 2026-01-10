@@ -1,20 +1,13 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass ImboClient\Response\PageInfo
- */
+#[CoversClass(PageInfo::class)]
 class PageInfoTest extends TestCase
 {
-    /**
-     * @covers ::__construct
-     * @covers ::getHits
-     * @covers ::getPage
-     * @covers ::getLimit
-     * @covers ::getCount
-     */
     public function testCanSetAndGetValues(): void
     {
         $pageInfo = new PageInfo(1, 2, 3, 4);
@@ -24,11 +17,6 @@ class PageInfoTest extends TestCase
         $this->assertSame(4, $pageInfo->getCount());
     }
 
-    /**
-     * @covers ::offsetExists
-     * @covers ::offsetGet
-     * @covers ::getArrayOffsets
-     */
     public function testArrayAccess(): void
     {
         $pageInfo = new PageInfo(1, 2, 3, 4);

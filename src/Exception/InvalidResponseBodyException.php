@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Exception;
 
 use Psr\Http\Message\ResponseInterface;
@@ -9,7 +10,7 @@ class InvalidResponseBodyException extends RuntimeException implements ClientExc
 {
     private ResponseInterface $response;
 
-    public function __construct(string $message, ResponseInterface $response, Throwable $previous = null)
+    public function __construct(string $message, ResponseInterface $response, ?Throwable $previous = null)
     {
         $this->response = $response;
 

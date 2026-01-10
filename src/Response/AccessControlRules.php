@@ -1,10 +1,13 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use Countable;
 use ImboClient\Utils;
 use Iterator;
 use Psr\Http\Message\ResponseInterface;
+
+use function count;
 
 /**
  * @template-implements Iterator<int, AccessControlRule>
@@ -57,7 +60,7 @@ class AccessControlRules extends ApiResponse implements Iterator, Countable
 
     public function next(): void
     {
-        $this->iteratorIndex++;
+        ++$this->iteratorIndex;
     }
 
     public function valid(): bool

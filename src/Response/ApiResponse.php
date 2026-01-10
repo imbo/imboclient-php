@@ -1,9 +1,13 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use ArrayAccess;
 use ImboClient\Exception\RuntimeException;
 use Psr\Http\Message\ResponseInterface;
+
+use function array_key_exists;
+use function in_array;
 
 /**
  * @template-implements ArrayAccess<string, mixed>
@@ -24,6 +28,7 @@ abstract class ApiResponse implements ArrayAccess
     {
         $clone = clone $this;
         $clone->response = $response;
+
         return $clone;
     }
 
@@ -42,11 +47,11 @@ abstract class ApiResponse implements ArrayAccess
 
     /**
      * @param string $offset
-     * @return mixed
      */
     public function offsetGet($offset): mixed
     {
         $offsets = $this->getArrayOffsets();
+
         return array_key_exists($offset, $offsets) ? $offsets[$offset]() : null;
     }
 

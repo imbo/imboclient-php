@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use Countable;
@@ -7,6 +8,8 @@ use ImboClient\Query;
 use ImboClient\Utils;
 use Iterator;
 use Psr\Http\Message\ResponseInterface;
+
+use function count;
 
 /**
  * @template-implements Iterator<int, ResourceGroup>
@@ -25,8 +28,8 @@ class ResourceGroups extends ApiResponse implements Iterator, Countable
     public function __construct(array $resourceGroups, PageInfo $page, ?Query $nextQuery = null)
     {
         $this->resourceGroups = $resourceGroups;
-        $this->page           = $page;
-        $this->nextQuery      = $nextQuery;
+        $this->page = $page;
+        $this->nextQuery = $nextQuery;
     }
 
     /**
@@ -80,7 +83,7 @@ class ResourceGroups extends ApiResponse implements Iterator, Countable
 
     public function next(): void
     {
-        $this->iteratorIndex++;
+        ++$this->iteratorIndex;
     }
 
     public function valid(): bool

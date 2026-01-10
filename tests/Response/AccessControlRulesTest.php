@@ -1,25 +1,15 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
-/**
- * @coversDefaultClass ImboClient\Response\AccessControlRules
- */
+#[CoversClass(AccessControlRules::class)]
 class AccessControlRulesTest extends TestCase
 {
-    /**
-     * @covers ::__construct
-     * @covers ::fromHttpResponse
-     * @covers ::count
-     * @covers ::rewind
-     * @covers ::current
-     * @covers ::key
-     * @covers ::next
-     * @covers ::valid
-     */
     public function testCanCreateFromResponse(): void
     {
         $rules = [
@@ -36,24 +26,19 @@ class AccessControlRulesTest extends TestCase
                 'group' => 'group-2',
             ],
         ];
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => json_encode($rules),
             ]),
         ]);
 
         $accessControlRules = AccessControlRules::fromHttpResponse($response);
-        $this->assertSame(2, count($accessControlRules));
+        $this->assertCount(2, $accessControlRules);
         foreach ($accessControlRules as $i => $rule) {
             $this->assertSame($rules[$i]['id'], $rule->getId());
         }
     }
 
-    /**
-     * @covers ::offsetExists
-     * @covers ::offsetGet
-     * @covers ::getArrayOffsets
-     */
     public function testArrayAccess(): void
     {
         $rules = [
@@ -70,8 +55,8 @@ class AccessControlRulesTest extends TestCase
                 'group' => 'group-2',
             ],
         ];
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => json_encode($rules),
             ]),
         ]);
@@ -84,7 +69,7 @@ class AccessControlRulesTest extends TestCase
         /** @var array<int, AccessControlRule> */
         $acrs = $accessControlRules['rules'];
 
-        $this->assertSame(2, count($acrs));
+        $this->assertCount(2, $acrs);
 
         foreach ($acrs as $i => $rule) {
             $this->assertSame($rules[$i]['id'], $rule->getId());

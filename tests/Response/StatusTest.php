@@ -1,28 +1,20 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use DateTime;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
-/**
- * @coversDefaultClass ImboClient\Response\Status
- */
+#[CoversClass(Status::class)]
 class StatusTest extends TestCase
 {
-    /**
-     * @covers ::fromHttpResponse
-     * @covers ::__construct
-     * @covers ::getDate
-     * @covers ::isHealthy
-     * @covers ::isDatabaseHealthy
-     * @covers ::isStorageHealthy
-     */
     public function testCanCreateFromResponse(): void
     {
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => '{"date":"Mon, 20 Sep 2021 20:33:57 GMT","database":true,"storage":false}',
             ]),
         ]);
@@ -34,15 +26,10 @@ class StatusTest extends TestCase
         $this->assertSame($response, $status->getResponse());
     }
 
-    /**
-     * @covers ::offsetExists
-     * @covers ::offsetGet
-     * @covers ::getArrayOffsets
-     */
     public function testArrayAccess(): void
     {
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => '{"date":"Mon, 20 Sep 2021 20:33:57 GMT","database":true,"storage":false}',
             ]),
             'getStatusCode' => 503,

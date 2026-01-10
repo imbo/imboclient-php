@@ -1,9 +1,14 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient;
 
 use ImboClient\Exception\InvalidResponseBodyException;
 use JsonException;
 use Psr\Http\Message\ResponseInterface;
+
+use function is_array;
+
+use const JSON_THROW_ON_ERROR;
 
 class Utils
 {

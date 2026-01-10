@@ -1,26 +1,16 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use ImboClient\Exception\RuntimeException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
-/**
- * @coversDefaultClass ImboClient\Response\AddedImage
- */
+#[CoversClass(AddedImage::class)]
 class AddedImageTest extends TestCase
 {
-    /**
-     * @covers ::fromHttpResponse
-     * @covers ::__construct
-     * @covers ::getImageIdentifier
-     * @covers ::getWidth
-     * @covers ::getHeight
-     * @covers ::getExtension
-     * @covers ImboClient\Response\ApiResponse::withResponse
-     * @covers ImboClient\Response\ApiResponse::getResponse
-     */
     public function testCanCreateFromResponse(): void
     {
         $contents = <<<JSON
@@ -31,8 +21,8 @@ class AddedImageTest extends TestCase
             "extension": "jpg"
         }
         JSON;
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => $contents,
             ]),
         ]);
@@ -44,11 +34,6 @@ class AddedImageTest extends TestCase
         $this->assertSame($response, $addedImage->getResponse());
     }
 
-    /**
-     * @covers ::offsetExists
-     * @covers ::offsetGet
-     * @covers ::getArrayOffsets
-     */
     public function testArrayAccess(): void
     {
         $contents = <<<JSON
@@ -59,8 +44,8 @@ class AddedImageTest extends TestCase
             "extension": "jpg"
         }
         JSON;
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => $contents,
             ]),
         ]);
@@ -76,12 +61,9 @@ class AddedImageTest extends TestCase
         $this->assertSame(1024, $addedImage['width']);
         $this->assertSame(768, $addedImage['height']);
         $this->assertSame('jpg', $addedImage['extension']);
-        $this->assertSame(null, $addedImage['foobar']);
+        $this->assertNull($addedImage['foobar']);
     }
 
-    /**
-     * @covers ::offsetSet
-     */
     public function testArrayAccessSetNotSupported(): void
     {
         $response = new AddedImage('image-id', 1024, 768, 'jpg');
@@ -91,9 +73,6 @@ class AddedImageTest extends TestCase
         $response['imageIdentifier'] = 'new-image-id';
     }
 
-    /**
-     * @covers ::offsetUnset
-     */
     public function testArrayAccessUnsetNotSupported(): void
     {
         $response = new AddedImage('image-id', 1024, 768, 'jpg');

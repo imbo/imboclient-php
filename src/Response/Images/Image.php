@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response\Images;
 
 use DateTime;
@@ -21,18 +22,18 @@ class Image extends ApiResponse
 
     public function __construct(string $imageIdentifier, string $checksum, string $originalChecksum, string $user, DateTime $added, DateTime $updated, int $size, int $width, int $height, string $mimeType, string $extension, array $metadata)
     {
-        $this->imageIdentifier  = $imageIdentifier;
-        $this->checksum         = $checksum;
+        $this->imageIdentifier = $imageIdentifier;
+        $this->checksum = $checksum;
         $this->originalChecksum = $originalChecksum;
-        $this->user             = $user;
-        $this->added            = $added;
-        $this->updated          = $updated;
-        $this->size             = $size;
-        $this->width            = $width;
-        $this->height           = $height;
-        $this->mimeType         = $mimeType;
-        $this->extension        = $extension;
-        $this->metadata         = $metadata;
+        $this->user = $user;
+        $this->added = $added;
+        $this->updated = $updated;
+        $this->size = $size;
+        $this->width = $width;
+        $this->height = $height;
+        $this->mimeType = $mimeType;
+        $this->extension = $extension;
+        $this->metadata = $metadata;
     }
 
     public function getImageIdentifier(): string

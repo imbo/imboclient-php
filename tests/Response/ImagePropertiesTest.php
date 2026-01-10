@@ -1,24 +1,14 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass ImboClient\Response\ImageProperties
- */
+#[CoversClass(ImageProperties::class)]
 class ImagePropertiesTest extends TestCase
 {
-    /**
-     * @covers ::fromHttpResponse
-     * @covers ::__construct
-     * @covers ::getImageIdentifier
-     * @covers ::getOriginalSize
-     * @covers ::getOriginalWidth
-     * @covers ::getOriginalHeight
-     * @covers ::getOriginalMimeType
-     * @covers ::getOriginalExtension
-     */
     public function testCanCreateFromResponse(): void
     {
         $imageProperties = ImageProperties::fromHttpResponse(new Response(200, [
@@ -37,11 +27,6 @@ class ImagePropertiesTest extends TestCase
         $this->assertSame('png', $imageProperties->getOriginalExtension());
     }
 
-    /**
-     * @covers ::offsetExists
-     * @covers ::offsetGet
-     * @covers ::getArrayOffsets
-     */
     public function testArrayAccess(): void
     {
         $imageProperties = ImageProperties::fromHttpResponse(new Response(200, [

@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use ImboClient\Exception\InvalidResponseBodyException;
@@ -27,6 +28,7 @@ class Stats extends ApiResponse
     {
         /** @var array{numImages:int,numUsers:int,numBytes:int,custom:array} */
         $body = Utils::convertResponseToArray($response);
+
         return (new self($body['numImages'], $body['numUsers'], $body['numBytes'], $body['custom']))->withResponse($response);
     }
 

@@ -2,16 +2,22 @@
   "name": "imbo/imboclient",
   "type": "library",
   "description": "Client for Imbo",
-  "keywords": [ "image storage", "image transformation", "image metadata" ],
+  "keywords": [
+    "image storage",
+    "image transformation",
+    "image metadata"
+  ],
   "homepage": "https://imbo-io/",
   "license": "MIT",
-  "authors": [{
+  "authors": [
+    {
       "name": "Christer Edvartsen",
       "email": "cogo@starzinger.net",
       "homepage": "https://github.com/christeredvartsen"
-    }, {
+    },
+    {
       "name": "Contributors",
-      "homepage": "https://github.com/imbo"
+      "homepage": "https://github.com/imbo/imboclient-php/graphs/contributors"
     }
   ],
   "autoload": {
@@ -25,29 +31,35 @@
     }
   },
   "require": {
-    "php": ">=8.1",
-    "guzzlehttp/guzzle": "^7.3"
+    "php": ">=8.3",
+    "guzzlehttp/guzzle": "^7.10"
   },
   "require-dev": {
-    "imbo/imbo-coding-standard": "^2.0",
-    "phpunit/phpunit": "^10.0",
-    "psalm/plugin-phpunit": "^0.18.4",
-    "symfony/var-dumper": "^6.2",
-    "vimeo/psalm": "^5.5"
+    "imbo/imbo-coding-standard": "^3.0",
+    "phpstan/extension-installer": "^1.4",
+    "phpstan/phpstan": "^2.1",
+    "phpstan/phpstan-deprecation-rules": "^2.0",
+    "phpstan/phpstan-phpunit": "^2.0",
+    "phpunit/phpunit": "^12.5",
+    "symfony/var-dumper": "^7.4"
   },
   "scripts": {
-    "docs": "cd docs; make html",
-    "test": "vendor/bin/phpunit",
-    "test:coverage": "vendor/bin/phpunit --coverage-html build/coverage --coverage-text",
-    "sa": "vendor/bin/psalm",
-    "cs": "php-cs-fixer fix --dry-run --diff",
     "ci": [
+      "@cs",
       "@sa",
-      "@test",
-      "@cs"
-    ]
+      "@test"
+    ],
+    "cs": "vendor/bin/php-cs-fixer check --diff",
+    "cs:fix": "vendor/bin/php-cs-fixer fix --diff",
+    "docs": "cd docs; make html",
+    "sa": "vendor/bin/phpstan",
+    "test": "vendor/bin/phpunit",
+    "test:coverage": "vendor/bin/phpunit --coverage-html build/coverage"
   },
   "config": {
-    "sort-packages": true
+    "sort-packages": true,
+    "allow-plugins": {
+      "phpstan/extension-installer": true
+    }
   }
 }

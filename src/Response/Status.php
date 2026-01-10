@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use DateTime;
@@ -22,6 +23,7 @@ class Status extends ApiResponse
     {
         /** @var array{date:string,database:bool,storage:bool} */
         $body = Utils::convertResponseToArray($response);
+
         return (new self(new DateTime($body['date']), $body['database'], $body['storage']))->withResponse($response);
     }
 

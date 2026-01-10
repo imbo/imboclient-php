@@ -1,23 +1,20 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient;
 
 use ImboClient\Exception\InvalidResponseBodyException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
-/**
- * @coversDefaultClass ImboClient\Utils
- */
+#[CoversClass(Utils::class)]
 class UtilsTest extends TestCase
 {
-    /**
-     * @covers ::convertResponseToArray
-     */
     public function testThrowsExceptionOnInvalidJsonInResponseBody(): void
     {
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => 'some string',
             ]),
             'getStatusCode' => 200,
@@ -28,13 +25,10 @@ class UtilsTest extends TestCase
         Utils::convertResponseToArray($response);
     }
 
-    /**
-     * @covers ::convertResponseToArray
-     */
     public function testThrowsExceptionOnValuesOtherThanArrays(): void
     {
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => '123',
             ]),
             'getStatusCode' => 200,
@@ -45,13 +39,10 @@ class UtilsTest extends TestCase
         Utils::convertResponseToArray($response);
     }
 
-    /**
-     * @covers ::convertResponseToArray
-     */
     public function testCanConvertResponseToArray(): void
     {
-        $response = $this->createConfiguredMock(ResponseInterface::class, [
-            'getBody' => $this->createConfiguredMock(StreamInterface::class, [
+        $response = $this->createConfiguredStub(ResponseInterface::class, [
+            'getBody' => $this->createConfiguredStub(StreamInterface::class, [
                 'getContents' => '{"foo":"bar"}',
             ]),
             'getStatusCode' => 200,

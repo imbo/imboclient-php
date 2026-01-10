@@ -1,54 +1,51 @@
 name: CI
-on: push
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
 jobs:
   ci:
-    runs-on: ${{ matrix.operating-system }}
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        operating-system: ['ubuntu-22.04']
-        php-versions: ['8.1', '8.2']
-    name: Run CI build
-
+        composer-script:
+          - cs
+          - sa
+          - test
+        php:
+          - "8.3"
+          - "8.4"
+          - "8.5"
+    name: composer run ${{ matrix.composer-script }} / PHP ${{ matrix.php }}
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@v6
+      - uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-versions }}
-          tools: php-cs-fixer
-          extensions: imagick
-
-      - name: PHP version info
-        run: |
-          php -v
-          php -i
-          php -m
-
-      - name: Validate composer files
-        run: composer validate --strict
-
-      - name: Get Composer Cache Directory
-        id: composer-cache-dir
+          php-version: ${{ matrix.php }}
+      - run: composer validate --strict
+      - id: composer-cache-dir
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v3
+      - id: composer-cache
+        uses: actions/cache@v5
         with:
           path: ${{ steps.composer-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Install dependencies
-        run: composer install
-
-      - name: Run unit tests
-        run: vendor/bin/phpunit
-
-      - name: Run static code analysis
-        run: vendor/bin/psalm
-
-      - name: Check coding standard
-        run: PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix --dry-run --diff
+          key: ${{ runner.os }}-php-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+      - run: composer install
+      - run: composer run ${{ matrix.composer-script }}
+  branch-protection:
+    needs:
+      - ci
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Branch protection
+    steps:
+      - if: ${{ needs.ci.result != 'success' }}
+        run: exit 1
+      - run: echo "All checks passed."

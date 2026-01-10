@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace ImboClient\Response;
 
 use Psr\Http\Message\ResponseInterface;
@@ -14,11 +15,11 @@ class ImageProperties extends ApiResponse
 
     public function __construct(string $imageIdentifier, int $originalSize, int $originalWidth, int $originalHeight, string $originalMimeType, string $originalExtension)
     {
-        $this->imageIdentifier   = $imageIdentifier;
-        $this->originalSize      = $originalSize;
-        $this->originalWidth     = $originalWidth;
-        $this->originalHeight    = $originalHeight;
-        $this->originalMimeType  = $originalMimeType;
+        $this->imageIdentifier = $imageIdentifier;
+        $this->originalSize = $originalSize;
+        $this->originalWidth = $originalWidth;
+        $this->originalHeight = $originalHeight;
+        $this->originalMimeType = $originalMimeType;
         $this->originalExtension = $originalExtension;
     }
 
