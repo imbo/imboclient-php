@@ -1,11 +1,12 @@
-=====
+#####
 Usage
-=====
+#####
 
 Below you will find documentation covering most features of the client.
 
+************************
 Instantiating the client
-========================
+************************
 
 For the client to work as expected you will need one or more URLs to the Imbo server, a username, and a public and private key pair.
 
@@ -29,11 +30,12 @@ For the client to work as expected you will need one or more URLs to the Imbo se
 
 If you use multiple URLs when instantiating the client it will choose different image URLs based on the image identifier and the number of available host names. If you have a site which includes a lot of ``<img>`` tags against an Imbo server, using multiple hosts might speed up the loading time for your users. If you don't change the amount of server URLs the client will always pick the same host name given the same image identifier.
 
+******
 Images
-======
+******
 
 Add an image
-------------
+============
 
 The first thing you might want to do is to start adding images. This can be done in several ways:
 
@@ -81,7 +83,7 @@ This is the identifier you will use when generating URLs to the image later on. 
 The ``width`` and ``height`` can differ from the original image if the server has added event listeners that might change incoming images. Some changes that might occur is auto rotating based on EXIF-data embedded into the image, and if a max image size is being enforced by the server.
 
 Get image properties
---------------------
+====================
 
 You can fetch properties of the image by using the ``getImageProperties`` method, specifying the image identifier of an image:
 
@@ -107,7 +109,7 @@ The return value can be used as an associative array, and contains the following
     The mime type of the image.
 
 Delete an image
----------------
+===============
 
 If you want to delete an image from the server, you can use the ``deleteImage`` method:
 
@@ -118,7 +120,7 @@ If you want to delete an image from the server, you can use the ``deleteImage`` 
 where ``'identifier'`` is the value of the ``imageIdentifier`` key of the response returned when adding images.
 
 Check if an image exists on the server
---------------------------------------
+======================================
 
 If you want to see if a local image exists on the server, use the ``imageExists($path)`` method:
 
@@ -132,7 +134,7 @@ If you want to see if a local image exists on the server, use the ``imageExists(
 You can also check for the existence of an image identifier on the server by using the ``imageIdentifierExists($imageIdentifier)`` method.
 
 Get the number of added images
-------------------------------
+==============================
 
 If you want to fetch the number of images owned by the current user you can use the ``getNumImages`` methods:
 
@@ -141,7 +143,7 @@ If you want to fetch the number of images owned by the current user you can use 
     echo 'The user "' . $client->getUser() . '" has ' . $client->getNumImages() . ' images.';
 
 Get the binary image data
--------------------------
+=========================
 
 If you want to fetch the binary data of an image as a string you can use ``getImageData($imageIdentifier)``. If you have an instance of an image URL you can use the ``getImageDataFromUrl(ImboClient\Http\ImageUrl $imageUrl)`` method:
 
@@ -156,7 +158,7 @@ If you want to fetch the binary data of an image as a string you can use ``getIm
 You can read more about the image URLs in the :ref:`imbo-urls` section.
 
 Search for images
------------------
+=================
 
 The client also let's you search for images on the server. This is done via the ``getImages`` method:
 
@@ -216,7 +218,7 @@ The ``getImages`` method can also take a parameter which specifies a query to ex
     Set to true to return metadata attached to the images. Defaults to ``false``. Setting this to ``true`` will make the client include the ``metadata`` element mentioned above in the images in the collection.
 
 ``from($from = null)``
-    Specify a `Unix timestamp <http://en.wikipedia.org/wiki/Unix_timestamp>`_ which represents the oldest image you want returned in the collection. Defaults to ``null``.
+    Specify a `Unix timestamp <http://en.wikipedia.org/wiki/Unix_timestamp>`__ which represents the oldest image you want returned in the collection. Defaults to ``null``.
 
 ``to($to = null)``
     Specify a Unix timestamp which represents the newest image you want returned in the collection. Defaults to ``null``.
@@ -280,9 +282,9 @@ If you want to return metadata, and happen to specify custom fields you will nee
 .. _imbo-urls:
 
 Image transformation URLs
--------------------------
+=========================
 
-Imbo uses access tokens in the URLs to prevent `DoS attacks <http://en.wikipedia.org/wiki/DoS>`_, and the client includes functionality that does this automatically:
+Imbo uses access tokens in the URLs to prevent `DoS attacks <http://en.wikipedia.org/wiki/DoS>`__, and the client includes functionality that does this automatically:
 
 ``getStatusUrl()``
     Fetch a URL to the status endpoint.
@@ -341,7 +343,7 @@ The available transformation methods are:
 * ``vignette($scale = null, $outerColor = null, $innerColor = null)``
 * ``watermark($img = null, $width = null, $height = null, $position = 'top-left', $x = 0, $y = 0)``
 
-Please refer to the `server documentation <http://docs.imbo-project.org/>`_ for details about the image transformations.
+Please refer to the `server documentation <http://docs.imbo-project.org/>`__ for details about the image transformations.
 
 There are also some other methods available:
 
@@ -374,7 +376,7 @@ There are also some other methods available:
 The methods related to the image type (``convert`` and the proxy methods) can be added anywhere in the chain. Otherwise all transformations will be applied to the image in the same order as they appear in the chain.
 
 Short image transformation URLs
--------------------------------
+===============================
 
 To be able to generate short image URLs you can use the ``getShortUrl`` method, and simply specify an instance of the image URL you want to shorten:
 
@@ -396,13 +398,12 @@ If you only want to fetch the short URL ID and not the whole URL you can use the
 
    echo 'Short URL ID: ' . $response['id'];
 
-
-
+********
 Metadata
-========
+********
 
 Get metadata
-------------
+============
 
 Images in Imbo can have metadata attached to them. If you want to fetch this data you can use the ``getMetadata`` method:
 
@@ -420,7 +421,7 @@ Images in Imbo can have metadata attached to them. If you want to fetch this dat
     echo '</dl>';
 
 Update metadata
----------------
+===============
 
 If you have added an image and want to edit its metadata you can use the ``editMetadata`` method:
 
@@ -434,7 +435,7 @@ If you have added an image and want to edit its metadata you can use the ``editM
 This method will partially update existing metadata, and the response contains all metadata attached to the image.
 
 Replace metadata
-----------------
+================
 
 If you want to replace all existing metadata with something else you can use the ``replaceMetadata`` method:
 
@@ -448,7 +449,7 @@ If you want to replace all existing metadata with something else you can use the
 This will first remove existing (if any) metadata, and add the metadata specified as the second parameter. The response contains the metadata of the image, in this case the same as the data being sent to the server.
 
 Delete metadata
----------------
+===============
 
 If you want to remove all metadata attached to an image you can use the ``deleteMetadata`` method:
 
@@ -458,14 +459,15 @@ If you want to remove all metadata attached to an image you can use the ``delete
 
 The response is the existing metadata, which in this case is an empty object.
 
-
+**************
 Error handling
-==============
+**************
 
 Most methods will throw a ``Guzzle\Common\Exception\GuzzleException`` exception if the server responds with an error (as in HTTP 4** or 5**). Some methods might also throw an ``InvalidArgumentException`` exception of the provided parameter to a method is invalid (for instance if you try to add an image and provide a local path to a file that does not exist). Remember to use ``try/catch`` if you want to handle these errors gracefully.
 
+*****************
 Get server status
-=================
+*****************
 
 If you want to get the server status, you can use the ``getServerStatus`` method:
 
@@ -487,8 +489,9 @@ The ``$status`` value above can be used as an associative array, and includes th
 ``(string) message``
     The HTTP response reason phrase.
 
+*********************
 Get server statistics
-=====================
+*********************
 
 If you have access to the server statistics and want to fetch these, you can use the ``getServerStats`` method:
 
@@ -514,8 +517,9 @@ The return value from this method can be used as an associative array, and inclu
 ``(array) custom``
     If the server has configured any custom statistics, these are available in this element.
 
+*************
 Get user info
-=============
+*************
 
 Get some information about the user configured with the client:
 
@@ -534,11 +538,12 @@ The value returned from the ``getUserInfo`` method includes the following elemen
 ``(DateTime) lastModified``
     A ``DateTime`` instance representing when the user last modified any data on the server.
 
+***************
 Resource groups
-===============
+***************
 
 Get resource groups
--------------------
+===================
 
 To retrieve resource groups available on the Imbo server, you can use the ``getResourceGroups`` method:
 
@@ -585,7 +590,7 @@ The ``getResourceGroups`` method can also take a parameter which specifies a que
 .. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
 
 Get specific resource group
----------------------------
+===========================
 
 To retrieve a single resource group, you can use the ``getResourceGroup`` method:
 
@@ -609,7 +614,7 @@ This method will throw an exception if the group name is invalid, already exists
 .. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
 
 Add a resource group
---------------------
+====================
 
 Resource groups can be created using the ``addResourceGroup`` method:
 
@@ -628,7 +633,7 @@ This method will throw an exception if the group name is invalid, already exists
 .. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
 
 Edit a resource group
----------------------
+=====================
 
 Resource groups can be edited using the ``editResourceGroup`` method:
 
@@ -647,7 +652,7 @@ It's important to note that if the resource group with the given name does not a
 .. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
 
 Delete a resource group
------------------------
+=======================
 
 Resource groups can be deleted using the ``deleteResourceGroup`` method:
 
@@ -659,7 +664,7 @@ Resource groups can be deleted using the ``deleteResourceGroup`` method:
 .. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
 
 Check if a resource group exists
---------------------------------
+================================
 
 Calling the ``resourceGroupExists`` method will return whether a resource group exists:
 
@@ -673,11 +678,12 @@ Calling the ``resourceGroupExists`` method will return whether a resource group 
 
 .. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
 
+*********
 Key pairs
-=========
+*********
 
 Creating a new key pair
------------------------
+=======================
 
 Adding new public keys (and an associated private key) can be achieved by using the ``addPublicKey`` method:
 
@@ -692,7 +698,7 @@ This method will throw an exception if the public key name is invalid, already e
 .. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
 
 Editing a key pair
-------------------
+==================
 
 Editing existing public/private key pairs can be achieved by using the ``editPublicKey`` method:
 
@@ -705,7 +711,7 @@ This method will throw an exception if the public key name is invalid or an erro
 .. note:: All the same considerations should be taken as when using the ``addPublicKey`` method - data is sent in plain text, do not use unless you are communicating over HTTPS!
 
 Deleting a key pair
--------------------
+===================
 
 Deleting a public key (and the associated private key) can be achieved by using the ``deletePublicKey`` method:
 
@@ -718,7 +724,7 @@ This method will throw an exception if the public key name is invalid or an erro
 .. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
 
 Check if a public key exists
-----------------------------
+============================
 
 Calling the ``publicKeyExists`` method will return whether a public key exists:
 
@@ -733,7 +739,7 @@ Calling the ``publicKeyExists`` method will return whether a public key exists:
 .. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
 
 Getting list of ACL-rules for a public key
-------------------------------------------
+==========================================
 
 To retrieve a list of the defined access control rules for a given public key, you can use the ``getAccessControlRules`` method:
 
@@ -747,7 +753,7 @@ The return value of this method is a traversable where each element represents a
 
 
 Getting a specific ACL-rule for a public key
---------------------------------------------
+============================================
 
 To retrieve a specific access control rule, you can use the ``getAccessControlRule`` method:
 
@@ -772,7 +778,7 @@ The return value of this method is a collection (accessible as an array), contai
 .. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
 
 Adding ACL-rules for a public key
----------------------------------
+=================================
 
 To add new access control rules, you can use the ``addAccessControlRules``. It accepts an array of ACL-rules:
 
@@ -794,7 +800,7 @@ The ACL-rules you want to create should have the same pattern as documented in `
 .. note:: Not all public keys have (and usually shouldn't have) access to this functionality.
 
 Deleting an ACL-rule for a public key
--------------------------------------
+=====================================
 
 Deleting an access control rule can be achieve by using the ``deleteAccessControlRule`` method:
 
