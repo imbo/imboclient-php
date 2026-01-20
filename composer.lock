@@ -1492,11 +1492,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.33",
+            "version": "2.1.34",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/9e800e6bee7d5bd02784d4c6069b48032d16224f",
-                "reference": "9e800e6bee7d5bd02784d4c6069b48032d16224f",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/070ba754a949fcade788e16e8dc5a5935b7cf2ee",
+                "reference": "070ba754a949fcade788e16e8dc5a5935b7cf2ee",
                 "shasum": ""
             },
             "require": {
@@ -1541,7 +1541,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-12-05T10:24:31+00:00"
+            "time": "2026-01-19T19:52:16+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
@@ -1979,16 +1979,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.5.4",
+            "version": "12.5.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "4ba0e923f9d3fc655de22f9547c01d15a41fc93a"
+                "reference": "ab8e4374264bc65523d1458d14bf80261577e01f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/4ba0e923f9d3fc655de22f9547c01d15a41fc93a",
-                "reference": "4ba0e923f9d3fc655de22f9547c01d15a41fc93a",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/ab8e4374264bc65523d1458d14bf80261577e01f",
+                "reference": "ab8e4374264bc65523d1458d14bf80261577e01f",
                 "shasum": ""
             },
             "require": {
@@ -2002,7 +2002,7 @@
                 "phar-io/manifest": "^2.0.4",
                 "phar-io/version": "^3.2.1",
                 "php": ">=8.3",
-                "phpunit/php-code-coverage": "^12.5.1",
+                "phpunit/php-code-coverage": "^12.5.2",
                 "phpunit/php-file-iterator": "^6.0.0",
                 "phpunit/php-invoker": "^6.0.0",
                 "phpunit/php-text-template": "^5.0.0",
@@ -2056,7 +2056,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.4"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.6"
             },
             "funding": [
                 {
@@ -2080,7 +2080,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-12-15T06:05:34+00:00"
+            "time": "2026-01-16T16:28:10+00:00"
         },
         {
             "name": "psr/container",

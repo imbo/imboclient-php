@@ -51,7 +51,10 @@
     ],
     "cs": "vendor/bin/php-cs-fixer check --diff",
     "cs:fix": "vendor/bin/php-cs-fixer fix --diff",
-    "docs": "cd docs; make html",
+    "docs": [
+      "cd docs; make spelling",
+      "cd docs; make html"
+    ],
     "sa": "vendor/bin/phpstan",
     "test": "vendor/bin/phpunit",
     "test:coverage": "vendor/bin/phpunit --coverage-html build/coverage"
