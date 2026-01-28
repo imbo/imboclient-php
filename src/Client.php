@@ -63,7 +63,7 @@ class Client
             $baseUrls = [$baseUrls];
         }
 
-        $this->baseUrls = array_map(fn (string $url): string => rtrim($url, '/'), $baseUrls);
+        $this->baseUrls = array_map(static fn (string $url): string => rtrim($url, '/'), $baseUrls);
         $this->user = $user;
         $this->publicKey = $publicKey;
         $this->privateKey = $privateKey;

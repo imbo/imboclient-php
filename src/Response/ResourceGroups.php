@@ -41,7 +41,7 @@ class ResourceGroups extends ApiResponse implements Iterator, Countable
         $body = Utils::convertResponseToArray($response);
 
         $resourceGroups = array_map(
-            fn (array $group): ResourceGroup => (new ResourceGroup($group['name'], $group['resources']))->withResponse($response),
+            static fn (array $group): ResourceGroup => (new ResourceGroup($group['name'], $group['resources']))->withResponse($response),
             $body['groups'],
         );
 
