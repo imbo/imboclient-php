@@ -1,18 +1,14 @@
 # Contributing to ImboClient
 
-If you want to contribute to ImboClient please follow the following guidelines.
+If you want to contribute to ImboClient please follow these guidelines.
 
 ## Requirements for local development
 
-## Running tests and static analysis
+You should ideally use PHP 8.3 since that is the lowest supported version. Features added to PHP 8.4 and later MUST NOT be used as long as we want to support 8.3.
 
-[PHPUnit](https://phpunit.de) is used for unit tests. Run the test suite using a composer script:
+The GitHub workflow will run tests / QA on PHP 8.3, 8.4 and 8.5.
 
-    composer run test
-
-[PHPStan](https://phpstan.org/) is used for static code analysis. Run the test suite using a composer script:
-
-    composer run sa
+Refer to [composer.json](../composer.json) for more requirements.
 
 ## Coding standards
 
@@ -24,9 +20,23 @@ You can also have php-cs-fixer automatically fix the issues:
 
     composer run cs:fix
 
+## Running tests and static analysis
+
+[PHPUnit](https://phpunit.de) is used for unit tests. Run the test suite using a composer script:
+
+    composer run test
+
+[PHPStan](https://phpstan.org) is used for static code analysis. Run the test suite using a composer script:
+
+    composer run sa
+
+You can also run all of the above in a single script:
+
+    composer run ci
+
 ## Documentation
 
-ImboClient uses [Sphinx](https://www.sphinx-doc.org/) for end-user documentation. The documentation files resides in the `docs` directory. To generate the current documentation after checking out your fork, run the following command:
+ImboClient uses [Sphinx](https://www.sphinx-doc.org) for end-user documentation. The documentation files resides in the `docs` directory. To generate the current documentation after checking out your fork, run the following command:
 
     composer run docs
 
@@ -54,6 +64,6 @@ public function testSomething(): void
 
 ## Conventional commits
 
-Use [conventional commits](https://www.conventionalcommits.org/) for all commits. When a pull request is merged it will be squashed. There is a commit-msg Git hook script that you can use to validate your commits locally. Enable the script by running the following command:
+Use [conventional commits](https://www.conventionalcommits.org) for all commits. When a pull request is merged it will be squashed. There is a commit-msg Git hook script that you can use to validate your commits locally. Enable the script by running the following command:
 
     ln -s ../../scripts/conventional-commit-msg.sh .git/hooks/commit-msg
