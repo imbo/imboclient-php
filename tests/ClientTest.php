@@ -830,7 +830,7 @@ class ClientTest extends TestCase
     private function getPreviousRequests(int $num): array
     {
         return array_map(
-            fn (array $transaction): Request => $transaction['request'],
+            static fn (array $transaction): Request => $transaction['request'],
             $this->getPreviousTransactions($num),
         );
     }

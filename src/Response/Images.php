@@ -43,7 +43,7 @@ class Images extends ApiResponse implements Iterator, Countable
         $body = Utils::convertResponseToArray($response);
 
         $images = array_map(
-            fn (array $image): Image => (new Image(
+            static fn (array $image): Image => (new Image(
                 $image['imageIdentifier'],
                 $image['checksum'],
                 $image['originalChecksum'],
