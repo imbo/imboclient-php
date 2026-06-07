@@ -21,7 +21,7 @@ class UserTest extends TestCase
         $user = User::fromHttpResponse($response);
         $this->assertSame('user', $user->getUser());
         $this->assertSame(3, $user->getNumImages());
-        $this->assertSame(1632170037, $user->getLastModified()->getTimestamp());
+        $this->assertSame(1_632_170_037, $user->getLastModified()->getTimestamp());
     }
 
     public function testArrayAccess(): void
@@ -41,7 +41,7 @@ class UserTest extends TestCase
         /** @var DateTime */
         $date = $user['lastModified'];
 
-        $this->assertSame(1632170037, $date->getTimestamp());
+        $this->assertSame(1_632_170_037, $date->getTimestamp());
         $this->assertSame('user', $user['user']);
         $this->assertSame(3, $user['numImages']);
     }

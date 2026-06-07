@@ -54,8 +54,8 @@ class ImageTest extends TestCase
         $this->assertSame('checksum', $image['checksum']);
         $this->assertSame('original-checksum', $image['originalChecksum']);
         $this->assertSame('user', $image['user']);
-        $this->assertSame(1632170037, $added->getTimestamp());
-        $this->assertSame(1632170038, $updated->getTimestamp());
+        $this->assertSame(1_632_170_037, $added->getTimestamp());
+        $this->assertSame(1_632_170_038, $updated->getTimestamp());
         $this->assertSame(1, $image['size']);
         $this->assertSame(2, $image['width']);
         $this->assertSame(3, $image['height']);

@@ -35,7 +35,7 @@
     "guzzlehttp/guzzle": "^7.10"
   },
   "require-dev": {
-    "imbo/imbo-coding-standard": "^3.0",
+    "imbo/imbo-coding-standard": "v3.0.9",
     "phpstan/extension-installer": "^1.4",
     "phpstan/phpstan": "^2.1",
     "phpstan/phpstan-deprecation-rules": "^2.0",
