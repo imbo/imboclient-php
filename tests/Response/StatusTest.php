@@ -19,7 +19,7 @@ class StatusTest extends TestCase
             ]),
         ]);
         $status = Status::fromHttpResponse($response);
-        $this->assertSame(1632170037, $status->getDate()->getTimestamp());
+        $this->assertSame(1_632_170_037, $status->getDate()->getTimestamp());
         $this->assertTrue($status->isDatabaseHealthy());
         $this->assertFalse($status->isStorageHealthy());
         $this->assertFalse($status->isHealthy());
@@ -45,7 +45,7 @@ class StatusTest extends TestCase
         /** @var DateTime */
         $date = $status['date'];
 
-        $this->assertSame(1632170037, $date->getTimestamp());
+        $this->assertSame(1_632_170_037, $date->getTimestamp());
         $this->assertTrue($status['database']);
         $this->assertFalse($status['storage']);
     }

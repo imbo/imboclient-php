@@ -28,7 +28,7 @@ class AddedImageTest extends TestCase
         ]);
         $addedImage = AddedImage::fromHttpResponse($response);
         $this->assertSame('image-id', $addedImage->getImageIdentifier());
-        $this->assertSame(1024, $addedImage->getWidth());
+        $this->assertSame(1_024, $addedImage->getWidth());
         $this->assertSame(768, $addedImage->getHeight());
         $this->assertSame('jpg', $addedImage->getExtension());
         $this->assertSame($response, $addedImage->getResponse());
@@ -58,7 +58,7 @@ class AddedImageTest extends TestCase
         $this->assertArrayNotHasKey('foobar', $addedImage);
 
         $this->assertSame('image-id', $addedImage['imageIdentifier']);
-        $this->assertSame(1024, $addedImage['width']);
+        $this->assertSame(1_024, $addedImage['width']);
         $this->assertSame(768, $addedImage['height']);
         $this->assertSame('jpg', $addedImage['extension']);
         $this->assertNull($addedImage['foobar']);
@@ -66,7 +66,7 @@ class AddedImageTest extends TestCase
 
     public function testArrayAccessSetNotSupported(): void
     {
-        $response = new AddedImage('image-id', 1024, 768, 'jpg');
+        $response = new AddedImage('image-id', 1_024, 768, 'jpg');
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Not supported');
@@ -75,7 +75,7 @@ class AddedImageTest extends TestCase
 
     public function testArrayAccessUnsetNotSupported(): void
     {
-        $response = new AddedImage('image-id', 1024, 768, 'jpg');
+        $response = new AddedImage('image-id', 1_024, 768, 'jpg');
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Not supported');
