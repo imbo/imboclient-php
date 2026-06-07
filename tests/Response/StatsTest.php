@@ -20,7 +20,7 @@ class StatsTest extends TestCase
         $stats = Stats::fromHttpResponse($response);
         $this->assertSame(123, $stats->getNumImages());
         $this->assertSame(10, $stats->getNumUsers());
-        $this->assertSame(123123123, $stats->getNumBytes());
+        $this->assertSame(123_123_123, $stats->getNumBytes());
         $this->assertSame(['my-stats' => 200], $stats->getCustomStats());
     }
 
@@ -41,7 +41,7 @@ class StatsTest extends TestCase
 
         $this->assertSame(123, $stats['numImages']);
         $this->assertSame(10, $stats['numUsers']);
-        $this->assertSame(123123123, $stats['numBytes']);
+        $this->assertSame(123_123_123, $stats['numBytes']);
         $this->assertSame(['my-stats' => 200], $stats['custom']);
     }
 }
