@@ -32,7 +32,7 @@
   },
   "require": {
     "php": ">=8.3",
-    "guzzlehttp/guzzle": "^7.10"
+    "guzzlehttp/guzzle": "^8.0"
   },
   "require-dev": {
     "imbo/imbo-coding-standard": "v3.0.10",
